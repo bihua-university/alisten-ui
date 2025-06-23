@@ -147,7 +147,7 @@ export const useWebSocket = () => {
                             title: item.name,
                             artist: item.artist || '未知艺术家',
                             album: item.album.name || '未知专辑',
-                            duration: (item.duration/1000) || 240,
+                            duration: (item.duration / 1000) || 240,
                             cover: item.pictureUrl || `https://picsum.photos/200/200?random=${Date.now()}`,
                             requestedBy: {
                                 id: 0,
@@ -264,8 +264,8 @@ export const useWebSocket = () => {
         setTimeout(() => {
             connect()
         }, 1000)
-    }  
-      // 发送聊天消息
+    }
+    // 发送聊天消息
     const sendChatMessage = (content: string) => {
         // 检查是否为点歌指令
         if (content.trim().startsWith('点歌')) {
@@ -280,16 +280,27 @@ export const useWebSocket = () => {
                     }
                 })
             }
-        }
-        
-        // 普通聊天消息
-        return send({
-            action: '/chat',
-            data: {
-                content,
-                sendTime: Date.now(),
+        } else if (content.trim().startsWith('设置昵称')) {
+            const name = content.trim().substring(4).trim()
+            if (name) {
+                return send({
+                    action: '/setting/name',
+                    data: {
+                        name,
+                        sendTime: Date.now(),
+                    }
+                })
             }
-        })
+        } else {
+            // 普通聊天消息
+            return send({
+                action: '/chat',
+                data: {
+                    content,
+                    sendTime: Date.now(),
+                }
+            })
+        }
     }
     // 发送歌曲点赞
     const sendSongLike = (index: number, name: string) => {
