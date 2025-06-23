@@ -271,7 +271,9 @@
               </button>
             </div>
           </div>
-        </section> <!-- 右侧聊天和用户列表 -->
+        </section> 
+        
+        <!-- 右侧聊天和用户列表 -->
         <aside
           class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:block overflow-hidden flex flex-col">
           <!-- 聊天区域 -->
@@ -289,7 +291,7 @@
                 <div>
                   <div class="flex items-center">
                     <span class="font-medium text-sm">{{ message.user.name }}</span>
-                    <span class="text-xs text-gray-400 ml-2">{{ formatTime(message.timestamp) }}</span>
+                    <span class="text-xs text-gray-400 ml-2">{{ formatTimeHH_MM(message.timestamp) }}</span>
                   </div>
                   <p class="text-sm mt-1">{{ message.content }}</p>
                 </div>
@@ -299,10 +301,10 @@
           <div class="mt-auto">
             <div class="p-3 border-t border-white/10">
               <div class="relative">
-                <input v-model="newMessage" @keyup.enter="() => sendMessage(processedCurrentUser)" type="text"
+                <input v-model="newMessage" @keyup.enter="sendMessage" type="text"
                   placeholder="发送消息..."
                   class="w-full bg-white/10 rounded-full py-2 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-                <button @click="() => sendMessage(processedCurrentUser)"
+                <button @click="sendMessage"
                   class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors">
                   <i class="fa-solid fa-paper-plane"></i>
                 </button>
@@ -328,7 +330,7 @@
                 </h2>
               </div>
               <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 max-h-48">
-                <div v-for="user in processedOnlineUsers" :key="user.id"
+                <div v-for="user in processedOnlineUsers"
                   class="flex items-center p-2 hover:bg-white/5 rounded-lg">
                   <div class="w-8 h-8 rounded-full overflow-hidden relative mr-3">
                     <img :src="user.avatar" :alt="user.name" class="w-full h-full object-cover">
@@ -336,7 +338,6 @@
                     </div>
                   </div>
                   <span class="text-sm">{{ user.name }}</span>
-                  <span v-if="user.isOwner" class="ml-auto text-xs text-primary">房主</span>
                 </div>
               </div>
             </div>
@@ -503,11 +504,11 @@
             </div>
             <div class="p-3 border-t border-white/10">
               <div class="relative">
-                <input v-model="newMessage" @keyup.enter="() => sendMessage(processedCurrentUser)" type="text"
+                <input v-model="newMessage" @keyup.enter="sendMessage" type="text"
                   placeholder="发送消息..."
                   class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
                   maxlength="200">
-                <button @click="() => sendMessage(processedCurrentUser)" :disabled="!newMessage.trim()" :class="['absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target',
+                <button @click="sendMessage" :disabled="!newMessage.trim()" :class="['absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target',
                   newMessage.trim() ? 'text-primary hover:bg-primary/20 active:bg-primary/30' : 'text-gray-500']">
                   <i class="fa-solid fa-paper-plane"></i>
                 </button>
@@ -515,7 +516,9 @@
             </div>
           </div>
         </div>
-      </transition> <!-- 移动端用户列表模态框 -->
+      </transition> 
+      
+      <!-- 移动端用户列表模态框 -->
       <transition name="modal">
         <div v-if="showMobileUsers" class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
           <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showMobileUsers = false"></div>
@@ -544,7 +547,7 @@
             </div>
             <div class="flex-1 overflow-y-auto p-3 smooth-scroll modal-scroll">
               <div class="space-y-2">
-                <div v-for="user in processedOnlineUsers" :key="user.id"
+                <div v-for="user in processedOnlineUsers"
                   class="flex items-center p-3 hover:bg-white/5 rounded-lg active:bg-white/10 transition-all cursor-pointer touch-feedback">
                   <div class="w-10 h-10 rounded-full overflow-hidden relative mr-3 flex-shrink-0">
                     <img :src="user.avatar" :alt="user.name" class="w-full h-full object-cover">
@@ -556,11 +559,6 @@
                     <span class="text-xs text-gray-400">在线</span>
                   </div>
                   <div class="flex items-center space-x-2 flex-shrink-0">
-                    <span v-if="user.isOwner"
-                      class="text-xs text-primary bg-primary/20 px-2 py-1 rounded-full">房主</span>
-                    <button class="text-gray-400 hover:text-white transition-colors touch-target">
-                      <i class="fa-solid fa-ellipsis-v"></i>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -595,13 +593,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, onUnmounted, nextTick, computed } from 'vue'
-import type { User, RoomInfo, MusicSource } from '@/types'
+import type { RoomInfo, MusicSource } from '@/types'
 import { usePlayer } from '@/composables/usePlayer'
 import { useChat } from '@/composables/useChat'
 import { useLyrics } from '@/composables/useLyrics'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { useRoomState } from '@/composables/useRoomState'
-import { formatTime } from '@/utils/time'
+import { formatTime, formatTimeHH_MM } from '@/utils/time'
 import { getAppConfig, validateConfig, logConfig } from '@/utils/config'
 import { processUser, processUsers } from '@/utils/user'
 import VolumeSlider from '@/components/VolumeSlider.vue'
@@ -651,30 +649,12 @@ const audioPlayer = ref<HTMLAudioElement>()
 const lyricsContainer = ref<HTMLElement>()
 const lyricsContent = ref<HTMLElement>()
 
-// 当前用户信息
-const currentUser = ref<User>({
-  id: 1,
-  name: '游客用户',
-  avatar: 'https://picsum.photos/200/200?random=1',
-  status: '点击登录'
-})
-
 // 房间信息
 const roomInfo = ref<RoomInfo>({
   name: '听歌房',
   creator: '音乐达人',
   id: 'room_001'
 })
-
-// 在线用户初始数据
-const initialOnlineUsers: User[] = [
-  {
-    id: 1,
-    name: '音乐达人',
-    avatar: 'https://picsum.photos/200/200?random=7',
-    isOwner: true
-  }
-]
 
 // 音乐来源
 const musicSources = ref<MusicSource[]>([
@@ -700,7 +680,6 @@ const isSearching = ref(false)
 // 使用组合式函数
 const {
   roomState,
-  updateOnlineUsers,
   clearSearchResults,
   setCurrentTime
 } = useRoomState()
@@ -728,7 +707,6 @@ const {
 } = useNotification()
 
 // 处理后的用户数据计算属性
-const processedCurrentUser = computed(() => processUser(currentUser.value))
 const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
 const processedChatMessages = computed(() =>
   chatMessages.value.map(message => ({
@@ -791,9 +769,6 @@ const cancelJoinRoom = () => {
 }
 
 const initializeApp = () => {
-  // 初始化在线用户数据
-  updateOnlineUsers(initialOnlineUsers)
-
   // 设置WebSocket事件监听
   setupWebSocketEvents()
 
@@ -812,22 +787,11 @@ const initializeApp = () => {
 }
 
 // 刷新在线用户列表
-const refreshOnlineUsers = async () => {
-  isRefreshingUsers.value = true
-
-  try {
-    // 模拟网络请求延迟
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    // 模拟刷新用户数据（实际项目中这里会调用API）
-    console.log('刷新在线用户列表')    // 可以在这里添加实际的用户数据获取逻辑
-    // 例如：const users = await fetchOnlineUsers(); updateOnlineUsers(users)
-
-  } catch (error) {
-    console.error('刷新用户列表失败:', error)
-  } finally {
-    isRefreshingUsers.value = false
-  }
+const refreshOnlineUsers = () => {
+  send({
+    action: "/house/houseuser",
+    data: {}
+  })
 }
 
 // 获取连接状态文本
@@ -1060,6 +1024,7 @@ const onAudioError = (event: Event) => {
 // 音频控制方法
 const playAudio = () => {
   if (audioPlayer.value) {
+    audioPlayer.value.volume = volume.value / 100
     audioPlayer.value.play()
   }
 }

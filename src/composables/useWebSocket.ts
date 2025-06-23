@@ -5,18 +5,19 @@ import type {
     ConnectionStatus,
     ChatMessage,
     SearchResult,
-    Song
+    Song,
+    User
 } from '@/types'
 import { useRoomState } from '@/composables/useRoomState'
 import { useLyrics } from '@/composables/useLyrics'
-import { saveNickname, getSavedNickname } from '@/utils/user'
+import { saveNickname, getSavedNickname, processUsers } from '@/utils/user'
 
 export const useWebSocket = () => {
     const ws = ref<WebSocket | null>(null)
     const connectionStatus = ref<ConnectionStatus>('disconnected')
     const isConnecting = ref(false)
     const reconnectAttempts = ref(0)    // 使用共享的房间状态
-    const { roomState, addChatMessage, updateSearchResults, setCurrentSong, setPushTime, updatePlaylist } = useRoomState()
+    const { roomState, addChatMessage, updateSearchResults, setCurrentSong, setPushTime, updatePlaylist, updateOnlineUsers } = useRoomState()
     const { loadLrcLyrics } = useLyrics()
 
     // WebSocket 配置
@@ -82,13 +83,11 @@ export const useWebSocket = () => {
             switch (message.type) {
                 case 'chat':
                     if (message.content) {
-                        console.log('接收到聊天消息:', message.content)
                         const msg: ChatMessage = {
                             id: Date.now(), // 使用时间戳作为唯一ID
                             content: message.content,
                             timestamp: message.sendTime,
                             user: {
-                                id: message.userId || 0,
                                 name: message.nickName || '未知用户',
                                 avatar: message.userAvatar || 'https://picsum.photos/200/200?random=1'
                             }
@@ -131,7 +130,6 @@ export const useWebSocket = () => {
                             cover: item.cover || `https://picsum.photos/200/200?random=${Date.now()}`,
                             duration: item.duration || 240,
                             requestedBy: {
-                                id: 0,
                                 name: '未知用户',
                                 avatar: ''
                             },
@@ -151,12 +149,21 @@ export const useWebSocket = () => {
                             duration: (item.duration / 1000) || 240,
                             cover: item.pictureUrl || `https://picsum.photos/200/200?random=${Date.now()}`,
                             requestedBy: {
-                                id: 0,
                                 name: item.nickName,
                                 avatar: ''
                             },
                         }))
                         updatePlaylist(playlist)
+                    }
+                    break
+
+                case 'house_user':
+                    if (message.data && Array.isArray(message.data)) {
+                        const users: User[] = message.data.map((item: any) => ({
+                            name: item,
+                            avatar: 'https://picsum.photos/200/200?random=1',
+                        }))
+                        updateOnlineUsers(processUsers(users))
                     }
                     break
 

@@ -9,11 +9,11 @@ export const useChat = (websocket?: any) => {
   // 使用共享状态中的聊天消息
   const chatMessages = computed(() => roomState.chatMessages)
 
-  const sendMessage = (currentUser: User) => {
+  const sendMessage = () => {
     if (newMessage.value.trim()) {
       // 如果有WebSocket连接，通过WebSocket发送
       if (websocket && websocket.sendChatMessage) {
-        const success = websocket.sendChatMessage(newMessage.value, currentUser)
+        const success = websocket.sendChatMessage(newMessage.value)
         if (success) {
           // WebSocket发送成功，消息会通过WebSocket事件接收
           newMessage.value = ''

@@ -49,21 +49,6 @@ export const useRoomState = () => {
     setCurrentSong(null)
   }
 
-  // 在线用户相关
-  const addUser = (user: User) => {
-    const exists = roomState.onlineUsers.find(u => u.id === user.id)
-    if (!exists) {
-      roomState.onlineUsers.push(user)
-    }
-  }
-
-  const removeUser = (userId: number) => {
-    const index = roomState.onlineUsers.findIndex(u => u.id === userId)
-    if (index > -1) {
-      roomState.onlineUsers.splice(index, 1)
-    }
-  }
-
   const updateOnlineUsers = (users: User[]) => {
     roomState.onlineUsers = [...users]
   }
@@ -127,8 +112,6 @@ export const useRoomState = () => {
     clearPlaylist,
     
     // 用户操作
-    addUser,
-    removeUser,
     updateOnlineUsers,
     
     // 聊天操作

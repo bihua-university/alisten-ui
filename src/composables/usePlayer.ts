@@ -1,19 +1,55 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { RepeatMode } from '@/types'
 import { useRoomState } from '@/composables/useRoomState'
 
+// 从本地存储读取音量设置
+const getStoredVolume = (): number => {
+  try {
+    const stored = localStorage.getItem('VOLUME')
+    if (stored !== null) {
+      const volume = parseInt(stored, 10)
+      return isNaN(volume) ? 75 : Math.max(0, Math.min(100, volume))
+    }
+  } catch (error) {
+    console.warn('无法读取本地存储的音量设置:', error)
+  }
+  return 75 // 默认音量
+}
+
+// 从本地存储读取静音状态
+const getStoredMuteState = (): boolean => {
+  return localStorage.getItem('MUTE') === 'true'
+}
+
+// 保存音量到本地存储
+const saveVolumeToStorage = (volume: number) => {
+  localStorage.setItem('VOLUME', volume.toString())
+}
+
+// 保存静音状态到本地存储
+const saveMuteStateToStorage = (isMuted: boolean) => {
+  localStorage.setItem('MUTE', isMuted.toString())
+}
+
 export const usePlayer = () => {
-  const { 
-    roomState, 
+  const {
+    roomState,
   } = useRoomState()
-  
-  const isShuffled = ref(false)
-  const repeatMode = ref<RepeatMode>('none')
-  const volume = ref(75)
-  const isMuted = ref(false)
+  const volume = ref(getStoredVolume())
+  const isMuted = ref(getStoredMuteState())
   const skipMessage = ref('')
   const showSkipMessage = ref(false)
   const isSkipping = ref(false)
+
+  // 监听音量变化，自动保存到本地存储
+  watch(volume, (newVolume) => {
+    saveVolumeToStorage(newVolume)
+  })
+
+  // 监听静音状态变化，自动保存到本地存储
+  watch(isMuted, (newMuteState) => {
+    saveMuteStateToStorage(newMuteState)
+  })
 
   // 使用共享状态中的数据
   const currentSong = computed(() => roomState.currentSong)
@@ -37,15 +73,6 @@ export const usePlayer = () => {
     }
   }
 
-  const toggleShuffle = () => {
-    isShuffled.value = !isShuffled.value
-  }
-
-  const toggleRepeat = () => {
-    const modes: RepeatMode[] = ['none', 'all', 'one']
-    const currentIndex = modes.indexOf(repeatMode.value)
-    repeatMode.value = modes[(currentIndex + 1) % modes.length]
-  }
   const toggleMute = () => {
     isMuted.value = !isMuted.value
   }
@@ -60,18 +87,14 @@ export const usePlayer = () => {
       isSkipping.value = false
     }, 1000)
   }
-  
+
   return {
     currentTime,
-    isShuffled,
-    repeatMode,
     volume,
     isMuted,
     currentSong,
     progressPercentage,
     setVolume,
-    toggleShuffle,
-    toggleRepeat,
     toggleMute,
     showSkipSong,
     skipMessage,

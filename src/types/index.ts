@@ -13,11 +13,8 @@ export interface Song {
 export type ReadonlySong = Readonly<Omit<Song, 'likedBy'>> & { readonly likedBy: readonly number[] }
 
 export interface User {
-  id: number
   name: string
   avatar: string
-  status?: string
-  isOwner?: boolean
 }
 
 export interface ChatMessage {
