@@ -1,5 +1,4 @@
 import { ref, computed, watch } from 'vue'
-import type { RepeatMode } from '@/types'
 import { useRoomState } from '@/composables/useRoomState'
 
 // 从本地存储读取音量设置

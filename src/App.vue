@@ -90,8 +90,8 @@
             </button>
           </div>
         </div>
-      </transition>      <!-- 主内容区 -->
-      <main :class="['flex', isImmersiveMode ? 'h-screen' : 'h-[calc(100vh)]']"> 
+      </transition> <!-- 主内容区 -->
+      <main :class="['flex', isImmersiveMode ? 'h-screen' : 'h-[calc(100vh)]']">
         <!-- 左侧播放列表 -->
         <aside v-if="!isImmersiveMode"
           class="w-72 bg-dark/60 backdrop-blur-xl border-r border-white/10 hidden md:block overflow-y-auto scrollbar-hide">
@@ -128,8 +128,8 @@
               </div>
             </div>
           </div>
-        </aside>        <!-- 中间歌词区域 -->
-        <section class="flex-1 flex flex-col overflow-hidden relative"> 
+        </aside> <!-- 中间歌词区域 -->
+        <section class="flex-1 flex flex-col overflow-hidden relative">
           <!-- 房间信息 -->
           <div v-if="!isImmersiveMode"
             class="p-3 sm:p-4 border-b border-white/10 flex flex-col sm:flex-row sm:justify-between sm:items-center glass-effect bg-dark/70 backdrop-blur-xl space-y-2 sm:space-y-0">
@@ -173,7 +173,7 @@
                 <i class="fa-solid fa-share mr-1 sm:mr-2"></i>
                 <span class="hidden sm:inline">分享</span>
                 <span class="sm:hidden">分享</span>
-              </button>              <!-- 帮助 -->
+              </button> <!-- 帮助 -->
               <button @click="showHelp = true"
                 class="bg-green-500/20 hover:bg-green-500/30 active:bg-green-500/40 text-green-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target">
                 <i class="fa-solid fa-question-circle mr-1 sm:mr-2"></i>
@@ -189,10 +189,11 @@
                 <span class="sm:hidden">{{ isImmersiveMode ? '退出' : '沉浸' }}</span>
               </button>
             </div>
-          </div>          <!-- 歌词显示区域 -->
-          <div ref="lyricsContainer"
-            :class="['lyrics-container overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide',
-              isImmersiveMode ? 'flex-1 pt-8 pb-8' : 'flex-1']">
+          </div>
+
+          <!-- 歌词显示区域 -->
+          <div ref="lyricsContainer" v-if="!isImmersiveMode"
+            class="lyrics-container overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide flex-1">
             <!-- 切歌提示消息 -->
             <transition name="modal">
               <div v-if="showSkipMessage" class="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
@@ -201,54 +202,144 @@
                   <i class="fa-solid fa-forward mr-2"></i>{{ skipMessage }}
                 </div>
               </div>
-            </transition>            <div ref="lyricsContent"
-              :class="['lyrics-content mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4',
-                isImmersiveMode ? 'max-w-4xl mt-16' : 'max-w-2xl']">              <div v-for="(line, index) in roomState.currentLyrics" :key="index" :class="['lyric-line transition-all duration-300',
-                { 
+            </transition>
+
+            <div ref="lyricsContent"
+              class="lyrics-content mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4 max-w-2xl">
+              <div v-for="(line, index) in roomState.currentLyrics" :key="index" :class="['lyric-line transition-all duration-300',
+                {
                   'active text-white font-medium mb-3 mt-3': index === roomState.currentLyricIndex,
                   'text-gray-400 mb-1': index !== roomState.currentLyricIndex,
-                  // 沉浸模式下的歌词大小
-                  'text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl leading-relaxed': isImmersiveMode && index === roomState.currentLyricIndex,
-                  'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': !isImmersiveMode && index === roomState.currentLyricIndex,
-                  'text-sm sm:text-base md:text-lg': !isImmersiveMode && index !== roomState.currentLyricIndex,
-                  'text-base sm:text-lg md:text-xl': isImmersiveMode && index !== roomState.currentLyricIndex
+                  'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': index === roomState.currentLyricIndex,
+                  'text-sm sm:text-base md:text-lg': index !== roomState.currentLyricIndex
                 }]">
                 {{ line.text }}
-              </div>              <!-- 当没有歌词时的占位符 -->
+              </div>
+
+              <!-- 当没有歌词时的占位符 -->
               <div v-if="roomState.currentLyrics.length === 0" class="text-gray-400 py-8">
                 <i class="fa-solid fa-music text-4xl mb-4 opacity-50"></i>
                 <p class="text-sm">暂无歌词</p>
               </div>
             </div>
-          </div>
+          </div> <!-- 沉浸模式 - 全新设计 -->
+          <div v-if="isImmersiveMode"
+            class="flex-1 flex items-center justify-center p-8 relative overflow-hidden immersive-mode">
+            <!-- 背景模糊效果 -->
+            <div class="absolute inset-0 bg-gradient-to-br from-dark/90 via-dark/80 to-dark/90 backdrop-blur-3xl"></div>
 
-          <!-- 沉浸模式下的浮动操作面板 -->
+            <!-- 专辑封面背景 -->
+            <div class="absolute inset-0 opacity-30">
+              <img :src="roomState.currentSong?.cover" :alt="roomState.currentSong?.title"
+                class="w-full h-full object-cover blur-3xl scale-110 transform">
+            </div>
+
+            <!-- 切歌提示消息 -->
+            <transition name="modal">
+              <div v-if="showSkipMessage" class="absolute top-8 left-1/2 transform -translate-x-1/2 z-20">
+                <div
+                  class="bg-orange-500/90 text-white px-6 py-3 rounded-full text-lg font-medium shadow-2xl backdrop-blur-sm">
+                  <i class="fa-solid fa-forward mr-3"></i>{{ skipMessage }}
+                </div>
+              </div>
+            </transition>
+
+            <!-- 主要内容区域 -->
+            <div class="relative z-10 w-full max-w-6xl mx-auto">
+              <div class="immersive-grid grid lg:grid-cols-2 gap-12 items-center">
+
+                <!-- 左侧：专辑信息区域 -->
+                <div class="flex flex-col items-center lg:items-start space-y-8">
+                  <!-- 专辑封面 -->
+                  <div class="relative group">
+                    <div
+                      class="w-80 h-80 lg:w-96 lg:h-96 rounded-3xl overflow-hidden shadow-2xl transform transition-all duration-500">
+                      <img :src="roomState.currentSong?.cover" :alt="roomState.currentSong?.title"
+                        class="w-full h-full">
+                    </div>
+                  </div>
+
+                  <!-- 歌曲信息 -->
+                  <div class="text-center lg:text-left space-y-4 w-80 lg:w-96">
+                    <div>
+                      <h1 class="immersive-title text-2xl lg:text-4xl font-bold text-white mb-2 leading-tight">
+                        {{ roomState.currentSong?.title || '暂无歌曲' }}
+                      </h1>
+                      <p class="immersive-artist relative py-3 text-xl lg:text-2xl text-gray-300">
+                        {{ roomState.currentSong?.artist }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 右侧：歌词区域 -->
+                <div class="flex flex-col h-96 lg:h-[600px]">
+                  <div ref="immersiveLyricsContainer"
+                    class="flex-1 overflow-y-auto immersive-lyrics-container mx-auto text-center space-y-1 sm:px-4 max-w-2xl">
+                    <div class="space-y-6 pr-4">
+                      <div v-for="(line, index) in roomState.currentLyrics" :key="index" :class="['lyric-line transition-all duration-300',
+                        {
+                          'active text-white font-medium mb-3 mt-3': index === roomState.currentLyricIndex,
+                          'text-gray-400 mb-1': index !== roomState.currentLyricIndex,
+                          'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': index === roomState.currentLyricIndex,
+                          'text-sm sm:text-base md:text-lg': index !== roomState.currentLyricIndex
+                        }]">
+                        {{ line.text }}
+                      </div>
+
+                      <!-- 当没有歌词时的占位符 -->
+                      <div v-if="roomState.currentLyrics.length === 0" class="text-center text-gray-400 py-16">
+                        <i class="fa-solid fa-music text-6xl mb-6 opacity-50"></i>
+                        <p class="text-xl">暂无歌词</p>
+                        <p class="text-sm mt-2 opacity-75">享受纯音乐的美好</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+              <!-- 进度条 -->
+              <div h-3></div>
+              <div class="space-y-3 py-3">
+                <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                  <div class="immersive-progress h-full rounded-full transition-all duration-300"
+                    :style="{ width: calculatedProgressPercentage + '%' }"></div>
+                </div>
+                <div class="flex justify-between text-sm text-gray-400">
+                  <span>{{ formatTime(roomState?.currentTime || 0) }}</span>
+                  <span>{{ formatTime((roomState.currentSong?.duration || 0) / 1000) }}</span>
+                </div>
+              </div>
+            </div>
+          </div><!-- 沉浸模式下的浮动操作面板 -->
           <transition name="fade">
-            <div v-if="isImmersiveMode" class="fixed top-4 right-4 z-30 flex flex-col space-y-2">
+            <div v-if="isImmersiveMode" class="fixed top-6 right-6 z-30 flex flex-col space-y-3">
               <!-- 退出沉浸模式 -->
               <button @click="toggleImmersiveMode"
-                class="bg-dark/80 backdrop-blur-md border border-white/10 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-white/10 transition-all shadow-lg touch-target"
+                class="w-12 h-12 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-black/60 transition-all shadow-xl touch-target group"
                 title="退出沉浸模式 (F键或ESC键)">
-                <i class="fa-solid fa-compress text-lg"></i>
+                <i class="fa-solid fa-compress text-lg group-hover:scale-110 transition-transform"></i>
               </button>
-              
-              <!-- 切歌按钮 -->
-              <button @click="skipSong" :disabled="isSkipping" 
-                :class="['bg-dark/80 backdrop-blur-md border border-white/10 text-orange-400 rounded-full w-12 h-12 flex items-center justify-center hover:bg-orange-500/20 transition-all shadow-lg touch-target',
-                  { 'opacity-50 cursor-not-allowed': isSkipping }]"
-                title="切歌">
-                <i :class="isSkipping ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-forward'"></i>
+
+              <!-- 帮助按钮 -->
+              <button @click="showHelp = true"
+                class="w-12 h-12 bg-black/40 backdrop-blur-md border border-white/20 text-green-400 rounded-full flex items-center justify-center hover:bg-green-500/20 transition-all shadow-xl touch-target group"
+                title="帮助">
+                <i class="fa-solid fa-question-circle text-lg group-hover:scale-110 transition-transform"></i>
               </button>
             </div>
-          </transition><!-- 进度条 -->
+          </transition><!-- 进度条 - 仅非沉浸模式 -->
           <div v-if="!isImmersiveMode"
             class="h-3 md:h-1 bg-white/10 rounded-full overflow-hidden cursor-pointer progress-bar relative hidden md:block">
             <div class="h-full bg-primary rounded-full transition-all duration-300"
               :style="{ width: calculatedProgressPercentage + '%' }">
             </div>
-          </div>          <!-- 播放信息 -->          <div :class="['glass-effect bg-dark/80 backdrop-blur-xl',
-            isImmersiveMode ? 'fixed bottom-0 left-0 right-0 z-20 border-t border-white/10' : 'p-3 sm:p-4']">
-            <div :class="['flex items-center', isImmersiveMode ? 'p-4' : '']">
+          </div>
+
+          <!-- 播放信息 - 仅非沉浸模式 -->
+          <div v-if="!isImmersiveMode" class="glass-effect bg-dark/80 backdrop-blur-xl p-3 sm:p-4">
+            <div class="flex items-center">
               <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden mr-3 sm:mr-4 flex-shrink-0">
                 <img :src="roomState.currentSong?.cover" :alt="roomState.currentSong?.title"
                   class="w-full h-full object-cover">
@@ -259,7 +350,7 @@
                   roomState.currentSong?.album ?
                     ' - ' + roomState.currentSong?.album : '' }}</p>
               </div>
-              <div class="flex flex-col items-center space-x-2 sm:space-x-3 flex-shrink-0"> 
+              <div class="flex flex-col items-center space-x-2 sm:space-x-3 flex-shrink-0">
                 <!-- 进度条 -->
                 <div class="relative ml-auto">
                   <div class="flex justify-between text-xs text-gray-400 mt-1">
@@ -273,7 +364,7 @@
                 </div>
               </div>
             </div>
-          </div>          <!-- 移动端底部导航 -->
+          </div> <!-- 移动端底部导航 -->
           <div v-if="!isImmersiveMode" class="left-0 right-0 bg-dark/50 backdrop-blur-md z-30 md:hidden">
             <div class="flex justify-around items-center py-2 px-2">
               <button @click="showSongQueue = true"
@@ -298,7 +389,7 @@
               </button>
             </div>
           </div>
-        </section>        
+        </section>
         <!-- 右侧聊天和用户列表 -->
         <aside v-if="!isImmersiveMode"
           class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:block overflow-hidden flex flex-col">
@@ -310,7 +401,7 @@
               </h2>
             </div>
             <div ref="chatMessages" class="chat-messages flex-1 overflow-y-auto p-3 space-y-4 scrollbar-hide">
-              <div v-for="message in processedChatMessages" :key="message.id" class="flex items-start">
+              <div v-for="message in processedChatMessages" class="flex items-start">
                 <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
                   <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
                 </div>
@@ -327,8 +418,7 @@
           <div class="mt-auto">
             <div class="p-3 border-t border-white/10">
               <div class="relative">
-                <input v-model="newMessage" @keyup.enter="sendMessage" type="text"
-                  placeholder="发送消息..."
+                <input v-model="newMessage" @keyup.enter="sendMessage" type="text" placeholder="发送消息..."
                   class="w-full bg-white/10 rounded-full py-2 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
                 <button @click="sendMessage"
                   class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors">
@@ -356,8 +446,7 @@
                 </h2>
               </div>
               <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 max-h-48">
-                <div v-for="user in processedOnlineUsers"
-                  class="flex items-center p-2 hover:bg-white/5 rounded-lg">
+                <div v-for="user in processedOnlineUsers" class="flex items-center p-2 hover:bg-white/5 rounded-lg">
                   <div class="w-8 h-8 rounded-full overflow-hidden relative mr-3">
                     <img :src="user.avatar" :alt="user.name" class="w-full h-full object-cover">
                     <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-dark">
@@ -514,7 +603,7 @@
               </button>
             </div>
             <div ref="mobileChatMessages" class="flex-1 overflow-y-auto p-3 space-y-3 smooth-scroll modal-scroll">
-              <div v-for="message in processedChatMessages" :key="message.id" class="flex items-start space-x-3">
+              <div v-for="message in processedChatMessages" class="flex items-start space-x-3">
                 <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                   <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
                 </div>
@@ -530,8 +619,7 @@
             </div>
             <div class="p-3 border-t border-white/10">
               <div class="relative">
-                <input v-model="newMessage" @keyup.enter="sendMessage" type="text"
-                  placeholder="发送消息..."
+                <input v-model="newMessage" @keyup.enter="sendMessage" type="text" placeholder="发送消息..."
                   class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
                   maxlength="200">
                 <button @click="sendMessage" :disabled="!newMessage.trim()" :class="['absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target',
@@ -542,8 +630,8 @@
             </div>
           </div>
         </div>
-      </transition> 
-      
+      </transition>
+
       <!-- 移动端用户列表模态框 -->
       <transition name="modal">
         <div v-if="showMobileUsers" class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
@@ -594,7 +682,7 @@
       </transition>
 
       <!-- 通知容器 -->
-      <NotificationContainer />      <!-- WebSocket 连接配置显示（开发环境） -->
+      <NotificationContainer /> <!-- WebSocket 连接配置显示（开发环境） -->
       <div v-if="isDevelopment && !isImmersiveMode" class="fixed bottom-4 right-4 z-40">
         <div class="bg-black/80 text-white text-xs p-2 rounded backdrop-blur-sm max-w-xs">
           <div class="font-medium mb-1">WebSocket 配置</div>
@@ -673,6 +761,7 @@ const audioPlayer = ref<HTMLAudioElement>()
 // 歌词容器引用
 const lyricsContainer = ref<HTMLElement>()
 const lyricsContent = ref<HTMLElement>()
+const immersiveLyricsContainer = ref<HTMLElement>()
 
 // 房间信息
 const roomInfo = ref<RoomInfo>({
@@ -696,6 +785,13 @@ const musicSources = ref<MusicSource[]>([
     icon: 'fa-brands fa-qq',
     color: '#31c27c',
     description: '海量正版音乐'
+  },
+  {
+    id: 'db',
+    name: 'bilibili',
+    icon: 'fa-solid fa-tv',
+    color: '#00a2d8',
+    description: 'B站音乐',
   },
 ])
 
@@ -747,13 +843,10 @@ const processedPlaylist = computed(() =>
 )
 
 // 歌词自动滚动功能
-const scrollLyricsToCenter = (index: number) => {
-  if (!lyricsContainer.value || !lyricsContent.value) return
+const scrollLyricsToCenter = (container: HTMLElement | undefined, index: number) => {
+  if (!container) return
 
-  const container = lyricsContainer.value
-  const content = lyricsContent.value
-  const lyricLines = content.querySelectorAll('.lyric-line')
-
+  const lyricLines = container.querySelectorAll('.lyric-line')
   if (lyricLines[index]) {
     const targetLine = lyricLines[index] as HTMLElement
     const containerHeight = container.clientHeight
@@ -932,7 +1025,11 @@ watch(() => roomState.currentLyricIndex, (newIndex) => {
   if (newIndex >= 0 && roomState.currentLyrics.length > 0) {
     // 延迟执行滚动，确保DOM更新完成
     nextTick(() => {
-      scrollLyricsToCenter(newIndex)
+      if (isImmersiveMode.value) {
+        scrollLyricsToCenter(immersiveLyricsContainer.value, newIndex)
+      } else {
+        scrollLyricsToCenter(lyricsContainer.value, newIndex)
+      }
     })
   }
 })
@@ -1080,7 +1177,7 @@ const handleMuteToggle = (muted: boolean) => {
 onMounted(() => {
   // 页面挂载时不立即初始化，等待用户确认
   console.log('页面已加载，等待用户确认加入房间')
-  
+
   // 添加键盘事件监听
   document.addEventListener('keydown', handleKeyDown)
 })
@@ -1095,7 +1192,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
       toggleImmersiveMode()
     }
   }
-  
+
   // 按 Escape 键退出沉浸模式
   if (event.key === 'Escape' && isImmersiveMode.value) {
     event.preventDefault()
@@ -1146,6 +1243,21 @@ onUnmounted(() => {
 
 .lyrics-container::-webkit-scrollbar-thumb:hover {
   background: rgba(79, 70, 229, 0.8);
+}
+
+/* 沉浸模式歌词容器样式 */
+.immersive-lyrics-container {
+  scroll-behavior: smooth;
+  /* 隐藏滚动条 */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+}
+
+.immersive-lyrics-container::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 /* 模态框动画 */

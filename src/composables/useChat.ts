@@ -1,5 +1,5 @@
 import { ref, nextTick, computed } from 'vue'
-import type { ChatMessage, User } from '@/types'
+import type { ChatMessage } from '@/types'
 import { useRoomState } from '@/composables/useRoomState'
 
 export const useChat = (websocket?: any) => {

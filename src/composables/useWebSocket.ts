@@ -72,106 +72,172 @@ export const useWebSocket = () => {
             console.warn('WebSocket 未连接，消息发送失败:', message)
             return false
         }
+    }    // 消息处理器类型定义
+    interface MessageTypeHandler {
+        type: string
+        handler: (message: any) => void
+    }
+
+    // 自动滚动聊天容器到底部
+    const scrollChatToBottom = () => {
+        nextTick(() => {
+            const chatContainer = document.querySelector('.chat-messages')
+            if (chatContainer) {
+                chatContainer.scrollTop = chatContainer.scrollHeight
+            }
+        })
+    }
+
+    // 获取默认头像
+    const getDefaultAvatar = (seed?: string | number): string => {
+        const randomSeed = seed || Date.now()
+        return `https://picsum.photos/200/200?random=${randomSeed}`
+    }
+
+    // 消息类型处理器
+    const messageTypeHandlers: MessageTypeHandler[] = [
+        {
+            type: 'chat',
+            handler: (message: any) => {
+                if (!message.content) {
+                    console.warn('收到空的聊天消息')
+                    return
+                }
+
+                const msg: ChatMessage = {
+                    content: message.content,
+                    timestamp: message.sendTime || Date.now(),
+                    user: {
+                        name: message.nickName || '未知用户',
+                        avatar: message.userAvatar || getDefaultAvatar(1)
+                    }
+                }
+
+                addChatMessage(msg)
+                scrollChatToBottom()
+            }
+        },
+        {
+            type: 'music',
+            handler: (message: any) => {
+                if (!message.id || !message.name) {
+                    console.warn('收到不完整的音乐消息:', message)
+                    return
+                }
+
+                const music: Song = {
+                    id: message.id,
+                    url: message.url || '',
+                    title: message.name,
+                    artist: message.artist || '未知艺术家',
+                    album: message.album?.name || '未知专辑',
+                    duration: message.duration || 0,
+                    cover: message.pictureUrl || getDefaultAvatar(message.id),
+                }
+
+                setCurrentSong(music)
+                setPushTime(message.pushTime || Date.now())
+                loadLrcLyrics(message.lyric || '')
+            }
+        },
+        {
+            type: 'search',
+            handler: (message: any) => {
+                if (!message.data || !Array.isArray(message.data)) {
+                    console.warn('收到无效的搜索结果:', message)
+                    return
+                }
+
+                const results: SearchResult[] = message.data
+                    .filter((item: any) => item && item.id && item.name) // 过滤无效数据
+                    .map((item: any) => ({
+                        id: item.id,
+                        title: item.name,
+                        artist: item.artist || '未知艺术家',
+                        album: item.album?.name || '未知专辑',
+                        cover: item.cover || getDefaultAvatar(item.id),
+                        duration: item.duration || 240,
+                        requestedBy: {
+                            name: item.requestedBy?.name || '未知用户',
+                            avatar: item.requestedBy?.avatar || getDefaultAvatar()
+                        },
+                    }))
+
+                updateSearchResults(results)
+            }
+        },
+        {
+            type: 'pick',
+            handler: (message: any) => {
+                if (!message.data || !Array.isArray(message.data)) {
+                    console.warn('收到无效的播放列表:', message)
+                    return
+                }
+
+                const playlist: Song[] = message.data
+                    .filter((item: any) => item && item.name) // 过滤无效数据
+                    .map((item: any) => ({
+                        id: item.id,
+                        url: item.url || '',
+                        title: item.name,
+                        artist: item.artist || '未知艺术家',
+                        album: item.album?.name || '未知专辑',
+                        duration: item.duration ? (item.duration / 1000) : 240,
+                        cover: item.pictureUrl || getDefaultAvatar(item.id),
+                        requestedBy: {
+                            name: item.nickName || '未知用户',
+                            avatar: getDefaultAvatar()
+                        },
+                    }))
+
+                updatePlaylist(playlist)
+            }
+        },
+        {
+            type: 'house_user',
+            handler: (message: any) => {
+                if (!message.data || !Array.isArray(message.data)) {
+                    console.warn('收到无效的用户列表:', message)
+                    return
+                }
+
+                const users: User[] = message.data
+                    .filter((item: any) => item && typeof item === 'string') // 确保是字符串类型
+                    .map((item: string) => ({
+                        name: item,
+                        avatar: getDefaultAvatar(1),
+                    }))
+
+                updateOnlineUsers(processUsers(users))
+            }
+        }
+    ]
+
+    // 处理具体消息类型
+    const handleMessageByType = (messageType: string, message: any) => {
+        messageTypeHandlers.find(h => h.type === messageType)?.handler(message)
     }
 
     // 处理接收到的消息
     const handleMessage = (event: MessageEvent) => {
         try {
-            const message = JSON.parse(event.data)
-
-            // 根据消息类型处理
-            switch (message.type) {
-                case 'chat':
-                    if (message.content) {
-                        const msg: ChatMessage = {
-                            id: Date.now(), // 使用时间戳作为唯一ID
-                            content: message.content,
-                            timestamp: message.sendTime,
-                            user: {
-                                name: message.nickName || '未知用户',
-                                avatar: message.userAvatar || 'https://picsum.photos/200/200?random=1'
-                            }
-                        }
-                        addChatMessage(msg)
-                        // 自动滚动到底部
-                        nextTick(() => {
-                            const chatContainer = document.querySelector('.chat-messages')
-                            if (chatContainer) {
-                                chatContainer.scrollTop = chatContainer.scrollHeight
-                            }
-                        })
-                    }
-                    break
-
-                case 'music':
-                    console.log('接收到音乐消息:', message)
-                    const music: Song = {
-                        id: message.id,
-                        url: message.url,
-                        title: message.name,
-                        artist: message.artist || '未知艺术家',
-                        album: message.album?.name || '未知专辑',
-                        duration: message.duration,
-                        cover: message.pictureUrl,
-                    }
-                    setCurrentSong(music)                    // 设置服务器下发音乐的时间
-                    setPushTime(message.pushTime || Date.now())
-                    loadLrcLyrics(message.lyric || '')
-                    break
-
-                case 'search':
-                    if (message.data && Array.isArray(message.data)) {
-                        console.log('接收到搜索结果:', message.data)
-                        const results: SearchResult[] = message.data.map((item: any) => ({
-                            id: item.id,
-                            title: item.name,
-                            artist: item.artist || '未知艺术家',
-                            album: item.album.name || '未知专辑',
-                            cover: item.cover || `https://picsum.photos/200/200?random=${Date.now()}`,
-                            duration: item.duration || 240,
-                            requestedBy: {
-                                name: '未知用户',
-                                avatar: ''
-                            },
-                        }))
-                        updateSearchResults(results)
-                    }
-                    break
-
-                case 'pick': // playlist
-                    if (message.data && Array.isArray(message.data)) {
-                        console.log('接收到播放列表:', message.data)
-                        const playlist: Song[] = message.data.map((item: any) => ({
-                            url: '',
-                            title: item.name,
-                            artist: item.artist || '未知艺术家',
-                            album: item.album.name || '未知专辑',
-                            duration: (item.duration / 1000) || 240,
-                            cover: item.pictureUrl || `https://picsum.photos/200/200?random=${Date.now()}`,
-                            requestedBy: {
-                                name: item.nickName,
-                                avatar: ''
-                            },
-                        }))
-                        updatePlaylist(playlist)
-                    }
-                    break
-
-                case 'house_user':
-                    if (message.data && Array.isArray(message.data)) {
-                        const users: User[] = message.data.map((item: any) => ({
-                            name: item,
-                            avatar: 'https://picsum.photos/200/200?random=1',
-                        }))
-                        updateOnlineUsers(processUsers(users))
-                    }
-                    break
-
-                default:
-                    console.log('未处理的消息类型:', message.type, message.data)
+            // 验证消息格式
+            if (!event.data) {
+                console.warn('收到空的消息数据')
+                return
             }
+
+            const message = JSON.parse(event.data)
+            if (!message || typeof message !== 'object' || !message.type) {
+                console.warn('收到无效的消息格式:', event.data)
+                return
+            }
+
+            // 处理消息
+            handleMessageByType(message.type, message)
         } catch (error) {
-            console.error('解析 WebSocket 消息失败:', error, event.data)
+            console.error('处理 WebSocket 消息时发生错误:', error, event.data)
+            emit('error', { error, message: '处理 WebSocket 消息失败' })
         }
     }
     // 连接 WebSocket
@@ -203,14 +269,13 @@ export const useWebSocket = () => {
                 // 连接成功后，发送保存的昵称
                 const savedNickname = getSavedNickname()
                 if (savedNickname) {
-                    console.log('发送保存的昵称:', savedNickname)
-                      send({
-                          action: '/setting/name',
-                          data: {
-                              name: savedNickname,
-                              sendTime: Date.now(),
-                          }
-                      })
+                    send({
+                        action: '/setting/name',
+                        data: {
+                            name: savedNickname,
+                            sendTime: Date.now(),
+                        }
+                    })
                 }
             }
 
@@ -285,46 +350,93 @@ export const useWebSocket = () => {
             connect()
         }, 1000)
     }
-    // 发送聊天消息
-    const sendChatMessage = (content: string) => {
-        // 检查是否为点歌指令
-        if (content.trim().startsWith('点歌')) {
-            const songName = content.trim().substring(2).trim()
-            if (songName) {
-                // 发送搜索指令
+
+    // 命令处理器类型定义
+    interface CommandHandler {
+        prefix: string
+        handler: (args: string) => boolean | void
+    }
+
+    // 命令处理器
+    const commandHandlers: CommandHandler[] = [
+        {
+            prefix: '点歌',
+            handler: (args: string) => {
+                if (!args) {
+                    return false
+                }
+
+                console.log('发送点歌请求:', args)
                 return send({
                     action: '/music/pick',
                     data: {
-                        name: songName,
+                        name: args,
                         source: 'wy', // 默认使用网易云音乐
                     }
                 })
             }
-        } else if (content.trim().startsWith('设置昵称')) {
-            const name = content.trim().substring(4).trim()
-            if (name) {
+        },
+        {
+            prefix: '设置昵称',
+            handler: (args: string) => {
+                if (!args) {
+                    return false
+                }
                 // 保存昵称到本地存储
-                saveNickname(name)
-                console.log('昵称已保存到本地存储:', name)
-                
+                saveNickname(args)
                 return send({
                     action: '/setting/name',
                     data: {
-                        name,
+                        name: args,
                         sendTime: Date.now(),
                     }
                 })
             }
-        }else {
-            // 普通聊天消息
-            return send({
-                action: '/chat',
-                data: {
-                    content,
-                    sendTime: Date.now(),
-                }
-            })
         }
+    ]
+
+    // 处理命令消息
+    const handleCommand = (content: string): boolean => {
+        const trimmedContent = content.trim()
+
+        for (const commandHandler of commandHandlers) {
+            if (trimmedContent.startsWith(commandHandler.prefix)) {
+                const args = trimmedContent.substring(commandHandler.prefix.length).trim()
+                const result = commandHandler.handler(args)
+
+                // 如果处理器返回 false，表示命令处理失败，继续下一个处理器
+                if (result !== false) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
+    // 发送聊天消息
+    const sendChatMessage = (content: string) => {
+        // 验证输入
+        if (!content || typeof content !== 'string') {
+            return false
+        }
+        const trimmedContent = content.trim()
+        if (!trimmedContent || trimmedContent.length > 500) {
+            console.warn('消息长度不能超过500个字符')
+            return false
+        }
+
+        // 尝试处理命令
+        if (handleCommand(trimmedContent)) {
+            return true
+        }
+        return send({
+            action: '/chat',
+            data: {
+                content: trimmedContent,
+                sendTime: Date.now(),
+            }
+        })
     }
     // 发送歌曲点赞
     const sendSongLike = (index: number, name: string) => {
@@ -368,9 +480,7 @@ export const useWebSocket = () => {
         // 事件监听
         on,
         off,
-        emit,
-
-        // 业务方法
+        emit,        // 业务方法
         sendChatMessage,
         sendSongLike,
         sendPlayStateChange,
