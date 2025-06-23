@@ -70,3 +70,26 @@ export function processUser(user: User): User {
 export function processUsers(users: User[]): User[] {
   return users.map(processUser);
 }
+
+/**
+ * 保存用户昵称到本地存储
+ * @param nickname 用户昵称
+ */
+export function saveNickname(nickname: string): void {
+  localStorage.setItem("alisten_nickname", nickname);
+}
+
+/**
+ * 从本地存储获取用户昵称
+ * @returns 保存的昵称，如果没有则返回 null
+ */
+export function getSavedNickname(): string | null {
+  return localStorage.getItem("alisten_nickname");
+}
+
+/**
+ * 清除保存的昵称
+ */
+export function clearNickname(): void {
+  localStorage.removeItem("alisten_nickname");
+}
