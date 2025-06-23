@@ -79,15 +79,21 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- 快捷键 -->
+          </div>          <!-- 快捷键 -->
           <div class="mb-6">
             <h3 class="text-lg font-medium mb-3 text-primary flex items-center">
               <i class="fa-solid fa-keyboard mr-2"></i>
               快捷操作
             </h3>
             <div class="space-y-3 text-sm">
+              <div class="flex items-start">
+                <i class="fa-solid fa-eye text-purple-400 mr-3 mt-0.5"></i>
+                <div>
+                  <div class="font-medium mb-1">沉浸模式</div>
+                  <div class="text-gray-300">点击"沉浸模式"按钮或按 F 键，专注欣赏歌词和音乐</div>
+                  <div class="text-xs text-gray-400 mt-1">按 ESC 键或点击浮动按钮退出沉浸模式</div>
+                </div>
+              </div>
               <div class="flex items-start">
                 <i class="fa-solid fa-mobile-screen text-blue-400 mr-3 mt-0.5"></i>
                 <div>

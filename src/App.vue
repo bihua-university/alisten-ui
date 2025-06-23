@@ -90,9 +90,10 @@
             </button>
           </div>
         </div>
-      </transition> <!-- 主内容区 -->
-      <main class="flex h-[calc(100vh)]"> <!-- 左侧播放列表 -->
-        <aside
+      </transition>      <!-- 主内容区 -->
+      <main :class="['flex', isImmersiveMode ? 'h-screen' : 'h-[calc(100vh)]']"> 
+        <!-- 左侧播放列表 -->
+        <aside v-if="!isImmersiveMode"
           class="w-72 bg-dark/60 backdrop-blur-xl border-r border-white/10 hidden md:block overflow-y-auto scrollbar-hide">
           <div class="p-4 border-b border-white/10">
             <h2 class="text-lg font-semibold flex items-center">
@@ -127,11 +128,10 @@
               </div>
             </div>
           </div>
-        </aside>
-
-        <!-- 中间歌词区域 -->
-        <section class="flex-1 flex flex-col overflow-hidden relative"> <!-- 房间信息 -->
-          <div
+        </aside>        <!-- 中间歌词区域 -->
+        <section class="flex-1 flex flex-col overflow-hidden relative"> 
+          <!-- 房间信息 -->
+          <div v-if="!isImmersiveMode"
             class="p-3 sm:p-4 border-b border-white/10 flex flex-col sm:flex-row sm:justify-between sm:items-center glass-effect bg-dark/70 backdrop-blur-xl space-y-2 sm:space-y-0">
             <div class="flex-1 min-w-0">
               <h2 class="text-base sm:text-lg font-semibold truncate flex items-center">
@@ -173,19 +173,26 @@
                 <i class="fa-solid fa-share mr-1 sm:mr-2"></i>
                 <span class="hidden sm:inline">分享</span>
                 <span class="sm:hidden">分享</span>
-              </button>
-
-              <!-- 帮助 -->
+              </button>              <!-- 帮助 -->
               <button @click="showHelp = true"
                 class="bg-green-500/20 hover:bg-green-500/30 active:bg-green-500/40 text-green-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target">
                 <i class="fa-solid fa-question-circle mr-1 sm:mr-2"></i>
                 <span class="hidden sm:inline">帮助</span>
                 <span class="sm:hidden">帮助</span>
               </button>
+
+              <!-- 沉浸模式 -->
+              <button @click="toggleImmersiveMode"
+                class="bg-purple-500/20 hover:bg-purple-500/30 active:bg-purple-500/40 text-purple-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target">
+                <i :class="isImmersiveMode ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'" class="mr-1 sm:mr-2"></i>
+                <span class="hidden sm:inline">{{ isImmersiveMode ? '退出沉浸' : '沉浸模式' }}</span>
+                <span class="sm:hidden">{{ isImmersiveMode ? '退出' : '沉浸' }}</span>
+              </button>
             </div>
-          </div> <!-- 歌词显示区域 -->
+          </div>          <!-- 歌词显示区域 -->
           <div ref="lyricsContainer"
-            class="lyrics-container flex-1 overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide">
+            :class="['lyrics-container overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide',
+              isImmersiveMode ? 'flex-1 pt-8 pb-8' : 'flex-1']">
             <!-- 切歌提示消息 -->
             <transition name="modal">
               <div v-if="showSkipMessage" class="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
@@ -194,16 +201,20 @@
                   <i class="fa-solid fa-forward mr-2"></i>{{ skipMessage }}
                 </div>
               </div>
-            </transition>
-            <div ref="lyricsContent"
-              class="lyrics-content max-w-2xl mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4">
-              <div v-for="(line, index) in roomState.currentLyrics" :key="index" :class="['lyric-line text-sm sm:text-base md:text-lg leading-relaxed transition-all duration-300',
-                { 'active text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl font-medium mb-3 mt-3': index === roomState.currentLyricIndex },
-                { 'text-gray-400 mb-1': index !== roomState.currentLyricIndex }]">
+            </transition>            <div ref="lyricsContent"
+              :class="['lyrics-content mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4',
+                isImmersiveMode ? 'max-w-4xl mt-16' : 'max-w-2xl']">              <div v-for="(line, index) in roomState.currentLyrics" :key="index" :class="['lyric-line transition-all duration-300',
+                { 
+                  'active text-white font-medium mb-3 mt-3': index === roomState.currentLyricIndex,
+                  'text-gray-400 mb-1': index !== roomState.currentLyricIndex,
+                  // 沉浸模式下的歌词大小
+                  'text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl leading-relaxed': isImmersiveMode && index === roomState.currentLyricIndex,
+                  'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': !isImmersiveMode && index === roomState.currentLyricIndex,
+                  'text-sm sm:text-base md:text-lg': !isImmersiveMode && index !== roomState.currentLyricIndex,
+                  'text-base sm:text-lg md:text-xl': isImmersiveMode && index !== roomState.currentLyricIndex
+                }]">
                 {{ line.text }}
-              </div>
-
-              <!-- 当没有歌词时的占位符 -->
+              </div>              <!-- 当没有歌词时的占位符 -->
               <div v-if="roomState.currentLyrics.length === 0" class="text-gray-400 py-8">
                 <i class="fa-solid fa-music text-4xl mb-4 opacity-50"></i>
                 <p class="text-sm">暂无歌词</p>
@@ -211,17 +222,33 @@
             </div>
           </div>
 
-          <!-- 进度条 -->
-          <div
+          <!-- 沉浸模式下的浮动操作面板 -->
+          <transition name="fade">
+            <div v-if="isImmersiveMode" class="fixed top-4 right-4 z-30 flex flex-col space-y-2">
+              <!-- 退出沉浸模式 -->
+              <button @click="toggleImmersiveMode"
+                class="bg-dark/80 backdrop-blur-md border border-white/10 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-white/10 transition-all shadow-lg touch-target"
+                title="退出沉浸模式 (F键或ESC键)">
+                <i class="fa-solid fa-compress text-lg"></i>
+              </button>
+              
+              <!-- 切歌按钮 -->
+              <button @click="skipSong" :disabled="isSkipping" 
+                :class="['bg-dark/80 backdrop-blur-md border border-white/10 text-orange-400 rounded-full w-12 h-12 flex items-center justify-center hover:bg-orange-500/20 transition-all shadow-lg touch-target',
+                  { 'opacity-50 cursor-not-allowed': isSkipping }]"
+                title="切歌">
+                <i :class="isSkipping ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-forward'"></i>
+              </button>
+            </div>
+          </transition><!-- 进度条 -->
+          <div v-if="!isImmersiveMode"
             class="h-3 md:h-1 bg-white/10 rounded-full overflow-hidden cursor-pointer progress-bar relative hidden md:block">
             <div class="h-full bg-primary rounded-full transition-all duration-300"
               :style="{ width: calculatedProgressPercentage + '%' }">
             </div>
-          </div>
-
-          <!-- 播放信息 -->
-          <div class="p-3 sm:p-4 glass-effect bg-dark/80 backdrop-blur-xl">
-            <div class="flex items-center">
+          </div>          <!-- 播放信息 -->          <div :class="['glass-effect bg-dark/80 backdrop-blur-xl',
+            isImmersiveMode ? 'fixed bottom-0 left-0 right-0 z-20 border-t border-white/10' : 'p-3 sm:p-4']">
+            <div :class="['flex items-center', isImmersiveMode ? 'p-4' : '']">
               <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden mr-3 sm:mr-4 flex-shrink-0">
                 <img :src="roomState.currentSong?.cover" :alt="roomState.currentSong?.title"
                   class="w-full h-full object-cover">
@@ -232,7 +259,8 @@
                   roomState.currentSong?.album ?
                     ' - ' + roomState.currentSong?.album : '' }}</p>
               </div>
-              <div class="flex flex-col items-center space-x-2 sm:space-x-3 flex-shrink-0"> <!-- 进度条 -->
+              <div class="flex flex-col items-center space-x-2 sm:space-x-3 flex-shrink-0"> 
+                <!-- 进度条 -->
                 <div class="relative ml-auto">
                   <div class="flex justify-between text-xs text-gray-400 mt-1">
                     <span>{{ formatTime(roomState?.currentTime || 0) }} /
@@ -245,9 +273,8 @@
                 </div>
               </div>
             </div>
-          </div>
-          <!-- 移动端底部导航 -->
-          <div class="left-0 right-0 bg-dark/50 backdrop-blur-md z-30 md:hidden">
+          </div>          <!-- 移动端底部导航 -->
+          <div v-if="!isImmersiveMode" class="left-0 right-0 bg-dark/50 backdrop-blur-md z-30 md:hidden">
             <div class="flex justify-around items-center py-2 px-2">
               <button @click="showSongQueue = true"
                 class="flex flex-col items-center text-gray-400 hover:text-white hover:bg-white/5 active:bg-white/10 transition-all min-w-0 flex-1 py-2 px-1 rounded-lg touch-target">
@@ -271,10 +298,9 @@
               </button>
             </div>
           </div>
-        </section> 
-        
+        </section>        
         <!-- 右侧聊天和用户列表 -->
-        <aside
+        <aside v-if="!isImmersiveMode"
           class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:block overflow-hidden flex flex-col">
           <!-- 聊天区域 -->
           <div class="flex-1 flex flex-col overflow-hidden h-[calc(100vh-300px)]">
@@ -568,10 +594,8 @@
       </transition>
 
       <!-- 通知容器 -->
-      <NotificationContainer />
-
-      <!-- WebSocket 连接配置显示（开发环境） -->
-      <div v-if="isDevelopment" class="fixed bottom-4 right-4 z-40">
+      <NotificationContainer />      <!-- WebSocket 连接配置显示（开发环境） -->
+      <div v-if="isDevelopment && !isImmersiveMode" class="fixed bottom-4 right-4 z-40">
         <div class="bg-black/80 text-white text-xs p-2 rounded backdrop-blur-sm max-w-xs">
           <div class="font-medium mb-1">WebSocket 配置</div>
           <div>URL: {{ appConfig.websocket.url }}</div>
@@ -636,6 +660,7 @@ const showMobileChat = ref(false)
 const showMobileUsers = ref(false)
 const showMobilePlaylist = ref(false)
 const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
+const isImmersiveMode = ref(false) // 沉浸模式状态
 const searchQuery = ref('')
 const songSearchQuery = ref('')
 const mobileChatMessages = ref<HTMLElement>()
@@ -752,6 +777,11 @@ const calculatedProgressPercentage = ref(0)
 // 方法
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value
+}
+
+// 切换沉浸模式
+const toggleImmersiveMode = () => {
+  isImmersiveMode.value = !isImmersiveMode.value
 }
 
 // 确认加入房间相关方法
@@ -1050,11 +1080,34 @@ const handleMuteToggle = (muted: boolean) => {
 onMounted(() => {
   // 页面挂载时不立即初始化，等待用户确认
   console.log('页面已加载，等待用户确认加入房间')
+  
+  // 添加键盘事件监听
+  document.addEventListener('keydown', handleKeyDown)
 })
+
+// 键盘事件处理
+const handleKeyDown = (event: KeyboardEvent) => {
+  // 按 F 键切换沉浸模式（仅在没有聚焦输入框时）
+  if (event.key === 'f' || event.key === 'F') {
+    const activeElement = document.activeElement
+    if (activeElement?.tagName !== 'INPUT' && activeElement?.tagName !== 'TEXTAREA') {
+      event.preventDefault()
+      toggleImmersiveMode()
+    }
+  }
+  
+  // 按 Escape 键退出沉浸模式
+  if (event.key === 'Escape' && isImmersiveMode.value) {
+    event.preventDefault()
+    isImmersiveMode.value = false
+  }
+}
 
 // 页面卸载时断开连接
 onUnmounted(() => {
   disconnect()
+  // 移除键盘事件监听
+  document.removeEventListener('keydown', handleKeyDown)
 })
 </script>
 
@@ -1065,6 +1118,11 @@ onUnmounted(() => {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   transition: all 0.3s ease;
+}
+
+/* 沉浸模式下的歌词特殊效果 */
+.lyric-line.active {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 /* 歌词容器滚动条样式 */
@@ -1100,5 +1158,22 @@ onUnmounted(() => {
 .modal-leave-to {
   opacity: 0;
   transform: scale(0.9);
+}
+
+/* 淡入淡出动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 沉浸模式下的播放信息样式 */
+.immersive-player-info {
+  backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.7);
 }
 </style>
