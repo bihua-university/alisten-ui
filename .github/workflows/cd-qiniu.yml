@@ -5,7 +5,7 @@ on:
     branches:
     - master
     - main
-
+    
 
 jobs:
   deploy:
@@ -23,7 +23,7 @@ jobs:
       run: npm install
 
     - name: Build Project
-      run: vite build
+      run: npm run build
 
     - uses: hujiulong/action-qiniu-upload@master
       with:
