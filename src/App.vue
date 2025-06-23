@@ -99,7 +99,8 @@
               <i class="fa-solid fa-list-ul mr-2 text-primary"></i>播放列表
             </h2>
             <p class="text-xs text-gray-400 mt-1">共 {{ roomState.playlist.length }} 首歌曲</p>
-          </div>          <div class="playlist-container space-y-1">
+          </div>
+          <div class="playlist-container space-y-1">
             <div v-for="(song, index) in processedPlaylist" :key="song.id" :class="['playlist-item p-3 flex items-center hover:bg-white/5 cursor-pointer transition-all',
               { 'bg-primary/20 hover:bg-primary/25 border-l-4 border-primary': index === 0 }]">
               <div class="w-10 h-10 rounded bg-gray-700 overflow-hidden mr-3">
@@ -279,7 +280,8 @@
               <h2 class="text-lg font-semibold flex items-center">
                 <i class="fa-solid fa-comments mr-2 text-primary"></i>聊天
               </h2>
-            </div>            <div ref="chatMessages" class="chat-messages flex-1 overflow-y-auto p-3 space-y-4 scrollbar-hide">
+            </div>
+            <div ref="chatMessages" class="chat-messages flex-1 overflow-y-auto p-3 space-y-4 scrollbar-hide">
               <div v-for="message in processedChatMessages" :key="message.id" class="flex items-start">
                 <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
                   <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
@@ -294,7 +296,8 @@
               </div>
             </div>
           </div>
-          <div class="mt-auto">            <div class="p-3 border-t border-white/10">
+          <div class="mt-auto">
+            <div class="p-3 border-t border-white/10">
               <div class="relative">
                 <input v-model="newMessage" @keyup.enter="() => sendMessage(processedCurrentUser)" type="text"
                   placeholder="发送消息..."
@@ -311,7 +314,8 @@
           <div class="mt-auto">
             <div class="flex flex-col">
               <div class="p-3 border-b border-white/10">
-                <h2 class="text-lg font-semibold flex items-center justify-between">                  <div class="flex items-center">
+                <h2 class="text-lg font-semibold flex items-center justify-between">
+                  <div class="flex items-center">
                     <i class="fa-solid fa-users mr-2 text-primary"></i>在线用户 <span
                       class="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">{{
                         processedOnlineUsers.length }}</span>
@@ -322,7 +326,8 @@
                       class="text-sm"></i>
                   </button>
                 </h2>
-              </div>              <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 max-h-48">
+              </div>
+              <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 max-h-48">
                 <div v-for="user in processedOnlineUsers" :key="user.id"
                   class="flex items-center p-2 hover:bg-white/5 rounded-lg">
                   <div class="w-8 h-8 rounded-full overflow-hidden relative mr-3">
@@ -442,7 +447,8 @@
                 class="text-gray-400 hover:text-white transition-colors touch-target">
                 <i class="fa-solid fa-times text-lg"></i>
               </button>
-            </div>            <div class="flex-1 overflow-y-auto smooth-scroll modal-scroll">
+            </div>
+            <div class="flex-1 overflow-y-auto smooth-scroll modal-scroll">
               <div class="p-3 text-xs text-gray-400 border-b border-white/5">
                 共 {{ processedPlaylist.length }} 首歌曲
               </div>
@@ -479,7 +485,8 @@
                 class="text-gray-400 hover:text-white transition-colors touch-target">
                 <i class="fa-solid fa-times text-lg"></i>
               </button>
-            </div>            <div ref="mobileChatMessages" class="flex-1 overflow-y-auto p-3 space-y-3 smooth-scroll modal-scroll">
+            </div>
+            <div ref="mobileChatMessages" class="flex-1 overflow-y-auto p-3 space-y-3 smooth-scroll modal-scroll">
               <div v-for="message in processedChatMessages" :key="message.id" class="flex items-start space-x-3">
                 <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                   <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
@@ -493,7 +500,8 @@
                   <p class="text-sm break-words leading-relaxed">{{ message.content }}</p>
                 </div>
               </div>
-            </div>            <div class="p-3 border-t border-white/10">
+            </div>
+            <div class="p-3 border-t border-white/10">
               <div class="relative">
                 <input v-model="newMessage" @keyup.enter="() => sendMessage(processedCurrentUser)" type="text"
                   placeholder="发送消息..."
@@ -516,7 +524,8 @@
             <div class="md:hidden flex justify-center py-2">
               <div class="w-8 h-1 bg-gray-500 rounded-full"></div>
             </div>
-            <div class="p-4 border-b border-white/10 flex justify-between items-center">              <h2 class="text-lg font-semibold flex items-center">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center">
+              <h2 class="text-lg font-semibold flex items-center">
                 <i class="fa-solid fa-users mr-2 text-primary"></i>在线用户 <span
                   class="ml-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">{{
                     processedOnlineUsers.length }}</span>
@@ -532,7 +541,8 @@
                   <i class="fa-solid fa-times text-lg"></i>
                 </button>
               </div>
-            </div>            <div class="flex-1 overflow-y-auto p-3 smooth-scroll modal-scroll">
+            </div>
+            <div class="flex-1 overflow-y-auto p-3 smooth-scroll modal-scroll">
               <div class="space-y-2">
                 <div v-for="user in processedOnlineUsers" :key="user.id"
                   class="flex items-center p-3 hover:bg-white/5 rounded-lg active:bg-white/10 transition-all cursor-pointer touch-feedback">
@@ -720,7 +730,7 @@ const {
 // 处理后的用户数据计算属性
 const processedCurrentUser = computed(() => processUser(currentUser.value))
 const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
-const processedChatMessages = computed(() => 
+const processedChatMessages = computed(() =>
   chatMessages.value.map(message => ({
     ...message,
     user: processUser(message.user)
