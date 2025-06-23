@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - master
+    - main
 
 jobs:
   deploy:
@@ -45,4 +46,3 @@ jobs:
         # Whether to ignore source maps.
         # Default: true
         ignore_source_map: true
-        
