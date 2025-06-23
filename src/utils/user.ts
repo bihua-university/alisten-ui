@@ -10,7 +10,7 @@ export function parseUserName(nameString: string): {
   email?: string;
 } {
   // 匹配 "name<email>" 格式
-  const emailPattern = /^(.+?)<([^<>]+@[^<>]+\.[^<>]+)>$/;
+  const emailPattern = /(.+?)<([^<>]+@[^<>]+\.[^<>]+)>/;
   const match = nameString.match(emailPattern);
 
   if (match) {
