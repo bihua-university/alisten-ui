@@ -42,7 +42,7 @@ jobs:
 
         # The directory inside of the bucket you want to upload to, namely key prefix prepended to dest file key.
         # Default: '/'
-        dest_dir: '/static'
+        dest_dir: '/'
 
         # Whether to ignore source maps.
         # Default: true
