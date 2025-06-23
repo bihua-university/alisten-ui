@@ -1,4 +1,4 @@
-name: Upload Website
+name: cd-qiniu
 
 on:
   push:
