@@ -198,8 +198,123 @@
   .progress-bar {
     padding: 0.5rem 0; /* 增加触摸面积 */
   }
-  .progress-thumb {
-    opacity: 1; /* 移动端始终显示 */
+}
+
+/* 沉浸模式样式 */
+.immersive-mode {
+  background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.1) 0%, rgba(0, 0, 0, 0.9) 70%);
+}
+
+/* 沉浸模式歌词滚动容器 */
+.immersive-lyrics-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.immersive-lyrics-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.immersive-lyrics-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.immersive-lyrics-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.immersive-lyrics-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 沉浸模式专辑封面动画 */
+.album-cover-immersive {
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.album-cover-immersive::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.album-cover-immersive:hover::before {
+  opacity: 1;
+}
+
+/* 沉浸模式渐变进度条 */
+.immersive-progress {
+  background: linear-gradient(90deg, 
+    rgba(59, 130, 246, 0.8) 0%, 
+    rgba(147, 51, 234, 0.8) 100%);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+/* 沉浸模式歌词高亮动画 */
+.immersive-lyric-active {
+  background: linear-gradient(45deg, 
+    rgba(59, 130, 246, 0.1) 0%, 
+    rgba(147, 51, 234, 0.1) 100%);
+  border-left: 4px solid rgba(59, 130, 246, 0.6);
+  padding-left: 1rem;
+  margin-left: -1rem;
+  border-radius: 0.5rem;
+}
+
+/* 沉浸模式控制按钮动画 */
+.immersive-control-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.immersive-control-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.immersive-control-btn:hover::before {
+  opacity: 1;
+}
+
+/* 响应式沉浸模式调整 */
+@media (max-width: 1024px) {
+  .immersive-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .album-cover-immersive {
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .album-cover-immersive {
+    width: 250px;
+    height: 250px;
+  }
+  
+  .immersive-title {
+    font-size: 2rem !important;
+  }
+  
+  .immersive-artist {
+    font-size: 1.25rem !important;
   }
 }
 
