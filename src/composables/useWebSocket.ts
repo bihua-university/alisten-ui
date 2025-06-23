@@ -9,6 +9,7 @@ import type {
 } from '@/types'
 import { useRoomState } from '@/composables/useRoomState'
 import { useLyrics } from '@/composables/useLyrics'
+import { saveNickname, getSavedNickname } from '@/utils/user'
 
 export const useWebSocket = () => {
     const ws = ref<WebSocket | null>(null)
@@ -192,6 +193,18 @@ export const useWebSocket = () => {
                 isConnecting.value = false
                 reconnectAttempts.value = 0
                 emit('connected', { url: wsUrl })
+                // 连接成功后，发送保存的昵称
+                const savedNickname = getSavedNickname()
+                if (savedNickname) {
+                    console.log('发送保存的昵称:', savedNickname)
+                      send({
+                          action: '/setting/name',
+                          data: {
+                              name: savedNickname,
+                              sendTime: Date.now(),
+                          }
+                      })
+                }
             }
 
             ws.value.onmessage = handleMessage
@@ -283,6 +296,10 @@ export const useWebSocket = () => {
         } else if (content.trim().startsWith('设置昵称')) {
             const name = content.trim().substring(4).trim()
             if (name) {
+                // 保存昵称到本地存储
+                saveNickname(name)
+                console.log('昵称已保存到本地存储:', name)
+                
                 return send({
                     action: '/setting/name',
                     data: {
@@ -291,7 +308,7 @@ export const useWebSocket = () => {
                     }
                 })
             }
-        } else {
+        }else {
             // 普通聊天消息
             return send({
                 action: '/chat',

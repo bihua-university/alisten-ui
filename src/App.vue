@@ -101,7 +101,7 @@
             <p class="text-xs text-gray-400 mt-1">共 {{ roomState.playlist.length }} 首歌曲</p>
           </div>
           <div class="playlist-container space-y-1">
-            <div v-for="(song, index) in roomState.playlist" :key="song.id" :class="['playlist-item p-3 flex items-center hover:bg-white/5 cursor-pointer transition-all',
+            <div v-for="(song, index) in processedPlaylist" :key="song.id" :class="['playlist-item p-3 flex items-center hover:bg-white/5 cursor-pointer transition-all',
               { 'bg-primary/20 hover:bg-primary/25 border-l-4 border-primary': index === 0 }]">
               <div class="w-10 h-10 rounded bg-gray-700 overflow-hidden mr-3">
                 <img :src="song.cover" :alt="song.title" class="w-full h-full object-cover">
@@ -146,7 +146,7 @@
                   </div>
                 </div>
               </h2>
-              <p class="text-xs text-gray-400 truncate">{{ roomState.onlineUsers.length }}人在线</p>
+              <p class="text-xs text-gray-400 truncate">{{ processedOnlineUsers.length }}人在线</p>
             </div>
 
             <div class="flex items-center space-x-2 sm:space-x-2 flex-shrink-0">
@@ -282,7 +282,7 @@
               </h2>
             </div>
             <div ref="chatMessages" class="chat-messages flex-1 overflow-y-auto p-3 space-y-4 scrollbar-hide">
-              <div v-for="message in chatMessages" :key="message.id" class="flex items-start">
+              <div v-for="message in processedChatMessages" :key="message.id" class="flex items-start">
                 <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
                   <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
                 </div>
@@ -299,10 +299,10 @@
           <div class="mt-auto">
             <div class="p-3 border-t border-white/10">
               <div class="relative">
-                <input v-model="newMessage" @keyup.enter="() => sendMessage(currentUser)" type="text"
+                <input v-model="newMessage" @keyup.enter="() => sendMessage(processedCurrentUser)" type="text"
                   placeholder="发送消息..."
                   class="w-full bg-white/10 rounded-full py-2 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-                <button @click="() => sendMessage(currentUser)"
+                <button @click="() => sendMessage(processedCurrentUser)"
                   class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors">
                   <i class="fa-solid fa-paper-plane"></i>
                 </button>
@@ -318,7 +318,7 @@
                   <div class="flex items-center">
                     <i class="fa-solid fa-users mr-2 text-primary"></i>在线用户 <span
                       class="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">{{
-                        roomState.onlineUsers.length }}</span>
+                        processedOnlineUsers.length }}</span>
                   </div>
                   <button @click="refreshOnlineUsers" :disabled="isRefreshingUsers" :class="['text-gray-400 hover:text-white transition-all duration-200 p-1 rounded',
                     { 'opacity-50 cursor-not-allowed': isRefreshingUsers }]" title="刷新用户列表">
@@ -328,7 +328,7 @@
                 </h2>
               </div>
               <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 max-h-48">
-                <div v-for="user in roomState.onlineUsers" :key="user.id"
+                <div v-for="user in processedOnlineUsers" :key="user.id"
                   class="flex items-center p-2 hover:bg-white/5 rounded-lg">
                   <div class="w-8 h-8 rounded-full overflow-hidden relative mr-3">
                     <img :src="user.avatar" :alt="user.name" class="w-full h-full object-cover">
@@ -450,10 +450,10 @@
             </div>
             <div class="flex-1 overflow-y-auto smooth-scroll modal-scroll">
               <div class="p-3 text-xs text-gray-400 border-b border-white/5">
-                共 {{ roomState.playlist.length }} 首歌曲
+                共 {{ processedPlaylist.length }} 首歌曲
               </div>
               <div class="space-y-1">
-                <div v-for="(song, index) in roomState.playlist" :key="song.id" :class="['p-4 flex items-center active:bg-white/10 transition-all cursor-pointer border-b border-white/5 touch-feedback',
+                <div v-for="(song, index) in processedPlaylist" :key="song.id" :class="['p-4 flex items-center active:bg-white/10 transition-all cursor-pointer border-b border-white/5 touch-feedback',
                   { 'bg-primary/20 border-l-4 border-primary': 0 === index }]">
                   <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0">
                     <img :src="song.cover" :alt="song.title" class="w-full h-full object-cover">
@@ -487,7 +487,7 @@
               </button>
             </div>
             <div ref="mobileChatMessages" class="flex-1 overflow-y-auto p-3 space-y-3 smooth-scroll modal-scroll">
-              <div v-for="message in chatMessages" :key="message.id" class="flex items-start space-x-3">
+              <div v-for="message in processedChatMessages" :key="message.id" class="flex items-start space-x-3">
                 <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                   <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
                 </div>
@@ -503,11 +503,11 @@
             </div>
             <div class="p-3 border-t border-white/10">
               <div class="relative">
-                <input v-model="newMessage" @keyup.enter="() => sendMessage(currentUser)" type="text"
+                <input v-model="newMessage" @keyup.enter="() => sendMessage(processedCurrentUser)" type="text"
                   placeholder="发送消息..."
                   class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
                   maxlength="200">
-                <button @click="() => sendMessage(currentUser)" :disabled="!newMessage.trim()" :class="['absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target',
+                <button @click="() => sendMessage(processedCurrentUser)" :disabled="!newMessage.trim()" :class="['absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target',
                   newMessage.trim() ? 'text-primary hover:bg-primary/20 active:bg-primary/30' : 'text-gray-500']">
                   <i class="fa-solid fa-paper-plane"></i>
                 </button>
@@ -528,7 +528,7 @@
               <h2 class="text-lg font-semibold flex items-center">
                 <i class="fa-solid fa-users mr-2 text-primary"></i>在线用户 <span
                   class="ml-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">{{
-                    roomState.onlineUsers.length }}</span>
+                    processedOnlineUsers.length }}</span>
               </h2>
               <div class="flex items-center space-x-2">
                 <button @click="refreshOnlineUsers" :disabled="isRefreshingUsers" :class="['text-gray-400 hover:text-white transition-all duration-200 p-2 rounded-full touch-target',
@@ -544,7 +544,7 @@
             </div>
             <div class="flex-1 overflow-y-auto p-3 smooth-scroll modal-scroll">
               <div class="space-y-2">
-                <div v-for="user in roomState.onlineUsers" :key="user.id"
+                <div v-for="user in processedOnlineUsers" :key="user.id"
                   class="flex items-center p-3 hover:bg-white/5 rounded-lg active:bg-white/10 transition-all cursor-pointer touch-feedback">
                   <div class="w-10 h-10 rounded-full overflow-hidden relative mr-3 flex-shrink-0">
                     <img :src="user.avatar" :alt="user.name" class="w-full h-full object-cover">
@@ -594,7 +594,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, watch, onUnmounted, nextTick, computed } from 'vue'
 import type { User, RoomInfo, MusicSource } from '@/types'
 import { usePlayer } from '@/composables/usePlayer'
 import { useChat } from '@/composables/useChat'
@@ -603,6 +603,7 @@ import { useWebSocket } from '@/composables/useWebSocket'
 import { useRoomState } from '@/composables/useRoomState'
 import { formatTime } from '@/utils/time'
 import { getAppConfig, validateConfig, logConfig } from '@/utils/config'
+import { processUser, processUsers } from '@/utils/user'
 import VolumeSlider from '@/components/VolumeSlider.vue'
 import HelpModal from '@/components/HelpModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
@@ -725,6 +726,22 @@ const {
   showConnectionError,
   showConnectionWarning
 } = useNotification()
+
+// 处理后的用户数据计算属性
+const processedCurrentUser = computed(() => processUser(currentUser.value))
+const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
+const processedChatMessages = computed(() =>
+  chatMessages.value.map(message => ({
+    ...message,
+    user: processUser(message.user)
+  }))
+)
+const processedPlaylist = computed(() =>
+  roomState.playlist.map(song => ({
+    ...song,
+    requestedBy: song.requestedBy ? processUser(song.requestedBy) : undefined
+  }))
+)
 
 // 歌词自动滚动功能
 const scrollLyricsToCenter = (index: number) => {
