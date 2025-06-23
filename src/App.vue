@@ -401,7 +401,7 @@
               </h2>
             </div>
             <div ref="chatMessages" class="chat-messages flex-1 overflow-y-auto p-3 space-y-4 scrollbar-hide">
-              <div v-for="message in processedChatMessages" :key="message.id" class="flex items-start">
+              <div v-for="message in processedChatMessages" class="flex items-start">
                 <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
                   <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
                 </div>
@@ -603,7 +603,7 @@
               </button>
             </div>
             <div ref="mobileChatMessages" class="flex-1 overflow-y-auto p-3 space-y-3 smooth-scroll modal-scroll">
-              <div v-for="message in processedChatMessages" :key="message.id" class="flex items-start space-x-3">
+              <div v-for="message in processedChatMessages" class="flex items-start space-x-3">
                 <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                   <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
                 </div>
@@ -786,6 +786,13 @@ const musicSources = ref<MusicSource[]>([
     color: '#31c27c',
     description: '海量正版音乐'
   },
+  {
+    id: 'db',
+    name: 'bilibili',
+    icon: 'fa-solid fa-tv',
+    color: '#00a2d8',
+    description: 'B站音乐',
+  },
 ])
 
 const selectedMusicSource = ref<MusicSource>(musicSources.value[0])
@@ -836,37 +843,10 @@ const processedPlaylist = computed(() =>
 )
 
 // 歌词自动滚动功能
-const scrollLyricsToCenter = (index: number) => {
-  if (!lyricsContainer.value || !lyricsContent.value) return
+const scrollLyricsToCenter = (container: HTMLElement | undefined, index: number) => {
+  if (!container) return
 
-  const container = lyricsContainer.value
-  const content = lyricsContent.value
-  const lyricLines = content.querySelectorAll('.lyric-line')
-
-  if (lyricLines[index]) {
-    const targetLine = lyricLines[index] as HTMLElement
-    const containerHeight = container.clientHeight
-    const targetTop = targetLine.offsetTop
-    const targetHeight = targetLine.clientHeight
-
-    // 计算目标滚动位置（让当前歌词居中）
-    const targetScrollTop = targetTop - (containerHeight / 2) + (targetHeight / 2)
-
-    // 平滑滚动到目标位置
-    container.scrollTo({
-      top: Math.max(0, targetScrollTop),
-      behavior: 'smooth'
-    })
-  }
-}
-
-// 沉浸模式下的歌词自动滚动功能
-const scrollImmersiveLyricsToCenter = (index: number) => {
-  if (!immersiveLyricsContainer.value) return
-
-  const container = immersiveLyricsContainer.value
   const lyricLines = container.querySelectorAll('.lyric-line')
-
   if (lyricLines[index]) {
     const targetLine = lyricLines[index] as HTMLElement
     const containerHeight = container.clientHeight
@@ -1046,9 +1026,9 @@ watch(() => roomState.currentLyricIndex, (newIndex) => {
     // 延迟执行滚动，确保DOM更新完成
     nextTick(() => {
       if (isImmersiveMode.value) {
-        scrollImmersiveLyricsToCenter(newIndex)
+        scrollLyricsToCenter(immersiveLyricsContainer.value, newIndex)
       } else {
-        scrollLyricsToCenter(newIndex)
+        scrollLyricsToCenter(lyricsContainer.value, newIndex)
       }
     })
   }

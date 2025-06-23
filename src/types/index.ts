@@ -18,7 +18,6 @@ export interface User {
 }
 
 export interface ChatMessage {
-  id: number
   content: string
   timestamp: number
   user: User
@@ -34,8 +33,6 @@ export interface LyricLine {
   text: string
   time: number
 }
-
-export type RepeatMode = 'none' | 'all' | 'one'
 
 export interface MusicSource {
   id: string

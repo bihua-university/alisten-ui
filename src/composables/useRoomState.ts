@@ -85,7 +85,7 @@ export const useRoomState = () => {
   const resetRoomState = () => {
     roomState.currentTime = 0
     roomState.currentSong = null
-    roomState.pushTime = null
+    roomState.pushTime = 0
     roomState.playlist = []
     roomState.onlineUsers = []
     roomState.chatMessages = []
