@@ -1,5 +1,5 @@
+import type { ChatMessage, LyricLine, RoomState, SearchResult, Song, User } from '@/types'
 import { computed, reactive } from 'vue'
-import type { RoomState, User, ChatMessage, SearchResult, Song, LyricLine } from '@/types'
 
 // 全局共享的房间状态
 const roomState = reactive<RoomState>({
@@ -11,10 +11,10 @@ const roomState = reactive<RoomState>({
   chatMessages: [],
   searchResults: [],
   currentLyrics: [],
-  currentLyricIndex: 0
+  currentLyricIndex: 0,
 })
 
-export const useRoomState = () => {
+export function useRoomState() {
   // 当前歌曲相关
   const setCurrentSong = (song: Song | null) => {
     roomState.currentSong = song
@@ -33,7 +33,8 @@ export const useRoomState = () => {
     roomState.currentTime = currentTime
     if (pushTime !== undefined) {
       roomState.pushTime = pushTime
-    } else {
+    }
+    else {
       // 如果没有提供pushTime，使用当前时间
       roomState.pushTime = Date.now()
     }
@@ -81,7 +82,7 @@ export const useRoomState = () => {
   const clearLyrics = () => {
     roomState.currentLyrics = []
     roomState.currentLyricIndex = 0
-  }  // 重置整个房间状态
+  } // 重置整个房间状态
   const resetRoomState = () => {
     roomState.currentTime = 0
     roomState.currentSong = null
@@ -92,7 +93,7 @@ export const useRoomState = () => {
     roomState.searchResults = []
     roomState.currentLyrics = []
     roomState.currentLyricIndex = 0
-  }  // 计算属性
+  } // 计算属性
   const playlistCount = computed(() => roomState.playlist.length)
   const onlineUserCount = computed(() => roomState.onlineUsers.length)
   const chatMessageCount = computed(() => roomState.chatMessages.length)
@@ -100,35 +101,35 @@ export const useRoomState = () => {
   const lyricsCount = computed(() => roomState.currentLyrics.length)
   return {
     roomState,
-    
+
     // 当前歌曲操作
     setCurrentSong,
     setPushTime,
     setCurrentTime,
     updatePlayState,
-    
+
     // 播放列表操作
     updatePlaylist,
     clearPlaylist,
-    
+
     // 用户操作
     updateOnlineUsers,
-    
+
     // 聊天操作
     addChatMessage,
     clearChatMessages,
-      // 搜索结果操作
+    // 搜索结果操作
     updateSearchResults,
     clearSearchResults,
-    
+
     // 歌词操作
     setCurrentLyrics,
     setCurrentLyricIndex,
     clearLyrics,
-    
+
     // 其他操作
     resetRoomState,
-      // 计算属性
+    // 计算属性
     playlistCount,
     onlineUserCount,
     chatMessageCount,

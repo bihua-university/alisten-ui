@@ -1,5 +1,5 @@
-import type { User } from "@/types";
-import { MD5 } from "crypto-js";
+import type { User } from '@/types'
+import { MD5 } from 'crypto-js'
 
 /**
  * 解析用户名，支持 "name<email>" 格式
@@ -7,24 +7,24 @@ import { MD5 } from "crypto-js";
  * @returns 解析后的用户名和邮箱
  */
 export function parseUserName(nameString: string): {
-  displayName: string;
-  email?: string;
+  displayName: string
+  email?: string
 } {
   // 匹配 "name<email>" 格式
-  const emailPattern = /(.+?)<([^<>]+@[^<>]+\.[^<>]+)>/;
-  const match = nameString.match(emailPattern);
+  const emailPattern = /(.+?)<([^<>][^<>@]*@[^<>][^.<>]*\.[^<>]+)>/
+  const match = nameString.match(emailPattern)
 
   if (match) {
     return {
       displayName: match[1].trim(),
       email: match[2].trim(),
-    };
+    }
   }
 
   // 如果不匹配模式，返回原始名称
   return {
     displayName: nameString.trim(),
-  };
+  }
 }
 
 /**
@@ -37,14 +37,14 @@ export function parseUserName(nameString: string): {
 export function generateGravatarUrl(
   email: string,
   size: number = 200,
-  defaultImage: string = "mp"
+  defaultImage: string = 'mp',
 ): string {
   // 将邮箱转换为小写并去除空格
-  const normalizedEmail = email.toLowerCase().trim();
+  const normalizedEmail = email.toLowerCase().trim()
   // 计算 MD5 哈希
-  const hash = MD5(normalizedEmail).toString();
+  const hash = MD5(normalizedEmail).toString()
 
-  return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=${defaultImage}`;
+  return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=${defaultImage}`
 }
 
 /**
@@ -53,13 +53,13 @@ export function generateGravatarUrl(
  * @returns 处理后的用户对象
  */
 export function processUser(user: User): User {
-  const { displayName, email } = parseUserName(user.name);
+  const { displayName, email } = parseUserName(user.name)
 
   return {
     ...user,
     name: displayName,
     avatar: email ? generateGravatarUrl(email) : user.avatar,
-  };
+  }
 }
 
 /**
@@ -68,7 +68,7 @@ export function processUser(user: User): User {
  * @returns 处理后的用户列表
  */
 export function processUsers(users: User[]): User[] {
-  return users.map(processUser);
+  return users.map(processUser)
 }
 
 /**
@@ -76,7 +76,7 @@ export function processUsers(users: User[]): User[] {
  * @param nickname 用户昵称
  */
 export function saveNickname(nickname: string): void {
-  localStorage.setItem("alisten_nickname", nickname);
+  localStorage.setItem('alisten_nickname', nickname)
 }
 
 /**
@@ -84,12 +84,12 @@ export function saveNickname(nickname: string): void {
  * @returns 保存的昵称，如果没有则返回 null
  */
 export function getSavedNickname(): string | null {
-  return localStorage.getItem("alisten_nickname");
+  return localStorage.getItem('alisten_nickname')
 }
 
 /**
  * 清除保存的昵称
  */
 export function clearNickname(): void {
-  localStorage.removeItem("alisten_nickname");
+  localStorage.removeItem('alisten_nickname')
 }

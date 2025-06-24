@@ -1,36 +1,37 @@
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoomState } from '@/composables/useRoomState'
 
 // 从本地存储读取音量设置
-const getStoredVolume = (): number => {
+function getStoredVolume(): number {
   try {
     const stored = localStorage.getItem('VOLUME')
     if (stored !== null) {
-      const volume = parseInt(stored, 10)
-      return isNaN(volume) ? 75 : Math.max(0, Math.min(100, volume))
+      const volume = Number.parseInt(stored, 10)
+      return Number.isNaN(volume) ? 75 : Math.max(0, Math.min(100, volume))
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.warn('无法读取本地存储的音量设置:', error)
   }
   return 75 // 默认音量
 }
 
 // 从本地存储读取静音状态
-const getStoredMuteState = (): boolean => {
+function getStoredMuteState(): boolean {
   return localStorage.getItem('MUTE') === 'true'
 }
 
 // 保存音量到本地存储
-const saveVolumeToStorage = (volume: number) => {
+function saveVolumeToStorage(volume: number) {
   localStorage.setItem('VOLUME', volume.toString())
 }
 
 // 保存静音状态到本地存储
-const saveMuteStateToStorage = (isMuted: boolean) => {
+function saveMuteStateToStorage(isMuted: boolean) {
   localStorage.setItem('MUTE', isMuted.toString())
 }
 
-export const usePlayer = () => {
+export function usePlayer() {
   const {
     roomState,
   } = useRoomState()
@@ -54,7 +55,8 @@ export const usePlayer = () => {
   const currentSong = computed(() => roomState.currentSong)
   const currentTime = computed(() => roomState.currentTime)
   const progressPercentage = computed(() => {
-    if (!currentSong.value) return 0
+    if (!currentSong.value)
+      return 0
     return (currentTime.value / currentSong.value.duration) * 100
   })
 

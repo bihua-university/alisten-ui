@@ -26,7 +26,7 @@ export function useNotification() {
     const notification: NotificationItem = {
       id,
       show: true,
-      ...options
+      ...options,
     }
 
     notifications.value.push(notification)
@@ -40,7 +40,7 @@ export function useNotification() {
   }
 
   // 隐藏通知
-  const hideNotification = (id: string) => {
+  function hideNotification(id: string) {
     const index = notifications.value.findIndex(n => n.id === id)
     if (index > -1) {
       notifications.value[index].show = false
@@ -65,7 +65,7 @@ export function useNotification() {
       ...options,
       message,
       type: 'success',
-      icon: options?.icon || 'fa-solid fa-check-circle'
+      icon: options?.icon || 'fa-solid fa-check-circle',
     })
   }
 
@@ -74,7 +74,7 @@ export function useNotification() {
       ...options,
       message,
       type: 'error',
-      icon: options?.icon || 'fa-solid fa-exclamation-circle'
+      icon: options?.icon || 'fa-solid fa-exclamation-circle',
     })
   }
 
@@ -83,7 +83,7 @@ export function useNotification() {
       ...options,
       message,
       type: 'warning',
-      icon: options?.icon || 'fa-solid fa-exclamation-triangle'
+      icon: options?.icon || 'fa-solid fa-exclamation-triangle',
     })
   }
 
@@ -92,27 +92,27 @@ export function useNotification() {
       ...options,
       message,
       type: 'info',
-      icon: options?.icon || 'fa-solid fa-info-circle'
+      icon: options?.icon || 'fa-solid fa-info-circle',
     })
   }
 
   // 连接状态专用通知
   const showConnectionSuccess = () => {
     return showSuccess('已连接到服务器', {
-      icon: 'fa-solid fa-wifi'
+      icon: 'fa-solid fa-wifi',
     })
   }
 
   const showConnectionError = (message: string = '连接失败') => {
     return showError(message, {
       icon: 'fa-solid fa-wifi',
-      duration: 5000 // 错误信息显示更久
+      duration: 5000, // 错误信息显示更久
     })
   }
 
   const showConnectionWarning = (message: string = '连接不稳定') => {
     return showWarning(message, {
-      icon: 'fa-solid fa-wifi'
+      icon: 'fa-solid fa-wifi',
     })
   }
 
@@ -127,6 +127,6 @@ export function useNotification() {
     showInfo,
     showConnectionSuccess,
     showConnectionError,
-    showConnectionWarning
+    showConnectionWarning,
   }
 }

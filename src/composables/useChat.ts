@@ -1,8 +1,8 @@
-import { ref, nextTick, computed } from 'vue'
 import type { ChatMessage } from '@/types'
+import { computed, nextTick, ref } from 'vue'
 import { useRoomState } from '@/composables/useRoomState'
 
-export const useChat = (websocket?: any) => {
+export function useChat(websocket?: any) {
   const { roomState, addChatMessage } = useRoomState()
   const newMessage = ref('')
 
@@ -20,7 +20,7 @@ export const useChat = (websocket?: any) => {
           return
         }
       }
-      
+
       // 滚动到底部
       nextTick(() => {
         const chatContainer = document.querySelector('.chat-messages')

@@ -1,11 +1,12 @@
 <template>
   <transition name="toast">
     <div v-if="show" class="relative pointer-events-auto">
-      <div :class="[
-        'px-4 py-2 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm flex items-center',
-        toastTypeClasses
-      ]">
-        <i v-if="icon" :class="icon" class="mr-2"></i>
+      <div
+        class="px-4 py-2 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm flex items-center" :class="[
+          toastTypeClasses,
+        ]"
+      >
+        <i v-if="icon" :class="icon" class="mr-2" />
         {{ message }}
       </div>
     </div>
@@ -24,7 +25,7 @@ export interface NotificationProps {
 
 // 定义 props
 const props = withDefaults(defineProps<NotificationProps>(), {
-  type: 'info'
+  type: 'info',
 })
 
 // 根据类型计算样式类
