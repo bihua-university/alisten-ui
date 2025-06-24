@@ -179,6 +179,27 @@ export function useWebSocket() {
       },
     },
     {
+      type: 'searchlist',
+      handler: (message: any) => {
+        if (!message.data || !Array.isArray(message.data)) {
+          console.warn('收到无效的搜索结果:', message)
+          return
+        }
+
+        const results: SearchResult[] = message.data
+          .filter((item: any) => item && item.id && item.name) // 过滤无效数据
+          .map((item: any) => ({
+            id: item.id,
+            title: item.name,
+            cover: item.pictureUrl || getDefaultAvatar(item.id),
+            creator: item.creator,
+            songCount: item.songCount,
+          }))
+
+        updateSearchResults(results)
+      },
+    },
+    {
       type: 'pick',
       handler: (message: any) => {
         if (!message.data || !Array.isArray(message.data)) {

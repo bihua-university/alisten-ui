@@ -8,5 +8,6 @@ export default antfu({
     'vue/block-order': ['error', {
       order: ['template', 'script', 'style'],
     }],
+    'vue/require-v-for-key': 'off',
   },
 })

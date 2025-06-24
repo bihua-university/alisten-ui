@@ -59,8 +59,7 @@
       <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />
       <div v-if="roomState.currentSong" class="absolute inset-0 opacity-50 dynamic-bg">
         <img
-          :key="roomState.currentSong.id" :src="roomState.currentSong.cover"
-          :alt="roomState.currentSong.title"
+          :key="roomState.currentSong.id" :src="roomState.currentSong.cover" :alt="roomState.currentSong.title"
           class="w-full h-full object-cover blur-3xl scale-110 transition-all duration-1000"
         >
         <div class="absolute inset-0 bg-overlay" />
@@ -126,7 +125,9 @@
           </div>
           <div class="playlist-container space-y-1">
             <div
-              v-for="(song, index) in processedPlaylist" :key="song.id" class="playlist-item p-3 flex items-center hover:bg-white/5 cursor-pointer transition-all" :class="[{ 'bg-primary/20 hover:bg-primary/25 border-l-4 border-primary': index === 0 }]"
+              v-for="(song, index) in processedPlaylist" :key="song.id"
+              class="playlist-item p-3 flex items-center hover:bg-white/5 cursor-pointer transition-all"
+              :class="[{ 'bg-primary/20 hover:bg-primary/25 border-l-4 border-primary': index === 0 }]"
             >
               <div class="w-10 h-10 rounded bg-gray-700 overflow-hidden mr-3">
                 <img :src="song.cover" :alt="song.title" class="w-full h-full object-cover">
@@ -149,7 +150,8 @@
               </div>
               <div v-if="index !== 0" class="flex items-center space-x-2 ml-2">
                 <button
-                  class="like-button flex items-center space-x-1 px-2 py-1 rounded-full text-xs transition-all bg-red-500/20 text-red-400 hover:bg-red-500/30" @click.stop="sendSongLike(index, song.title)"
+                  class="like-button flex items-center space-x-1 px-2 py-1 rounded-full text-xs transition-all bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                  @click.stop="sendSongLike(index, song.title)"
                 >
                   <i class="fa-solid fa-heart" />
                 </button>
@@ -184,7 +186,9 @@
             <div class="flex items-center space-x-2 sm:space-x-2 flex-shrink-0">
               <!-- 切歌 -->
               <button
-                :disabled="isSkipping" class="bg-orange-500/20 hover:bg-orange-500/30 active:bg-orange-500/40 text-orange-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target" :class="[{ 'opacity-50 cursor-not-allowed': isSkipping }]" @click="skipSong"
+                :disabled="isSkipping"
+                class="bg-orange-500/20 hover:bg-orange-500/30 active:bg-orange-500/40 text-orange-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
+                :class="[{ 'opacity-50 cursor-not-allowed': isSkipping }]" @click="skipSong"
               >
                 <i
                   :class="isSkipping ? 'fa-solid fa-spinner fa-spin mr-1 sm:mr-2' : 'fa-solid fa-forward mr-1 sm:mr-2'"
@@ -250,11 +254,11 @@
             </transition>
 
             <div
-              ref="lyricsContent"
               class="lyrics-content mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4 max-w-2xl"
             >
               <div
-                v-for="(line, index) in roomState.currentLyrics" :key="index" class="lyric-line transition-all duration-300" :class="[{
+                v-for="(line, index) in roomState.currentLyrics" :key="index"
+                class="lyric-line transition-all duration-300" :class="[{
                   'active text-white font-medium mb-3 mt-3': index === roomState.currentLyricIndex,
                   'text-gray-400 mb-1': index !== roomState.currentLyricIndex,
                   'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': index === roomState.currentLyricIndex,
@@ -326,7 +330,8 @@
                   >
                     <div class="pr-4">
                       <div
-                        v-for="(line, index) in roomState.currentLyrics" :key="index" class="lyric-line transition-all duration-300" :class="[{
+                        v-for="(line, index) in roomState.currentLyrics" :key="index"
+                        class="lyric-line transition-all duration-300" :class="[{
                           'active space-y-6 text-white font-medium mb-4 mt-4': index === roomState.currentLyricIndex,
                           'text-gray-400 space-y-1': index !== roomState.currentLyricIndex,
                           'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': index === roomState.currentLyricIndex,
@@ -371,8 +376,7 @@
               <!-- 退出沉浸模式 -->
               <button
                 class="w-12 h-12 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-black/60 transition-all shadow-xl touch-target group"
-                title="退出沉浸模式 (F键或ESC键)"
-                @click="toggleImmersiveMode"
+                title="退出沉浸模式 (F键或ESC键)" @click="toggleImmersiveMode"
               >
                 <i class="fa-solid fa-compress text-lg group-hover:scale-110 transition-transform" />
               </button>
@@ -380,8 +384,7 @@
               <!-- 帮助按钮 -->
               <button
                 class="w-12 h-12 bg-black/40 backdrop-blur-md border border-white/20 text-green-400 rounded-full flex items-center justify-center hover:bg-green-500/20 transition-all shadow-xl touch-target group"
-                title="帮助"
-                @click="showHelp = true"
+                title="帮助" @click="showHelp = true"
               >
                 <i class="fa-solid fa-question-circle text-lg group-hover:scale-110 transition-transform" />
               </button>
@@ -499,7 +502,8 @@
             <div class="p-3 border-t border-white/10">
               <div class="relative">
                 <input
-                  v-model="newMessage" type="text" placeholder="发送消息..." class="w-full bg-white/10 rounded-full py-2 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  v-model="newMessage" type="text" placeholder="发送消息..."
+                  class="w-full bg-white/10 rounded-full py-2 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   @keyup.enter="sendMessage"
                 >
                 <button
@@ -524,7 +528,10 @@
                       processedOnlineUsers.length }}</span>
                   </div>
                   <button
-                    :disabled="isRefreshingUsers" class="text-gray-400 hover:text-white transition-all duration-200 p-1 rounded" :class="[{ 'opacity-50 cursor-not-allowed': isRefreshingUsers }]" title="刷新用户列表" @click="refreshOnlineUsers"
+                    :disabled="isRefreshingUsers"
+                    class="text-gray-400 hover:text-white transition-all duration-200 p-1 rounded"
+                    :class="[{ 'opacity-50 cursor-not-allowed': isRefreshingUsers }]" title="刷新用户列表"
+                    @click="refreshOnlineUsers"
                   >
                     <i
                       :class="isRefreshingUsers ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-refresh'"
@@ -534,7 +541,10 @@
                 </h2>
               </div>
               <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 max-h-48">
-                <div v-for="user in processedOnlineUsers" :key="user.name" class="flex items-center p-2 hover:bg-white/5 rounded-lg">
+                <div
+                  v-for="user in processedOnlineUsers" :key="user.name"
+                  class="flex items-center p-2 hover:bg-white/5 rounded-lg"
+                >
                   <div class="w-8 h-8 rounded-full overflow-hidden relative mr-3">
                     <img :src="user.avatar" :alt="user.name" class="w-full h-full object-cover">
                     <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-dark" />
@@ -570,18 +580,19 @@
               </button>
             </div>
             <div class="flex-1 overflow-y-auto p-4 smooth-scroll scrollbar-hide">
+              <!-- 搜索模式选择 -->
               <!-- 音乐来源选择 -->
               <div class="mb-6">
                 <h3 class="text-base md:text-lg font-medium mb-3">
                   选择音乐平台
                 </h3>
-                <div
-                  class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-h-32 overflow-y-auto custom-scrollbar"
-                >
+                <div class="grid grid-cols-3 gap-3 max-h-32 overflow-y-auto custom-scrollbar">
                   <button
-                    v-for="source in musicSources" :key="source.id" class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedMusicSource.id === source.id
+                    v-for="source in musicSources" :key="source.id"
+                    class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedMusicSource.id === source.id
                       ? 'border-primary bg-primary/20 text-white'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']" @click="selectMusicSource(source)"
+                      : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']"
+                    @click="selectMusicSource(source)"
                   >
                     <i
                       :class="source.icon" :style="{ color: selectedMusicSource.id === source.id ? source.color : '' }"
@@ -595,76 +606,149 @@
                     </div>
                   </button>
                 </div>
-              </div> <!-- 搜索框 -->
+              </div>
+              <div class="mb-6">
+                <h3 class="text-base md:text-lg font-medium mb-3">
+                  搜索类型
+                </h3>
+                <div class="mb-3">
+                  <p class="text-xs text-gray-400">
+                    {{ platformSearchTip }}
+                  </p>
+                </div>
+                <div
+                  class="grid gap-3 mb-4" :class="[
+                    availableSearchModes.length === 1 ? 'grid-cols-1'
+                    : availableSearchModes.length === 2 ? 'grid-cols-2'
+                      : 'grid-cols-3',
+                  ]"
+                >
+                  <button
+                    v-for="mode in availableSearchModes" :key="mode.id"
+                    class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedSearchMode.id === mode.id
+                      ? 'border-primary bg-primary/20 text-white'
+                      : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']" @click="selectSearchMode(mode)"
+                  >
+                    <i :class="mode.icon" class="text-lg mb-2 block" />
+                    <div class="text-xs font-medium truncate">
+                      {{ mode.name }}
+                    </div>
+                    <div class="text-xs text-gray-400 truncate mt-1">
+                      {{ mode.description }}
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 搜索框 -->
               <div class="relative mb-6">
                 <input
-                  v-model="songSearchQuery" type="text" :placeholder="`在 ${selectedMusicSource.name} 中搜索歌曲...`"
+                  v-model="songSearchQuery" type="text"
+                  :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
                   class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
                   @keyup.enter="handleSearch"
                 >
                 <button
-                  :disabled="isSearching || !songSearchQuery.trim()" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target"
-                  :class="[songSearchQuery.trim() && !isSearching ? 'text-primary hover:bg-primary/20 active:bg-primary/30' : 'text-gray-500 cursor-not-allowed']" @click="handleSearch"
+                  :disabled="!songSearchQuery.trim()"
+                  class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target"
+                  :class="[songSearchQuery.trim() ? 'text-primary hover:bg-primary/20 active:bg-primary/30' : 'text-gray-500 cursor-not-allowed']"
+                  @click="handleSearch"
                 >
-                  <i v-if="isSearching" class="fa-solid fa-spinner fa-spin" />
-                  <i v-else class="fa-solid fa-search" />
+                  <i class="fa-solid fa-search" />
                 </button>
-              </div> <!-- 搜索结果 -->
+              </div>
+
+              <!-- 搜索结果 -->
               <div v-if="roomState.searchResults.length > 0" class="mb-6">
                 <h3 class="text-base md:text-lg font-medium mb-3">
-                  搜索结果
+                  搜索结果 - {{ selectedSearchMode.name }}
                   <span class="text-xs text-gray-400 ml-2">(来自 {{ selectedMusicSource.name }})</span>
                 </h3>
                 <transition-group
                   name="search-result" tag="div"
                   class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
                 >
-                  <div
-                    v-for="result in roomState.searchResults" :key="result.id"
-                    class="bg-white/5 rounded-lg p-3 flex items-center transition-all"
-                  >
-                    <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
-                      <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex-1 min-w-0 mr-3">
-                      <p class="text-xs text-gray-400 truncate">
-                        {{ `${result.artist} - ${result.title}` }}
-                      </p>
-                      <div class="flex items-center mt-1">
-                        <span class="text-xs text-gray-500 ml-2">{{ formatTime(result.duration / 1000) }}</span>
+                  <!-- 歌曲搜索结果 -->
+                  <div v-if="selectedSearchMode.id === 'song'">
+                    <div v-for="result in roomState.searchResults" class="bg-white/5 rounded-lg p-3 flex items-center transition-all">
+                      <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
+                        <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
                       </div>
+                      <div class="flex-1 min-w-0 mr-3">
+                        <p class="text-sm font-medium truncate mb-1">
+                          {{ result.title }}
+                        </p>
+                        <p class="text-xs text-gray-400 truncate">
+                          {{ result.artist }}
+                        </p>
+                        <div class="flex items-center mt-1">
+                          <span class="text-xs text-gray-500">{{ formatTime(result.duration / 1000) }}</span>
+                        </div>
+                      </div>
+                      <button
+                        class="bg-primary/20 hover:bg-primary/30 active:bg-primary/40 text-primary rounded-full w-10 h-10 flex items-center justify-center transition-all touch-target flex-shrink-0"
+                        @click.stop="pickMusic(result)"
+                      >
+                        <i class="fa-solid fa-plus" />
+                      </button>
                     </div>
-                    <button
-                      class="bg-primary/20 hover:bg-primary/30 active:bg-primary/40 text-primary rounded-full w-10 h-10 flex items-center justify-center transition-all touch-target flex-shrink-0"
-                      @click.stop="pickMusic(result)"
-                    >
-                      <i class="fa-solid fa-plus" />
-                    </button>
+                  </div> <!-- 歌单搜索结果 -->
+                  <div v-if="selectedSearchMode.id === 'playlist' || selectedSearchMode.id === 'user_playlist'">
+                    <div v-for="result in roomState.searchResults" class="bg-white/5 rounded-lg p-3 flex items-center transition-all">
+                      <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
+                        <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
+                        <div class="absolute bottom-0 right-0 bg-black/70 text-white text-xs px-1 rounded-tl">
+                          <i class="fa-solid fa-list-ul" />
+                        </div>
+                      </div>
+                      <div class="flex-1 min-w-0 mr-3">
+                        <p class="text-sm font-medium truncate mb-1">
+                          {{ result.title }}
+                        </p>
+                        <p class="text-xs text-gray-400 truncate">
+                          {{ (result as any).creator || '未知创建者' }}
+                        </p>
+                        <div class="flex items-center mt-1">
+                          <span class="text-xs text-gray-500">{{ (result as any).songCount || 0 }} 首歌曲</span>
+                        </div>
+                      </div>
+                      <button
+                        class="bg-green-500/20 hover:bg-green-500/30 active:bg-green-500/40 text-green-400 rounded-full w-10 h-10 flex items-center justify-center transition-all touch-target flex-shrink-0"
+                        @click.stop="viewPlaylist(result)"
+                      >
+                        <i class="fa-solid fa-eye" />
+                      </button>
+                    </div>
                   </div>
                 </transition-group>
-              </div> <!-- 搜索提示 -->
-              <div v-else-if="songSearchQuery.trim() && !isSearching" class="mb-6 text-center py-8 text-gray-400">
+              </div>
+
+              <!-- 搜索提示 -->
+              <div v-else-if="songSearchQuery.trim()" class="mb-6 text-center py-8 text-gray-400">
                 <i class="fa-solid fa-search text-3xl mb-3 opacity-50" />
                 <p class="text-sm">
-                  在 {{ selectedMusicSource.name }} 中未找到相关歌曲
+                  在 {{ selectedMusicSource.name }} 中未找到相关{{ selectedSearchMode.name }}
                 </p>
                 <p class="text-xs mt-1">
                   试试搜索其他关键词或切换音乐平台
                 </p>
-              </div> <!-- 初始状态提示 -->
+              </div>
+
+              <!-- 初始状态提示 -->
               <div
                 v-else-if="!songSearchQuery.trim() && roomState.searchResults.length === 0"
                 class="mb-6 text-center py-12 text-gray-400"
               >
-                <i class="fa-solid fa-music text-4xl mb-4 opacity-50" />
+                <i :class="selectedSearchMode.icon" class="text-4xl mb-4 opacity-50" />
                 <p class="text-base mb-2">
-                  搜索你喜欢的音乐
+                  搜索你喜欢的{{ selectedSearchMode.name }}
                 </p>
                 <p class="text-sm">
-                  在上方输入歌曲名称、歌手或专辑，然后点击搜索按钮
+                  在上方输入{{ selectedSearchMode.name === '歌曲' ? '歌曲名称、歌手或专辑' : selectedSearchMode.name === '歌单' ? '歌单名称'
+                    : '用户名称' }}，然后点击搜索按钮
                 </p>
                 <p class="text-xs mt-2 opacity-75">
-                  当前平台：{{ selectedMusicSource.name }}
+                  当前平台：{{ selectedMusicSource.name }} | 搜索类型：{{ selectedSearchMode.name }}
                 </p>
               </div>
             </div>
@@ -699,7 +783,9 @@
               </div>
               <div class="space-y-1">
                 <div
-                  v-for="(song, index) in processedPlaylist" :key="song.id" class="p-4 flex items-center active:bg-white/10 transition-all cursor-pointer border-b border-white/5 touch-feedback" :class="[{ 'bg-primary/20 border-l-4 border-primary': 0 === index }]"
+                  v-for="(song, index) in processedPlaylist"
+                  class="p-4 flex items-center active:bg-white/10 transition-all cursor-pointer border-b border-white/5 touch-feedback"
+                  :class="[{ 'bg-primary/20 border-l-4 border-primary': 0 === index }]"
                 >
                   <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0">
                     <img :src="song.cover" :alt="song.title" class="w-full h-full object-cover">
@@ -766,12 +852,15 @@
             <div class="p-3 border-t border-white/10">
               <div class="relative">
                 <input
-                  v-model="newMessage" type="text" placeholder="发送消息..." class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
-                  maxlength="200"
-                  @keyup.enter="sendMessage"
+                  v-model="newMessage" type="text" placeholder="发送消息..."
+                  class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
+                  maxlength="200" @keyup.enter="sendMessage"
                 >
                 <button
-                  :disabled="!newMessage.trim()" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target" :class="[newMessage.trim() ? 'text-primary hover:bg-primary/20 active:bg-primary/30' : 'text-gray-500']" @click="sendMessage"
+                  :disabled="!newMessage.trim()"
+                  class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target"
+                  :class="[newMessage.trim() ? 'text-primary hover:bg-primary/20 active:bg-primary/30' : 'text-gray-500']"
+                  @click="sendMessage"
                 >
                   <i class="fa-solid fa-paper-plane" />
                 </button>
@@ -800,7 +889,10 @@
               </h2>
               <div class="flex items-center space-x-2">
                 <button
-                  :disabled="isRefreshingUsers" class="text-gray-400 hover:text-white transition-all duration-200 p-2 rounded-full touch-target" :class="[{ 'opacity-50 cursor-not-allowed': isRefreshingUsers }]" title="刷新用户列表" @click="refreshOnlineUsers"
+                  :disabled="isRefreshingUsers"
+                  class="text-gray-400 hover:text-white transition-all duration-200 p-2 rounded-full touch-target"
+                  :class="[{ 'opacity-50 cursor-not-allowed': isRefreshingUsers }]" title="刷新用户列表"
+                  @click="refreshOnlineUsers"
                 >
                   <i
                     :class="isRefreshingUsers ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-refresh'"
@@ -818,8 +910,7 @@
             <div class="flex-1 overflow-y-auto p-3 smooth-scroll modal-scroll">
               <div class="space-y-2">
                 <div
-                  v-for="user in processedOnlineUsers"
-                  :key="user.name"
+                  v-for="user in processedOnlineUsers" :key="user.name"
                   class="flex items-center p-3 hover:bg-white/5 rounded-lg active:bg-white/10 transition-all cursor-pointer touch-feedback"
                 >
                   <div class="w-10 h-10 rounded-full overflow-hidden relative mr-3 flex-shrink-0">
@@ -921,7 +1012,6 @@ const audioPlayer = ref<HTMLAudioElement>()
 
 // 歌词容器引用
 const lyricsContainer = ref<HTMLElement>()
-const lyricsContent = ref<HTMLElement>()
 const immersiveLyricsContainer = ref<HTMLElement>()
 
 // 房间信息
@@ -938,26 +1028,73 @@ const musicSources = ref<MusicSource[]>([
     name: '网易云音乐',
     icon: 'fa-solid fa-music',
     color: '#d33a31',
-    description: '发现好音乐',
+    description: '歌曲 · 歌单',
   },
   {
     id: 'qq',
     name: 'QQ音乐',
     icon: 'fa-brands fa-qq',
     color: '#31c27c',
-    description: '海量正版音乐',
+    description: '歌曲 · 歌单 · 用户',
   },
   {
     id: 'db',
     name: 'bilibili',
     icon: 'fa-solid fa-tv',
     color: '#00a2d8',
-    description: 'B站音乐',
+    description: '仅歌曲搜索',
   },
 ])
 
+// 搜索模式配置 - 根据音乐平台动态显示
+const allSearchModes = [
+  {
+    id: 'song',
+    name: '歌曲',
+    icon: 'fa-solid fa-music',
+    description: '搜索单曲',
+    supportedSources: ['wy', 'qq', 'db'], // 所有平台都支持歌曲搜索
+  },
+  {
+    id: 'playlist',
+    name: '歌单',
+    icon: 'fa-solid fa-list-ul',
+    description: '搜索歌单',
+    supportedSources: ['wy', 'qq'], // 只有网易云和QQ音乐支持歌单搜索
+  },
+  {
+    id: 'user_playlist',
+    name: '用户歌单',
+    icon: 'fa-solid fa-list-ul',
+    description: '搜索用户',
+    supportedSources: ['qq'], // 只有QQ音乐支持用户搜索
+  },
+]
+
 const selectedMusicSource = ref<MusicSource>(musicSources.value[0])
-const isSearching = ref(false)
+const selectedSearchMode = ref(allSearchModes[0])
+
+// 根据当前选择的音乐源过滤可用的搜索模式
+const availableSearchModes = computed(() => {
+  return allSearchModes.filter(mode =>
+    mode.supportedSources.includes(selectedMusicSource.value.id),
+  )
+})
+
+// 获取当前平台支持的搜索类型提示
+const platformSearchTip = computed(() => {
+  const source = selectedMusicSource.value
+  switch (source.id) {
+    case 'wy':
+      return '网易云音乐支持歌曲和歌单搜索'
+    case 'qq':
+      return 'QQ音乐支持歌曲、歌单和用户搜索'
+    case 'db':
+      return 'bilibili 仅支持歌曲搜索'
+    default:
+      return ''
+  }
+})
 
 // 使用组合式函数
 const {
@@ -1113,16 +1250,33 @@ function getConnectionStatusText() {
 // 搜索音乐方法
 function handleSearch() {
   if (songSearchQuery.value.trim()) {
-    searchMusic(songSearchQuery.value, selectedMusicSource.value)
+    searchMusic(songSearchQuery.value, selectedMusicSource.value, selectedSearchMode.value)
   }
 }
 
-async function searchMusic(query: string, source: MusicSource) {
+async function searchMusic(query: string, source: MusicSource, mode: any) {
+  let action = ''
+  let searchSource = source.id
+  switch (mode.id) {
+    case 'song':
+      action = '/music/search'
+      break
+    case 'playlist':
+      action = '/music/searchsonglist'
+      break
+    case 'user_playlist':
+      searchSource = 'qq_user'
+      action = '/music/searchsonglist'
+      break
+    default:
+      action = '/music/search'
+  }
+
   send({
-    action: '/music/search',
+    action,
     data: {
       name: query,
-      source: source.id,
+      source: searchSource,
       pageIndex: 0,
       pageSize: 50,
     },
@@ -1132,7 +1286,26 @@ async function searchMusic(query: string, source: MusicSource) {
 // 切换音乐来源
 function selectMusicSource(source: MusicSource) {
   selectedMusicSource.value = source
-  // 移除自动搜索，用户需要手动点击搜索按钮
+
+  // 检查当前选择的搜索模式是否支持新的音乐平台
+  const currentModeSupported = availableSearchModes.value.some(
+    mode => mode.id === selectedSearchMode.value.id,
+  )
+
+  // 如果当前搜索模式不支持新平台，自动切换到第一个可用的搜索模式
+  if (!currentModeSupported && availableSearchModes.value.length > 0) {
+    selectedSearchMode.value = availableSearchModes.value[0]
+  }
+
+  // 清空之前的搜索结果
+  clearSearchResults()
+}
+
+// 切换搜索模式
+function selectSearchMode(mode: any) {
+  selectedSearchMode.value = mode
+  // 清空之前的搜索结果
+  clearSearchResults()
 }
 
 // 从搜索结果添加到播放列表
@@ -1145,6 +1318,15 @@ function pickMusic(result: any) {
       source: selectedMusicSource.value.id,
     },
   })
+  showSuccess(`已发送点歌请求: ${result.title}`)
+}
+
+// 查看歌单详情
+function viewPlaylist(playlist: any) {
+  selectedSearchMode.value = availableSearchModes.value[0]
+  songSearchQuery.value = `*${playlist.id}`
+  clearSearchResults()
+  handleSearch()
 }
 
 // 监听计算出的当前时间变化，同步音频播放器
