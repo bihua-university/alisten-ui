@@ -63,7 +63,7 @@ npm run type-check
 项目使用 TypeScript 提供完整的类型安全，主要类型定义在 `src/types/index.ts`：
 
 - `Song`: 歌曲信息接口
-- `User`: 用户信息接口  
+- `User`: 用户信息接口
 - `ChatMessage`: 聊天消息接口
 - `RoomInfo`: 房间信息接口
 - `LyricLine`: 歌词行接口

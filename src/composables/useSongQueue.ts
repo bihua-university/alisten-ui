@@ -1,10 +1,10 @@
 import { computed } from 'vue'
 import { useRoomState } from '@/composables/useRoomState'
 
-export const useSongQueue = () => {
-  const { 
-    roomState, 
-    clearPlaylist, 
+export function useSongQueue() {
+  const {
+    roomState,
+    clearPlaylist,
   } = useRoomState()
 
   // 计算属性
@@ -22,7 +22,7 @@ export const useSongQueue = () => {
     queue,
     queueLength,
     isEmpty,
-    
+
     // 队列管理
     clearQueue,
   }
