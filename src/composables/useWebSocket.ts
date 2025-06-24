@@ -124,14 +124,22 @@ export function useWebSocket() {
     {
       type: 'music',
       handler: (message: any) => {
-        if (!message.id || !message.name) {
+        if (!message.url) {
           console.warn('收到不完整的音乐消息:', message)
           return
         }
 
+        let url = message.url || ''
+        if (url.includes('kuwo.cn') && !url.includes('-')) {
+          const urls = url.split('.sycdn.')
+          const headUrls = urls[0].replace('http://', '').split('.')
+          const lastHeadUrl = headUrls[headUrls.length - 1]
+          url = `https://${lastHeadUrl}-sycdn.${urls[1]}&timestamp=${Date.now()}`
+        }
+        url = url.replace('http://', 'https://')
+
         const music: Song = {
-          id: message.id,
-          url: message.url || '',
+          url,
           title: message.name,
           artist: message.artist || '未知艺术家',
           album: message.album?.name || '未知专辑',

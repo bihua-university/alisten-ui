@@ -75,7 +75,6 @@ npm run type-check
 - `usePlayer`: 播放器控制逻辑
 - `useChat`: 聊天功能逻辑
 - `useLyrics`: 歌词同步逻辑
-- `useSongQueue`: 点歌队列逻辑
 
 ### 响应式设计
 

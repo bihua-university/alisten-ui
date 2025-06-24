@@ -9,9 +9,6 @@ export interface Song {
   requestedBy?: User
 }
 
-// 只读版本的 Song，用于防止直接修改
-export type ReadonlySong = Readonly<Omit<Song, 'likedBy'>> & { readonly likedBy: readonly number[] }
-
 export interface User {
   name: string
   avatar: string
