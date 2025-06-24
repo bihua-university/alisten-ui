@@ -200,7 +200,7 @@
               <!-- 点歌台 -->
               <button
                 class="bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-                @click="showSongQueue = true"
+                @click="showMusicSearchModal = true"
               >
                 <i class="fa-solid fa-music mr-1 sm:mr-2" />
                 <span class="hidden sm:inline">点歌台</span>
@@ -440,7 +440,7 @@
             <div class="flex justify-around items-center py-2 px-2">
               <button
                 class="flex flex-col items-center text-gray-400 hover:text-white hover:bg-white/5 active:bg-white/10 transition-all min-w-0 flex-1 py-2 px-1 rounded-lg touch-target"
-                @click="showSongQueue = true"
+                @click="showMusicSearchModal = true"
               >
                 <i class="fa-solid fa-music text-lg" />
                 <span class="text-xs mt-1 truncate">点歌</span>
@@ -555,206 +555,13 @@
             </div>
           </div>
         </aside>
-      </main>
-
-      <!-- 点歌台模态框 -->
-      <transition name="modal">
-        <div v-if="showSongQueue" class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
-          <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showSongQueue = false" />
-          <div
-            class="relative bg-dark border-t border-white/20 md:border md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
-          >
-            <!-- 顶部拖拽指示器（仅移动端） -->
-            <div class="md:hidden flex justify-center py-2">
-              <div class="w-8 h-1 bg-gray-500 rounded-full" />
-            </div>
-            <div class="p-4 border-b border-white/10 flex justify-between items-center">
-              <h2 class="text-lg md:text-xl font-semibold">
-                点歌台
-              </h2>
-              <button
-                class="text-gray-400 hover:text-white transition-colors touch-target"
-                @click="showSongQueue = false"
-              >
-                <i class="fa-solid fa-times text-lg" />
-              </button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4 smooth-scroll scrollbar-hide">
-              <!-- 搜索模式选择 -->
-              <!-- 音乐来源选择 -->
-              <div class="mb-6">
-                <h3 class="text-base md:text-lg font-medium mb-3">
-                  选择音乐平台
-                </h3>
-                <div class="grid grid-cols-3 gap-3 max-h-32 overflow-y-auto custom-scrollbar">
-                  <button
-                    v-for="source in musicSources" :key="source.id"
-                    class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedMusicSource.id === source.id
-                      ? 'border-primary bg-primary/20 text-white'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']"
-                    @click="selectMusicSource(source)"
-                  >
-                    <i
-                      :class="source.icon" :style="{ color: selectedMusicSource.id === source.id ? source.color : '' }"
-                      class="text-lg mb-2 block"
-                    />
-                    <div class="text-xs font-medium truncate">
-                      {{ source.name }}
-                    </div>
-                    <div class="text-xs text-gray-400 truncate mt-1">
-                      {{ source.description }}
-                    </div>
-                  </button>
-                </div>
-              </div>
-              <div class="mb-6">
-                <h3 class="text-base md:text-lg font-medium mb-3">
-                  搜索类型
-                </h3>
-                <div class="mb-3">
-                  <p class="text-xs text-gray-400">
-                    {{ platformSearchTip }}
-                  </p>
-                </div>
-                <div
-                  class="grid gap-3 mb-4" :class="[
-                    availableSearchModes.length === 1 ? 'grid-cols-1'
-                    : availableSearchModes.length === 2 ? 'grid-cols-2'
-                      : 'grid-cols-3',
-                  ]"
-                >
-                  <button
-                    v-for="mode in availableSearchModes" :key="mode.id"
-                    class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedSearchMode.id === mode.id
-                      ? 'border-primary bg-primary/20 text-white'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']" @click="selectSearchMode(mode)"
-                  >
-                    <i :class="mode.icon" class="text-lg mb-2 block" />
-                    <div class="text-xs font-medium truncate">
-                      {{ mode.name }}
-                    </div>
-                    <div class="text-xs text-gray-400 truncate mt-1">
-                      {{ mode.description }}
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              <!-- 搜索框 -->
-              <div class="relative mb-6">
-                <input
-                  v-model="songSearchQuery" type="text"
-                  :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
-                  class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
-                  @keyup.enter="handleSearch"
-                >
-                <button
-                  :disabled="!songSearchQuery.trim()"
-                  class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target"
-                  :class="[songSearchQuery.trim() ? 'text-primary hover:bg-primary/20 active:bg-primary/30' : 'text-gray-500 cursor-not-allowed']"
-                  @click="handleSearch"
-                >
-                  <i class="fa-solid fa-search" />
-                </button>
-              </div>
-
-              <!-- 搜索结果 -->
-              <div v-if="roomState.searchResults.length > 0" class="mb-6">
-                <h3 class="text-base md:text-lg font-medium mb-3">
-                  搜索结果 - {{ selectedSearchMode.name }}
-                  <span class="text-xs text-gray-400 ml-2">(来自 {{ selectedMusicSource.name }})</span>
-                </h3>
-                <transition-group
-                  name="search-result" tag="div"
-                  class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
-                >
-                  <!-- 歌曲搜索结果 -->
-                  <div v-if="selectedSearchMode.id === 'song'">
-                    <div v-for="result in roomState.searchResults" class="bg-white/5 rounded-lg p-3 flex items-center transition-all">
-                      <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
-                        <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
-                      </div>
-                      <div class="flex-1 min-w-0 mr-3">
-                        <p class="text-sm font-medium truncate mb-1">
-                          {{ result.title }}
-                        </p>
-                        <p class="text-xs text-gray-400 truncate">
-                          {{ result.artist }}
-                        </p>
-                        <div class="flex items-center mt-1">
-                          <span class="text-xs text-gray-500">{{ formatTime(result.duration / 1000) }}</span>
-                        </div>
-                      </div>
-                      <button
-                        class="bg-primary/20 hover:bg-primary/30 active:bg-primary/40 text-primary rounded-full w-10 h-10 flex items-center justify-center transition-all touch-target flex-shrink-0"
-                        @click.stop="pickMusic(result)"
-                      >
-                        <i class="fa-solid fa-plus" />
-                      </button>
-                    </div>
-                  </div> <!-- 歌单搜索结果 -->
-                  <div v-if="selectedSearchMode.id === 'playlist' || selectedSearchMode.id === 'user_playlist'">
-                    <div v-for="result in roomState.searchResults" class="bg-white/5 rounded-lg p-3 flex items-center transition-all">
-                      <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
-                        <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
-                        <div class="absolute bottom-0 right-0 bg-black/70 text-white text-xs px-1 rounded-tl">
-                          <i class="fa-solid fa-list-ul" />
-                        </div>
-                      </div>
-                      <div class="flex-1 min-w-0 mr-3">
-                        <p class="text-sm font-medium truncate mb-1">
-                          {{ result.title }}
-                        </p>
-                        <p class="text-xs text-gray-400 truncate">
-                          {{ (result as any).creator || '未知创建者' }}
-                        </p>
-                        <div class="flex items-center mt-1">
-                          <span class="text-xs text-gray-500">{{ (result as any).songCount || 0 }} 首歌曲</span>
-                        </div>
-                      </div>
-                      <button
-                        class="bg-green-500/20 hover:bg-green-500/30 active:bg-green-500/40 text-green-400 rounded-full w-10 h-10 flex items-center justify-center transition-all touch-target flex-shrink-0"
-                        @click.stop="viewPlaylist(result)"
-                      >
-                        <i class="fa-solid fa-eye" />
-                      </button>
-                    </div>
-                  </div>
-                </transition-group>
-              </div>
-
-              <!-- 搜索提示 -->
-              <div v-else-if="songSearchQuery.trim()" class="mb-6 text-center py-8 text-gray-400">
-                <i class="fa-solid fa-search text-3xl mb-3 opacity-50" />
-                <p class="text-sm">
-                  在 {{ selectedMusicSource.name }} 中未找到相关{{ selectedSearchMode.name }}
-                </p>
-                <p class="text-xs mt-1">
-                  试试搜索其他关键词或切换音乐平台
-                </p>
-              </div>
-
-              <!-- 初始状态提示 -->
-              <div
-                v-else-if="!songSearchQuery.trim() && roomState.searchResults.length === 0"
-                class="mb-6 text-center py-12 text-gray-400"
-              >
-                <i :class="selectedSearchMode.icon" class="text-4xl mb-4 opacity-50" />
-                <p class="text-base mb-2">
-                  搜索你喜欢的{{ selectedSearchMode.name }}
-                </p>
-                <p class="text-sm">
-                  在上方输入{{ selectedSearchMode.name === '歌曲' ? '歌曲名称、歌手或专辑' : selectedSearchMode.name === '歌单' ? '歌单名称'
-                    : '用户名称' }}，然后点击搜索按钮
-                </p>
-                <p class="text-xs mt-2 opacity-75">
-                  当前平台：{{ selectedMusicSource.name }} | 搜索类型：{{ selectedSearchMode.name }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </transition>
+      </main>      <!-- 点歌台模态框 -->
+      <MusicSearchModal
+        :show="showMusicSearchModal"
+        :search-results="roomState.searchResults"
+        :music-sources="musicSources"
+        @close="showMusicSearchModal = false"
+      />
 
       <!-- 帮助弹窗 -->
       <HelpModal :show="showHelp" @close="showHelp = false" />
@@ -959,6 +766,7 @@
 import type { MusicSource, RoomInfo } from '@/types'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import HelpModal from '@/components/HelpModal.vue'
+import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
 import { useChat } from '@/composables/useChat'
@@ -994,7 +802,7 @@ const {
 
 // UI状态
 const showMobileMenu = ref(false)
-const showSongQueue = ref(false)
+const showMusicSearchModal = ref(false)
 const showHelp = ref(false)
 const showMobileChat = ref(false)
 const showMobileUsers = ref(false)
@@ -1002,7 +810,6 @@ const showMobilePlaylist = ref(false)
 const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
 const isImmersiveMode = ref(false) // 沉浸模式状态
 const searchQuery = ref('')
-const songSearchQuery = ref('')
 const mobileChatMessages = ref<HTMLElement>()
 const isRefreshingUsers = ref(false)
 const isDevelopment = import.meta.env.DEV
@@ -1046,60 +853,9 @@ const musicSources = ref<MusicSource[]>([
   },
 ])
 
-// 搜索模式配置 - 根据音乐平台动态显示
-const allSearchModes = [
-  {
-    id: 'song',
-    name: '歌曲',
-    icon: 'fa-solid fa-music',
-    description: '搜索单曲',
-    supportedSources: ['wy', 'qq', 'db'], // 所有平台都支持歌曲搜索
-  },
-  {
-    id: 'playlist',
-    name: '歌单',
-    icon: 'fa-solid fa-list-ul',
-    description: '搜索歌单',
-    supportedSources: ['wy', 'qq'], // 只有网易云和QQ音乐支持歌单搜索
-  },
-  {
-    id: 'user_playlist',
-    name: '用户歌单',
-    icon: 'fa-solid fa-list-ul',
-    description: '搜索用户',
-    supportedSources: ['qq'], // 只有QQ音乐支持用户搜索
-  },
-]
-
-const selectedMusicSource = ref<MusicSource>(musicSources.value[0])
-const selectedSearchMode = ref(allSearchModes[0])
-
-// 根据当前选择的音乐源过滤可用的搜索模式
-const availableSearchModes = computed(() => {
-  return allSearchModes.filter(mode =>
-    mode.supportedSources.includes(selectedMusicSource.value.id),
-  )
-})
-
-// 获取当前平台支持的搜索类型提示
-const platformSearchTip = computed(() => {
-  const source = selectedMusicSource.value
-  switch (source.id) {
-    case 'wy':
-      return '网易云音乐支持歌曲和歌单搜索'
-    case 'qq':
-      return 'QQ音乐支持歌曲、歌单和用户搜索'
-    case 'db':
-      return 'bilibili 仅支持歌曲搜索'
-    default:
-      return ''
-  }
-})
-
 // 使用组合式函数
 const {
   roomState,
-  clearSearchResults,
   setCurrentTime,
 } = useRoomState()
 
@@ -1247,88 +1003,6 @@ function getConnectionStatusText() {
   }
 }
 
-// 搜索音乐方法
-function handleSearch() {
-  if (songSearchQuery.value.trim()) {
-    searchMusic(songSearchQuery.value, selectedMusicSource.value, selectedSearchMode.value)
-  }
-}
-
-async function searchMusic(query: string, source: MusicSource, mode: any) {
-  let action = ''
-  let searchSource = source.id
-  switch (mode.id) {
-    case 'song':
-      action = '/music/search'
-      break
-    case 'playlist':
-      action = '/music/searchsonglist'
-      break
-    case 'user_playlist':
-      searchSource = 'qq_user'
-      action = '/music/searchsonglist'
-      break
-    default:
-      action = '/music/search'
-  }
-
-  send({
-    action,
-    data: {
-      name: query,
-      source: searchSource,
-      pageIndex: 0,
-      pageSize: 50,
-    },
-  })
-}
-
-// 切换音乐来源
-function selectMusicSource(source: MusicSource) {
-  selectedMusicSource.value = source
-
-  // 检查当前选择的搜索模式是否支持新的音乐平台
-  const currentModeSupported = availableSearchModes.value.some(
-    mode => mode.id === selectedSearchMode.value.id,
-  )
-
-  // 如果当前搜索模式不支持新平台，自动切换到第一个可用的搜索模式
-  if (!currentModeSupported && availableSearchModes.value.length > 0) {
-    selectedSearchMode.value = availableSearchModes.value[0]
-  }
-
-  // 清空之前的搜索结果
-  clearSearchResults()
-}
-
-// 切换搜索模式
-function selectSearchMode(mode: any) {
-  selectedSearchMode.value = mode
-  // 清空之前的搜索结果
-  clearSearchResults()
-}
-
-// 从搜索结果添加到播放列表
-function pickMusic(result: any) {
-  send({
-    action: '/music/pick',
-    data: {
-      id: result.id,
-      name: result.title,
-      source: selectedMusicSource.value.id,
-    },
-  })
-  showSuccess(`已发送点歌请求: ${result.title}`)
-}
-
-// 查看歌单详情
-function viewPlaylist(playlist: any) {
-  selectedSearchMode.value = availableSearchModes.value[0]
-  songSearchQuery.value = `*${playlist.id}`
-  clearSearchResults()
-  handleSearch()
-}
-
 // 监听计算出的当前时间变化，同步音频播放器
 watch(() => roomState.pushTime, (pushTime) => {
   if (!pushTime || pushTime === 0)
@@ -1368,15 +1042,6 @@ watch(isMuted, (muted) => {
     audioPlayer.value.muted = muted
   }
 }, { immediate: true })
-
-// 监听点歌台显示状态
-watch(showSongQueue, (isVisible) => {
-  // 移除自动搜索，让用户主动搜索
-  if (isVisible) {
-    // 清空之前的搜索结果
-    clearSearchResults()
-  }
-})
 
 // 监听当前歌词索引变化，实现自动滚动
 watch(() => roomState.currentLyricIndex, (newIndex) => {
