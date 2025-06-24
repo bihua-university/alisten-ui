@@ -14,7 +14,9 @@ export function useLyrics() {
       isPassed: index < roomState.currentLyricIndex,
       isComing: index > roomState.currentLyricIndex,
     }))
-  }) // 模拟歌词同步
+  })
+
+  // 模拟歌词同步
   const syncLyrics = (currentTime: number) => {
     if (roomState.currentLyrics.length > 0) {
       const currentLyric = roomState.currentLyrics.findIndex((lyric: LyricLine) =>
@@ -31,21 +33,14 @@ export function useLyrics() {
   // 加载LRC格式歌词
   const loadLrcLyrics = (lrcContent: string) => {
     try {
-      if (!lrcContent.trim()) {
-        console.warn('歌词内容为空')
+      if (!lrcContent.trim() || !isValidLrc(lrcContent)) {
+        clearLyrics()
         return false
       }
 
-      if (!isValidLrc(lrcContent)) {
-        console.warn('无效的LRC格式')
-        return false
-      }
       const parsed = parseLyrics(lrcContent)
       setCurrentLyrics(parsed.lyrics)
       setCurrentLyricIndex(0)
-
-      console.log('LRC歌词解析成功:', parsed.lyrics)
-
       return true
     }
     catch (error) {
@@ -53,6 +48,7 @@ export function useLyrics() {
       return false
     }
   }
+
   // 跳转到指定歌词行
   const seekToLyric = (index: number) => {
     if (index >= 0 && index < roomState.currentLyrics.length) {
@@ -61,6 +57,7 @@ export function useLyrics() {
     }
     return 0
   }
+
   // 获取当前歌词信息
   const getCurrentLyricInfo = () => {
     const current = roomState.currentLyrics[roomState.currentLyricIndex]
