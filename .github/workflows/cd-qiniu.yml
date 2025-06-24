@@ -25,7 +25,7 @@ jobs:
     - name: Build Project
       run: npm run build
 
-    - uses: hujiulong/action-qiniu-upload@master
+    - uses: QriDoki/action-qiniu-upload@master
       with:
         # Your qiniu access key, required.
         access_key: ${{ secrets.QINIU_ACCESS_KEY }}
@@ -47,3 +47,4 @@ jobs:
         # Whether to ignore source maps.
         # Default: true
         ignore_source_map: true
+        overwrite: true
