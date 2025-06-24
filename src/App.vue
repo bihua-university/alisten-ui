@@ -1010,7 +1010,7 @@ const processedPlaylist = computed(() =>
 )
 
 // 歌词自动滚动功能
-function scrollLyricsToCenter(container: HTMLElement | undefined, index: number) {
+function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
   if (!container)
     return
 
@@ -1024,10 +1024,10 @@ function scrollLyricsToCenter(container: HTMLElement | undefined, index: number)
     // 计算目标滚动位置（让当前歌词居中）
     const targetScrollTop = targetTop - (containerHeight / 2) + (targetHeight / 2)
 
-    // 平滑滚动到目标位置
+    // 根据参数决定是否平滑滚动
     container.scrollTo({
       top: Math.max(0, targetScrollTop),
-      behavior: 'smooth',
+      behavior: smooth ? 'smooth' : 'instant',
     })
   }
 }
@@ -1043,6 +1043,19 @@ function toggleMobileMenu() {
 // 切换沉浸模式
 function toggleImmersiveMode() {
   isImmersiveMode.value = !isImmersiveMode.value
+
+  // 切换模式后立即同步歌词位置（使用瞬间跳转，不使用平滑滚动）
+  nextTick(() => {
+    const currentIndex = roomState.currentLyricIndex
+    if (currentIndex >= 0 && roomState.currentLyrics.length > 0) {
+      if (isImmersiveMode.value) {
+        scrollLyricsToCenter(immersiveLyricsContainer.value, currentIndex, false)
+      }
+      else {
+        scrollLyricsToCenter(lyricsContainer.value, currentIndex, false)
+      }
+    }
+  })
 }
 
 // 确认加入房间相关方法
