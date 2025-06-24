@@ -48,3 +48,8 @@ jobs:
         # Default: true
         ignore_source_map: true
         overwrite: true
+    - uses: QriDoki/action-qiniu-refresh@main
+      with:
+        access_key: ${{ secrets.QINIU_ACCESS_KEY }}
+        secret_key: ${{ secrets.QINIU_SECRET_KEY }}
+        refresh_urls: ${{ secrets.QINIU_REFRESH_URLS }}
