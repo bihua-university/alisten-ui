@@ -25,7 +25,7 @@ jobs:
     - name: Build Project
       run: npm run build
 
-    - uses: hujiulong/action-qiniu-upload@master
+    - uses: QriDoki/action-qiniu-upload@master
       with:
         # Your qiniu access key, required.
         access_key: ${{ secrets.QINIU_ACCESS_KEY }}
@@ -47,3 +47,9 @@ jobs:
         # Whether to ignore source maps.
         # Default: true
         ignore_source_map: true
+        overwrite: true
+    - uses: QriDoki/action-qiniu-refresh@main
+      with:
+        access_key: ${{ secrets.QINIU_ACCESS_KEY }}
+        secret_key: ${{ secrets.QINIU_SECRET_KEY }}
+        refresh_urls: ${{ secrets.QINIU_REFRESH_URLS }}
