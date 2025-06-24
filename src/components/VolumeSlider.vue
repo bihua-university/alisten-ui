@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center space-x-2">
+  <div class="flex items-center space-x-2" @wheel="handleVolumeWheel">
     <button @click="handleMuteToggle"
       :class="['transition-colors', isMuted ? 'text-gray-400' : 'text-gray-400 hover:text-white']">
       <i :class="isMuted ? 'fa-solid fa-volume-mute' : 'fa-solid fa-volume-up'"></i>
@@ -81,6 +81,17 @@ const handleVolumeMouseDown = (event: MouseEvent) => {
   
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)
+}
+
+// 滚轮控制音量
+const handleVolumeWheel = (event: WheelEvent) => {
+  event.preventDefault()
+  
+  // 滚轮向上增加音量，向下减少音量
+  const delta = event.deltaY < 0 ? 5 : -5
+  const newVolume = Math.max(0, Math.min(100, props.volume + delta))
+  
+  setVolumeValue(newVolume)
 }
 
 const setVolumeValue = (newVolume: number) => {
