@@ -106,9 +106,39 @@
                     例如：点歌 青花瓷
                   </div>
                 </div>
+              </div>              <div class="flex items-start">
+                <i class="fa-solid fa-user-edit text-teal-400 mr-3 mt-0.5 w-4 text-center" />
+                <div>
+                  <div class="font-medium mb-1">
+                    设置昵称
+                  </div>
+                  <div class="text-gray-300">
+                    在聊天框中输入"设置昵称 [新昵称]"来更改你在房间中显示的名称
+                  </div>
+                  <div class="text-xs text-gray-400 mt-1">
+                    例如：设置昵称 音乐爱好者
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <i class="fa-solid fa-user-circle text-indigo-400 mr-3 mt-0.5 w-4 text-center" />
+                <div>
+                  <div class="font-medium mb-1">
+                    设置头像
+                  </div>
+                  <div class="text-gray-300">
+                    使用 "昵称&lt;邮箱&gt;" 格式，系统会自动从 Gravatar 获取您的头像
+                  </div>
+                  <div class="text-xs text-gray-400 mt-1">
+                    例如：设置昵称 音乐爱好者&lt;user@example.com&gt;
+                  </div>
+                  <div class="text-xs text-gray-400 mt-1">
+                    💡 先在 <a href="https://gravatar.com" target="_blank" class="text-indigo-300 hover:text-indigo-200 underline">gravatar.com</a> 注册并上传头像
+                  </div>
+                </div>
               </div>
             </div>
-          </div>          <!-- 快捷键 -->
+          </div><!-- 快捷键 -->
           <div class="mb-6">
             <h3 class="text-lg font-medium mb-3 text-primary flex items-center">
               <i class="fa-solid fa-keyboard mr-2" />
