@@ -82,7 +82,9 @@ export function useRoomState() {
   const clearLyrics = () => {
     roomState.currentLyrics = []
     roomState.currentLyricIndex = 0
-  } // 重置整个房间状态
+  }
+
+  // 重置整个房间状态
   const resetRoomState = () => {
     roomState.currentTime = 0
     roomState.currentSong = null

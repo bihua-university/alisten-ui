@@ -288,17 +288,6 @@
               >
             </div>
 
-            <!-- 切歌提示消息 -->
-            <transition name="modal">
-              <div v-if="showSkipMessage" class="absolute top-8 left-1/2 transform -translate-x-1/2 z-20">
-                <div
-                  class="bg-orange-500/90 text-white px-6 py-3 rounded-full text-lg font-medium shadow-2xl backdrop-blur-sm"
-                >
-                  <i class="fa-solid fa-forward mr-3" />{{ skipMessage }}
-                </div>
-              </div>
-            </transition>
-
             <!-- 主要内容区域 -->
             <div class="relative z-10 w-full max-w-6xl mx-auto">
               <div class="immersive-grid grid lg:grid-cols-2 gap-12 items-center">
@@ -335,11 +324,11 @@
                     ref="immersiveLyricsContainer"
                     class="flex-1 overflow-y-auto immersive-lyrics-container mx-auto text-center space-y-1 sm:px-4 max-w-2xl"
                   >
-                    <div class="space-y-6 pr-4">
+                    <div class="pr-4">
                       <div
                         v-for="(line, index) in roomState.currentLyrics" :key="index" class="lyric-line transition-all duration-300" :class="[{
-                          'active text-white font-medium mb-3 mt-3': index === roomState.currentLyricIndex,
-                          'text-gray-400 mb-1': index !== roomState.currentLyricIndex,
+                          'active space-y-6 text-white font-medium mb-4 mt-4': index === roomState.currentLyricIndex,
+                          'text-gray-400 space-y-1': index !== roomState.currentLyricIndex,
                           'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': index === roomState.currentLyricIndex,
                           'text-sm sm:text-base md:text-lg': index !== roomState.currentLyricIndex,
                         }]"
@@ -632,7 +621,7 @@
                 >
                   <div
                     v-for="result in roomState.searchResults" :key="result.id"
-                    class="bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-lg p-3 flex items-center transition-all touch-feedback"
+                    class="bg-white/5 rounded-lg p-3 flex items-center transition-all"
                   >
                     <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
                       <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
@@ -1401,7 +1390,6 @@ onUnmounted(() => {
 <style scoped>
 /* 歌词样式 */
 .lyric-line {
-  margin: 0.5rem 0;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   transition: all 0.3s ease;
