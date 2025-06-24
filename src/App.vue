@@ -519,7 +519,7 @@
                     <div class="flex-1 min-w-0 mr-3">
                       <p class="text-xs text-gray-400 truncate">{{ (result.artist) + " - " + (result.title) }}</p>
                       <div class="flex items-center mt-1">
-                        <span class="text-xs text-gray-500 ml-2">{{ formatTime(result.duration) }}</span>
+                        <span class="text-xs text-gray-500 ml-2">{{ formatTime(result.duration / 1000) }}</span>
                       </div>
                     </div>
                     <button @click.stop="pickMusic(result)"
@@ -610,7 +610,7 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-2 mb-1">
                     <span class="font-medium text-sm truncate">{{ message.user.name }}</span>
-                    <span class="text-xs text-gray-400 flex-shrink-0">{{ formatTime(message.timestamp)
+                    <span class="text-xs text-gray-400 flex-shrink-0">{{ formatTimeHH_MM(message.timestamp)
                     }}</span>
                   </div>
                   <p class="text-sm break-words leading-relaxed">{{ message.content }}</p>
