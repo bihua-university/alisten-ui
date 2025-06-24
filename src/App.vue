@@ -726,8 +726,13 @@
                   <div class="text-gray-400 text-xs ml-2">
                     {{ formatTime(song.duration) }}
                   </div>
-                  <div v-if="index !== 0" class="ml-2 text-primary">
-                    <i class="fa-solid fa-volume-up text-sm" />
+                  <div v-if="index !== 0" class="flex items-center space-x-2 ml-2">
+                    <button
+                      class="like-button flex items-center justify-center w-8 h-8 rounded-full text-xs transition-all bg-red-500/20 text-red-400 hover:bg-red-500/30 active:bg-red-500/40 touch-target"
+                      @click.stop="sendSongLike(index, song.title)"
+                    >
+                      <i class="fa-solid fa-heart" />
+                    </button>
                   </div>
                 </div>
               </div>
