@@ -482,23 +482,13 @@ function sendSongLike(index: number, name: string) {
     },
   })
 }
-// 发送播放状态变化
-function sendPlayStateChange(isPlaying: boolean, currentTime: number) {
-  return send({
-    action: 'play_state_change',
-    data: {
-      isPlaying,
-      currentTime,
-    },
-  })
-}
-
-// 清理资源
-onUnmounted(() => {
-  disconnect()
-})
 
 export function useWebSocket() {
+  // 清理资源
+  onUnmounted(() => {
+    disconnect()
+  })
+
   return {
     // 状态
     connectionStatus,
@@ -518,7 +508,6 @@ export function useWebSocket() {
     emit, // 业务方法
     sendChatMessage,
     sendSongLike,
-    sendPlayStateChange,
 
     // 配置
     config,

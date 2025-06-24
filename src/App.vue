@@ -225,15 +225,19 @@
                 <span class="sm:hidden">帮助</span>
               </button>
 
-              <!-- 沉浸模式 -->
-              <button
-                class="bg-purple-500/20 hover:bg-purple-500/30 active:bg-purple-500/40 text-purple-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-                @click="toggleImmersiveMode"
-              >
-                <i :class="isImmersiveMode ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'" class="mr-1 sm:mr-2" />
-                <span class="hidden sm:inline">{{ isImmersiveMode ? '退出沉浸' : '沉浸模式' }}</span>
-                <span class="sm:hidden">{{ isImmersiveMode ? '退出' : '沉浸' }}</span>
-              </button>
+              <!-- 沉浸模式, 移动端隐藏 -->
+              <div class="hidden md:block">
+                <button
+                  class="bg-purple-500/20 hover:bg-purple-500/30 active:bg-purple-500/40 text-purple-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
+                  @click="toggleImmersiveMode"
+                >
+                  <i
+                    :class="isImmersiveMode ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"
+                    class="mr-1 sm:mr-2 hidden md:block"
+                  />
+                  <span class="hidden md:block">{{ isImmersiveMode ? '退出沉浸' : '沉浸模式' }}</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -392,10 +396,10 @@
           </transition><!-- 进度条 - 仅非沉浸模式 -->
           <div
             v-if="!isImmersiveMode"
-            class="h-3 md:h-1 bg-white/10 rounded-full overflow-hidden cursor-pointer progress-bar relative hidden md:block"
+            class="h-3 md:h-1 bg-white/10 rounded-full overflow-hidden relative hidden md:block"
           >
             <div
-              class="h-full bg-primary rounded-full transition-all duration-300"
+              class="h-full immersive-progress rounded-full transition-all duration-300"
               :style="{ width: `${calculatedProgressPercentage}%` }"
             />
           </div>
@@ -420,13 +424,13 @@
                 </p>
               </div>
               <div class="flex flex-col items-center space-x-2 sm:space-x-3 flex-shrink-0">
-                <!-- 进度条 -->
                 <div class="relative ml-auto">
                   <div class="flex justify-between text-xs text-gray-400 mt-1">
                     <span>{{ formatTime(roomState?.currentTime || 0) }} /
                       {{ formatTime((roomState.currentSong?.duration || 0) / 1000) }}</span>
                   </div>
-                </div> <!-- 音量 -->
+                </div>
+                <!-- 音量 -->
                 <div class="hidden md:flex">
                   <VolumeSlider
                     v-model:volume="volume" v-model:is-muted="isMuted" @volume-change="handleVolumeChange"
@@ -555,12 +559,10 @@
             </div>
           </div>
         </aside>
-      </main>      <!-- 点歌台模态框 -->
+      </main> <!-- 点歌台模态框 -->
       <MusicSearchModal
-        :show="showMusicSearchModal"
-        :search-results="roomState.searchResults"
-        :music-sources="musicSources"
-        @close="showMusicSearchModal = false"
+        :show="showMusicSearchModal" :search-results="roomState.searchResults"
+        :music-sources="musicSources" @close="showMusicSearchModal = false"
       />
 
       <!-- 帮助弹窗 -->
