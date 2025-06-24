@@ -29,7 +29,7 @@
             </h3>
             <div class="space-y-3 text-sm">
               <div class="flex items-start">
-                <i class="fa-solid fa-music text-blue-400 mr-3 mt-0.5" />
+                <i class="fa-solid fa-music text-blue-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
                     点歌
@@ -40,7 +40,7 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <i class="fa-solid fa-forward text-orange-400 mr-3 mt-0.5" />
+                <i class="fa-solid fa-forward text-orange-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
                     切歌
@@ -51,7 +51,7 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <i class="fa-solid fa-heart text-red-400 mr-3 mt-0.5" />
+                <i class="fa-solid fa-heart text-red-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
                     点赞
@@ -62,7 +62,7 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <i class="fa-solid fa-share text-blue-400 mr-3 mt-0.5" />
+                <i class="fa-solid fa-share text-blue-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
                     分享房间
@@ -83,7 +83,7 @@
             </h3>
             <div class="space-y-3 text-sm">
               <div class="flex items-start">
-                <i class="fa-solid fa-comment-dots text-green-400 mr-3 mt-0.5" />
+                <i class="fa-solid fa-comment-dots text-green-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
                     发送消息
@@ -94,7 +94,7 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <i class="fa-solid fa-search text-purple-400 mr-3 mt-0.5" />
+                <i class="fa-solid fa-search text-purple-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
                     点歌指令
@@ -116,7 +116,7 @@
             </h3>
             <div class="space-y-3 text-sm">
               <div class="flex items-start">
-                <i class="fa-solid fa-eye text-purple-400 mr-3 mt-0.5" />
+                <i class="fa-solid fa-eye text-purple-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
                     沉浸模式
@@ -130,7 +130,7 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <i class="fa-solid fa-mobile-screen text-blue-400 mr-3 mt-0.5" />
+                <i class="fa-solid fa-mobile-screen text-blue-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
                     移动端
@@ -141,7 +141,7 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <i class="fa-solid fa-desktop text-gray-400 mr-3 mt-0.5" />
+                <i class="fa-solid fa-desktop text-gray-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
                     桌面端
