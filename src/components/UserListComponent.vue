@@ -86,7 +86,6 @@
                 <span class="text-sm font-medium truncate block">{{ user.name }}</span>
                 <span class="text-xs text-gray-400">在线</span>
               </div>
-              <!-- Removed empty div as it served no purpose -->
             </div>
           </div>
         </div>

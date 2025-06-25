@@ -68,6 +68,7 @@
       <audio
         ref="audioPlayer" preload="auto" @canplay="true" @autoplay="true"
         @timeupdate="onAudioTimeUpdate" @error="onAudioError"
+        @play="startProgressUpdate" @pause="stopProgressUpdate" @ended="stopProgressUpdate"
       >
         <source :src="roomState.currentSong?.url">
         您的浏览器不支持音频播放。
@@ -105,58 +106,14 @@
             </button>
           </div>
         </div>
-      </transition>
-      <!-- 主内容区 -->
+      </transition>      <!-- 主内容区 -->
       <main class="flex" :class="[isImmersiveMode ? 'h-screen' : 'h-[calc(100vh)]']">
         <!-- 左侧播放列表 -->
-        <aside
-          v-if="!isImmersiveMode"
-          class="w-72 bg-dark/60 backdrop-blur-xl border-r border-white/10 hidden md:block overflow-y-auto scrollbar-hide"
-        >
-          <div class="p-4 border-b border-white/10">
-            <h2 class="text-lg font-semibold flex items-center">
-              <i class="fa-solid fa-list-ul mr-2 text-primary" />播放列表
-            </h2>
-            <p class="text-xs text-gray-400 mt-1">
-              共 {{ processedPlaylist.length }} 首歌曲 · {{ formatTime(totalPlaylistDuration) }}
-            </p>
-          </div>
-          <div class="playlist-container space-y-1">
-            <div
-              v-for="(song, index) in processedPlaylist" :key="song.id"
-              class="playlist-item p-3 flex items-center hover:bg-white/5 cursor-pointer transition-all"
-              :class="[{ 'bg-primary/20 hover:bg-primary/25 border-l-4 border-primary': index === 0 }]"
-            >
-              <div class="w-10 h-10 rounded bg-gray-700 overflow-hidden mr-3">
-                <img :src="song.cover" :alt="song.title" class="w-full h-full object-cover">
-              </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="text-sm font-medium truncate">
-                  {{ song.title }}
-                </h3>
-                <p class="text-xs text-gray-400 truncate">
-                  {{ song.artist }}
-                </p>
-                <div class="flex items-center mt-1 space-x-2">
-                  <div class="requester-info">
-                    <img :src="song.requestedBy?.avatar" :alt="song.requestedBy?.name" class="requester-avatar">
-                    <span>{{ song.requestedBy?.name }}</span>
-                  </div>
-                  <span class="text-gray-400">·</span>
-                  <span class="text-xs text-gray-400">{{ formatTime(song.duration) }}</span>
-                </div>
-              </div>
-              <div v-if="index !== 0" class="flex items-center space-x-2 ml-2">
-                <button
-                  class="like-button flex items-center space-x-1 px-2 py-1 rounded-full text-xs transition-all bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                  @click.stop="sendSongLike(index, song.title)"
-                >
-                  <i class="fa-solid fa-heart" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </aside> <!-- 中间歌词区域 -->
+        <PlaylistComponent
+          :playlist="processedPlaylist"
+          :is-immersive-mode="isImmersiveMode"
+          @song-like="(index, title) => sendSongLike(index, title)"
+        /><!-- 中间歌词区域 -->
         <section class="flex-1 flex flex-col overflow-hidden relative">
           <!-- 房间信息 -->
           <div
@@ -278,121 +235,21 @@
                 </p>
               </div>
             </div>
-          </div> <!-- 沉浸模式 - 全新设计 -->
-          <div
+          </div>
+          <!-- 沉浸模式组件 -->
+          <ImmersiveMode
             v-if="isImmersiveMode"
-            class="flex-1 flex items-center justify-center p-8 relative overflow-hidden immersive-mode"
-          >
-            <!-- 背景模糊效果 -->
-            <div class="absolute inset-0 bg-gradient-to-br from-dark/90 via-dark/80 to-dark/90 backdrop-blur-3xl" />
+            ref="immersiveModeRef"
+            :current-song="roomState.currentSong"
+            :lyrics="roomState.currentLyrics"
+            :current-lyric-index="roomState.currentLyricIndex"
+            :progress-percentage="progressPercentage"
+            :current-time="currentTime"
+            @toggle-immersive="toggleImmersiveMode"
+            @show-help="showHelp = true"
+          />
 
-            <!-- 专辑封面背景 -->
-            <div class="absolute inset-0 opacity-30">
-              <img
-                :src="roomState.currentSong?.cover" :alt="roomState.currentSong?.title"
-                class="w-full h-full object-cover blur-3xl scale-110 transform"
-              >
-            </div>
-
-            <!-- 主要内容区域 -->
-            <div class="relative z-10 w-full max-w-6xl mx-auto">
-              <div class="immersive-grid grid lg:grid-cols-2 gap-12 items-center">
-                <!-- 左侧：专辑信息区域 -->
-                <div class="flex flex-col items-center lg:items-start space-y-8">
-                  <!-- 专辑封面 -->
-                  <div class="relative group">
-                    <div
-                      class="w-80 h-80 lg:w-96 lg:h-96 rounded-3xl overflow-hidden shadow-2xl transform transition-all duration-500"
-                    >
-                      <img
-                        :src="roomState.currentSong?.cover" :alt="roomState.currentSong?.title"
-                        class="w-full h-full"
-                      >
-                    </div>
-                  </div>
-
-                  <!-- 歌曲信息 -->
-                  <div class="text-center lg:text-left space-y-4 w-80 lg:w-96">
-                    <div>
-                      <h1 class="immersive-title text-2xl lg:text-4xl font-bold text-white mb-2 leading-tight">
-                        {{ roomState.currentSong?.title || '暂无歌曲' }}
-                      </h1>
-                      <p class="immersive-artist relative py-3 text-xl lg:text-2xl text-gray-300">
-                        {{ roomState.currentSong?.artist }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 右侧：歌词区域 -->
-                <div class="flex flex-col h-96 lg:h-[600px]">
-                  <div
-                    ref="immersiveLyricsContainer"
-                    class="flex-1 overflow-y-auto immersive-lyrics-container mx-auto text-center space-y-1 sm:px-4 max-w-2xl"
-                  >
-                    <div class="pr-4">
-                      <div
-                        v-for="(line, index) in roomState.currentLyrics" :key="index"
-                        class="lyric-line transition-all duration-300" :class="[{
-                          'active space-y-6 text-white font-medium mb-4 mt-4': index === roomState.currentLyricIndex,
-                          'text-gray-400 space-y-1': index !== roomState.currentLyricIndex,
-                          'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': index === roomState.currentLyricIndex,
-                          'text-sm sm:text-base md:text-lg': index !== roomState.currentLyricIndex,
-                        }]"
-                      >
-                        {{ line.text }}
-                      </div>
-
-                      <!-- 当没有歌词时的占位符 -->
-                      <div v-if="roomState.currentLyrics.length === 0" class="text-center text-gray-400 py-16">
-                        <i class="fa-solid fa-music text-6xl mb-6 opacity-50" />
-                        <p class="text-xl">
-                          暂无歌词
-                        </p>
-                        <p class="text-sm mt-2 opacity-75">
-                          享受纯音乐的美好
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- 进度条 -->
-              <div class="h-3" />
-              <div class="space-y-3 py-3">
-                <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                  <div
-                    class="immersive-progress h-full rounded-full transition-all duration-300"
-                    :style="{ width: `${progressPercentage}%` }"
-                  />
-                </div>
-                <div class="flex justify-between text-sm text-gray-400">
-                  <span>{{ formatTime(roomState?.currentTime || 0) }}</span>
-                  <span>{{ formatTime((roomState.currentSong?.duration || 0) / 1000) }}</span>
-                </div>
-              </div>
-            </div>
-          </div><!-- 沉浸模式下的浮动操作面板 -->
-          <transition name="fade">
-            <div v-if="isImmersiveMode" class="fixed top-6 right-6 z-30 flex flex-col space-y-3">
-              <!-- 退出沉浸模式 -->
-              <button
-                class="w-12 h-12 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-black/60 transition-all shadow-xl touch-target group"
-                title="退出沉浸模式 (F键或ESC键)" @click="toggleImmersiveMode"
-              >
-                <i class="fa-solid fa-compress text-lg group-hover:scale-110 transition-transform" />
-              </button>
-
-              <!-- 帮助按钮 -->
-              <button
-                class="w-12 h-12 bg-black/40 backdrop-blur-md border border-white/20 text-green-400 rounded-full flex items-center justify-center hover:bg-green-500/20 transition-all shadow-xl touch-target group"
-                title="帮助" @click="showHelp = true"
-              >
-                <i class="fa-solid fa-question-circle text-lg group-hover:scale-110 transition-transform" />
-              </button>
-            </div>
-          </transition>
-
+          <!-- 播放信息 - 仅非沉浸模式 -->
           <!-- 进度条 - 仅非沉浸模式 -->
           <div
             v-if="!isImmersiveMode"
@@ -403,8 +260,6 @@
               :style="{ width: `${progressPercentage}%` }"
             />
           </div>
-
-          <!-- 播放信息 - 仅非沉浸模式 -->
           <div v-if="!isImmersiveMode" class="glass-effect bg-dark/80 backdrop-blur-xl p-3 sm:p-4">
             <div class="flex items-center">
               <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden mr-3 sm:mr-4 flex-shrink-0">
@@ -426,7 +281,7 @@
               <div class="flex flex-col items-center space-x-2 sm:space-x-3 flex-shrink-0">
                 <div class="relative ml-auto">
                   <div class="flex justify-between text-xs text-gray-400 mt-1">
-                    <span>{{ formatTime(roomState?.currentTime || 0) }} /
+                    <span>{{ formatTime(currentTime || 0) }} /
                       {{ formatTime((roomState.currentSong?.duration || 0) / 1000) }}</span>
                   </div>
                 </div>
@@ -439,7 +294,9 @@
                 </div>
               </div>
             </div>
-          </div> <!-- 移动端底部导航 -->
+          </div>
+
+          <!-- 移动端底部导航 -->
           <div v-if="!isImmersiveMode" class="left-0 right-0 bg-dark/50 backdrop-blur-md z-30 md:hidden">
             <div class="flex justify-around items-center py-2 px-2">
               <button
@@ -496,67 +353,15 @@
       <MusicSearchModal
         :show="showMusicSearchModal" :search-results="roomState.searchResults" :search-counts="searchCounts"
         @close="showMusicSearchModal = false"
+      />      <!-- 帮助弹窗 -->
+      <HelpModal :show="showHelp" @close="showHelp = false" />      <!-- 移动端播放列表模态框 -->
+      <PlaylistComponent
+        :playlist="processedPlaylist"
+        :show="showMobilePlaylist"
+        :is-mobile="true"
+        @close="showMobilePlaylist = false"
+        @song-like="(index, title) => sendSongLike(index, title)"
       />
-
-      <!-- 帮助弹窗 -->
-      <HelpModal :show="showHelp" @close="showHelp = false" />
-
-      <!-- 移动端播放列表模态框 -->
-      <transition name="modal">
-        <div v-if="showMobilePlaylist" class="fixed inset-0 z-50 flex w-full items-end md:items-center justify-center">
-          <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showMobilePlaylist = false" />
-          <div
-            class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
-          >
-            <div class="p-4 border-b border-white/10 flex justify-between items-center">
-              <h2 class="text-lg font-semibold flex items-center">
-                <i class="fa-solid fa-list-ul mr-2 text-primary" />播放列表
-              </h2>
-              <button
-                class="text-gray-400 hover:text-white transition-colors touch-target"
-                @click="showMobilePlaylist = false"
-              >
-                <i class="fa-solid fa-times text-lg" />
-              </button>
-            </div>
-            <div class="flex-1 overflow-y-auto smooth-scroll modal-scroll">
-              <div class="p-3 text-xs text-gray-400 border-b border-white/5">
-                共 {{ processedPlaylist.length }} 首歌曲 · {{ formatTime(totalPlaylistDuration) }}
-              </div>
-              <div class="space-y-1">
-                <div
-                  v-for="(song, index) in processedPlaylist"
-                  class="p-4 flex items-center active:bg-white/10 transition-all cursor-pointer border-b border-white/5 touch-feedback"
-                  :class="[{ 'bg-primary/20 border-l-4 border-primary': 0 === index }]"
-                >
-                  <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0">
-                    <img :src="song.cover" :alt="song.title" class="w-full h-full object-cover">
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <h3 class="text-sm font-medium truncate mb-1">
-                      {{ song.title }}
-                    </h3>
-                    <p class="text-xs text-gray-400 truncate">
-                      {{ song.artist }}
-                    </p>
-                  </div>
-                  <div class="text-gray-400 text-xs ml-2">
-                    {{ formatTime(song.duration) }}
-                  </div>
-                  <div v-if="index !== 0" class="flex items-center space-x-2 ml-2">
-                    <button
-                      class="like-button flex items-center justify-center w-8 h-8 rounded-full text-xs transition-all bg-red-500/20 text-red-400 hover:bg-red-500/30 active:bg-red-500/40 touch-target"
-                      @click.stop="sendSongLike(index, song.title)"
-                    >
-                      <i class="fa-solid fa-heart" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </transition>
 
       <!-- 移动端聊天模态框 -->
       <transition name="modal">
@@ -620,8 +425,10 @@ import type { RoomInfo } from '@/types'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import ChatComponent from '@/components/ChatComponent.vue'
 import HelpModal from '@/components/HelpModal.vue'
+import ImmersiveMode from '@/components/ImmersiveMode.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
+import PlaylistComponent from '@/components/PlaylistComponent.vue'
 import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import UserListComponent from '@/components/UserListComponent.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
@@ -675,7 +482,7 @@ const audioPlayer = ref<HTMLAudioElement>()
 
 // 歌词容器引用
 const lyricsContainer = ref<HTMLElement>()
-const immersiveLyricsContainer = ref<HTMLElement>()
+const immersiveModeRef = ref<any>()
 
 // 房间信息
 const roomInfo = ref<RoomInfo>({
@@ -738,19 +545,43 @@ const processedPlaylist = computed(() =>
   })),
 )
 
-// 计算播放列表总时长
-const totalPlaylistDuration = computed(() => {
-  return processedPlaylist.value.reduce((total, song) => total + song.duration, 0)
-})
-
-// 进度条
+// 进度条 - 实时渲染
+const currentTime = ref(0)
 const progressPercentage = computed(() => {
   if (roomState.currentSong?.duration) {
-    const audioCurrentTime = audioPlayer.value?.currentTime ?? 0
-    return (audioCurrentTime / (roomState.currentSong.duration / 1000)) * 100
+    return (currentTime.value / (roomState.currentSong.duration / 1000)) * 100
   }
   return 0
 })
+
+// 实时更新进度条
+let animationFrameId: number | null = null
+
+function updateProgress() {
+  if (audioPlayer.value) {
+    // 只有在音频存在且不是暂停状态时才更新
+    if (!audioPlayer.value.paused && !audioPlayer.value.ended) {
+      currentTime.value = audioPlayer.value.currentTime
+    }
+  }
+  // 只有在需要时才继续动画循环
+  if (animationFrameId !== null) {
+    animationFrameId = requestAnimationFrame(updateProgress)
+  }
+}
+
+function startProgressUpdate() {
+  if (animationFrameId === null) {
+    animationFrameId = requestAnimationFrame(updateProgress)
+  }
+}
+
+function stopProgressUpdate() {
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId)
+    animationFrameId = null
+  }
+}
 
 // 歌词自动滚动功能
 function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
@@ -783,13 +614,12 @@ function toggleMobileMenu() {
 // 切换沉浸模式
 function toggleImmersiveMode() {
   isImmersiveMode.value = !isImmersiveMode.value
-
   // 切换模式后立即同步歌词位置（使用瞬间跳转，不使用平滑滚动）
   nextTick(() => {
     const currentIndex = roomState.currentLyricIndex
     if (currentIndex >= 0 && roomState.currentLyrics.length > 0) {
       if (isImmersiveMode.value) {
-        scrollLyricsToCenter(immersiveLyricsContainer.value, currentIndex, false)
+        immersiveModeRef.value?.scrollLyricsToCenter(currentIndex, false)
       } else {
         scrollLyricsToCenter(lyricsContainer.value, currentIndex, false)
       }
@@ -815,6 +645,9 @@ function cancelJoinRoom() {
 function initializeApp() {
   // 设置WebSocket事件监听
   setupWebSocketEvents()
+
+  // 启动进度更新
+  startProgressUpdate()
 
   // 延迟连接WebSocket，确保页面加载完成
   setTimeout(() => {
@@ -905,7 +738,7 @@ watch(() => roomState.currentLyricIndex, (newIndex) => {
     // 延迟执行滚动，确保DOM更新完成
     nextTick(() => {
       if (isImmersiveMode.value) {
-        scrollLyricsToCenter(immersiveLyricsContainer.value, newIndex)
+        immersiveModeRef.value?.scrollLyricsToCenter(newIndex)
       } else {
         scrollLyricsToCenter(lyricsContainer.value, newIndex)
       }
@@ -1012,6 +845,8 @@ function onAudioTimeUpdate(event: Event) {
     // 根据audio的currentTime更新pushTime，使其与服务器保持同步
     const currentTimeFromAudio = audio.currentTime
     syncLyrics(currentTimeFromAudio)
+    // 更新当前时间（用于歌词同步和显示）
+    currentTime.value = currentTimeFromAudio
   }
 }
 
@@ -1025,12 +860,14 @@ function playAudio() {
   if (audioPlayer.value) {
     audioPlayer.value.volume = volume.value / 100
     audioPlayer.value.play()
+    startProgressUpdate()
   }
 }
 
 function setAudioCurrentTime(time: number) {
   if (audioPlayer.value) {
     audioPlayer.value.currentTime = time
+    currentTime.value = time
   }
 }
 
@@ -1137,6 +974,8 @@ onUnmounted(() => {
   disconnect()
   // 移除键盘事件监听
   document.removeEventListener('keydown', handleKeyDown)
+  // 清理进度更新动画帧
+  stopProgressUpdate()
 })
 </script>
 
@@ -1146,11 +985,6 @@ onUnmounted(() => {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   transition: all 0.3s ease;
-}
-
-/* 沉浸模式下的歌词特殊效果 */
-.lyric-line.active {
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 /* 歌词容器滚动条样式 */
@@ -1176,21 +1010,6 @@ onUnmounted(() => {
   background: rgba(79, 70, 229, 0.8);
 }
 
-/* 沉浸模式歌词容器样式 */
-.immersive-lyrics-container {
-  scroll-behavior: smooth;
-  /* 隐藏滚动条 */
-  scrollbar-width: none;
-  /* Firefox */
-  -ms-overflow-style: none;
-  /* IE and Edge */
-}
-
-.immersive-lyrics-container::-webkit-scrollbar {
-  display: none;
-  /* Chrome, Safari, Opera */
-}
-
 /* 模态框动画 */
 .modal-enter-active,
 .modal-leave-active {
@@ -1212,11 +1031,5 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-/* 沉浸模式下的播放信息样式 */
-.immersive-player-info {
-  backdrop-filter: blur(20px);
-  background: rgba(0, 0, 0, 0.7);
 }
 </style>
