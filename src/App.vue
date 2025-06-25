@@ -1179,6 +1179,9 @@ function fallbackShare() {
 function onAudioTimeUpdate(event: Event) {
   const audio = event.target as HTMLAudioElement
   if (audio) {
+    // 添加有效性检查
+    if (Number.isNaN(audio.duration) || audio.duration <= 0)
+      return
     // 根据audio的currentTime更新pushTime，使其与服务器保持同步
     const currentTimeFromAudio = audio.currentTime
     setCurrentTime(currentTimeFromAudio)
@@ -1188,10 +1191,9 @@ function onAudioTimeUpdate(event: Event) {
       const audioCurrentTime = audioPlayer.value?.currentTime ?? 0
       const percentage = (audioCurrentTime / (roomState.currentSong.duration / 1000)) * 100
       calculatedProgressPercentage.value = Math.min(Math.max(percentage, 0), 100)
-
-      // 更新媒体会话位置状态
-      updatePositionState(roomState.currentSong.duration / 1000, audioCurrentTime)
     }
+    // 更新媒体会话位置状态
+    updatePositionState(audio.duration, audio.currentTime, audio.playbackRate)
   }
 }
 
