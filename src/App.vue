@@ -1221,11 +1221,11 @@ function setupDynamicTitle() {
     (newSong) => {
       if (newSong) {
         // 有歌曲播放时，显示歌曲信息
-        document.title = `${newSong.title} - ${newSong.artist} | 壁画音乐厅`
+        document.title = `${newSong.title} - ${newSong.artist} | ${appConfig.app.name}`
       }
       else {
         // 没有歌曲播放时，显示默认标题
-        document.title = '壁画音乐厅'
+        document.title = appConfig.app.name
       }
     },
     { immediate: true },
