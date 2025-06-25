@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'
 
@@ -7,6 +9,24 @@ declare module '*.vue' {
 
 declare module 'vue' {
   export * from '@vue/runtime-dom'
+}
+
+declare module 'virtual:pwa-register/vue' {
+  import type { Ref } from 'vue'
+
+  export interface RegisterSWOptions {
+    immediate?: boolean
+    onNeedRefresh?: () => void
+    onOfflineReady?: () => void
+    onRegistered?: (registration: ServiceWorkerRegistration | undefined) => void
+    onRegisterError?: (error: any) => void
+  }
+
+  export function useRegisterSW(options?: RegisterSWOptions): {
+    needRefresh: Ref<boolean>
+    offlineReady: Ref<boolean>
+    updateServiceWorker: (reloadPage?: boolean) => Promise<void>
+  }
 }
 
 // 环境变量类型定义
