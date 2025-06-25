@@ -24,7 +24,7 @@
         <div class="p-6">
           <div class="flex items-start mb-6">
             <div class="flex-shrink-0 w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-4">
-              <i class="fa-solid fa-sparkles text-primary text-lg" />
+              <img src="/favicon.ico" alt="logo" class="w-8 h-8 rounded">
             </div>
             <div>
               <h3 class="text-lg font-medium text-white mb-2">
