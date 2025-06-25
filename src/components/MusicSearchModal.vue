@@ -405,4 +405,15 @@ watch(() => props.show, (isVisible) => {
     // 注意：不清空userPlaylistQuery，因为它是持久化的
   }
 })
+
+// 监听搜索模式变化，当切换到user_playlist且有值时自动搜索
+watch(
+  () => selectedSearchMode.value.id,
+  (newMode) => {
+    if (newMode === 'user_playlist' && userPlaylistQuery.value.trim()) {
+      // 如果切换到"用户歌单"模式且已有搜索值，自动执行搜索
+      handleSearch()
+    }
+  },
+)
 </script>
