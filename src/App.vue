@@ -118,7 +118,7 @@
               <i class="fa-solid fa-list-ul mr-2 text-primary" />播放列表
             </h2>
             <p class="text-xs text-gray-400 mt-1">
-              共 {{ roomState.playlist.length }} 首歌曲
+              共 {{ processedPlaylist.length }} 首歌曲 · {{ formatTime(totalPlaylistDuration) }}
             </p>
           </div>
           <div class="playlist-container space-y-1">
@@ -552,7 +552,7 @@
             </div>
             <div class="flex-1 overflow-y-auto smooth-scroll modal-scroll">
               <div class="p-3 text-xs text-gray-400 border-b border-white/5">
-                共 {{ processedPlaylist.length }} 首歌曲
+                共 {{ processedPlaylist.length }} 首歌曲 · {{ formatTime(totalPlaylistDuration) }}
               </div>
               <div class="space-y-1">
                 <div
@@ -815,6 +815,11 @@ const processedPlaylist = computed(() =>
     requestedBy: song.requestedBy ? processUser(song.requestedBy) : undefined,
   })),
 )
+
+// 计算播放列表总时长
+const totalPlaylistDuration = computed(() => {
+  return processedPlaylist.value.reduce((total, song) => total + song.duration, 0)
+})
 
 // 进度条
 const progressPercentage = computed(() => {
