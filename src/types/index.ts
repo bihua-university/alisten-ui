@@ -23,7 +23,9 @@ export interface ChatMessage {
 export interface RoomInfo {
   id: string
   name: string
-  creator: string
+  description: string
+  population: number
+  needPwd: boolean
 }
 
 export interface LyricLine {

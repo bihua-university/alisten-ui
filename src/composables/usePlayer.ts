@@ -1,5 +1,4 @@
-import { computed, ref, watch } from 'vue'
-import { useRoomState } from '@/composables/useRoomState'
+import { ref, watch } from 'vue'
 
 // 从本地存储读取音量设置
 function getStoredVolume(): number {
@@ -31,9 +30,6 @@ function saveMuteStateToStorage(isMuted: boolean) {
 }
 
 export function usePlayer() {
-  const {
-    roomState,
-  } = useRoomState()
   const volume = ref(getStoredVolume())
   const isMuted = ref(getStoredMuteState())
   const skipMessage = ref('')
@@ -48,15 +44,6 @@ export function usePlayer() {
   // 监听静音状态变化，自动保存到本地存储
   watch(isMuted, (newMuteState) => {
     saveMuteStateToStorage(newMuteState)
-  })
-
-  // 使用共享状态中的数据
-  const currentSong = computed(() => roomState.currentSong)
-  const currentTime = computed(() => roomState.currentTime)
-  const progressPercentage = computed(() => {
-    if (!currentSong.value)
-      return 0
-    return (currentTime.value / currentSong.value.duration) * 100
   })
 
   const setVolume = (event: MouseEvent) => {
@@ -76,7 +63,6 @@ export function usePlayer() {
   const toggleMute = () => {
     isMuted.value = !isMuted.value
   }
-
   // 切歌功能
   const showSkipSong = () => {
     // 显示切歌提示消息
@@ -89,11 +75,8 @@ export function usePlayer() {
   }
 
   return {
-    currentTime,
     volume,
     isMuted,
-    currentSong,
-    progressPercentage,
     setVolume,
     toggleMute,
     showSkipSong,

@@ -23,10 +23,6 @@
                 <i class="fa-solid fa-door-open text-primary mr-2" />
                 <span class="font-medium">{{ roomInfo.name }}</span>
               </div>
-              <div class="flex items-center mb-3">
-                <i class="fa-solid fa-user text-primary mr-2" />
-                <span class="text-sm text-gray-300">房主：{{ roomInfo.creator }}</span>
-              </div>
               <div class="flex items-center">
                 <i class="fa-solid fa-users text-primary mr-2" />
                 <span class="text-sm text-gray-300">房间ID：{{ roomInfo.id }}</span>
@@ -362,12 +358,12 @@
                 </div>
               </div>
               <!-- 进度条 -->
-              <div h-3 />
+              <div class="h-3" />
               <div class="space-y-3 py-3">
                 <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
                   <div
                     class="immersive-progress h-full rounded-full transition-all duration-300"
-                    :style="{ width: `${calculatedProgressPercentage}%` }"
+                    :style="{ width: `${progressPercentage}%` }"
                   />
                 </div>
                 <div class="flex justify-between text-sm text-gray-400">
@@ -395,14 +391,16 @@
                 <i class="fa-solid fa-question-circle text-lg group-hover:scale-110 transition-transform" />
               </button>
             </div>
-          </transition><!-- 进度条 - 仅非沉浸模式 -->
+          </transition>
+
+          <!-- 进度条 - 仅非沉浸模式 -->
           <div
             v-if="!isImmersiveMode"
             class="h-3 md:h-1 bg-white/10 rounded-full overflow-hidden relative hidden md:block"
           >
             <div
               class="h-full immersive-progress rounded-full transition-all duration-300"
-              :style="{ width: `${calculatedProgressPercentage}%` }"
+              :style="{ width: `${progressPercentage}%` }"
             />
           </div>
 
@@ -542,7 +540,8 @@
                     <i class="fa-solid fa-refresh text-sm" />
                   </button>
                 </h2>
-              </div>              <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 h-48">
+              </div>
+              <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 h-48">
                 <div
                   v-for="user in processedOnlineUsers" :key="user.name"
                   class="flex items-center p-2 hover:bg-white/5 rounded-lg"
@@ -560,7 +559,7 @@
       </main> <!-- 点歌台模态框 -->
       <MusicSearchModal
         :show="showMusicSearchModal" :search-results="roomState.searchResults"
-        :music-sources="musicSources" @close="showMusicSearchModal = false"
+        @close="showMusicSearchModal = false"
       />
 
       <!-- 帮助弹窗 -->
@@ -766,7 +765,7 @@
 </template>
 
 <script setup lang="ts">
-import type { MusicSource, RoomInfo } from '@/types'
+import type { RoomInfo } from '@/types'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import HelpModal from '@/components/HelpModal.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
@@ -828,40 +827,16 @@ const immersiveLyricsContainer = ref<HTMLElement>()
 
 // 房间信息
 const roomInfo = ref<RoomInfo>({
-  name: '听歌房',
-  creator: '音乐达人',
   id: 'room_001',
+  name: '听歌房',
+  description: '欢迎来到听歌房！',
+  population: 0,
+  needPwd: false,
 })
-
-// 音乐来源
-const musicSources = ref<MusicSource[]>([
-  {
-    id: 'wy',
-    name: '网易云音乐',
-    icon: 'fa-solid fa-music',
-    color: '#d33a31',
-    description: '歌曲 · 歌单',
-  },
-  {
-    id: 'qq',
-    name: 'QQ音乐',
-    icon: 'fa-brands fa-qq',
-    color: '#31c27c',
-    description: '歌曲 · 歌单 · 用户',
-  },
-  {
-    id: 'db',
-    name: 'bilibili',
-    icon: 'fa-solid fa-tv',
-    color: '#00a2d8',
-    description: '仅歌曲搜索',
-  },
-])
 
 // 使用组合式函数
 const {
   roomState,
-  setCurrentTime,
 } = useRoomState()
 
 const {
@@ -916,6 +891,15 @@ const processedPlaylist = computed(() =>
   })),
 )
 
+// 进度条
+const progressPercentage = computed(() => {
+  if (roomState.currentSong?.duration) {
+    const audioCurrentTime = audioPlayer.value?.currentTime ?? 0
+    return (audioCurrentTime / (roomState.currentSong.duration / 1000)) * 100
+  }
+  return 0
+})
+
 // 歌词自动滚动功能
 function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
   if (!container)
@@ -938,9 +922,6 @@ function scrollLyricsToCenter(container: HTMLElement | undefined, index: number,
     })
   }
 }
-
-// 基于pushTime计算的进度百分比
-const calculatedProgressPercentage = ref(0)
 
 // 方法
 function toggleMobileMenu() {
@@ -1138,7 +1119,7 @@ function skipSong() {
 function shareRoom() {
   const shareData = {
     title: `加入我的音乐房间 - ${roomInfo.value.name}`,
-    text: `来和我一起听歌吧！房主：${roomInfo.value.creator}`,
+    text: `来和我一起听歌吧！`,
     url: window.location.href,
   }
 
@@ -1178,14 +1159,7 @@ function onAudioTimeUpdate(event: Event) {
   if (audio) {
     // 根据audio的currentTime更新pushTime，使其与服务器保持同步
     const currentTimeFromAudio = audio.currentTime
-    setCurrentTime(currentTimeFromAudio)
     syncLyrics(currentTimeFromAudio)
-
-    if (roomState.currentSong?.duration) {
-      const audioCurrentTime = audioPlayer.value?.currentTime ?? 0
-      const percentage = (audioCurrentTime / (roomState.currentSong.duration / 1000)) * 100
-      calculatedProgressPercentage.value = Math.min(Math.max(percentage, 0), 100)
-    }
   }
 }
 

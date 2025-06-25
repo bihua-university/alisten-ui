@@ -285,9 +285,7 @@ function connect(roomId?: string) {
     // 构建连接URL
     let wsUrl = config.url
     roomId = '733dbb38-31d0-419c-9019-5c12777246c8'
-    if (roomId) {
-      wsUrl += `/server?houseId=${roomId}`
-    }
+    wsUrl += `/server?houseId=${roomId}`
 
     console.log('连接 WebSocket:', wsUrl)
     ws.value = new WebSocket(wsUrl)

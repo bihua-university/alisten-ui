@@ -223,7 +223,6 @@ import { formatTime } from '@/utils/time'
 interface Props {
   show: boolean
   searchResults: any[]
-  musicSources: MusicSource[]
 }
 
 const props = defineProps<Props>()
@@ -232,6 +231,31 @@ defineEmits(['close'])
 const { clearSearchResults } = useRoomState()
 const { showSuccess } = useNotification()
 const { send } = useWebSocket()
+
+// 音乐来源
+const musicSources: MusicSource[] = [
+  {
+    id: 'wy',
+    name: '网易云音乐',
+    icon: 'fa-solid fa-music',
+    color: '#d33a31',
+    description: '歌曲 · 歌单',
+  },
+  {
+    id: 'qq',
+    name: 'QQ音乐',
+    icon: 'fa-brands fa-qq',
+    color: '#31c27c',
+    description: '歌曲 · 歌单 · 用户',
+  },
+  {
+    id: 'db',
+    name: 'bilibili',
+    icon: 'fa-solid fa-tv',
+    color: '#00a2d8',
+    description: '仅歌曲搜索',
+  },
+]
 
 // 搜索模式配置 - 根据音乐平台动态显示
 const allSearchModes = [
@@ -258,7 +282,7 @@ const allSearchModes = [
   },
 ]
 
-const selectedMusicSource = ref<MusicSource>(props.musicSources[0])
+const selectedMusicSource = ref<MusicSource>(musicSources[0])
 const selectedSearchMode = ref(allSearchModes[0])
 
 // 为每种搜索模式创建单独的数据绑定
