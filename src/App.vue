@@ -1190,10 +1190,7 @@ function onAudioTimeUpdate(event: Event) {
       calculatedProgressPercentage.value = Math.min(Math.max(percentage, 0), 100)
 
       // 更新媒体会话位置状态
-      updatePositionState(
-        roomState.currentSong.duration, // 毫秒
-        audioCurrentTime, // 秒
-      )
+      updatePositionState(roomState.currentSong.duration / 1000, audioCurrentTime)
     }
   }
 }

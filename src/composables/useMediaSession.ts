@@ -48,16 +48,13 @@ export function useMediaSession() {
 
     try {
       if ('setPositionState' in navigator.mediaSession) {
-        // 将持续时间转换为秒
-        const durationInSeconds = duration / 1000
-
         // 确保 position 不超过 duration
         const clampedPosition = Math.min(position, duration)
 
         navigator.mediaSession.setPositionState({
-          duration: durationInSeconds,
-          position: clampedPosition,
+          duration,
           playbackRate,
+          position: clampedPosition,
         })
       }
     }
