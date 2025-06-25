@@ -68,13 +68,14 @@
 
     <!-- 主要内容 -->
     <div class="relative z-10">
-      <!-- 音频播放器 - 隐藏但可控制 --> <audio
-                                ref="audioPlayer" preload="auto" @canplay="true" @autoplay="true"
-                                @timeupdate="onAudioTimeUpdate" @error="onAudioError"
-                              >
-                                <source :src="roomState.currentSong?.url">
-                                您的浏览器不支持音频播放。
-                              </audio>
+      <!-- 音频播放器 - 隐藏但可控制 -->
+      <audio
+        ref="audioPlayer" preload="auto" @canplay="true" @autoplay="true"
+        @timeupdate="onAudioTimeUpdate" @error="onAudioError"
+      >
+        <source :src="roomState.currentSong?.url">
+        您的浏览器不支持音频播放。
+      </audio>
 
       <!-- 移动端侧边菜单 -->
       <transition name="slide">
@@ -108,7 +109,8 @@
             </button>
           </div>
         </div>
-      </transition> <!-- 主内容区 -->
+      </transition>
+      <!-- 主内容区 -->
       <main class="flex" :class="[isImmersiveMode ? 'h-screen' : 'h-[calc(100vh)]']">
         <!-- 左侧播放列表 -->
         <aside
@@ -476,7 +478,7 @@
         <!-- 右侧聊天和用户列表 -->
         <aside
           v-if="!isImmersiveMode"
-          class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:block overflow-hidden flex flex-col"
+          class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:flex overflow-hidden flex-col"
         >
           <!-- 聊天区域 -->
           <div class="flex-1 flex flex-col overflow-hidden h-[calc(100vh-300px)]">
@@ -773,6 +775,7 @@ import NotificationContainer from '@/components/NotificationContainer.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
 import { useChat } from '@/composables/useChat'
 import { useLyrics } from '@/composables/useLyrics'
+import { useMediaSession } from '@/composables/useMediaSession'
 import { useNotification } from '@/composables/useNotification'
 import { usePlayer } from '@/composables/usePlayer'
 import { useRoomState } from '@/composables/useRoomState'
@@ -882,6 +885,13 @@ const {
   showConnectionError,
   showConnectionWarning,
 } = useNotification()
+
+// 媒体会话控制
+const {
+  updateMetadata,
+  setupActionHandlers,
+  isSupported: isMediaSessionSupported,
+} = useMediaSession()
 
 // 处理后的用户数据计算属性
 const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
@@ -1029,6 +1039,9 @@ watch(() => roomState.currentSong, (newSong) => {
       }, 100) // 稍微延迟确保音频加载完成
     }
   }
+
+  // 更新媒体会话元数据
+  updateMetadata(newSong)
 }, { immediate: true })
 
 // 监听音量变化，同步到音频元素
@@ -1208,7 +1221,47 @@ onMounted(() => {
 
   // 添加键盘事件监听
   document.addEventListener('keydown', handleKeyDown)
+
+  // 初始化媒体会话
+  initializeMediaSession()
 })
+
+// 初始化媒体会话
+function initializeMediaSession() {
+  if (!isMediaSessionSupported()) {
+    console.log('当前浏览器不支持 Media Session API')
+    return
+  }
+  console.log('🎵 初始化媒体会话 - 仅启用切歌功能，禁用播放控制以保持同步播放')
+
+  // 设置媒体会话操作处理器 - 只保留切歌功能，禁用其他控制
+  setupActionHandlers({
+    // 似乎没法禁用，所以还是实现一下基本功能
+    onPlay: () => {
+      playAudio()
+    },
+    onPause: () => {
+      if (audioPlayer.value) {
+        audioPlayer.value.pause()
+      }
+    },
+    // 禁用快进快退控制 - 避免用户破坏同步
+    onSeekBackward: null,
+    onSeekForward: null,
+    // 禁用停止控制
+    onStop: null,
+    // 禁用上一曲（应用不支持）
+    onPreviousTrack: null,
+    // 只保留下一曲（切歌）功能
+    onNextTrack: () => {
+      console.log('🎵 媒体会话：用户请求切歌')
+      // 触发切歌功能
+      showSkipSong()
+      // 发送切歌请求到服务器
+      skipSong()
+    },
+  })
+}
 
 // 键盘事件处理
 function handleKeyDown(event: KeyboardEvent) {
