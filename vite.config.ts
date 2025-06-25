@@ -46,7 +46,7 @@ export default defineConfig({
       manifest: {
         name: '壁画音乐厅',
         short_name: '壁画音乐厅',
-        description: '壁画音乐厅 - 在线音乐播放应用',
+        description: '壁画音乐厅 - 在线音乐同步播放应用',
         theme_color: '#1f2937',
         background_color: '#ffffff',
         display: 'standalone',
