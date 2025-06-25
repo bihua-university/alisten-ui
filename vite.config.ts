@@ -11,7 +11,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
         name: '壁画音乐厅',
-        short_name: '音乐厅',
+        short_name: '壁画音乐厅',
         description: '壁画音乐厅 - 在线音乐播放应用',
         theme_color: '#1f2937',
         background_color: '#ffffff',

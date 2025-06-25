@@ -741,7 +741,8 @@
       </transition>
 
       <!-- 通知容器 -->
-      <NotificationContainer />      <!-- PWA 更新提示 -->
+      <NotificationContainer />
+      <!-- PWA 更新提示 -->
       <PWAUpdateModal
         :show-update-modal="showUpdateModal"
         @update-app="handleUpdateApp"
