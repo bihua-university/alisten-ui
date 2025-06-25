@@ -44,27 +44,15 @@ export function useMediaSession() {
   const updatePositionState = (duration: number, position: number, playbackRate: number = 1.0) => {
     if (!isSupported()) {
       return
-    } // 验证参数有效性
-    if (!duration || duration <= 0 || !Number.isFinite(duration)) {
-      console.warn('媒体会话：无效的 duration 值:', duration)
-      return
-    }
-
-    if (!Number.isFinite(position) || position < 0) {
-      console.warn('媒体会话：无效的 position 值:', position)
-      return
     }
 
     try {
       if ('setPositionState' in navigator.mediaSession) {
-        const durationInSeconds = duration / 1000 // 转换为秒
-        // 确保 position 不超过 duration
-        const clampedPosition = Math.min(position, durationInSeconds)
+        // 将持续时间转换为秒
+        const durationInSeconds = duration / 1000
 
-        // 添加调试信息（在开发环境中）
-        if (import.meta.env.DEV && position > durationInSeconds) {
-          console.warn(`媒体会话：position (${position}s) 超过了 duration (${durationInSeconds}s)，已自动修正为 ${clampedPosition}s`)
-        }
+        // 确保 position 不超过 duration
+        const clampedPosition = Math.min(position, duration)
 
         navigator.mediaSession.setPositionState({
           duration: durationInSeconds,
