@@ -983,9 +983,10 @@ function confirmJoinRoom() {
 }
 
 function cancelJoinRoom() {
-  // 暂时不做任何操作，可以在这里添加实际的取消逻辑
-  console.log('用户取消加入房间')
-  showJoinRoomConfirm.value = false
+  // 取消加入房间，可以跳转到其他页面或显示房间列表
+  alert('您已取消加入房间')
+  // 这里可以添加跳转逻辑，比如：
+  // window.location.href = '/rooms'
 }
 
 // 初始化App
