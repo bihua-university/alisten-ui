@@ -212,6 +212,7 @@
 
 <script setup lang="ts">
 import type { MusicSource } from '@/types'
+import { useStorage } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useNotification } from '@/composables/useNotification'
 import { useRoomState } from '@/composables/useRoomState'
@@ -259,7 +260,42 @@ const allSearchModes = [
 
 const selectedMusicSource = ref<MusicSource>(props.musicSources[0])
 const selectedSearchMode = ref(allSearchModes[0])
-const songSearchQuery = ref('')
+
+// 为每种搜索模式创建单独的数据绑定
+const songQuery = ref('')
+const playlistQuery = ref('')
+const userPlaylistQuery = useStorage('user-playlist-query', '')
+
+// 当前搜索查询的计算属性
+const songSearchQuery = computed({
+  get() {
+    switch (selectedSearchMode.value.id) {
+      case 'song':
+        return songQuery.value
+      case 'playlist':
+        return playlistQuery.value
+      case 'user_playlist':
+        return userPlaylistQuery.value
+      default:
+        return songQuery.value
+    }
+  },
+  set(value: string) {
+    switch (selectedSearchMode.value.id) {
+      case 'song':
+        songQuery.value = value
+        break
+      case 'playlist':
+        playlistQuery.value = value
+        break
+      case 'user_playlist':
+        userPlaylistQuery.value = value
+        break
+      default:
+        songQuery.value = value
+    }
+  },
+})
 
 // 根据当前选择的音乐源过滤可用的搜索模式
 const availableSearchModes = computed(() => {
@@ -353,7 +389,8 @@ function pickMusic(result: any) {
 
 // 查看歌单详情
 function viewPlaylist(playlist: any) {
-  selectedSearchMode.value = availableSearchModes.value[0]
+  selectedSearchMode.value = availableSearchModes.value[0] // 切换到第一个搜索模式（通常是歌曲搜索）
+  // 使用计算属性设置值，它会根据当前搜索模式自动分配到对应的变量
   songSearchQuery.value = `*${playlist.id}`
   clearSearchResults()
   handleSearch()
@@ -362,8 +399,10 @@ function viewPlaylist(playlist: any) {
 // 监听点歌台显示状态，清空搜索内容
 watch(() => props.show, (isVisible) => {
   if (isVisible) {
-    // 清空搜索框
-    songSearchQuery.value = ''
+    // 只清空非持久化的搜索框内容
+    songQuery.value = ''
+    playlistQuery.value = ''
+    // 注意：不清空userPlaylistQuery，因为它是持久化的
   }
 })
 </script>
