@@ -74,39 +74,7 @@
         您的浏览器不支持音频播放。
       </audio>
 
-      <!-- 移动端侧边菜单 -->
-      <transition name="slide">
-        <div
-          v-if="showMobileMenu"
-          class="fixed inset-y-0 left-0 w-64 glass-effect bg-dark/95 backdrop-blur-md border-r border-white/10 z-50"
-        >
-          <div class="p-4 border-b border-white/10">
-            <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold">
-                菜单
-              </h2>
-              <button class="text-gray-400 hover:text-white transition-colors touch-target" @click="toggleMobileMenu">
-                <i class="fa-solid fa-times text-lg" />
-              </button>
-            </div>
-          </div>
-          <div class="p-4 space-y-4">
-            <div class="relative">
-              <input
-                v-model="searchQuery" type="text" placeholder="搜索歌曲"
-                class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
-              >
-              <i class="fa-solid fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-            <button
-              class="w-full bg-primary hover:bg-primary/90 active:bg-primary/80 text-white rounded-full py-3 px-4 flex items-center justify-center space-x-2 transition-all touch-target"
-            >
-              <i class="fa-solid fa-plus" />
-              <span>创建房间</span>
-            </button>
-          </div>
-        </div>
-      </transition>      <!-- 主内容区 -->
+      <!-- 主内容区 -->
       <main class="flex" :class="[isImmersiveMode ? 'h-screen' : 'h-[calc(100vh)]']">
         <!-- 左侧播放列表 -->
         <PlaylistComponent
@@ -408,14 +376,6 @@
           </div>
         </div>
       </div>
-
-      <!-- 移动端侧边菜单遮罩 -->
-      <transition name="fade">
-        <div
-          v-if="showMobileMenu" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
-          @click="toggleMobileMenu"
-        />
-      </transition>
     </div>
   </div>
 </template>
@@ -466,7 +426,6 @@ const {
 } = websocket
 
 // UI状态
-const showMobileMenu = ref(false)
 const showMusicSearchModal = ref(false)
 const showHelp = ref(false)
 const showMobileChat = ref(false)
@@ -474,7 +433,6 @@ const showMobileUsers = ref(false)
 const showMobilePlaylist = ref(false)
 const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
 const isImmersiveMode = ref(false) // 沉浸模式状态
-const searchQuery = ref('')
 const isDevelopment = import.meta.env.DEV
 
 // 音频播放器引用
@@ -604,11 +562,6 @@ function scrollLyricsToCenter(container: HTMLElement | undefined, index: number,
       behavior: smooth ? 'smooth' : 'instant',
     })
   }
-}
-
-// 方法
-function toggleMobileMenu() {
-  showMobileMenu.value = !showMobileMenu.value
 }
 
 // 切换沉浸模式
