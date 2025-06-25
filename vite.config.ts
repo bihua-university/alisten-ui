@@ -1,9 +1,43 @@
+import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// 获取 Git 信息
+function getGitInfo() {
+  try {
+    const commitHash = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim()
+    const shortHash = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim()
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim()
+    const commitDate = execSync('git log -1 --format=%cd --date=iso', { encoding: 'utf8' }).trim()
+
+    return {
+      commitHash,
+      shortHash,
+      branch,
+      commitDate,
+      buildTime: new Date().toISOString(),
+    }
+  }
+  catch (error) {
+    console.warn('无法获取 Git 信息:', error)
+    return {
+      commitHash: 'unknown',
+      shortHash: 'unknown',
+      branch: 'unknown',
+      commitDate: 'unknown',
+      buildTime: new Date().toISOString(),
+    }
+  }
+}
+
+const gitInfo = getGitInfo()
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(gitInfo),
+  },
   plugins: [
     vue(),
     VitePWA({

@@ -5,6 +5,15 @@ declare module '*.vue' {
   export default component
 }
 
+// 版本信息类型声明
+declare const __APP_VERSION__: {
+  commitHash: string
+  shortHash: string
+  branch: string
+  commitDate: string
+  buildTime: string
+}
+
 declare module 'vue' {
   export * from '@vue/runtime-dom'
 }
