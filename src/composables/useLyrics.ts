@@ -42,8 +42,7 @@ export function useLyrics() {
       setCurrentLyrics(parsed.lyrics)
       setCurrentLyricIndex(0)
       return true
-    }
-    catch (error) {
+    } catch (error) {
       console.error('解析LRC歌词失败:', error)
       return false
     }
