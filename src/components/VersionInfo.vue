@@ -6,10 +6,6 @@
         <span class="font-mono">{{ versionInfo.shortHash }}</span>
       </div>
       <div class="flex items-center justify-between">
-        <span>分支:</span>
-        <span class="font-mono text-primary">{{ versionInfo.branch }}</span>
-      </div>
-      <div class="flex items-center justify-between">
         <span>构建时间:</span>
         <span class="font-mono">{{ formatDate(versionInfo.buildTime) }}</span>
       </div>

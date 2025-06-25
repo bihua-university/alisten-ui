@@ -9,7 +9,6 @@ declare module '*.vue' {
 declare const __APP_VERSION__: {
   commitHash: string
   shortHash: string
-  branch: string
   commitDate: string
   buildTime: string
 }

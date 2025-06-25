@@ -9,13 +9,11 @@ function getGitInfo() {
   try {
     const commitHash = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim()
     const shortHash = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim()
-    const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim()
     const commitDate = execSync('git log -1 --format=%cd --date=iso', { encoding: 'utf8' }).trim()
 
     return {
       commitHash,
       shortHash,
-      branch,
       commitDate,
       buildTime: new Date().toISOString(),
     }
@@ -25,7 +23,6 @@ function getGitInfo() {
     return {
       commitHash: 'unknown',
       shortHash: 'unknown',
-      branch: 'unknown',
       commitDate: 'unknown',
       buildTime: new Date().toISOString(),
     }
