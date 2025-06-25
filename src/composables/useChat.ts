@@ -1,11 +1,25 @@
 import type { ChatMessage } from '@/types'
-import { computed, nextTick } from 'vue'
-import { useRoomState } from '@/composables/useRoomState'
+import { computed, nextTick, reactive } from 'vue'
 import { getDefaultAvatar, processUser } from '@/utils/user'
 
+// 全局共享的聊天状态
+const chatState = reactive<{
+  chatMessages: ChatMessage[]
+}>({
+  chatMessages: [],
+})
+
 export function useChat(websocket: any) {
-  const { roomState, addChatMessage } = useRoomState()
   const { registerMessageHandler } = websocket
+
+  // 聊天消息相关操作
+  const addChatMessage = (message: ChatMessage) => {
+    chatState.chatMessages.push(message)
+  }
+
+  const clearChatMessages = () => {
+    chatState.chatMessages = []
+  }
 
   // 自动滚动聊天容器到底部
   function scrollChatToBottom() {
@@ -35,10 +49,9 @@ export function useChat(websocket: any) {
     addChatMessage(msg)
     scrollChatToBottom()
   })
-
-  // 使用共享状态中的聊天消息
+  // 使用独立的聊天状态
   const chatMessages = computed(() => {
-    return roomState.chatMessages.map(message => ({
+    return chatState.chatMessages.map((message: ChatMessage) => ({
       ...message,
       user: processUser(message.user),
     }))
@@ -54,9 +67,10 @@ export function useChat(websocket: any) {
       scrollChatToBottom()
     }
   }
-
   return {
     chatMessages,
     sendMessage,
+    addChatMessage,
+    clearChatMessages,
   }
 }

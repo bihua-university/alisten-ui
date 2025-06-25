@@ -1,4 +1,4 @@
-import type { ChatMessage, LyricLine, RoomState, Song, User } from '@/types'
+import type { LyricLine, RoomState, Song, User } from '@/types'
 import { reactive } from 'vue'
 
 // 全局共享的房间状态
@@ -8,7 +8,6 @@ const roomState = reactive<RoomState>({
   pushTime: null,
   playlist: [],
   onlineUsers: [],
-  chatMessages: [],
   currentLyrics: [],
   currentLyricIndex: 0,
 })
@@ -47,17 +46,8 @@ export function useRoomState() {
     roomState.playlist = []
     setCurrentSong(null)
   }
-
   const updateOnlineUsers = (users: User[]) => {
     roomState.onlineUsers = [...users]
-  }
-
-  // 聊天消息相关
-  const addChatMessage = (message: ChatMessage) => {
-    roomState.chatMessages.push(message)
-  }
-  const clearChatMessages = () => {
-    roomState.chatMessages = []
   }
 
   // 歌词相关
@@ -72,15 +62,13 @@ export function useRoomState() {
   const clearLyrics = () => {
     roomState.currentLyrics = []
     roomState.currentLyricIndex = 0
-  }
-  // 重置整个房间状态
+  } // 重置整个房间状态
   const resetRoomState = () => {
     roomState.currentTime = 0
     roomState.currentSong = null
     roomState.pushTime = 0
     roomState.playlist = []
     roomState.onlineUsers = []
-    roomState.chatMessages = []
     roomState.currentLyrics = []
     roomState.currentLyricIndex = 0
   }// 计算属性
@@ -95,12 +83,8 @@ export function useRoomState() {
 
     // 播放列表操作
     updatePlaylist,
-    clearPlaylist,
-
-    // 用户操作
-    updateOnlineUsers, // 聊天操作
-    addChatMessage,
-    clearChatMessages,
+    clearPlaylist, // 用户操作
+    updateOnlineUsers,
 
     // 歌词操作
     setCurrentLyrics,
