@@ -319,7 +319,7 @@
         </aside>
       </main> <!-- 点歌台模态框 -->
       <MusicSearchModal
-        :show="showMusicSearchModal" :search-results="roomState.searchResults" :search-counts="searchCounts"
+        :show="showMusicSearchModal" :search-results="searchResults" :search-counts="searchCounts"
         @close="showMusicSearchModal = false"
       />      <!-- 帮助弹窗 -->
       <HelpModal :show="showHelp" @close="showHelp = false" />      <!-- 移动端播放列表模态框 -->
@@ -399,6 +399,7 @@ import { useNotification } from '@/composables/useNotification'
 import { usePlayer } from '@/composables/usePlayer'
 import { usePWA } from '@/composables/usePWA'
 import { useRoomState } from '@/composables/useRoomState'
+import { useSearch } from '@/composables/useSearch'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
 import { formatTime } from '@/utils/time'
@@ -454,8 +455,12 @@ const roomInfo = ref<RoomInfo>({
 // 使用组合式函数
 const {
   roomState,
-  searchCounts,
 } = useRoomState()
+
+const {
+  searchCounts,
+  searchResults,
+} = useSearch(websocket)
 
 const {
   volume,

@@ -69,8 +69,6 @@ export interface RoomState {
   playlist: Song[]
   onlineUsers: User[]
   chatMessages: ChatMessage[]
-  searchCounts: number
-  searchResults: SearchResult[]
   currentLyrics: LyricLine[]
   currentLyricIndex: number
 }

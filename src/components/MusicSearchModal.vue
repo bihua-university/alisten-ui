@@ -247,7 +247,7 @@ import type { MusicSource } from '@/types'
 import { useStorage } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useNotification } from '@/composables/useNotification'
-import { useRoomState } from '@/composables/useRoomState'
+import { useSearch } from '@/composables/useSearch'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { formatTime } from '@/utils/time'
 
@@ -261,7 +261,7 @@ interface Props {
 const props = defineProps<Props>()
 defineEmits(['close'])
 
-const { clearSearchResults } = useRoomState()
+const { clearSearchResults } = useSearch()
 const { showSuccess } = useNotification()
 const { send } = useWebSocket()
 

@@ -1,5 +1,5 @@
-import type { ChatMessage, LyricLine, RoomState, SearchResult, Song, User } from '@/types'
-import { computed, reactive } from 'vue'
+import type { ChatMessage, LyricLine, RoomState, Song, User } from '@/types'
+import { reactive } from 'vue'
 
 // 全局共享的房间状态
 const roomState = reactive<RoomState>({
@@ -9,13 +9,9 @@ const roomState = reactive<RoomState>({
   playlist: [],
   onlineUsers: [],
   chatMessages: [],
-  searchCounts: 0,
-  searchResults: [],
   currentLyrics: [],
   currentLyricIndex: 0,
 })
-
-const searchCounts = computed(() => roomState.searchCounts)
 
 export function useRoomState() {
   // 当前歌曲相关
@@ -64,16 +60,6 @@ export function useRoomState() {
     roomState.chatMessages = []
   }
 
-  // 搜索结果相关
-  const updateSearchResults = (results: SearchResult[], totalNum: number) => {
-    roomState.searchResults = [...results]
-    roomState.searchCounts = totalNum
-  }
-  const clearSearchResults = () => {
-    roomState.searchCounts = 0
-    roomState.searchResults = []
-  }
-
   // 歌词相关
   const setCurrentLyrics = (lyrics: LyricLine[]) => {
     roomState.currentLyrics = [...lyrics]
@@ -87,7 +73,6 @@ export function useRoomState() {
     roomState.currentLyrics = []
     roomState.currentLyricIndex = 0
   }
-
   // 重置整个房间状态
   const resetRoomState = () => {
     roomState.currentTime = 0
@@ -96,10 +81,9 @@ export function useRoomState() {
     roomState.playlist = []
     roomState.onlineUsers = []
     roomState.chatMessages = []
-    roomState.searchResults = []
     roomState.currentLyrics = []
     roomState.currentLyricIndex = 0
-  } // 计算属性
+  }// 计算属性
   return {
     roomState,
 
@@ -114,23 +98,14 @@ export function useRoomState() {
     clearPlaylist,
 
     // 用户操作
-    updateOnlineUsers,
-
-    // 聊天操作
+    updateOnlineUsers, // 聊天操作
     addChatMessage,
     clearChatMessages,
-    // 搜索结果操作
-    updateSearchResults,
-    clearSearchResults,
 
     // 歌词操作
     setCurrentLyrics,
     setCurrentLyricIndex,
-    clearLyrics,
-
-    // 其他操作
+    clearLyrics, // 其他操作
     resetRoomState,
-    // 计算属性
-    searchCounts,
   }
 }
