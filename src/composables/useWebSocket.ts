@@ -1,5 +1,4 @@
 import type {
-  ChatMessage,
   ConnectionStatus,
   SearchResult,
   Song,
@@ -7,10 +6,10 @@ import type {
   WebSocketConfig,
   WebSocketMessage,
 } from '@/types'
-import { nextTick, onUnmounted, ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { useLyrics } from '@/composables/useLyrics'
 import { useRoomState } from '@/composables/useRoomState'
-import { getSavedNickname, processUsers, saveNickname } from '@/utils/user'
+import { getDefaultAvatar, getSavedNickname, processUsers, saveNickname } from '@/utils/user'
 
 // 定义事件处理器类型
 type EventHandler = (message: any) => void
@@ -20,7 +19,7 @@ const connectionStatus = ref<ConnectionStatus>('disconnected')
 const isConnecting = ref(false)
 const reconnectAttempts = ref(0) // 使用共享的房间状态
 
-const { roomState, addChatMessage, updateSearchResults, setCurrentSong, setPushTime, updatePlaylist, updateOnlineUsers } = useRoomState()
+const { roomState, updateSearchResults, setCurrentSong, setPushTime, updatePlaylist, updateOnlineUsers } = useRoomState()
 const { loadLrcLyrics } = useLyrics()
 
 // WebSocket 配置
@@ -81,45 +80,8 @@ interface MessageTypeHandler {
   handler: (message: any) => void
 }
 
-// 自动滚动聊天容器到底部
-function scrollChatToBottom() {
-  nextTick(() => {
-    const chatContainer = document.querySelector('.chat-messages')
-    if (chatContainer) {
-      chatContainer.scrollTop = chatContainer.scrollHeight
-    }
-  })
-}
-
-// 获取默认头像
-function getDefaultAvatar(seed?: string | number): string {
-  const randomSeed = seed || Date.now()
-  return `https://picsum.photos/200/200?random=${randomSeed}`
-}
-
 // 消息类型处理器
 const messageTypeHandlers: MessageTypeHandler[] = [
-  {
-    type: 'chat',
-    handler: (message: any) => {
-      if (!message.content) {
-        console.warn('收到空的聊天消息')
-        return
-      }
-
-      const msg: ChatMessage = {
-        content: message.content,
-        timestamp: message.sendTime || Date.now(),
-        user: {
-          name: message.nickName || '未知用户',
-          avatar: message.userAvatar || getDefaultAvatar(1),
-        },
-      }
-
-      addChatMessage(msg)
-      scrollChatToBottom()
-    },
-  },
   {
     type: 'music',
     handler: (message: any) => {
@@ -244,6 +206,20 @@ const messageTypeHandlers: MessageTypeHandler[] = [
     },
   },
 ]
+
+function registerMessageHandler(type: string, handler: (message: any) => void) {
+  if (!type || typeof type !== 'string' || !handler || typeof handler !== 'function') {
+    console.warn('无效的消息类型或处理器:', type, handler)
+    return
+  }
+
+  const existingHandler = messageTypeHandlers.find(h => h.type === type)
+  if (existingHandler) {
+    existingHandler.handler = handler
+  } else {
+    messageTypeHandlers.push({ type, handler })
+  }
+}
 
 // 处理具体消息类型
 function handleMessageByType(messageType: string, message: any) {
@@ -478,12 +454,12 @@ function sendSongLike(index: number, name: string) {
   })
 }
 
-export function useWebSocket() {
-  // 清理资源
-  onUnmounted(() => {
-    disconnect()
-  })
+// 清理资源
+onUnmounted(() => {
+  disconnect()
+})
 
+export function useWebSocket() {
   return {
     // 状态
     connectionStatus,
@@ -503,6 +479,7 @@ export function useWebSocket() {
     emit, // 业务方法
     sendChatMessage,
     sendSongLike,
+    registerMessageHandler,
 
     // 配置
     config,

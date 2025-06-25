@@ -93,3 +93,9 @@ export function getSavedNickname(): string | null {
 export function clearNickname(): void {
   localStorage.removeItem('alisten_nickname')
 }
+
+// 获取默认头像
+export function getDefaultAvatar(seed?: string | number): string {
+  const randomSeed = seed || Date.now()
+  return `https://picsum.photos/200/200?random=${randomSeed}`
+}

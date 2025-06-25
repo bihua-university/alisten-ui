@@ -480,44 +480,11 @@
         >
           <!-- 聊天区域 -->
           <div class="flex-1 flex flex-col overflow-hidden h-[calc(100vh-300px)]">
-            <div class="p-4 border-b border-white/10 flex justify-between items-center">
-              <h2 class="text-lg font-semibold flex items-center">
-                <i class="fa-solid fa-comments mr-2 text-primary" />聊天
-              </h2>
-            </div>
-            <div ref="chatMessages" class="chat-messages flex-1 overflow-y-auto p-3 space-y-4 scrollbar-hide">
-              <div v-for="message in processedChatMessages" :key="message.timestamp" class="flex items-start">
-                <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
-                  <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
-                </div>
-                <div>
-                  <div class="flex items-center">
-                    <span class="font-medium text-sm">{{ message.user.name }}</span>
-                    <span class="text-xs text-gray-400 ml-2">{{ formatTimeHH_MM(message.timestamp) }}</span>
-                  </div>
-                  <p class="text-sm mt-1">
-                    {{ message.content }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-auto">
-            <div class="p-3 border-t border-white/10">
-              <div class="relative">
-                <input
-                  v-model="newMessage" type="text" placeholder="发送消息..."
-                  class="w-full bg-white/10 rounded-full py-2 px-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  @keyup.enter="sendMessage"
-                >
-                <button
-                  class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                  @click="sendMessage"
-                >
-                  <i class="fa-solid fa-paper-plane" />
-                </button>
-              </div>
-            </div>
+            <ChatComponent
+              :messages="chatMessages"
+              is-desktop
+              @send-message="sendMessage"
+            />
           </div>
 
           <!-- 在线用户列表 - 固定在底部 -->
@@ -620,58 +587,21 @@
             </div>
           </div>
         </div>
-      </transition> <!-- 移动端聊天模态框 -->
+      </transition>
+
+      <!-- 移动端聊天模态框 -->
       <transition name="modal">
         <div v-if="showMobileChat" class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
           <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showMobileChat = false" />
           <div
             class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
           >
-            <div class="p-4 border-b border-white/10 flex justify-between items-center">
-              <h2 class="text-lg font-semibold flex items-center">
-                <i class="fa-solid fa-comments mr-2 text-primary" />聊天
-              </h2>
-              <button
-                class="text-gray-400 hover:text-white transition-colors touch-target"
-                @click="showMobileChat = false"
-              >
-                <i class="fa-solid fa-times text-lg" />
-              </button>
-            </div>
-            <div ref="mobileChatMessages" class="flex-1 overflow-y-auto p-3 space-y-3 smooth-scroll modal-scroll">
-              <div v-for="message in processedChatMessages" :key="message.timestamp" class="flex items-start space-x-3">
-                <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                  <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center space-x-2 mb-1">
-                    <span class="font-medium text-sm truncate">{{ message.user.name }}</span>
-                    <span class="text-xs text-gray-400 flex-shrink-0">{{ formatTimeHH_MM(message.timestamp)
-                    }}</span>
-                  </div>
-                  <p class="text-sm break-words leading-relaxed">
-                    {{ message.content }}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="p-3 border-t border-white/10">
-              <div class="relative">
-                <input
-                  v-model="newMessage" type="text" placeholder="发送消息..."
-                  class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
-                  maxlength="200" @keyup.enter="sendMessage"
-                >
-                <button
-                  :disabled="!newMessage.trim()"
-                  class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target"
-                  :class="[newMessage.trim() ? 'text-primary hover:bg-primary/20 active:bg-primary/30' : 'text-gray-500']"
-                  @click="sendMessage"
-                >
-                  <i class="fa-solid fa-paper-plane" />
-                </button>
-              </div>
-            </div>
+            <ChatComponent
+              :messages="chatMessages"
+              show-close-button
+              @close="showMobileChat = false"
+              @send-message="sendMessage"
+            />
           </div>
         </div>
       </transition>
@@ -767,6 +697,7 @@
 <script setup lang="ts">
 import type { RoomInfo } from '@/types'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import ChatComponent from '@/components/ChatComponent.vue'
 import HelpModal from '@/components/HelpModal.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
@@ -781,7 +712,7 @@ import { usePWA } from '@/composables/usePWA'
 import { useRoomState } from '@/composables/useRoomState'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
-import { formatTime, formatTimeHH_MM } from '@/utils/time'
+import { formatTime } from '@/utils/time'
 import { processUser, processUsers } from '@/utils/user'
 
 // 应用配置
@@ -815,7 +746,6 @@ const showMobilePlaylist = ref(false)
 const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
 const isImmersiveMode = ref(false) // 沉浸模式状态
 const searchQuery = ref('')
-const mobileChatMessages = ref<HTMLElement>()
 const isDevelopment = import.meta.env.DEV
 
 // 音频播放器引用
@@ -849,7 +779,7 @@ const {
   showSkipSong,
 } = usePlayer()
 
-const { chatMessages, newMessage, sendMessage } = useChat(websocket)
+const { chatMessages, sendMessage } = useChat(websocket)
 const {
   syncLyrics,
 } = useLyrics()
@@ -879,12 +809,6 @@ const {
 
 // 处理后的用户数据计算属性
 const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
-const processedChatMessages = computed(() =>
-  chatMessages.value.map(message => ({
-    ...message,
-    user: processUser(message.user),
-  })),
-)
 const processedPlaylist = computed(() =>
   roomState.playlist.map(song => ({
     ...song,
