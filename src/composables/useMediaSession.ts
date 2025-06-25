@@ -18,38 +18,7 @@ export function useMediaSession() {
         title: song.title,
         artist: song.artist,
         album: song.album || '未知专辑',
-        artwork: [
-          {
-            src: song.cover,
-            sizes: '96x96',
-            type: 'image/jpeg',
-          },
-          {
-            src: song.cover,
-            sizes: '128x128',
-            type: 'image/jpeg',
-          },
-          {
-            src: song.cover,
-            sizes: '192x192',
-            type: 'image/jpeg',
-          },
-          {
-            src: song.cover,
-            sizes: '256x256',
-            type: 'image/jpeg',
-          },
-          {
-            src: song.cover,
-            sizes: '384x384',
-            type: 'image/jpeg',
-          },
-          {
-            src: song.cover,
-            sizes: '512x512',
-            type: 'image/jpeg',
-          },
-        ],
+        artwork: [{ src: song.cover }],
       })
     }
     catch (error) {
