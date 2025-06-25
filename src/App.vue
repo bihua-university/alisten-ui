@@ -894,10 +894,7 @@ const processedPlaylist = computed(() =>
 
 // 计算播放列表总时长
 const totalPlaylistDuration = computed(() => {
-  const sum = processedPlaylist.value.reduce((total, song) => {
-    return total + (song.duration || 0)
-  }, 0)
-  return sum
+  return processedPlaylist.value.reduce((total, song) => total + song.duration, 0)
 })
 
 // 进度条
