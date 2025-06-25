@@ -343,7 +343,7 @@ function pickMusic(result: any) {
     data: {
       id: result.id,
       name: result.title,
-      source: 'wy', // 根据实际需要调整
+      source: selectedMusicSource.value.id,
     },
   })
   showSuccess(`已发送点歌请求: ${result.title}`)
