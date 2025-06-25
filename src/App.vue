@@ -1214,6 +1214,24 @@ function handleMuteToggle(muted: boolean) {
   isMuted.value = muted
 }
 
+// 动态更新页面标题
+function setupDynamicTitle() {
+  watch(
+    () => roomState.currentSong,
+    (newSong) => {
+      if (newSong) {
+        // 有歌曲播放时，显示歌曲信息
+        document.title = `${newSong.title} - ${newSong.artist} | ${appConfig.app.name}`
+      }
+      else {
+        // 没有歌曲播放时，显示默认标题
+        document.title = appConfig.app.name
+      }
+    },
+    { immediate: true },
+  )
+}
+
 // 生命周期
 onMounted(() => {
   // 页面挂载时不立即初始化，等待用户确认
@@ -1224,6 +1242,9 @@ onMounted(() => {
 
   // 初始化媒体会话
   initializeMediaSession()
+
+  // 设置动态页面标题
+  setupDynamicTitle()
 })
 
 // 初始化媒体会话
