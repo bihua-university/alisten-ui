@@ -52,10 +52,9 @@
 
     <!-- 动态背景 -->
     <div v-if="!isImmersiveMode" class="fixed inset-0 z-0">
-      <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />
-      <div v-if="roomState.currentSong" class="absolute inset-0 opacity-50 dynamic-bg">
+      <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />      <div v-if="playerState.currentSong" class="absolute inset-0 opacity-50 dynamic-bg">
         <img
-          :key="roomState.currentSong.id" :src="roomState.currentSong.cover" :alt="roomState.currentSong.title"
+          :key="playerState.currentSong.id" :src="playerState.currentSong.cover" :alt="playerState.currentSong.title"
           class="w-full h-full object-cover blur-3xl scale-110 transition-all duration-1000"
         >
         <div class="absolute inset-0 bg-overlay" />
@@ -70,7 +69,7 @@
         @timeupdate="onAudioTimeUpdate" @error="onAudioError"
         @play="startProgressUpdate" @pause="stopProgressUpdate" @ended="stopProgressUpdate"
       >
-        <source :src="roomState.currentSong?.url">
+        <source :src="playerState.currentSong?.url">
         您的浏览器不支持音频播放。
       </audio>
 
@@ -184,19 +183,19 @@
               class="lyrics-content mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4 max-w-2xl"
             >
               <div
-                v-for="(line, index) in roomState.currentLyrics" :key="index"
+                v-for="(line, index) in currentLyrics" :key="index"
                 class="lyric-line transition-all duration-300" :class="[{
-                  'active text-white font-medium mb-3 mt-3': index === roomState.currentLyricIndex,
-                  'text-gray-400 mb-1': index !== roomState.currentLyricIndex,
-                  'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': index === roomState.currentLyricIndex,
-                  'text-sm sm:text-base md:text-lg': index !== roomState.currentLyricIndex,
+                  'active text-white font-medium mb-3 mt-3': index === currentLyricIndex,
+                  'text-gray-400 mb-1': index !== currentLyricIndex,
+                  'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': index === currentLyricIndex,
+                  'text-sm sm:text-base md:text-lg': index !== currentLyricIndex,
                 }]"
               >
                 {{ line.text }}
               </div>
 
               <!-- 当没有歌词时的占位符 -->
-              <div v-if="roomState.currentLyrics.length === 0" class="text-gray-400 py-8">
+              <div v-if="currentLyrics.length === 0" class="text-gray-400 py-8">
                 <i class="fa-solid fa-music text-4xl mb-4 opacity-50" />
                 <p class="text-sm">
                   暂无歌词
@@ -208,9 +207,8 @@
           <ImmersiveMode
             v-if="isImmersiveMode"
             ref="immersiveModeRef"
-            :current-song="roomState.currentSong"
-            :lyrics="roomState.currentLyrics"
-            :current-lyric-index="roomState.currentLyricIndex"
+            :current-song="playerState.currentSong" :lyrics="currentLyrics"
+            :current-lyric-index="currentLyricIndex"
             :progress-percentage="progressPercentage"
             :current-time="currentTime"
             @toggle-immersive="toggleImmersiveMode"
@@ -232,25 +230,25 @@
             <div class="flex items-center">
               <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden mr-3 sm:mr-4 flex-shrink-0">
                 <img
-                  :src="roomState.currentSong?.cover" :alt="roomState.currentSong?.title"
+                  :src="playerState.currentSong?.cover" :alt="playerState.currentSong?.title"
                   class="w-full h-full object-cover"
                 >
               </div>
               <div class="flex-1 mr-2 sm:mr-4 min-w-0">
                 <h3 class="font-medium text-sm sm:text-base truncate">
-                  {{ roomState.currentSong?.title }}
+                  {{ playerState.currentSong?.title }}
                 </h3>
                 <p class="text-xs text-gray-400 truncate">
-                  {{ roomState.currentSong?.artist }}{{
-                    roomState.currentSong?.album
-                      ? ` - ${roomState.currentSong?.album}` : '' }}
+                  {{ playerState.currentSong?.artist }}{{
+                    playerState.currentSong?.album
+                      ? ` - ${playerState.currentSong?.album}` : '' }}
                 </p>
               </div>
               <div class="flex flex-col items-center space-x-2 sm:space-x-3 flex-shrink-0">
                 <div class="relative ml-auto">
                   <div class="flex justify-between text-xs text-gray-400 mt-1">
                     <span>{{ formatTime(currentTime || 0) }} /
-                      {{ formatTime((roomState.currentSong?.duration || 0) / 1000) }}</span>
+                      {{ formatTime((playerState.currentSong?.duration || 0) / 1000) }}</span>
                   </div>
                 </div>
                 <!-- 音量 -->
@@ -381,7 +379,7 @@
 </template>
 
 <script setup lang="ts">
-import type { RoomInfo } from '@/types'
+import type { RoomInfo, Song } from '@/types'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import ChatComponent from '@/components/ChatComponent.vue'
 import HelpModal from '@/components/HelpModal.vue'
@@ -463,17 +461,20 @@ const {
 } = useSearch(websocket)
 
 const {
+  playerState,
   volume,
   isMuted,
   skipMessage,
   showSkipMessage,
   isSkipping,
   showSkipSong,
-} = usePlayer()
+} = usePlayer(websocket)
 
 const { chatMessages, sendMessage } = useChat(websocket)
 const {
   syncLyrics,
+  currentLyrics,
+  currentLyricIndex,
 } = useLyrics()
 const {
   showError,
@@ -502,7 +503,7 @@ const {
 // 处理后的用户数据计算属性
 const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
 const processedPlaylist = computed(() =>
-  roomState.playlist.map(song => ({
+  playerState.playlist.map((song: Song) => ({
     ...song,
     requestedBy: song.requestedBy ? processUser(song.requestedBy) : undefined,
   })),
@@ -511,8 +512,8 @@ const processedPlaylist = computed(() =>
 // 进度条 - 实时渲染
 const currentTime = ref(0)
 const progressPercentage = computed(() => {
-  if (roomState.currentSong?.duration) {
-    return (currentTime.value / (roomState.currentSong.duration / 1000)) * 100
+  if (playerState.currentSong?.duration) {
+    return (currentTime.value / (playerState.currentSong.duration / 1000)) * 100
   }
   return 0
 })
@@ -571,11 +572,10 @@ function scrollLyricsToCenter(container: HTMLElement | undefined, index: number,
 
 // 切换沉浸模式
 function toggleImmersiveMode() {
-  isImmersiveMode.value = !isImmersiveMode.value
-  // 切换模式后立即同步歌词位置（使用瞬间跳转，不使用平滑滚动）
+  isImmersiveMode.value = !isImmersiveMode.value // 切换模式后立即同步歌词位置（使用瞬间跳转，不使用平滑滚动）
   nextTick(() => {
-    const currentIndex = roomState.currentLyricIndex
-    if (currentIndex >= 0 && roomState.currentLyrics.length > 0) {
+    const currentIndex = currentLyricIndex.value
+    if (currentIndex >= 0 && currentLyrics.value.length > 0) {
       if (isImmersiveMode.value) {
         immersiveModeRef.value?.scrollLyricsToCenter(currentIndex, false)
       } else {
@@ -612,10 +612,9 @@ function initializeApp() {
     const roomId = roomInfo.value.id
     connect(roomId)
   }, 1000)
-
   // 确保音频播放器初始化后自动播放第一首歌
   setTimeout(() => {
-    if (roomState.currentSong && audioPlayer.value) {
+    if (playerState.currentSong && audioPlayer.value) {
       playAudio()
     }
   }, 1500)
@@ -648,7 +647,7 @@ function getConnectionStatusText() {
 }
 
 // 监听计算出的当前时间变化，同步音频播放器
-watch(() => roomState.pushTime, (pushTime) => {
+watch(() => playerState.pushTime, (pushTime) => {
   if (!pushTime || pushTime === 0)
     return // 如果pushTime为0，则不进行同步
   const delta = Date.now() - pushTime
@@ -660,7 +659,7 @@ watch(() => roomState.pushTime, (pushTime) => {
 }, { immediate: true })
 
 // 监听当前歌曲变化，更新音频源并自动播放
-watch(() => roomState.currentSong, (newSong) => {
+watch(() => playerState.currentSong, (newSong) => {
   if (newSong && audioPlayer.value) {
     // 如果有新歌曲且有音频URL，则加载新音频
     if (newSong.url) {
@@ -691,8 +690,8 @@ watch(isMuted, (muted) => {
 }, { immediate: true })
 
 // 监听当前歌词索引变化，实现自动滚动
-watch(() => roomState.currentLyricIndex, (newIndex) => {
-  if (newIndex >= 0 && roomState.currentLyrics.length > 0) {
+watch(() => currentLyricIndex.value, (newIndex) => {
+  if (newIndex >= 0 && currentLyrics.value.length > 0) {
     // 延迟执行滚动，确保DOM更新完成
     nextTick(() => {
       if (isImmersiveMode.value) {
@@ -843,13 +842,13 @@ function handleMuteToggle(muted: boolean) {
 // 动态更新页面标题
 function setupDynamicTitle() {
   watch(
-    () => roomState.currentSong,
+    () => playerState.currentSong,
     (newSong) => {
       if (newSong) {
-        // 有歌曲播放时，显示歌曲信息
+      // 有歌曲播放时，显示歌曲信息
         document.title = `${newSong.title} - ${newSong.artist} | ${appConfig.app.name}`
       } else {
-        // 没有歌曲播放时，显示默认标题
+      // 没有歌曲播放时，显示默认标题
         document.title = appConfig.app.name
       }
     },

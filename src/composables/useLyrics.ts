@@ -1,28 +1,46 @@
 import type { LyricLine } from '@/types'
-import { computed } from 'vue'
+import { computed, reactive } from 'vue'
 import { isValidLrc, parseLyrics } from '@/utils/lrcParser'
-import { useRoomState } from './useRoomState'
+
+// 全局共享的歌词状态
+const lyricsState = reactive<{
+  currentLyrics: LyricLine[]
+  currentLyricIndex: number
+}>({
+  currentLyrics: [],
+  currentLyricIndex: 0,
+})
 
 export function useLyrics() {
-  const { roomState, setCurrentLyrics, setCurrentLyricIndex, clearLyrics } = useRoomState()
+  // 歌词相关操作
+  const setCurrentLyrics = (lyrics: LyricLine[]) => {
+    lyricsState.currentLyrics = [...lyrics]
+  }
 
+  const setCurrentLyricIndex = (index: number) => {
+    lyricsState.currentLyricIndex = index
+  }
+
+  const clearLyrics = () => {
+    lyricsState.currentLyrics = []
+    lyricsState.currentLyricIndex = 0
+  }
   // 计算属性：当前歌词行的高亮状态
   const lyricLines = computed(() => {
-    return roomState.currentLyrics.map((lyric, index) => ({
+    return lyricsState.currentLyrics.map((lyric: LyricLine, index: number) => ({
       ...lyric,
-      isActive: index === roomState.currentLyricIndex,
-      isPassed: index < roomState.currentLyricIndex,
-      isComing: index > roomState.currentLyricIndex,
+      isActive: index === lyricsState.currentLyricIndex,
+      isPassed: index < lyricsState.currentLyricIndex,
+      isComing: index > lyricsState.currentLyricIndex,
     }))
   })
-
   // 模拟歌词同步
   const syncLyrics = (currentTime: number) => {
-    if (roomState.currentLyrics.length > 0) {
-      const currentLyric = roomState.currentLyrics.findIndex((lyric: LyricLine) =>
+    if (lyricsState.currentLyrics.length > 0) {
+      const currentLyric = lyricsState.currentLyrics.findIndex((lyric: LyricLine) =>
         lyric.time <= currentTime
-        && (roomState.currentLyrics[roomState.currentLyrics.indexOf(lyric) + 1]?.time > currentTime
-          || roomState.currentLyrics.indexOf(lyric) === roomState.currentLyrics.length - 1),
+        && (lyricsState.currentLyrics[lyricsState.currentLyrics.indexOf(lyric) + 1]?.time > currentTime
+          || lyricsState.currentLyrics.indexOf(lyric) === lyricsState.currentLyrics.length - 1),
       )
       if (currentLyric !== -1) {
         setCurrentLyricIndex(currentLyric)
@@ -47,35 +65,32 @@ export function useLyrics() {
       return false
     }
   }
-
   // 跳转到指定歌词行
   const seekToLyric = (index: number) => {
-    if (index >= 0 && index < roomState.currentLyrics.length) {
+    if (index >= 0 && index < lyricsState.currentLyrics.length) {
       setCurrentLyricIndex(index)
-      return roomState.currentLyrics[index].time
+      return lyricsState.currentLyrics[index].time
     }
     return 0
   }
-
   // 获取当前歌词信息
   const getCurrentLyricInfo = () => {
-    const current = roomState.currentLyrics[roomState.currentLyricIndex]
-    const next = roomState.currentLyrics[roomState.currentLyricIndex + 1]
-    const prev = roomState.currentLyrics[roomState.currentLyricIndex - 1]
+    const current = lyricsState.currentLyrics[lyricsState.currentLyricIndex]
+    const next = lyricsState.currentLyrics[lyricsState.currentLyricIndex + 1]
+    const prev = lyricsState.currentLyrics[lyricsState.currentLyricIndex - 1]
 
     return {
       current: current || null,
       next: next || null,
       prev: prev || null,
-      progress: roomState.currentLyricIndex / Math.max(1, roomState.currentLyrics.length - 1),
-      totalLines: roomState.currentLyrics.length,
+      progress: lyricsState.currentLyricIndex / Math.max(1, lyricsState.currentLyrics.length - 1),
+      totalLines: lyricsState.currentLyrics.length,
     }
   }
-
   return {
-    // 状态 (从 roomState 获取)
-    currentLyricIndex: computed(() => roomState.currentLyricIndex),
-    currentLyrics: computed(() => roomState.currentLyrics),
+    // 状态 (从 lyricsState 获取)
+    currentLyricIndex: computed(() => lyricsState.currentLyricIndex),
+    currentLyrics: computed(() => lyricsState.currentLyrics),
     lyricLines,
 
     // 方法
@@ -84,5 +99,7 @@ export function useLyrics() {
     clearLyrics,
     seekToLyric,
     getCurrentLyricInfo,
+    setCurrentLyrics,
+    setCurrentLyricIndex,
   }
 }

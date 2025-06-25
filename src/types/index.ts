@@ -63,11 +63,5 @@ export interface WebSocketConfig {
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error' | 'reconnecting'
 
 export interface RoomState {
-  currentTime: number
-  currentSong: Song | null
-  pushTime: number | null
-  playlist: Song[]
   onlineUsers: User[]
-  currentLyrics: LyricLine[]
-  currentLyricIndex: number
 }

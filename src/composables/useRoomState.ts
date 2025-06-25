@@ -1,95 +1,27 @@
-import type { LyricLine, RoomState, Song, User } from '@/types'
+import type { RoomState, User } from '@/types'
 import { reactive } from 'vue'
 
 // 全局共享的房间状态
 const roomState = reactive<RoomState>({
-  currentTime: 0,
-  currentSong: null,
-  pushTime: null,
-  playlist: [],
   onlineUsers: [],
-  currentLyrics: [],
-  currentLyricIndex: 0,
 })
 
 export function useRoomState() {
-  // 当前歌曲相关
-  const setCurrentSong = (song: Song | null) => {
-    roomState.currentSong = song
-  }
-
-  const setPushTime = (time: number | null) => {
-    roomState.pushTime = time
-  }
-
-  const setCurrentTime = (time: number) => {
-    roomState.currentTime = time
-  }
-
-  // 更新播放状态和时间（用于服务器同步）
-  const updatePlayState = (currentTime: number, pushTime?: number) => {
-    roomState.currentTime = currentTime
-    if (pushTime !== undefined) {
-      roomState.pushTime = pushTime
-    } else {
-      // 如果没有提供pushTime，使用当前时间
-      roomState.pushTime = Date.now()
-    }
-  }
-
-  // 播放列表相关
-  const updatePlaylist = (playlist: any[]) => {
-    roomState.playlist = [...playlist]
-  }
-
-  const clearPlaylist = () => {
-    roomState.playlist = []
-    setCurrentSong(null)
-  }
   const updateOnlineUsers = (users: User[]) => {
     roomState.onlineUsers = [...users]
   }
-
-  // 歌词相关
-  const setCurrentLyrics = (lyrics: LyricLine[]) => {
-    roomState.currentLyrics = [...lyrics]
-  }
-
-  const setCurrentLyricIndex = (index: number) => {
-    roomState.currentLyricIndex = index
-  }
-
-  const clearLyrics = () => {
-    roomState.currentLyrics = []
-    roomState.currentLyricIndex = 0
-  } // 重置整个房间状态
+  // 重置整个房间状态
   const resetRoomState = () => {
-    roomState.currentTime = 0
-    roomState.currentSong = null
-    roomState.pushTime = 0
-    roomState.playlist = []
     roomState.onlineUsers = []
-    roomState.currentLyrics = []
-    roomState.currentLyricIndex = 0
-  }// 计算属性
+  }
+
   return {
     roomState,
 
-    // 当前歌曲操作
-    setCurrentSong,
-    setPushTime,
-    setCurrentTime,
-    updatePlayState,
-
-    // 播放列表操作
-    updatePlaylist,
-    clearPlaylist, // 用户操作
+    // 用户操作
     updateOnlineUsers,
 
-    // 歌词操作
-    setCurrentLyrics,
-    setCurrentLyricIndex,
-    clearLyrics, // 其他操作
+    // 其他操作
     resetRoomState,
   }
 }

@@ -1,12 +1,10 @@
 import type {
   ConnectionStatus,
-  Song,
   User,
   WebSocketConfig,
   WebSocketMessage,
 } from '@/types'
 import { onUnmounted, ref } from 'vue'
-import { useLyrics } from '@/composables/useLyrics'
 import { useRoomState } from '@/composables/useRoomState'
 import { getDefaultAvatar, getSavedNickname, processUsers, saveNickname } from '@/utils/user'
 
@@ -16,10 +14,10 @@ type EventHandler = (message: any) => void
 const ws = ref<WebSocket | null>(null)
 const connectionStatus = ref<ConnectionStatus>('disconnected')
 const isConnecting = ref(false)
-const reconnectAttempts = ref(0) // 使用共享的房间状态
+const reconnectAttempts = ref(0)
 
-const { roomState, setCurrentSong, setPushTime, updatePlaylist, updateOnlineUsers } = useRoomState()
-const { loadLrcLyrics } = useLyrics()
+// 使用共享的房间状态
+const { roomState, updateOnlineUsers } = useRoomState()
 
 // WebSocket 配置
 const config: WebSocketConfig = {
@@ -81,64 +79,6 @@ interface MessageTypeHandler {
 
 // 消息类型处理器
 const messageTypeHandlers: MessageTypeHandler[] = [
-  {
-    type: 'music',
-    handler: (message: any) => {
-      if (!message.url) {
-        console.warn('收到不完整的音乐消息:', message)
-        return
-      }
-
-      let url = message.url || ''
-      if (url.includes('kuwo.cn') && !url.includes('-')) {
-        const urls = url.split('.sycdn.')
-        const headUrls = urls[0].replace('http://', '').split('.')
-        const lastHeadUrl = headUrls[headUrls.length - 1]
-        url = `https://${lastHeadUrl}-sycdn.${urls[1]}&timestamp=${Date.now()}`
-      }
-      url = url.replace('http://', 'https://')
-
-      const music: Song = {
-        url,
-        title: message.name,
-        artist: message.artist || '未知艺术家',
-        album: message.album?.name || '未知专辑',
-        duration: message.duration || 0,
-        cover: message.pictureUrl || getDefaultAvatar(message.id),
-      }
-
-      setCurrentSong(music)
-      setPushTime(message.pushTime || Date.now())
-      loadLrcLyrics(message.lyric || '')
-    },
-  },
-  {
-    type: 'pick',
-    handler: (message: any) => {
-      if (!message.data || !Array.isArray(message.data)) {
-        console.warn('收到无效的播放列表:', message)
-        return
-      }
-
-      const playlist: Song[] = message.data
-        .filter((item: any) => item && item.name) // 过滤无效数据
-        .map((item: any) => ({
-          id: item.id,
-          url: item.url || '',
-          title: item.name,
-          artist: item.artist || '未知艺术家',
-          album: item.album?.name || '未知专辑',
-          duration: item.duration ? (item.duration / 1000) : 240,
-          cover: item.pictureUrl || getDefaultAvatar(item.id),
-          requestedBy: {
-            name: item.nickName || '未知用户',
-            avatar: getDefaultAvatar(),
-          },
-        }))
-
-      updatePlaylist(playlist)
-    },
-  },
   {
     type: 'house_user',
     handler: (message: any) => {
