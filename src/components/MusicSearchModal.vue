@@ -218,17 +218,19 @@ import { useRoomState } from '@/composables/useRoomState'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { formatTime } from '@/utils/time'
 
-const props = defineProps<Props>()
-const { clearSearchResults } = useRoomState()
-const { showSuccess } = useNotification()
-const { send } = useWebSocket()
-
 // Props
 interface Props {
   show: boolean
   searchResults: any[]
   musicSources: MusicSource[]
 }
+
+const props = defineProps<Props>()
+defineEmits(['close'])
+
+const { clearSearchResults } = useRoomState()
+const { showSuccess } = useNotification()
+const { send } = useWebSocket()
 
 // 搜索模式配置 - 根据音乐平台动态显示
 const allSearchModes = [

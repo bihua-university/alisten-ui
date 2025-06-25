@@ -55,7 +55,7 @@
     </transition>
 
     <!-- 动态背景 -->
-    <div class="fixed inset-0 z-0">
+    <div v-if="!isImmersiveMode" class="fixed inset-0 z-0">
       <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />
       <div v-if="roomState.currentSong" class="absolute inset-0 opacity-50 dynamic-bg">
         <img
@@ -533,26 +533,22 @@
                     >{{
                       processedOnlineUsers.length }}</span>
                   </div>
+
                   <button
-                    :disabled="isRefreshingUsers"
                     class="text-gray-400 hover:text-white transition-all duration-200 p-1 rounded"
-                    :class="[{ 'opacity-50 cursor-not-allowed': isRefreshingUsers }]" title="刷新用户列表"
+                    title="刷新用户列表"
                     @click="refreshOnlineUsers"
                   >
-                    <i
-                      :class="isRefreshingUsers ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-refresh'"
-                      class="text-sm"
-                    />
+                    <i class="fa-solid fa-refresh text-sm" />
                   </button>
                 </h2>
-              </div>
-              <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 max-h-48">
+              </div>              <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 h-48">
                 <div
                   v-for="user in processedOnlineUsers" :key="user.name"
                   class="flex items-center p-2 hover:bg-white/5 rounded-lg"
                 >
-                  <div class="w-8 h-8 rounded-full overflow-hidden relative mr-3">
-                    <img :src="user.avatar" :alt="user.name" class="w-full h-full object-cover">
+                  <div class="w-8 h-8 overflow-hidden relative mr-3">
+                    <img :src="user.avatar" :alt="user.name" class="w-full h-full rounded-full object-cover">
                     <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-dark" />
                   </div>
                   <span class="text-sm">{{ user.name }}</span>
@@ -697,18 +693,13 @@
                   class="ml-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded-full"
                 >{{
                   processedOnlineUsers.length }}</span>
-              </h2>
-              <div class="flex items-center space-x-2">
+              </h2>              <div class="flex items-center space-x-2">
                 <button
-                  :disabled="isRefreshingUsers"
                   class="text-gray-400 hover:text-white transition-all duration-200 p-2 rounded-full touch-target"
-                  :class="[{ 'opacity-50 cursor-not-allowed': isRefreshingUsers }]" title="刷新用户列表"
+                  title="刷新用户列表"
                   @click="refreshOnlineUsers"
                 >
-                  <i
-                    :class="isRefreshingUsers ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-refresh'"
-                    class="text-base"
-                  />
+                  <i class="fa-solid fa-refresh text-base" />
                 </button>
                 <button
                   class="text-gray-400 hover:text-white transition-colors touch-target"
@@ -724,9 +715,9 @@
                   v-for="user in processedOnlineUsers" :key="user.name"
                   class="flex items-center p-3 hover:bg-white/5 rounded-lg active:bg-white/10 transition-all cursor-pointer touch-feedback"
                 >
-                  <div class="w-10 h-10 rounded-full overflow-hidden relative mr-3 flex-shrink-0">
-                    <img :src="user.avatar" :alt="user.name" class="w-full h-full object-cover">
-                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-dark" />
+                  <div class="w-10 h-10 overflow-hidden relative mr-3 flex-shrink-0">
+                    <img :src="user.avatar" :alt="user.name" class="w-full h-full rounded-full object-cover">
+                    <div class="absolute bottom-0 right-0 w-3 h-3 z-100 bg-green-500 rounded-full border-2 border-dark" />
                   </div>
                   <div class="flex-1 min-w-0">
                     <span class="text-sm font-medium truncate block">{{ user.name }}</span>
@@ -826,7 +817,6 @@ const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
 const isImmersiveMode = ref(false) // 沉浸模式状态
 const searchQuery = ref('')
 const mobileChatMessages = ref<HTMLElement>()
-const isRefreshingUsers = ref(false)
 const isDevelopment = import.meta.env.DEV
 
 // 音频播放器引用
