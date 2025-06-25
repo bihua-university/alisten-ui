@@ -1251,9 +1251,16 @@ function initializeMediaSession() {
 
   // 设置媒体会话操作处理器 - 只保留切歌功能，禁用其他控制
   setupActionHandlers({
-    // 禁用播放控制 - 传入 null 来正确禁用，保持同步播放
-    onPlay: null,
-    onPause: null,
+    // 似乎没法禁用，所以还是实现一下基本功能
+    onPlay: () => {
+      playAudio()
+    },
+    onPause: () => {
+      if (audioPlayer.value) {
+        audioPlayer.value.pause()
+        updatePlaybackState('paused')
+      }
+    },
     // 禁用快进快退控制 - 避免用户破坏同步
     onSeekBackward: null,
     onSeekForward: null,
