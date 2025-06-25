@@ -3,8 +3,6 @@ import { ref } from 'vue'
 
 export function usePWA() {
   const showUpdateModal = ref(false)
-  const isInstallable = ref(false)
-  const deferredPrompt = ref<any>(null)
 
   // PWA 更新相关
   const {
@@ -36,45 +34,10 @@ export function usePWA() {
     showUpdateModal.value = false
   }
 
-  // PWA 安装相关
-  function setupInstallPrompt() {
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault()
-      deferredPrompt.value = e
-      isInstallable.value = true
-    })
-
-    window.addEventListener('appinstalled', () => {
-      deferredPrompt.value = null
-      isInstallable.value = false
-      console.log('PWA was installed')
-    })
-  }
-
-  // 安装 PWA
-  async function installPWA() {
-    if (!deferredPrompt.value) {
-      return false
-    }
-
-    deferredPrompt.value.prompt()
-    const { outcome } = await deferredPrompt.value.userChoice
-
-    if (outcome === 'accepted') {
-      deferredPrompt.value = null
-      isInstallable.value = false
-    }
-
-    return outcome === 'accepted'
-  }
-
   return {
     showUpdateModal,
     needRefresh,
-    isInstallable,
     handleUpdateApp,
     handleDismissUpdate,
-    setupInstallPrompt,
-    installPWA,
   }
 }

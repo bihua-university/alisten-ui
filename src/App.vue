@@ -741,20 +741,11 @@
       </transition>
 
       <!-- 通知容器 -->
-      <NotificationContainer />
-
-      <!-- PWA 更新提示 -->
+      <NotificationContainer />      <!-- PWA 更新提示 -->
       <PWAUpdateModal
         :show-update-modal="showUpdateModal"
         @update-app="handleUpdateApp"
         @dismiss-update="handleDismissUpdate"
-      />
-
-      <!-- PWA 安装横幅 -->
-      <PWAInstallBanner
-        :show-install-banner="showInstallBanner"
-        @install="handlePWAInstall"
-        @dismiss="handlePWAInstallDismiss"
       />
 
       <!-- WebSocket 连接配置显示（开发环境） -->
@@ -788,7 +779,6 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import HelpModal from '@/components/HelpModal.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
-import PWAInstallBanner from '@/components/PWAInstallBanner.vue'
 import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
 import { useChat } from '@/composables/useChat'
@@ -916,15 +906,9 @@ const {
 const pwa = usePWA()
 const {
   showUpdateModal,
-  isInstallable,
   handleUpdateApp,
   handleDismissUpdate,
-  setupInstallPrompt,
-  installPWA,
 } = pwa
-
-// PWA 安装横幅显示控制
-const showInstallBanner = ref(false)
 
 // 处理后的用户数据计算属性
 const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
@@ -1001,25 +985,6 @@ function cancelJoinRoom() {
   // 暂时不做任何操作，可以在这里添加实际的取消逻辑
   console.log('用户取消加入房间')
   showJoinRoomConfirm.value = false
-}
-
-// PWA 相关处理方法
-async function handlePWAInstall() {
-  const success = await installPWA()
-  if (success) {
-    showInstallBanner.value = false
-    showSuccess('应用已成功安装到桌面！')
-  }
-}
-
-function handlePWAInstallDismiss() {
-  showInstallBanner.value = false
-  // 暂时隐藏横幅，可以设置稍后再次显示
-  setTimeout(() => {
-    if (isInstallable.value) {
-      showInstallBanner.value = true
-    }
-  }, 24 * 60 * 60 * 1000) // 24小时后再次显示
 }
 
 // 初始化App
@@ -1297,16 +1262,6 @@ onMounted(() => {
 
   // 设置动态页面标题
   setupDynamicTitle()
-
-  // 初始化 PWA 功能
-  setupInstallPrompt()
-
-  // 延迟显示安装横幅（如果支持安装）
-  setTimeout(() => {
-    if (isInstallable.value) {
-      showInstallBanner.value = true
-    }
-  }, 3000)
 })
 
 // 初始化媒体会话
