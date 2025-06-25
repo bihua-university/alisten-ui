@@ -889,7 +889,6 @@ const {
 // 媒体会话控制
 const {
   updateMetadata,
-  updatePlaybackState,
   setupActionHandlers,
   isSupported: isMediaSessionSupported,
 } = useMediaSession()
@@ -1043,12 +1042,6 @@ watch(() => roomState.currentSong, (newSong) => {
 
   // 更新媒体会话元数据
   updateMetadata(newSong)
-  if (newSong) {
-    updatePlaybackState('playing')
-  }
-  else {
-    updatePlaybackState('none')
-  }
 }, { immediate: true })
 
 // 监听音量变化，同步到音频元素
@@ -1200,11 +1193,7 @@ function onAudioError(event: Event) {
 function playAudio() {
   if (audioPlayer.value) {
     audioPlayer.value.volume = volume.value / 100
-    audioPlayer.value.play().then(() => {
-      updatePlaybackState('playing')
-    }).catch(() => {
-      updatePlaybackState('paused')
-    })
+    audioPlayer.value.play()
   }
 }
 
@@ -1254,7 +1243,6 @@ function initializeMediaSession() {
     onPause: () => {
       if (audioPlayer.value) {
         audioPlayer.value.pause()
-        updatePlaybackState('paused')
       }
     },
     // 禁用快进快退控制 - 避免用户破坏同步

@@ -26,43 +26,6 @@ export function useMediaSession() {
     }
   }
 
-  // 更新播放状态
-  const updatePlaybackState = (state: 'none' | 'paused' | 'playing') => {
-    if (!isSupported()) {
-      return
-    }
-
-    try {
-      navigator.mediaSession.playbackState = state
-    }
-    catch (error) {
-      console.warn('更新播放状态失败:', error)
-    }
-  }
-
-  // 更新位置状态（进度）
-  const updatePositionState = (duration: number, position: number, playbackRate: number = 1.0) => {
-    if (!isSupported()) {
-      return
-    }
-
-    try {
-      if ('setPositionState' in navigator.mediaSession) {
-        // 确保 position 不超过 duration，并且不小于 0
-        const clampedPosition = Math.max(0, Math.min(position, duration))
-
-        navigator.mediaSession.setPositionState({
-          duration,
-          playbackRate,
-          position: clampedPosition,
-        })
-      }
-    }
-    catch (error) {
-      console.warn('更新位置状态失败:', error)
-    }
-  }
-
   // 设置媒体会话操作处理器
   const setupActionHandlers = (callbacks: {
     onPlay?: (() => void) | null
@@ -182,8 +145,6 @@ export function useMediaSession() {
   return {
     isSupported,
     updateMetadata,
-    updatePlaybackState,
-    updatePositionState,
     setupActionHandlers,
     clearSession,
   }
