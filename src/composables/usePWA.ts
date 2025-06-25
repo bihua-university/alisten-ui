@@ -80,7 +80,5 @@ export function usePWA() {
     needRefresh,
     handleUpdateApp,
     handleDismissUpdate,
-    startPeriodicUpdateCheck,
-    stopPeriodicUpdateCheck,
   }
 }
