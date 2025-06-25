@@ -48,8 +48,8 @@ export function useMediaSession() {
 
     try {
       if ('setPositionState' in navigator.mediaSession) {
-        // 确保 position 不超过 duration
-        const clampedPosition = Math.min(position, duration)
+        // 确保 position 不超过 duration，并且不小于 0
+        const clampedPosition = Math.max(0, Math.min(position, duration))
 
         navigator.mediaSession.setPositionState({
           duration,
