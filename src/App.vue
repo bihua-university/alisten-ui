@@ -741,7 +741,15 @@
       </transition>
 
       <!-- 通知容器 -->
-      <NotificationContainer /> <!-- WebSocket 连接配置显示（开发环境） -->
+      <NotificationContainer />
+      <!-- PWA 更新提示 -->
+      <PWAUpdateModal
+        :show-update-modal="showUpdateModal"
+        @update-app="handleUpdateApp"
+        @dismiss-update="handleDismissUpdate"
+      />
+
+      <!-- WebSocket 连接配置显示（开发环境） -->
       <div v-if="isDevelopment && !isImmersiveMode" class="fixed bottom-4 right-4 z-40">
         <div class="bg-black/80 text-white text-xs p-2 rounded backdrop-blur-sm max-w-xs">
           <div class="font-medium mb-1">
@@ -772,12 +780,14 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import HelpModal from '@/components/HelpModal.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
+import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
 import { useChat } from '@/composables/useChat'
 import { useLyrics } from '@/composables/useLyrics'
 import { useMediaSession } from '@/composables/useMediaSession'
 import { useNotification } from '@/composables/useNotification'
 import { usePlayer } from '@/composables/usePlayer'
+import { usePWA } from '@/composables/usePWA'
 import { useRoomState } from '@/composables/useRoomState'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
@@ -893,6 +903,14 @@ const {
   isSupported: isMediaSessionSupported,
 } = useMediaSession()
 
+// PWA 功能
+const pwa = usePWA()
+const {
+  showUpdateModal,
+  handleUpdateApp,
+  handleDismissUpdate,
+} = pwa
+
 // 处理后的用户数据计算属性
 const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
 const processedChatMessages = computed(() =>
@@ -971,6 +989,7 @@ function cancelJoinRoom() {
   // window.location.href = '/rooms'
 }
 
+// 初始化App
 function initializeApp() {
   // 设置WebSocket事件监听
   setupWebSocketEvents()

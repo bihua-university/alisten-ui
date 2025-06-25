@@ -185,7 +185,7 @@
           </div>
 
           <!-- 注意事项 -->
-          <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+          <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mb-6">
             <h4 class="text-yellow-400 font-medium mb-2 flex items-center">
               <i class="fa-solid fa-exclamation-triangle mr-2" />
               注意事项
@@ -197,6 +197,15 @@
               <li>• 房间内的所有用户会同步听到相同的音乐</li>
             </ul>
           </div>
+
+          <!-- 版本信息 -->
+          <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+            <h4 class="text-gray-300 font-medium mb-3 flex items-center">
+              <i class="fa-solid fa-info-circle mr-2" />
+              版本信息
+            </h4>
+            <VersionInfo />
+          </div>
         </div>
       </div>
     </div>
@@ -204,6 +213,8 @@
 </template>
 
 <script setup lang="ts">
+import VersionInfo from './VersionInfo.vue'
+
 // 定义 props
 defineProps<{
   show: boolean
