@@ -4,6 +4,7 @@
     <div v-if="show" class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
       <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="$emit('close')" />
       <div
+        ref="searchResultsContainer"
         class="relative bg-dark border-t border-white/20 md:border md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
       >
         <!-- 顶部拖拽指示器（仅移动端） -->
@@ -14,10 +15,7 @@
           <h2 class="text-lg md:text-xl font-semibold">
             点歌台
           </h2>
-          <button
-            class="text-gray-400 hover:text-white transition-colors touch-target"
-            @click="$emit('close')"
-          >
+          <button class="text-gray-400 hover:text-white transition-colors touch-target" @click="$emit('close')">
             <i class="fa-solid fa-times text-lg" />
           </button>
         </div>
@@ -35,8 +33,7 @@
                   : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']" @click="selectMusicSource(source)"
               >
                 <i
-                  :class="source.icon"
-                  :style="{ color: selectedMusicSource.id === source.id ? source.color : '' }"
+                  :class="source.icon" :style="{ color: selectedMusicSource.id === source.id ? source.color : '' }"
                   class="text-lg mb-2 block"
                 />
                 <div class="text-xs font-medium truncate">
@@ -97,24 +94,18 @@
             >
               <i class="fa-solid fa-search" />
             </button>
-          </div>
-
-          <!-- 搜索结果 -->
+          </div>          <!-- 搜索结果 -->
           <div v-if="searchResults.length > 0" class="mb-6">
             <h3 class="text-base md:text-lg font-medium mb-3">
               搜索结果 - {{ selectedSearchMode.name }}
               <span class="text-xs text-gray-400 ml-2">(来自 {{ selectedMusicSource.name }})</span>
-            </h3>
-            <transition-group name="search-result" tag="div">
+            </h3> <transition-group name="search-result" tag="div">
               <!-- 歌曲搜索结果 -->
               <div
                 v-if="selectedSearchMode.id === 'song'"
                 class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
               >
-                <div
-                  v-for="result in searchResults"
-                  class="bg-white/5 rounded-lg p-3 flex items-center transition-all"
-                >
+                <div v-for="result in searchResults" class="bg-white/5 rounded-lg p-3 flex items-center transition-all">
                   <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
                     <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
                   </div>
@@ -134,21 +125,15 @@
                     <i class="fa-solid fa-plus" />
                   </button>
                 </div>
-              </div>
-              <!-- 歌单搜索结果 -->
+              </div> <!-- 歌单搜索结果 -->
               <div
                 v-if="selectedSearchMode.id === 'playlist' || selectedSearchMode.id === 'user_playlist'"
                 class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
               >
-                <div
-                  v-for="result in searchResults"
-                  class="bg-white/5 rounded-lg p-3 flex items-center transition-all"
-                >
+                <div v-for="result in searchResults" class="bg-white/5 rounded-lg p-3 flex items-center transition-all">
                   <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
                     <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
-                    <div
-                      class="absolute bottom-0 right-0 bg-black/70 text-white text-xs px-1 rounded-tl"
-                    >
+                    <div class="absolute bottom-0 right-0 bg-black/70 text-white text-xs px-1 rounded-tl">
                       <i class="fa-solid fa-list-ul" />
                     </div>
                   </div>
@@ -173,6 +158,53 @@
                 </div>
               </div>
             </transition-group>
+          </div> <!-- 分页控制 -->
+          <div v-if="searchResults.length > 0" class="mb-6">
+            <div class="flex items-center justify-between bg-white/5 rounded-lg p-4">
+              <div class="text-xs text-gray-400">
+                第 {{ currentPage + 1 }} 页，共 {{ totalPages }} 页
+              </div>
+              <div class="flex items-center space-x-2">
+                <button
+                  :disabled="currentPage === 0"
+                  class="w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target" :class="[
+                    currentPage === 0
+                      ? 'text-gray-500 cursor-not-allowed'
+                      : 'text-white hover:bg-white/10 active:bg-white/20',
+                  ]" @click="changePage(currentPage - 1)"
+                >
+                  <i class="fa-solid fa-chevron-left text-sm" />
+                </button>
+
+                <div class="flex items-center space-x-1">
+                  <template v-for="page in visiblePages" :key="page">
+                    <button
+                      v-if="page !== -1"
+                      class="w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all touch-target"
+                      :class="[
+                        currentPage === page
+                          ? 'bg-primary text-white'
+                          : 'text-gray-300 hover:bg-white/10 active:bg-white/20',
+                      ]" @click="changePage(page)"
+                    >
+                      {{ page + 1 }}
+                    </button>
+                    <span v-else class="text-gray-500 px-1">...</span>
+                  </template>
+                </div>
+
+                <button
+                  :disabled="!hasNextPage"
+                  class="w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target" :class="[
+                    !hasNextPage
+                      ? 'text-gray-500 cursor-not-allowed'
+                      : 'text-white hover:bg-white/10 active:bg-white/20',
+                  ]" @click="changePage(currentPage + 1)"
+                >
+                  <i class="fa-solid fa-chevron-right text-sm" />
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- 搜索提示 -->
@@ -223,6 +255,7 @@ import { formatTime } from '@/utils/time'
 interface Props {
   show: boolean
   searchResults: any[]
+  searchCounts: number
 }
 
 const props = defineProps<Props>()
@@ -231,6 +264,9 @@ defineEmits(['close'])
 const { clearSearchResults } = useRoomState()
 const { showSuccess } = useNotification()
 const { send } = useWebSocket()
+
+// 搜索结果容器引用
+const searchResultsContainer = ref<HTMLElement | null>(null)
 
 // 音乐来源
 const musicSources: MusicSource[] = [
@@ -284,6 +320,10 @@ const allSearchModes = [
 
 const selectedMusicSource = ref<MusicSource>(musicSources[0])
 const selectedSearchMode = ref(allSearchModes[0])
+
+// 分页状态
+const currentPage = ref(0)
+const pageSize = 50
 
 // 为每种搜索模式创建单独的数据绑定
 const songQuery = ref('')
@@ -343,6 +383,55 @@ const platformSearchTip = computed(() => {
   }
 })
 
+// 分页相关状态
+const totalPages = computed(() => {
+  return Math.ceil(props.searchCounts / pageSize)
+})
+const hasNextPage = computed(() => {
+  return currentPage.value < totalPages.value - 1
+})
+const visiblePages = computed(() => {
+  // 计算可见页码
+  const pages: (number | -1)[] = []
+  const total = totalPages.value
+  const current = currentPage.value
+
+  if (total <= 7) {
+    // 总页数少于等于7页，显示所有页码
+    for (let i = 0; i < total; i++) {
+      pages.push(i)
+    }
+  } else {
+    // 总页数大于7页，显示省略号
+    if (current <= 3) {
+      // 当前页在前面
+      for (let i = 0; i <= 4; i++) {
+        pages.push(i)
+      }
+      pages.push(-1) // 省略号
+      pages.push(total - 1)
+    } else if (current >= total - 4) {
+      // 当前页在后面
+      pages.push(0)
+      pages.push(-1) // 省略号
+      for (let i = total - 5; i < total; i++) {
+        pages.push(i)
+      }
+    } else {
+      // 当前页在中间
+      pages.push(0)
+      pages.push(-1) // 省略号
+      for (let i = current - 1; i <= current + 1; i++) {
+        pages.push(i)
+      }
+      pages.push(-1) // 省略号
+      pages.push(total - 1)
+    }
+  }
+
+  return pages
+})
+
 // 搜索音乐方法
 function handleSearch() {
   if (songSearchQuery.value.trim()) {
@@ -368,16 +457,27 @@ function handleSearch() {
       data: {
         name: songSearchQuery.value,
         source,
-        pageIndex: 0,
-        pageSize: 50,
+        pageIndex: currentPage.value + 1,
+        pageSize,
       },
     })
+  }
+}
+
+// 分页切换方法
+function changePage(page: number) {
+  if (page >= 0 && page < totalPages.value) {
+    currentPage.value = page
+    // 重新搜索获取指定页面的数据
+    clearSearchResults()
+    handleSearch()
   }
 }
 
 // 切换音乐来源
 function selectMusicSource(source: MusicSource) {
   selectedMusicSource.value = source
+  currentPage.value = 0 // 重置页码
 
   // 检查当前选择的搜索模式是否支持新的音乐平台
   const currentModeSupported = availableSearchModes.value.some(
@@ -395,6 +495,7 @@ function selectMusicSource(source: MusicSource) {
 // 切换搜索模式
 function selectSearchMode(mode: any) {
   selectedSearchMode.value = mode
+  currentPage.value = 0 // 重置页码
   clearSearchResults()
 }
 
@@ -426,6 +527,7 @@ watch(() => props.show, (isVisible) => {
     // 只清空非持久化的搜索框内容
     songQuery.value = ''
     playlistQuery.value = ''
+    currentPage.value = 0 // 重置页码
     // 注意：不清空userPlaylistQuery，因为它是持久化的
   }
 })

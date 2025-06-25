@@ -174,7 +174,7 @@ const messageTypeHandlers: MessageTypeHandler[] = [
           },
         }))
 
-      updateSearchResults(results)
+      updateSearchResults(results, message.totalSize || results.length)
     },
   },
   {
@@ -195,7 +195,7 @@ const messageTypeHandlers: MessageTypeHandler[] = [
           songCount: item.songCount,
         }))
 
-      updateSearchResults(results)
+      updateSearchResults(results, message.totalSize || results.length)
     },
   },
   {

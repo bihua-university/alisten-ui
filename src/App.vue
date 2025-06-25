@@ -558,7 +558,7 @@
         </aside>
       </main> <!-- 点歌台模态框 -->
       <MusicSearchModal
-        :show="showMusicSearchModal" :search-results="roomState.searchResults"
+        :show="showMusicSearchModal" :search-results="roomState.searchResults" :search-counts="searchCounts"
         @close="showMusicSearchModal = false"
       />
 
@@ -837,6 +837,7 @@ const roomInfo = ref<RoomInfo>({
 // 使用组合式函数
 const {
   roomState,
+  searchCounts,
 } = useRoomState()
 
 const {

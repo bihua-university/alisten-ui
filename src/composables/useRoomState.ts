@@ -9,10 +9,13 @@ const roomState = reactive<RoomState>({
   playlist: [],
   onlineUsers: [],
   chatMessages: [],
+  searchCounts: 0,
   searchResults: [],
   currentLyrics: [],
   currentLyricIndex: 0,
 })
+
+const searchCounts = computed(() => roomState.searchCounts)
 
 export function useRoomState() {
   // 当前歌曲相关
@@ -62,10 +65,12 @@ export function useRoomState() {
   }
 
   // 搜索结果相关
-  const updateSearchResults = (results: SearchResult[]) => {
+  const updateSearchResults = (results: SearchResult[], totalNum: number) => {
     roomState.searchResults = [...results]
+    roomState.searchCounts = totalNum
   }
   const clearSearchResults = () => {
+    roomState.searchCounts = 0
     roomState.searchResults = []
   }
 
@@ -95,11 +100,6 @@ export function useRoomState() {
     roomState.currentLyrics = []
     roomState.currentLyricIndex = 0
   } // 计算属性
-  const playlistCount = computed(() => roomState.playlist.length)
-  const onlineUserCount = computed(() => roomState.onlineUsers.length)
-  const chatMessageCount = computed(() => roomState.chatMessages.length)
-  const searchResultCount = computed(() => roomState.searchResults.length)
-  const lyricsCount = computed(() => roomState.currentLyrics.length)
   return {
     roomState,
 
@@ -131,10 +131,6 @@ export function useRoomState() {
     // 其他操作
     resetRoomState,
     // 计算属性
-    playlistCount,
-    onlineUserCount,
-    chatMessageCount,
-    searchResultCount,
-    lyricsCount,
+    searchCounts,
   }
 }
