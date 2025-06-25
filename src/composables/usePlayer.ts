@@ -9,8 +9,7 @@ function getStoredVolume(): number {
       const volume = Number.parseInt(stored, 10)
       return Number.isNaN(volume) ? 75 : Math.max(0, Math.min(100, volume))
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.warn('无法读取本地存储的音量设置:', error)
   }
   return 75 // 默认音量

@@ -71,8 +71,7 @@ function send(message: WebSocketMessage) {
       timestamp: Date.now(),
     }))
     return true
-  }
-  else {
+  } else {
     console.warn('WebSocket 未连接，消息发送失败:', message)
     return false
   }
@@ -268,8 +267,7 @@ function handleMessage(event: MessageEvent) {
 
     // 处理消息
     handleMessageByType(message.type, message)
-  }
-  catch (error) {
+  } catch (error) {
     console.error('处理 WebSocket 消息时发生错误:', error, event.data)
     emit('error', { error, message: '处理 WebSocket 消息失败' })
   }
@@ -334,8 +332,7 @@ function connect(roomId?: string) {
       isConnecting.value = false
       emit('error', { error, message: 'WebSocket 连接失败' })
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error('创建 WebSocket 连接失败:', error)
     connectionStatus.value = 'error'
     isConnecting.value = false

@@ -967,8 +967,7 @@ function toggleImmersiveMode() {
     if (currentIndex >= 0 && roomState.currentLyrics.length > 0) {
       if (isImmersiveMode.value) {
         scrollLyricsToCenter(immersiveLyricsContainer.value, currentIndex, false)
-      }
-      else {
+      } else {
         scrollLyricsToCenter(lyricsContainer.value, currentIndex, false)
       }
     }
@@ -1084,8 +1083,7 @@ watch(() => roomState.currentLyricIndex, (newIndex) => {
     nextTick(() => {
       if (isImmersiveMode.value) {
         scrollLyricsToCenter(immersiveLyricsContainer.value, newIndex)
-      }
-      else {
+      } else {
         scrollLyricsToCenter(lyricsContainer.value, newIndex)
       }
     })
@@ -1161,8 +1159,7 @@ function shareRoom() {
       // 降级到复制链接
       fallbackShare()
     })
-  }
-  else {
+  } else {
     // 降级到复制链接
     fallbackShare()
   }
@@ -1179,8 +1176,7 @@ function fallbackShare() {
       // 如果复制失败，显示链接供用户手动复制
       prompt('请复制房间链接:', url)
     })
-  }
-  else {
+  } else {
     // 兼容性处理：显示链接供用户手动复制
     prompt('请复制房间链接:', url)
   }
@@ -1241,8 +1237,7 @@ function setupDynamicTitle() {
       if (newSong) {
         // 有歌曲播放时，显示歌曲信息
         document.title = `${newSong.title} - ${newSong.artist} | ${appConfig.app.name}`
-      }
-      else {
+      } else {
         // 没有歌曲播放时，显示默认标题
         document.title = appConfig.app.name
       }

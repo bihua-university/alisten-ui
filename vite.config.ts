@@ -17,8 +17,7 @@ function getGitInfo() {
       commitDate,
       buildTime: new Date().toISOString(),
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.warn('无法获取 Git 信息:', error)
     return {
       commitHash: 'unknown',

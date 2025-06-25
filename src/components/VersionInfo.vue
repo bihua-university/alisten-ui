@@ -45,8 +45,7 @@ function formatDate(dateString: string) {
       hour: '2-digit',
       minute: '2-digit',
     })
-  }
-  catch {
+  } catch {
     return dateString
   }
 }
@@ -57,8 +56,7 @@ async function copyCommitHash() {
     await navigator.clipboard.writeText(versionInfo.value.commitHash)
     // 这里可以添加提示消息
     console.log('提交ID已复制到剪贴板')
-  }
-  catch (error) {
+  } catch (error) {
     console.error('复制失败:', error)
   }
 }

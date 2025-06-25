@@ -33,8 +33,7 @@ export function useRoomState() {
     roomState.currentTime = currentTime
     if (pushTime !== undefined) {
       roomState.pushTime = pushTime
-    }
-    else {
+    } else {
       // 如果没有提供pushTime，使用当前时间
       roomState.pushTime = Date.now()
     }

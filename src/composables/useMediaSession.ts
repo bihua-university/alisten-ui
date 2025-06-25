@@ -20,8 +20,7 @@ export function useMediaSession() {
         album: song.album || '未知专辑',
         artwork: [{ src: song.cover }],
       })
-    }
-    catch (error) {
+    } catch (error) {
       console.warn('更新媒体会话元数据失败:', error)
     }
   }
@@ -44,60 +43,52 @@ export function useMediaSession() {
       // 播放 - 如果传入 null 则明确禁用
       if (callbacks.onPlay === null) {
         navigator.mediaSession.setActionHandler('play', null)
-      }
-      else if (callbacks.onPlay) {
+      } else if (callbacks.onPlay) {
         navigator.mediaSession.setActionHandler('play', callbacks.onPlay)
       }
 
       // 暂停 - 如果传入 null 则明确禁用
       if (callbacks.onPause === null) {
         navigator.mediaSession.setActionHandler('pause', null)
-      }
-      else if (callbacks.onPause) {
+      } else if (callbacks.onPause) {
         navigator.mediaSession.setActionHandler('pause', callbacks.onPause)
       }
 
       // 上一曲 - 如果传入 null 则明确禁用
       if (callbacks.onPreviousTrack === null) {
         navigator.mediaSession.setActionHandler('previoustrack', null)
-      }
-      else if (callbacks.onPreviousTrack) {
+      } else if (callbacks.onPreviousTrack) {
         navigator.mediaSession.setActionHandler('previoustrack', callbacks.onPreviousTrack)
       }
 
       // 下一曲（切歌）
       if (callbacks.onNextTrack === null) {
         navigator.mediaSession.setActionHandler('nexttrack', null)
-      }
-      else if (callbacks.onNextTrack) {
+      } else if (callbacks.onNextTrack) {
         navigator.mediaSession.setActionHandler('nexttrack', callbacks.onNextTrack)
       }
 
       // 快退 - 如果传入 null 则明确禁用
       if (callbacks.onSeekBackward === null) {
         navigator.mediaSession.setActionHandler('seekbackward', null)
-      }
-      else if (callbacks.onSeekBackward) {
+      } else if (callbacks.onSeekBackward) {
         navigator.mediaSession.setActionHandler('seekbackward', callbacks.onSeekBackward)
       }
 
       // 快进 - 如果传入 null 则明确禁用
       if (callbacks.onSeekForward === null) {
         navigator.mediaSession.setActionHandler('seekforward', null)
-      }
-      else if (callbacks.onSeekForward) {
+      } else if (callbacks.onSeekForward) {
         navigator.mediaSession.setActionHandler('seekforward', callbacks.onSeekForward)
       }
 
       // 停止 - 如果传入 null 则明确禁用
       if (callbacks.onStop === null) {
         navigator.mediaSession.setActionHandler('stop', null)
-      }
-      else if (callbacks.onStop) {
+      } else if (callbacks.onStop) {
         navigator.mediaSession.setActionHandler('stop', callbacks.onStop)
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.warn('设置媒体会话操作处理器失败:', error)
     }
   }
@@ -126,13 +117,11 @@ export function useMediaSession() {
       actions.forEach((action) => {
         try {
           navigator.mediaSession.setActionHandler(action, null)
-        }
-        catch {
+        } catch {
           // 忽略清除失败的操作
         }
       })
-    }
-    catch (error) {
+    } catch (error) {
       console.warn('清除媒体会话失败:', error)
     }
   }
