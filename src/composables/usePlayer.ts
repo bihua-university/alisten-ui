@@ -7,7 +7,7 @@ interface UsePlayerOptions {
   updateMetadata: (song: Song | null) => void
   loadLrcLyrics: (lyrics: string) => void
   syncLyrics: (currentTime: number) => void
-  registerMessageHandler?: (type: string, handler: (message: any) => void) => void
+  registerMessageHandler: (type: string, handler: (message: any) => void) => void
 }
 
 // 全局共享的播放器状态
@@ -40,6 +40,9 @@ const isMuted = ref(getStoredMuteState())
 
 // 进度更新相关
 let animationFrameId: number | null = null
+
+// 全局设置音频播放器的监听器（只设置一次）
+let watchersInitialized = false
 
 function updateProgress() {
   if (audioPlayer.value) {
@@ -95,9 +98,6 @@ function setAudioCurrentTime(time: number) {
   }
 }
 
-// 全局设置音频播放器的监听器（只设置一次）
-let watchersInitialized = false
-
 // 从本地存储读取音量设置
 function getStoredVolume(): number {
   try {
@@ -127,9 +127,7 @@ function saveMuteStateToStorage(isMuted: boolean) {
   localStorage.setItem('MUTE', isMuted.toString())
 }
 
-export function usePlayer(
-  options: UsePlayerOptions,
-) {
+export function usePlayer(options: UsePlayerOptions) {
   // 从选项中解构函数
   const {
     updateMetadata,
@@ -184,9 +182,6 @@ export function usePlayer(
           }, 100) // 稍微延迟确保音频加载完成
         }
       }
-
-      // 更新媒体会话元数据
-      updateMetadata(newSong)
     }, { immediate: true })
 
     // 监听音量变化，同步到音频元素
@@ -240,64 +235,64 @@ export function usePlayer(
     setCurrentSong(null)
   }
 
-  // 如果提供了 registerMessageHandler，注册消息处理器
-  if (registerMessageHandler) {
-    // 注册音乐消息处理器
-    registerMessageHandler('music', (message: any) => {
-      if (!message.url) {
-        console.warn('收到不完整的音乐消息:', message)
-        return
-      }
+  // 注册消息处理器
+  // 注册音乐消息处理器
+  registerMessageHandler('music', (message: any) => {
+    if (!message.url) {
+      console.warn('收到不完整的音乐消息:', message)
+      return
+    }
 
-      let url = message.url || ''
-      if (url.includes('kuwo.cn') && !url.includes('-')) {
-        const urls = url.split('.sycdn.')
-        const headUrls = urls[0].replace('http://', '').split('.')
-        const lastHeadUrl = headUrls[headUrls.length - 1]
-        url = `https://${lastHeadUrl}-sycdn.${urls[1]}&timestamp=${Date.now()}`
-      }
-      url = url.replace('http://', 'https://')
+    let url = message.url || ''
+    if (url.includes('kuwo.cn') && !url.includes('-')) {
+      const urls = url.split('.sycdn.')
+      const headUrls = urls[0].replace('http://', '').split('.')
+      const lastHeadUrl = headUrls[headUrls.length - 1]
+      url = `https://${lastHeadUrl}-sycdn.${urls[1]}&timestamp=${Date.now()}`
+    }
+    url = url.replace('http://', 'https://')
 
-      const music: Song = {
-        url,
-        title: message.name,
-        artist: message.artist || '未知艺术家',
-        album: message.album?.name || '未知专辑',
-        duration: message.duration || 0,
-        cover: message.pictureUrl || getDefaultAvatar(message.id),
-      }
+    const music: Song = {
+      url,
+      title: message.name,
+      artist: message.artist || '未知艺术家',
+      album: message.album?.name || '未知专辑',
+      duration: message.duration || 0,
+      cover: message.pictureUrl || getDefaultAvatar(message.id),
+    }
 
-      setCurrentSong(music)
-      setPushTime(message.pushTime || Date.now())
-      loadLrcLyrics(message.lyric || '')
-    })
+    setCurrentSong(music)
+    setPushTime(message.pushTime || Date.now())
+    loadLrcLyrics(message.lyric || '')
+    // 更新媒体会话元数据
+    updateMetadata(music)
+  })
 
-    // 注册播放列表消息处理器
-    registerMessageHandler('pick', (message: any) => {
-      if (!message.data || !Array.isArray(message.data)) {
-        console.warn('收到无效的播放列表:', message)
-        return
-      }
+  // 注册播放列表消息处理器
+  registerMessageHandler('pick', (message: any) => {
+    if (!message.data || !Array.isArray(message.data)) {
+      console.warn('收到无效的播放列表:', message)
+      return
+    }
 
-      const playlist: Song[] = message.data
-        .filter((item: any) => item && item.name) // 过滤无效数据
-        .map((item: any) => ({
-          id: item.id,
-          url: item.url || '',
-          title: item.name,
-          artist: item.artist || '未知艺术家',
-          album: item.album?.name || '未知专辑',
-          duration: item.duration ? (item.duration / 1000) : 240,
-          cover: item.pictureUrl || getDefaultAvatar(item.id),
-          requestedBy: {
-            name: item.nickName || '未知用户',
-            avatar: getDefaultAvatar(),
-          },
-        }))
+    const playlist: Song[] = message.data
+      .filter((item: any) => item && item.name) // 过滤无效数据
+      .map((item: any) => ({
+        id: item.id,
+        url: item.url || '',
+        title: item.name,
+        artist: item.artist || '未知艺术家',
+        album: item.album?.name || '未知专辑',
+        duration: item.duration ? (item.duration / 1000) : 240,
+        cover: item.pictureUrl || getDefaultAvatar(item.id),
+        requestedBy: {
+          name: item.nickName || '未知用户',
+          avatar: getDefaultAvatar(),
+        },
+      }))
 
-      updatePlaylist(playlist)
-    })
-  }
+    updatePlaylist(playlist)
+  })
 
   const setVolume = (event: MouseEvent) => {
     const target = event.currentTarget as HTMLElement
