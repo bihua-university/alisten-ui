@@ -466,7 +466,6 @@ const {
   connect,
   disconnect,
   reconnectAttempts,
-  on: onWebSocketEvent,
   send,
   sendSongLike,
 } = websocket
@@ -612,8 +611,8 @@ function cancelJoinRoom() {
 
 // 初始化App
 function initializeApp() {
-  // 设置WebSocket事件监听
-  setupWebSocketEvents()
+  // 输出配置信息
+  logConfig(appConfig)
 
   // 启动进度更新
   startProgressUpdate()
@@ -670,23 +669,6 @@ watch(() => currentLyricIndex.value, (newIndex) => {
     })
   }
 })
-
-// WebSocket 事件监听
-function setupWebSocketEvents() {
-  // 监听连接状态变化
-  onWebSocketEvent('connected', () => {
-    console.log('✅ WebSocket 连接成功')
-    logConfig(appConfig)
-  })
-
-  onWebSocketEvent('disconnected', (data: any) => {
-    console.log('❌ WebSocket 连接断开:', data.reason)
-  })
-
-  onWebSocketEvent('error', (data: any) => {
-    console.error('🔥 WebSocket 错误:', data.message)
-  })
-}
 
 // 连接状态监听
 watch(connectionStatus, (status) => {
@@ -791,18 +773,6 @@ function setupDynamicTitle() {
   )
 }
 
-// 生命周期
-onMounted(() => {
-  // 页面挂载时不立即初始化，等待用户确认
-  console.log('页面已加载，等待用户确认加入房间')
-
-  // 初始化媒体会话
-  initializeMediaSession()
-
-  // 设置动态页面标题
-  setupDynamicTitle()
-})
-
 // 初始化媒体会话
 function initializeMediaSession() {
   if (!isMediaSessionSupported()) {
@@ -839,6 +809,18 @@ function initializeMediaSession() {
     },
   })
 }
+
+// 生命周期
+onMounted(() => {
+  // 页面挂载时不立即初始化，等待用户确认
+  console.log('页面已加载，等待用户确认加入房间')
+
+  // 初始化媒体会话
+  initializeMediaSession()
+
+  // 设置动态页面标题
+  setupDynamicTitle()
+})
 
 // 页面卸载时断开连接
 onUnmounted(() => {

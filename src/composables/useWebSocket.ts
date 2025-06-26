@@ -4,7 +4,7 @@ import type {
   WebSocketConfig,
   WebSocketMessage,
 } from '@/types'
-import { onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoomState } from '@/composables/useRoomState'
 import { getDefaultAvatar, getSavedNickname, processUsers, saveNickname } from '@/utils/user'
 
@@ -31,6 +31,9 @@ const messageHandlers = new Map<string, EventHandler[]>()
 
 // 定时器
 let reconnectTimer: NodeJS.Timeout | null = null
+
+// 标记是否已经设置了基础事件监听器
+let coreListenersSetup = false
 
 // 添加事件监听器
 function on(event: string, handler: EventHandler) {
@@ -346,12 +349,40 @@ function sendSongLike(index: number, name: string) {
   })
 }
 
-// 清理资源
-onUnmounted(() => {
-  disconnect()
-})
+// 设置基础WebSocket事件监听器
+function setupCoreEventListeners() {
+  // 防止重复设置
+  if (coreListenersSetup) {
+    return
+  }
+  coreListenersSetup = true
+
+  // 监听连接状态变化
+  on('connected', () => {
+    console.log('✅ WebSocket 连接成功')
+    // 这里可以添加连接成功后的逻辑，比如日志记录
+  })
+
+  on('disconnected', (data: any) => {
+    console.log('❌ WebSocket 连接断开:', data.reason)
+  })
+
+  on('error', (data: any) => {
+    console.error('🔥 WebSocket 错误:', data.message)
+  })
+}
 
 export function useWebSocket() {
+  // 自动设置基础事件监听器
+  onMounted(() => {
+    setupCoreEventListeners()
+  })
+
+  // 清理资源
+  onUnmounted(() => {
+    disconnect()
+  })
+
   return {
     // 状态
     connectionStatus,
@@ -368,7 +399,9 @@ export function useWebSocket() {
     // 事件监听
     on,
     off,
-    emit, // 业务方法
+    emit,
+
+    // 业务方法
     sendChatMessage,
     sendSongLike,
     registerMessageHandler,
