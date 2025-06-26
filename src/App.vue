@@ -52,7 +52,8 @@
 
     <!-- 动态背景 -->
     <div v-if="!isImmersiveMode" class="fixed inset-0 z-0">
-      <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />      <div v-if="playerState.currentSong" class="absolute inset-0 opacity-50 dynamic-bg">
+      <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />
+      <div v-if="playerState.currentSong" class="absolute inset-0 opacity-50 dynamic-bg">
         <img
           :key="playerState.currentSong.id" :src="playerState.currentSong.cover" :alt="playerState.currentSong.title"
           class="w-full h-full object-cover blur-3xl scale-110 transition-all duration-1000"
@@ -80,7 +81,9 @@
           :playlist="processedPlaylist"
           :is-immersive-mode="isImmersiveMode"
           @song-like="(index, title) => sendSongLike(index, title)"
-        /><!-- 中间歌词区域 -->
+        />
+
+        <!-- 中间歌词区域 -->
         <section class="flex-1 flex flex-col overflow-hidden relative">
           <!-- 房间信息 -->
           <div
@@ -137,7 +140,9 @@
                 <i class="fa-solid fa-share mr-1 sm:mr-2" />
                 <span class="hidden sm:inline">分享</span>
                 <span class="sm:hidden">分享</span>
-              </button> <!-- 帮助 -->
+              </button>
+
+              <!-- 帮助 -->
               <button
                 class="bg-green-500/20 hover:bg-green-500/30 active:bg-green-500/40 text-green-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
                 @click="showHelp = true"
@@ -215,7 +220,6 @@
             @show-help="showHelp = true"
           />
 
-          <!-- 播放信息 - 仅非沉浸模式 -->
           <!-- 进度条 - 仅非沉浸模式 -->
           <div
             v-if="!isImmersiveMode"
@@ -226,6 +230,8 @@
               :style="{ width: `${progressPercentage}%` }"
             />
           </div>
+
+          <!-- 播放信息区域 - 仅非沉浸模式 -->
           <div v-if="!isImmersiveMode" class="glass-effect bg-dark/80 backdrop-blur-xl p-3 sm:p-4">
             <div class="flex items-center">
               <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden mr-3 sm:mr-4 flex-shrink-0">
@@ -251,7 +257,8 @@
                       {{ formatTime((playerState.currentSong?.duration || 0) / 1000) }}</span>
                   </div>
                 </div>
-                <!-- 音量 -->
+
+                <!-- 音量控制 -->
                 <div class="hidden md:flex">
                   <VolumeSlider
                     v-model:volume="volume" v-model:is-muted="isMuted" @volume-change="handleVolumeChange"
@@ -308,19 +315,27 @@
               is-desktop
               @send-message="sendMessage"
             />
-          </div>          <!-- 在线用户列表 - 固定在底部 -->
+          </div>
+
+          <!-- 在线用户列表 - 固定在底部 -->
           <UserListComponent
             :users="processedOnlineUsers"
             is-desktop
             @refresh="refreshOnlineUsers"
           />
         </aside>
-      </main> <!-- 点歌台模态框 -->
+      </main>
+
+      <!-- 点歌台模态框 -->
       <MusicSearchModal
         :show="showMusicSearchModal" :search-results="searchResults" :search-counts="searchCounts"
         @close="showMusicSearchModal = false"
-      />      <!-- 帮助弹窗 -->
-      <HelpModal :show="showHelp" @close="showHelp = false" />      <!-- 移动端播放列表模态框 -->
+      />
+
+      <!-- 帮助弹窗 -->
+      <HelpModal :show="showHelp" @close="showHelp = false" />
+
+      <!-- 移动端播放列表模态框 -->
       <PlaylistComponent
         :playlist="processedPlaylist"
         :show="showMobilePlaylist"
@@ -344,7 +359,9 @@
             />
           </div>
         </div>
-      </transition>      <!-- 移动端用户列表模态框 -->
+      </transition>
+
+      <!-- 移动端用户列表模态框 -->
       <UserListComponent
         :users="processedOnlineUsers"
         :show="showMobileUsers"
@@ -877,9 +894,9 @@ function initializeMediaSession() {
     console.log('当前浏览器不支持 Media Session API')
     return
   }
-  console.log('🎵 初始化媒体会话 - 仅启用切歌功能，禁用播放控制以保持同步播放')
+  console.log('🎵 初始化媒体会话')
 
-  // 设置媒体会话操作处理器 - 只保留切歌功能，禁用其他控制
+  // 设置媒体会话操作处理器
   setupActionHandlers({
     // 似乎没法禁用，所以还是实现一下基本功能
     onPlay: () => {

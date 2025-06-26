@@ -94,7 +94,9 @@
             >
               <i class="fa-solid fa-search" />
             </button>
-          </div>          <!-- 搜索结果 -->
+          </div>
+
+          <!-- 搜索结果 -->
           <div v-if="searchResults.length > 0" class="mb-6">
             <h3 class="text-base md:text-lg font-medium mb-3">
               搜索结果 - {{ selectedSearchMode.name }}
@@ -125,7 +127,9 @@
                     <i class="fa-solid fa-plus" />
                   </button>
                 </div>
-              </div> <!-- 歌单搜索结果 -->
+              </div>
+
+              <!-- 歌单搜索结果 -->
               <div
                 v-if="selectedSearchMode.id === 'playlist' || selectedSearchMode.id === 'user_playlist'"
                 class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
@@ -158,7 +162,9 @@
                 </div>
               </div>
             </transition-group>
-          </div> <!-- 分页控制 -->
+          </div>
+
+          <!-- 分页控制 -->
           <div v-if="searchResults.length > 0" class="mb-6">
             <div class="flex items-center justify-between bg-white/5 rounded-lg p-4">
               <div class="text-xs text-gray-400">
