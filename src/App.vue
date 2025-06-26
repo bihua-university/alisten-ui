@@ -81,6 +81,7 @@
           :playlist="processedPlaylist"
           :is-immersive-mode="isImmersiveMode"
           @song-like="(index, title) => sendSongLike(index, title)"
+          @song-delete="(songName: string) => sendDeleteSong(songName)"
         />
 
         <!-- 中间歌词区域 -->
@@ -342,6 +343,7 @@
         :is-mobile="true"
         @close="showMobilePlaylist = false"
         @song-like="(index, title) => sendSongLike(index, title)"
+        @song-delete="(songName: string) => sendDeleteSong(songName)"
       />
 
       <!-- 移动端聊天模态框 -->
@@ -468,6 +470,7 @@ const {
   reconnectAttempts,
   send,
   sendSongLike,
+  sendDeleteSong,
 } = websocket
 
 // 3. 聊天功能
