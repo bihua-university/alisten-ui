@@ -312,17 +312,13 @@
           <!-- 聊天区域 -->
           <div class="flex-1 flex flex-col overflow-hidden h-[calc(100vh-300px)]">
             <ChatComponent
-              :messages="chatMessages"
               is-desktop
-              @send-message="sendMessage"
             />
           </div>
 
           <!-- 在线用户列表 - 固定在底部 -->
           <UserListComponent
-            :users="onlineUsers"
             is-desktop
-            @refresh="refreshOnlineUsers"
           />
         </aside>
       </main>
@@ -354,10 +350,8 @@
             class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
           >
             <ChatComponent
-              :messages="chatMessages"
               show-close-button
               @close="showMobileChat = false"
-              @send-message="sendMessage"
             />
           </div>
         </div>
@@ -365,10 +359,8 @@
 
       <!-- 移动端用户列表模态框 -->
       <UserListComponent
-        :users="onlineUsers"
         :show="showMobileUsers"
         @close="showMobileUsers = false"
-        @refresh="refreshOnlineUsers"
       />
 
       <!-- 通知容器 -->
@@ -471,9 +463,7 @@ const {
 // 2. 聊天功能
 const chat = useChat()
 const {
-  chatMessages,
-  onlineUsers,
-  sendMessage,
+  onlineUsers, // 仅用于显示在线人数，用户列表组件内部自管理
 } = chat
 
 // 4. 歌词功能
@@ -629,14 +619,6 @@ function initializeApp() {
       console.error('❌ 连接房间失败:', error)
       showError('连接房间失败，请稍后重试')
     }
-  })
-}
-
-// 刷新在线用户列表
-function refreshOnlineUsers() {
-  send({
-    action: '/house/houseuser',
-    data: {},
   })
 }
 

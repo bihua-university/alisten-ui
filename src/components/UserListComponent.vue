@@ -7,13 +7,13 @@
           <div class="flex items-center">
             <i class="fa-solid fa-users mr-2 text-primary" />在线用户
             <span class="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-              {{ users.length }}
+              {{ onlineUsers.length }}
             </span>
           </div>
           <button
             class="text-gray-400 hover:text-white transition-all duration-200 p-1 rounded"
             title="刷新用户列表"
-            @click="$emit('refresh')"
+            @click="refreshOnlineUsers"
           >
             <i class="fa-solid fa-refresh text-sm" />
           </button>
@@ -21,7 +21,7 @@
       </div>
       <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 h-48">
         <div
-          v-for="user in users"
+          v-for="user in onlineUsers"
           :key="user.name"
           class="flex items-center p-2 hover:bg-white/5 rounded-lg"
         >
@@ -46,7 +46,7 @@
           <h2 class="text-lg font-semibold flex items-center">
             <i class="fa-solid fa-users mr-2 text-primary" />在线用户
             <span class="ml-2 text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
-              {{ users.length }}
+              {{ onlineUsers.length }}
             </span>
           </h2>
 
@@ -54,7 +54,7 @@
             <button
               class="text-gray-400 hover:text-white transition-all duration-200 p-2 rounded-full touch-target"
               title="刷新用户列表"
-              @click="$emit('refresh')"
+              @click="refreshOnlineUsers"
             >
               <i class="fa-solid fa-refresh text-base" />
             </button>
@@ -70,7 +70,7 @@
         <div class="flex-1 overflow-y-auto p-3 smooth-scroll modal-scroll">
           <div class="space-y-2">
             <div
-              v-for="user in users"
+              v-for="user in onlineUsers"
               :key="user.name"
               class="flex items-center p-3 hover:bg-white/5 rounded-lg active:bg-white/10 transition-all cursor-pointer touch-feedback"
             >
@@ -91,17 +91,11 @@
 </template>
 
 <script setup lang="ts">
-import type { User } from '@/types'
+import { useChat } from '@/composables/useChat'
 
 interface Props {
-  users: User[]
   isDesktop?: boolean
   show?: boolean
-}
-
-interface Emits {
-  (e: 'refresh'): void
-  (e: 'close'): void
 }
 
 withDefaults(defineProps<Props>(), {
@@ -109,7 +103,12 @@ withDefaults(defineProps<Props>(), {
   show: false,
 })
 
-defineEmits<Emits>()
+defineEmits<{
+  close: []
+}>()
+
+// 直接使用 useChat 获取在线用户数据和刷新方法
+const { onlineUsers, refreshOnlineUsers } = useChat()
 </script>
 
 <style scoped>

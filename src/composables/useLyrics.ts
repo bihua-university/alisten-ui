@@ -6,12 +6,13 @@ import { isValidLrc, parseLyrics } from '@/utils/lrcParser'
 const lyricsState = reactive<{
   currentLyrics: LyricLine[]
   currentLyricIndex: number
-  registeredContainers: Set<HTMLElement>
 }>({
   currentLyrics: [],
   currentLyricIndex: 0,
-  registeredContainers: new Set(),
 })
+
+// 全局注册的歌词容器（非响应式）
+const registeredContainers = new Set<HTMLElement>()
 
 // 歌词自动滚动功能（全局函数，避免重复定义）
 function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
@@ -39,7 +40,7 @@ function scrollLyricsToCenter(container: HTMLElement | undefined, index: number,
 
 // 同步滚动所有已注册的容器（全局函数）
 function syncScrollAllContainers(smooth: boolean = true) {
-  lyricsState.registeredContainers.forEach((container) => {
+  registeredContainers.forEach((container) => {
     scrollLyricsToCenter(container, lyricsState.currentLyricIndex, smooth)
   })
 }
@@ -137,14 +138,14 @@ export function useLyrics() {
   // 注册歌词容器
   const registerLyricsContainer = (container: HTMLElement) => {
     if (container) {
-      lyricsState.registeredContainers.add(container)
+      registeredContainers.add(container)
     }
   }
 
   // 取消注册歌词容器
   const unregisterLyricsContainer = (container: HTMLElement) => {
     if (container) {
-      lyricsState.registeredContainers.delete(container)
+      registeredContainers.delete(container)
     }
   }
   return {

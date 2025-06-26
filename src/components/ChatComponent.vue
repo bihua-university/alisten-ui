@@ -21,7 +21,7 @@
       :class="[isDesktop ? 'space-y-4' : 'mobile-chat-scroll']"
     >
       <div
-        v-for="message in messages"
+        v-for="message in chatMessages"
         :key="message.timestamp"
         class="flex items-start"
         :class="[isDesktop ? '' : 'space-x-3']"
@@ -67,26 +67,26 @@
 </template>
 
 <script setup lang="ts">
-import type { ChatMessage } from '@/types'
 import { nextTick, onMounted, ref, watch } from 'vue'
+import { useChat } from '@/composables/useChat'
 import { formatTimeHH_MM } from '@/utils/time'
 
 interface Props {
-  messages: ChatMessage[]
   isDesktop?: boolean
   showCloseButton?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   isDesktop: false,
   showCloseButton: false,
-  newMessage: '',
 })
 
-const emit = defineEmits<{
+defineEmits<{
   close: []
-  sendMessage: [message: string]
 }>()
+
+// 直接使用 useChat 获取聊天数据和方法
+const { chatMessages, sendMessage } = useChat()
 
 const messageInput = ref('')
 const chatContainer = ref<HTMLElement>()
@@ -102,7 +102,7 @@ function scrollToBottom() {
 
 // 监听消息数量变化，自动滚动到底部
 watch(
-  () => props.messages.length,
+  () => chatMessages.value.length,
   () => {
     scrollToBottom()
   },
@@ -116,7 +116,7 @@ onMounted(() => {
 // 发送消息
 function handleSendMessage() {
   if (messageInput.value.trim()) {
-    emit('sendMessage', messageInput.value.trim())
+    sendMessage(messageInput.value.trim())
     messageInput.value = ''
   }
 }
