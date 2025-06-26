@@ -71,7 +71,7 @@ function send(message: WebSocketMessage) {
     }))
     return true
   } else {
-    console.warn('WebSocket 未连接，消息发送失败:', message)
+    console.warn('📤 WebSocket 未连接，消息发送失败:', message)
     return false
   }
 } // 消息处理器类型定义
@@ -86,7 +86,7 @@ const messageTypeHandlers: MessageTypeHandler[] = [
     type: 'house_user',
     handler: (message: any) => {
       if (!message.data || !Array.isArray(message.data)) {
-        console.warn('收到无效的用户列表:', message)
+        console.warn('📧 收到无效的用户列表:', message)
         return
       }
 
@@ -104,7 +104,7 @@ const messageTypeHandlers: MessageTypeHandler[] = [
 
 function registerMessageHandler(type: string, handler: (message: any) => void) {
   if (!type || typeof type !== 'string' || !handler || typeof handler !== 'function') {
-    console.warn('无效的消息类型或处理器:', type, handler)
+    console.warn('⚠️ 无效的消息类型或处理器:', type, handler)
     return
   }
 
@@ -126,20 +126,20 @@ function handleMessage(event: MessageEvent) {
   try {
     // 验证消息格式
     if (!event.data) {
-      console.warn('收到空的消息数据')
+      console.warn('📭 收到空的消息数据')
       return
     }
 
     const message = JSON.parse(event.data)
     if (!message || typeof message !== 'object' || !message.type) {
-      console.warn('收到无效的消息格式:', event.data)
+      console.warn('📨 收到无效的消息格式:', event.data)
       return
     }
 
     // 处理消息
     handleMessageByType(message.type, message)
   } catch (error) {
-    console.error('处理 WebSocket 消息时发生错误:', error, event.data)
+    console.error('💥 处理 WebSocket 消息时发生错误:', error, event.data)
     emit('error', { error, message: '处理 WebSocket 消息失败' })
   }
 }
@@ -158,11 +158,11 @@ function connect(roomId?: string) {
     roomId = '733dbb38-31d0-419c-9019-5c12777246c8'
     wsUrl += `/server?houseId=${roomId}`
 
-    console.log('连接 WebSocket:', wsUrl)
+    console.log('🔗 连接 WebSocket:', wsUrl)
     ws.value = new WebSocket(wsUrl)
 
     ws.value.onopen = () => {
-      console.log('WebSocket 连接已建立')
+      console.log('🚀 WebSocket 连接已建立')
       connectionStatus.value = 'connected'
       isConnecting.value = false
       reconnectAttempts.value = 0
@@ -183,7 +183,7 @@ function connect(roomId?: string) {
     ws.value.onmessage = handleMessage
 
     ws.value.onclose = (event) => {
-      console.log('WebSocket 连接已关闭:', event.code, event.reason)
+      console.log('🔌 WebSocket 连接已关闭:', event.code, event.reason)
       connectionStatus.value = 'disconnected'
       isConnecting.value = false
 
@@ -196,13 +196,13 @@ function connect(roomId?: string) {
     }
 
     ws.value.onerror = (error) => {
-      console.error('WebSocket 连接错误:', error)
+      console.error('❌ WebSocket 连接错误:', error)
       connectionStatus.value = 'error'
       isConnecting.value = false
       emit('error', { error, message: 'WebSocket 连接失败' })
     }
   } catch (error) {
-    console.error('创建 WebSocket 连接失败:', error)
+    console.error('💥 创建 WebSocket 连接失败:', error)
     connectionStatus.value = 'error'
     isConnecting.value = false
     emit('error', { error, message: '创建 WebSocket 连接失败' })
@@ -212,14 +212,14 @@ function connect(roomId?: string) {
 // 计划重连
 function scheduleReconnect() {
   if (reconnectAttempts.value >= config.reconnectAttempts) {
-    console.log('已达到最大重连次数，停止重连')
+    console.log('🛑 已达到最大重连次数，停止重连')
     return
   }
 
   connectionStatus.value = 'reconnecting'
   reconnectAttempts.value++
 
-  console.log(`准备第 ${reconnectAttempts.value} 次重连...`)
+  console.log(`🔄 准备第 ${reconnectAttempts.value} 次重连...`)
 
   reconnectTimer = setTimeout(() => {
     connect()
@@ -266,7 +266,7 @@ const commandHandlers: CommandHandler[] = [
         return false
       }
 
-      console.log('发送点歌请求:', args)
+      console.log('🎵 发送点歌请求:', args)
       return send({
         action: '/music/pick',
         data: {
@@ -322,7 +322,7 @@ function sendChatMessage(content: string) {
   }
   const trimmedContent = content.trim()
   if (!trimmedContent || trimmedContent.length > 500) {
-    console.warn('消息长度不能超过500个字符')
+    console.warn('⚠️ 消息长度不能超过500个字符')
     return false
   }
 
@@ -364,11 +364,11 @@ function setupCoreEventListeners() {
   })
 
   on('disconnected', (data: any) => {
-    console.log('❌ WebSocket 连接断开:', data.reason)
+    console.log('🔌 WebSocket 连接断开:', data.reason)
   })
 
   on('error', (data: any) => {
-    console.error('🔥 WebSocket 错误:', data.message)
+    console.error('� WebSocket 错误:', data.message)
   })
 }
 
