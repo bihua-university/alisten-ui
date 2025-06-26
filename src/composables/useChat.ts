@@ -1,5 +1,5 @@
 import type { ChatMessage, User } from '@/types'
-import { computed, nextTick, reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { getDefaultAvatar, processUser, processUsers } from '@/utils/user'
 import { useWebSocket } from './useWebSocket'
 
@@ -34,16 +34,6 @@ export function useChat() {
     chatState.onlineUsers = []
   }
 
-  // 自动滚动聊天容器到底部
-  function scrollChatToBottom() {
-    nextTick(() => {
-      const chatContainer = document.querySelector('.chat-messages')
-      if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight
-      }
-    })
-  }
-
   registerMessageHandler('chat', (message: any) => {
     if (!message.content) {
       console.warn('收到空的聊天消息')
@@ -60,7 +50,6 @@ export function useChat() {
     }
 
     addChatMessage(msg)
-    scrollChatToBottom()
   })
 
   // 注册在线用户处理器
@@ -94,7 +83,6 @@ export function useChat() {
     if (newMessage.trim()) {
       // 通过 useWebSocket 发送聊天消息
       sendChatMessage(newMessage)
-      scrollChatToBottom()
     }
   }
   return {

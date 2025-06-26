@@ -16,6 +16,7 @@
 
     <!-- 聊天消息区域 -->
     <div
+      ref="chatContainer"
       class="flex-1 overflow-y-auto p-3 space-y-3 smooth-scroll scrollbar-hide"
       :class="[isDesktop ? 'space-y-4' : 'mobile-chat-scroll']"
     >
@@ -67,7 +68,7 @@
 
 <script setup lang="ts">
 import type { ChatMessage } from '@/types'
-import { ref } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import { formatTimeHH_MM } from '@/utils/time'
 
 interface Props {
@@ -76,7 +77,7 @@ interface Props {
   showCloseButton?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   isDesktop: false,
   showCloseButton: false,
   newMessage: '',
@@ -88,6 +89,29 @@ const emit = defineEmits<{
 }>()
 
 const messageInput = ref('')
+const chatContainer = ref<HTMLElement>()
+
+// 滚动到底部
+function scrollToBottom() {
+  nextTick(() => {
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+    }
+  })
+}
+
+// 监听消息数量变化，自动滚动到底部
+watch(
+  () => props.messages.length,
+  () => {
+    scrollToBottom()
+  },
+)
+
+// 组件挂载后滚动到底部
+onMounted(() => {
+  scrollToBottom()
+})
 
 // 发送消息
 function handleSendMessage() {
