@@ -105,7 +105,7 @@
                 </div>
               </h2>
               <p class="text-xs text-gray-400 truncate">
-                {{ processedOnlineUsers.length }}人在线
+                {{ onlineUsers.length }}人在线
               </p>
             </div>
 
@@ -320,7 +320,7 @@
 
           <!-- 在线用户列表 - 固定在底部 -->
           <UserListComponent
-            :users="processedOnlineUsers"
+            :users="onlineUsers"
             is-desktop
             @refresh="refreshOnlineUsers"
           />
@@ -365,7 +365,7 @@
 
       <!-- 移动端用户列表模态框 -->
       <UserListComponent
-        :users="processedOnlineUsers"
+        :users="onlineUsers"
         :show="showMobileUsers"
         @close="showMobileUsers = false"
         @refresh="refreshOnlineUsers"
@@ -417,12 +417,11 @@ import { useMediaSession } from '@/composables/useMediaSession'
 import { useNotification } from '@/composables/useNotification'
 import { usePlayer } from '@/composables/usePlayer'
 import { usePWA } from '@/composables/usePWA'
-import { useRoomState } from '@/composables/useRoomState'
 import { useSearch } from '@/composables/useSearch'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
 import { formatTime } from '@/utils/time'
-import { processUser, processUsers } from '@/utils/user'
+import { processUser } from '@/utils/user'
 
 // ===== 应用配置 =====
 const appConfig = getAppConfig()
@@ -458,10 +457,7 @@ const roomInfo = ref<RoomInfo>({
 
 // ===== 组合式函数初始化 =====
 
-// 1. 房间状态管理
-const { roomState } = useRoomState()
-
-// 2. WebSocket 连接管理
+// 1. WebSocket 连接管理
 const websocket = useWebSocket()
 const {
   connectionStatus,
@@ -473,11 +469,13 @@ const {
   sendDeleteSong,
 } = websocket
 
-// 3. 聊天功能
+// 2. 聊天功能
+const chat = useChat()
 const {
   chatMessages,
+  onlineUsers,
   sendMessage,
-} = useChat(websocket)
+} = chat
 
 // 4. 歌词功能
 const {
@@ -510,14 +508,13 @@ const {
   updateMetadata,
   loadLrcLyrics,
   syncLyrics,
-  registerMessageHandler: websocket.registerMessageHandler,
 })
 
 // 7. 搜索功能
 const {
   searchCounts,
   searchResults,
-} = useSearch(websocket)
+} = useSearch()
 
 // 8. 通知系统
 const {
@@ -550,11 +547,6 @@ useBackButton([
 ])
 
 // ===== 计算属性 =====
-
-// 处理后的用户数据
-const processedOnlineUsers = computed(() =>
-  processUsers(roomState.onlineUsers),
-)
 
 // 处理后的播放列表数据
 const processedPlaylist = computed(() =>

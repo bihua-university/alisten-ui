@@ -1,23 +1,15 @@
 import type {
   ConnectionStatus,
-  User,
   WebSocketConfig,
   WebSocketMessage,
 } from '@/types'
-import { onMounted, onUnmounted, ref } from 'vue'
-import { useRoomState } from '@/composables/useRoomState'
-import { getDefaultAvatar, getSavedNickname, processUsers, saveNickname } from '@/utils/user'
-
-// 定义事件处理器类型
-type EventHandler = (message: any) => void
+import { ref } from 'vue'
+import { getSavedNickname, saveNickname } from '@/utils/user'
 
 const ws = ref<WebSocket | null>(null)
 const connectionStatus = ref<ConnectionStatus>('disconnected')
 const isConnecting = ref(false)
 const reconnectAttempts = ref(0)
-
-// 使用共享的房间状态
-const { roomState, updateOnlineUsers } = useRoomState()
 
 // WebSocket 配置
 const config: WebSocketConfig = {
@@ -26,41 +18,9 @@ const config: WebSocketConfig = {
   reconnectInterval: 3000,
   heartbeatInterval: 30000,
 }
-// 事件监听器
-const messageHandlers = new Map<string, EventHandler[]>()
 
 // 定时器
 let reconnectTimer: NodeJS.Timeout | null = null
-
-// 标记是否已经设置了基础事件监听器
-let coreListenersSetup = false
-
-// 添加事件监听器
-function on(event: string, handler: EventHandler) {
-  if (!messageHandlers.has(event)) {
-    messageHandlers.set(event, [])
-  }
-  messageHandlers.get(event)?.push(handler)
-}
-
-// 移除事件监听器
-function off(event: string, handler: EventHandler) {
-  const handlers = messageHandlers.get(event)
-  if (handlers) {
-    const index = handlers.indexOf(handler)
-    if (index > -1) {
-      handlers.splice(index, 1)
-    }
-  }
-}
-
-// 触发事件
-function emit(event: string, data: any) {
-  const handlers = messageHandlers.get(event)
-  if (handlers) {
-    handlers.forEach(handler => handler(data))
-  }
-}
 
 // 发送消息
 function send(message: WebSocketMessage) {
@@ -75,32 +35,13 @@ function send(message: WebSocketMessage) {
     return false
   }
 } // 消息处理器类型定义
-interface MessageTypeHandler {
+interface MessageHandler {
   type: string
   handler: (message: any) => void
 }
 
 // 消息类型处理器
-const messageTypeHandlers: MessageTypeHandler[] = [
-  {
-    type: 'house_user',
-    handler: (message: any) => {
-      if (!message.data || !Array.isArray(message.data)) {
-        console.warn('📧 收到无效的用户列表:', message)
-        return
-      }
-
-      const users: User[] = message.data
-        .filter((item: any) => item && typeof item === 'string') // 确保是字符串类型
-        .map((item: string) => ({
-          name: item,
-          avatar: getDefaultAvatar(1),
-        }))
-
-      updateOnlineUsers(processUsers(users))
-    },
-  },
-]
+const messageHandlers: MessageHandler[] = []
 
 function registerMessageHandler(type: string, handler: (message: any) => void) {
   if (!type || typeof type !== 'string' || !handler || typeof handler !== 'function') {
@@ -108,17 +49,17 @@ function registerMessageHandler(type: string, handler: (message: any) => void) {
     return
   }
 
-  const existingHandler = messageTypeHandlers.find(h => h.type === type)
+  const existingHandler = messageHandlers.find(h => h.type === type)
   if (existingHandler) {
     existingHandler.handler = handler
   } else {
-    messageTypeHandlers.push({ type, handler })
+    messageHandlers.push({ type, handler })
   }
 }
 
 // 处理具体消息类型
 function handleMessageByType(messageType: string, message: any) {
-  messageTypeHandlers.find(h => h.type === messageType)?.handler(message)
+  messageHandlers.find(h => h.type === messageType)?.handler(message)
 }
 
 // 处理接收到的消息
@@ -140,9 +81,9 @@ function handleMessage(event: MessageEvent) {
     handleMessageByType(message.type, message)
   } catch (error) {
     console.error('💥 处理 WebSocket 消息时发生错误:', error, event.data)
-    emit('error', { error, message: '处理 WebSocket 消息失败' })
   }
 }
+
 // 连接 WebSocket
 function connect(roomId?: string) {
   if (isConnecting.value || connectionStatus.value === 'connected') {
@@ -166,7 +107,6 @@ function connect(roomId?: string) {
       connectionStatus.value = 'connected'
       isConnecting.value = false
       reconnectAttempts.value = 0
-      emit('connected', { url: wsUrl })
       // 连接成功后，发送保存的昵称
       const savedNickname = getSavedNickname()
       if (savedNickname) {
@@ -191,21 +131,17 @@ function connect(roomId?: string) {
       if (event.code !== 1000 && reconnectAttempts.value < config.reconnectAttempts) {
         scheduleReconnect()
       }
-
-      emit('disconnected', { code: event.code, reason: event.reason })
     }
 
     ws.value.onerror = (error) => {
       console.error('❌ WebSocket 连接错误:', error)
       connectionStatus.value = 'error'
       isConnecting.value = false
-      emit('error', { error, message: 'WebSocket 连接失败' })
     }
   } catch (error) {
     console.error('💥 创建 WebSocket 连接失败:', error)
     connectionStatus.value = 'error'
     isConnecting.value = false
-    emit('error', { error, message: '创建 WebSocket 连接失败' })
   }
 }
 
@@ -359,46 +295,12 @@ function sendDeleteSong(songName: string) {
   })
 }
 
-// 设置基础WebSocket事件监听器
-function setupCoreEventListeners() {
-  // 防止重复设置
-  if (coreListenersSetup) {
-    return
-  }
-  coreListenersSetup = true
-
-  // 监听连接状态变化
-  on('connected', () => {
-    console.log('✅ WebSocket 连接成功')
-    // 这里可以添加连接成功后的逻辑，比如日志记录
-  })
-
-  on('disconnected', (data: any) => {
-    console.log('🔌 WebSocket 连接断开:', data.reason)
-  })
-
-  on('error', (data: any) => {
-    console.error('� WebSocket 错误:', data.message)
-  })
-}
-
 export function useWebSocket() {
-  // 自动设置基础事件监听器
-  onMounted(() => {
-    setupCoreEventListeners()
-  })
-
-  // 清理资源
-  onUnmounted(() => {
-    disconnect()
-  })
-
   return {
     // 状态
     connectionStatus,
     isConnecting,
     reconnectAttempts,
-    roomState,
 
     // 方法
     connect,
@@ -406,15 +308,12 @@ export function useWebSocket() {
     reconnect,
     send,
 
-    // 事件监听
-    on,
-    off,
-    emit,
-
     // 业务方法
     sendChatMessage,
     sendSongLike,
     sendDeleteSong,
+
+    // 命令处理
     registerMessageHandler,
 
     // 配置

@@ -61,7 +61,3 @@ export interface WebSocketConfig {
 }
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error' | 'reconnecting'
-
-export interface RoomState {
-  onlineUsers: User[]
-}
