@@ -408,6 +408,7 @@ import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import UserListComponent from '@/components/UserListComponent.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
 import { useChat } from '@/composables/useChat'
+import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import { useLyrics } from '@/composables/useLyrics'
 import { useMediaSession } from '@/composables/useMediaSession'
 import { useNotification } from '@/composables/useNotification'
@@ -499,6 +500,9 @@ const {
   showConnectionError,
   showConnectionWarning,
 } = useNotification()
+
+// 键盘快捷键处理
+useKeyboardShortcuts(isImmersiveMode, toggleImmersiveMode)
 
 // 媒体会话控制
 const {
@@ -786,9 +790,6 @@ onMounted(() => {
   // 页面挂载时不立即初始化，等待用户确认
   console.log('页面已加载，等待用户确认加入房间')
 
-  // 添加键盘事件监听
-  document.addEventListener('keydown', handleKeyDown)
-
   // 初始化媒体会话
   initializeMediaSession()
 
@@ -833,29 +834,9 @@ function initializeMediaSession() {
   })
 }
 
-// 键盘事件处理
-function handleKeyDown(event: KeyboardEvent) {
-  // 按 F 键切换沉浸模式（仅在没有聚焦输入框时）
-  if (event.key === 'f' || event.key === 'F') {
-    const activeElement = document.activeElement
-    if (activeElement?.tagName !== 'INPUT' && activeElement?.tagName !== 'TEXTAREA') {
-      event.preventDefault()
-      toggleImmersiveMode()
-    }
-  }
-
-  // 按 Escape 键退出沉浸模式
-  if (event.key === 'Escape' && isImmersiveMode.value) {
-    event.preventDefault()
-    isImmersiveMode.value = false
-  }
-}
-
 // 页面卸载时断开连接
 onUnmounted(() => {
   disconnect()
-  // 移除键盘事件监听
-  document.removeEventListener('keydown', handleKeyDown)
   // 清理进度更新动画帧
   stopProgressUpdate()
 })
