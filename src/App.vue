@@ -329,7 +329,7 @@
 
       <!-- 点歌台模态框 -->
       <MusicSearchModal
-        :show="showMusicSearchModal" :search-results="searchResults" :search-counts="searchCounts"
+        v-if="showMusicSearchModal"
         @close="showMusicSearchModal = false"
       />
 
@@ -417,7 +417,6 @@ import { useMediaSession } from '@/composables/useMediaSession'
 import { useNotification } from '@/composables/useNotification'
 import { usePlayer } from '@/composables/usePlayer'
 import { usePWA } from '@/composables/usePWA'
-import { useSearch } from '@/composables/useSearch'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
 import { formatTime } from '@/utils/time'
@@ -510,13 +509,7 @@ const {
   syncLyrics,
 })
 
-// 7. 搜索功能
-const {
-  searchCounts,
-  searchResults,
-} = useSearch()
-
-// 8. 通知系统
+// 7. 通知系统
 const {
   showError,
   showInfo,
@@ -526,14 +519,14 @@ const {
   showConnectionWarning,
 } = useNotification()
 
-// 9. PWA 功能
+// 8. PWA 功能
 const {
   showUpdateModal,
   handleUpdateApp,
   handleDismissUpdate,
 } = usePWA()
 
-// 10. UI 交互功能
+// 9. UI 交互功能
 // 键盘快捷键处理
 useKeyboardShortcuts(isImmersiveMode, toggleImmersiveMode)
 
