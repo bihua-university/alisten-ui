@@ -2,6 +2,12 @@ import type { Song } from '@/types'
 import { reactive, ref, watch } from 'vue'
 import { getDefaultAvatar } from '@/utils/user'
 import { useLyrics } from './useLyrics'
+import { useMediaSession } from './useMediaSession'
+
+// 获取媒体会话控制
+const { updateMetadata } = useMediaSession()
+// 引入歌词处理
+const { loadLrcLyrics } = useLyrics()
 
 // 全局共享的播放器状态
 const playerState = reactive<{
@@ -9,12 +15,134 @@ const playerState = reactive<{
   currentSong: Song | null
   pushTime: number | null
   playlist: Song[]
+  // 界面状态
+  skipMessage: string
+  showSkipMessage: boolean
+  isSkipping: boolean
 }>({
   currentTime: 0,
   currentSong: null,
   pushTime: null,
   playlist: [],
+  // 界面状态初始值
+  skipMessage: '',
+  showSkipMessage: false,
+  isSkipping: false,
 })
+
+// 全局共享的音频播放器引用
+const audioPlayer = ref<HTMLAudioElement>()
+
+// 全局共享的音量和静音状态
+const volume = ref(getStoredVolume())
+const isMuted = ref(getStoredMuteState())
+
+// 进度更新相关
+let animationFrameId: number | null = null
+
+function updateProgress() {
+  if (audioPlayer.value) {
+    // 只有在音频存在且不是暂停状态时才更新
+    if (!audioPlayer.value.paused && !audioPlayer.value.ended) {
+      playerState.currentTime = audioPlayer.value.currentTime
+    }
+  }
+  // 只有在需要时才继续动画循环
+  if (animationFrameId !== null) {
+    animationFrameId = requestAnimationFrame(updateProgress)
+  }
+}
+
+function startProgressUpdate() {
+  if (animationFrameId === null) {
+    animationFrameId = requestAnimationFrame(updateProgress)
+  }
+}
+
+function stopProgressUpdate() {
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId)
+    animationFrameId = null
+  }
+}
+
+// 监听音量变化，自动保存到本地存储
+watch(volume, (newVolume) => {
+  saveVolumeToStorage(newVolume)
+})
+
+// 监听静音状态变化，自动保存到本地存储
+watch(isMuted, (newMuteState) => {
+  saveMuteStateToStorage(newMuteState)
+})
+
+// 音频播放控制函数
+function playAudio() {
+  if (audioPlayer.value) {
+    audioPlayer.value.volume = volume.value / 100
+    audioPlayer.value.play()
+    startProgressUpdate()
+  }
+}
+
+function setAudioCurrentTime(time: number) {
+  if (audioPlayer.value) {
+    audioPlayer.value.currentTime = time
+  }
+}
+
+// 全局设置音频播放器的监听器（只设置一次）
+let watchersInitialized = false
+
+function initializeAudioWatchers() {
+  if (watchersInitialized)
+    return
+
+  // 监听计算出的当前时间变化，同步音频播放器
+  watch(() => playerState.pushTime, (pushTime) => {
+    if (!pushTime || pushTime === 0)
+      return // 如果pushTime为0，则不进行同步
+    const delta = Date.now() - pushTime
+    const newTime = delta / 1000 // 转换为秒
+    if (audioPlayer.value) {
+      setAudioCurrentTime(newTime)
+      audioPlayer.value.play()
+    }
+  }, { immediate: true })
+
+  // 监听当前歌曲变化，更新音频源并自动播放
+  watch(() => playerState.currentSong, (newSong) => {
+    if (newSong && audioPlayer.value) {
+      // 如果有新歌曲且有音频URL，则加载新音频
+      if (newSong.url) {
+        audioPlayer.value.load()
+        // 自动播放
+        setTimeout(() => {
+          playAudio()
+        }, 100) // 稍微延迟确保音频加载完成
+      }
+    }
+
+    // 更新媒体会话元数据
+    updateMetadata(newSong)
+  }, { immediate: true })
+
+  // 监听音量变化，同步到音频元素
+  watch(volume, (newVolume) => {
+    if (audioPlayer.value) {
+      audioPlayer.value.volume = newVolume / 100
+    }
+  }, { immediate: true })
+
+  // 监听静音状态变化
+  watch(isMuted, (muted) => {
+    if (audioPlayer.value) {
+      audioPlayer.value.muted = muted
+    }
+  }, { immediate: true })
+
+  watchersInitialized = true
+}
 
 // 从本地存储读取音量设置
 function getStoredVolume(): number {
@@ -82,8 +210,6 @@ export function usePlayer(websocket?: any) {
 
   // 如果提供了 websocket，注册消息处理器
   if (websocket && websocket.registerMessageHandler) {
-    const { loadLrcLyrics } = useLyrics()
-
     // 注册音乐消息处理器
     websocket.registerMessageHandler('music', (message: any) => {
       if (!message.url) {
@@ -141,23 +267,6 @@ export function usePlayer(websocket?: any) {
     })
   }
 
-  // 音量和界面相关
-  const volume = ref(getStoredVolume())
-  const isMuted = ref(getStoredMuteState())
-  const skipMessage = ref('')
-  const showSkipMessage = ref(false)
-  const isSkipping = ref(false)
-
-  // 监听音量变化，自动保存到本地存储
-  watch(volume, (newVolume) => {
-    saveVolumeToStorage(newVolume)
-  })
-
-  // 监听静音状态变化，自动保存到本地存储
-  watch(isMuted, (newMuteState) => {
-    saveMuteStateToStorage(newMuteState)
-  })
-
   const setVolume = (event: MouseEvent) => {
     const target = event.currentTarget as HTMLElement
     const rect = target.getBoundingClientRect()
@@ -178,16 +287,22 @@ export function usePlayer(websocket?: any) {
   // 切歌功能
   const showSkipSong = () => {
     // 显示切歌提示消息
-    skipMessage.value = `切换中`
-    showSkipMessage.value = true
+    playerState.skipMessage = '切换中'
+    playerState.showSkipMessage = true
+    playerState.isSkipping = true
     setTimeout(() => {
-      showSkipMessage.value = false
-      isSkipping.value = false
+      playerState.showSkipMessage = false
+      playerState.isSkipping = false
     }, 1000)
   }
+
+  // 初始化音频监听器
+  initializeAudioWatchers()
+
   return {
     // 播放器状态
     playerState,
+    audioPlayer,
 
     // 播放器操作
     setCurrentSong,
@@ -197,6 +312,14 @@ export function usePlayer(websocket?: any) {
     updatePlaylist,
     clearPlaylist,
 
+    // 音频控制
+    playAudio,
+    setAudioCurrentTime,
+
+    // 进度控制
+    startProgressUpdate,
+    stopProgressUpdate,
+
     // 音量控制
     volume,
     isMuted,
@@ -205,8 +328,5 @@ export function usePlayer(websocket?: any) {
 
     // 切歌功能
     showSkipSong,
-    skipMessage,
-    showSkipMessage,
-    isSkipping,
   }
 }
