@@ -21,7 +21,7 @@
         :is-current="index === 0"
         :is-desktop="true"
         @like="$emit('songLike', index, song.title)"
-        @delete="(songName: string) => $emit('songDelete', songName)"
+        @delete="$emit('songDelete', song.title)"
       />
     </div>
   </aside>
@@ -57,7 +57,7 @@
               :is-current="index === 0"
               :is-mobile="true"
               @like="$emit('songLike', index, song.title)"
-              @delete="(songName: string) => $emit('songDelete', songName)"
+              @delete="$emit('songDelete', song.title)"
             />
           </div>
         </div>

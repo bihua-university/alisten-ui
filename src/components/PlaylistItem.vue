@@ -66,7 +66,7 @@
         ]"
         :title="`删除${song.title}`"
         :aria-label="`删除歌曲 ${song.title}`"
-        @click.stop="$emit('delete', song.title)"
+        @click.stop="$emit('delete')"
       >
         <i class="fa-solid fa-trash" />
       </button>
@@ -96,7 +96,7 @@ withDefaults(defineProps<Props>(), {
 // 定义 emits
 defineEmits<{
   like: []
-  delete: [songName: string]
+  delete: []
 }>()
 </script>
 
