@@ -407,6 +407,7 @@ import PlaylistComponent from '@/components/PlaylistComponent.vue'
 import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import UserListComponent from '@/components/UserListComponent.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
+import { useBackButton } from '@/composables/useBackButton'
 import { useChat } from '@/composables/useChat'
 import { useLyrics } from '@/composables/useLyrics'
 import { useMediaSession } from '@/composables/useMediaSession'
@@ -516,6 +517,18 @@ const {
   handleUpdateApp,
   handleDismissUpdate,
 } = pwa
+
+// 返回键处理 - 集中管理所有模态框
+const modalRefs = [
+  showMusicSearchModal,
+  showMobilePlaylist,
+  showMobileChat,
+  showMobileUsers,
+  showHelp,
+]
+
+// 初始化返回键处理
+useBackButton(modalRefs)
 
 // 处理后的用户数据计算属性
 const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
