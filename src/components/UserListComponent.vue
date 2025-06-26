@@ -42,10 +42,6 @@
       <div
         class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
       >
-        <div class="md:hidden flex justify-center py-2">
-          <div class="w-8 h-1 bg-gray-500 rounded-full" />
-        </div>
-
         <div class="p-4 border-b border-white/10 flex justify-between items-center">
           <h2 class="text-lg font-semibold flex items-center">
             <i class="fa-solid fa-users mr-2 text-primary" />在线用户

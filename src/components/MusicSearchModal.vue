@@ -7,10 +7,6 @@
         ref="searchResultsContainer"
         class="relative bg-dark border-t border-white/20 md:border md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
       >
-        <!-- 顶部拖拽指示器（仅移动端） -->
-        <div class="md:hidden flex justify-center py-2">
-          <div class="w-8 h-1 bg-gray-500 rounded-full" />
-        </div>
         <div class="p-4 border-b border-white/10 flex justify-between items-center">
           <h2 class="text-lg md:text-xl font-semibold">
             点歌台
