@@ -8,7 +8,7 @@
         <!-- 弹窗头部 -->
         <div class="p-4 border-b border-white/10 flex justify-between items-center">
           <h2 class="text-xl font-semibold flex items-center text-white">
-            <i class="fa-solid fa-arrow-up-from-bracket text-primary mr-3" />
+            <i class="fa-solid fa-sync text-primary mr-3" />
             应用更新
           </h2>
           <button
