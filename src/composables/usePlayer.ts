@@ -161,12 +161,13 @@ export function usePlayer(options: UsePlayerOptions) {
     // 监听计算出的当前时间变化，同步音频播放器
     watch(() => playerState.pushTime, (pushTime) => {
       if (!pushTime || pushTime === 0)
-        return // 如果pushTime为0，则不进行同步
+        return // 如果 pushTime 为 0，则不进行同步
       const delta = Date.now() - pushTime
       const newTime = delta / 1000 // 转换为秒
       if (audioPlayer.value) {
+        // 监听 currentSong 的时候已经会自动播放
+        // 所以这里只需要设置同步所需时间
         setAudioCurrentTime(newTime)
-        audioPlayer.value.play()
       }
     }, { immediate: true })
 
