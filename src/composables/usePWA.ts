@@ -14,18 +14,18 @@ export function usePWA() {
     updateServiceWorker,
   } = useRegisterSW({
     onRegistered(swRegistration) {
-      console.log('SW Registered')
+      console.log('✅ Service Worker 已注册')
       // 启动定时检查更新
       startPeriodicUpdateCheck(swRegistration)
     },
     onRegisterError(error: any) {
-      console.log('SW registration error', error)
+      console.log('❌ Service Worker 注册错误', error)
     },
     onNeedRefresh() {
       showUpdateModal.value = true
     },
     onOfflineReady() {
-      console.log('App ready to work offline')
+      console.log('🔄 应用已准备好离线工作')
     },
   })
 
@@ -39,15 +39,15 @@ export function usePWA() {
       try {
         // 只在页面可见时检查更新
         if (document.visibilityState === 'visible' && swRegistration) {
-          console.log('检查应用更新...')
+          console.log('🔍 检查应用更新...')
           await swRegistration.update()
         }
       } catch (error) {
-        console.error('检查更新失败:', error)
+        console.error('⚠️ 检查更新失败:', error)
       }
     }, CHECK_INTERVAL)
 
-    console.log(`已启动定时更新检查，间隔: ${CHECK_INTERVAL / 1000 / 60} 分钟`)
+    console.log(`⏰ 已启动定时更新检查，间隔: ${CHECK_INTERVAL / 1000 / 60} 分钟`)
   }
 
   // 停止定时检查
@@ -55,7 +55,7 @@ export function usePWA() {
     if (updateCheckTimer.value) {
       clearInterval(updateCheckTimer.value)
       updateCheckTimer.value = null
-      console.log('已停止定时更新检查')
+      console.log('⏹️ 已停止定时更新检查')
     }
   }
 

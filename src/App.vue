@@ -422,16 +422,17 @@ import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
 import { formatTime } from '@/utils/time'
 import { processUser, processUsers } from '@/utils/user'
 
-// 应用配置
+// ===== 应用配置 =====
 const appConfig = getAppConfig()
 const configErrors = validateConfig(appConfig)
+const isDevelopment = import.meta.env.DEV
 
-// 如果配置有错误，在开发环境输出警告
+// 配置验证
 if (configErrors.length > 0) {
   console.warn('⚠️ 配置错误:', configErrors)
 }
 
-// UI状态
+// ===== UI 状态管理 =====
 const showMusicSearchModal = ref(false)
 const showHelp = ref(false)
 const showMobileChat = ref(false)
@@ -439,13 +440,12 @@ const showMobileUsers = ref(false)
 const showMobilePlaylist = ref(false)
 const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
 const isImmersiveMode = ref(false) // 沉浸模式状态
-const isDevelopment = import.meta.env.DEV
 
-// 歌词容器引用
+// ===== DOM 引用 =====
 const lyricsContainer = ref<HTMLElement>()
 const immersiveModeRef = ref<any>()
 
-// 房间信息
+// ===== 房间数据 =====
 const roomInfo = ref<RoomInfo>({
   id: 'room_001',
   name: '听歌房',
@@ -454,12 +454,12 @@ const roomInfo = ref<RoomInfo>({
   needPwd: false,
 })
 
-// 使用组合式函数
-const {
-  roomState,
-} = useRoomState()
+// ===== 组合式函数初始化 =====
 
-// WebSocket 连接
+// 1. 房间状态管理
+const { roomState } = useRoomState()
+
+// 2. WebSocket 连接管理
 const websocket = useWebSocket()
 const {
   connectionStatus,
@@ -470,15 +470,28 @@ const {
   sendSongLike,
 } = websocket
 
-const { chatMessages, sendMessage } = useChat(websocket)
+// 3. 聊天功能
+const {
+  chatMessages,
+  sendMessage,
+} = useChat(websocket)
+
+// 4. 歌词功能
 const {
   currentLyrics,
   currentLyricIndex,
   loadLrcLyrics,
   syncLyrics,
 } = useLyrics()
-const { updateMetadata } = useMediaSession()
 
+// 5. 媒体会话控制
+const {
+  updateMetadata,
+  setupActionHandlers,
+  isSupported: isMediaSessionSupported,
+} = useMediaSession()
+
+// 6. 播放器核心功能
 const {
   playerState,
   audioPlayer,
@@ -497,11 +510,13 @@ const {
   registerMessageHandler: websocket.registerMessageHandler,
 })
 
+// 7. 搜索功能
 const {
   searchCounts,
   searchResults,
 } = useSearch(websocket)
 
+// 8. 通知系统
 const {
   showError,
   showInfo,
@@ -511,37 +526,34 @@ const {
   showConnectionWarning,
 } = useNotification()
 
-// 键盘快捷键处理
-useKeyboardShortcuts(isImmersiveMode, toggleImmersiveMode)
-
-// 媒体会话控制
-const {
-  setupActionHandlers,
-  isSupported: isMediaSessionSupported,
-} = useMediaSession()
-
-// PWA 功能
-const pwa = usePWA()
+// 9. PWA 功能
 const {
   showUpdateModal,
   handleUpdateApp,
   handleDismissUpdate,
-} = pwa
+} = usePWA()
+
+// 10. UI 交互功能
+// 键盘快捷键处理
+useKeyboardShortcuts(isImmersiveMode, toggleImmersiveMode)
 
 // 返回键处理 - 集中管理所有模态框
-const modalRefs = [
+useBackButton([
   showMusicSearchModal,
   showMobilePlaylist,
   showMobileChat,
   showMobileUsers,
   showHelp,
-]
+])
 
-// 初始化返回键处理
-useBackButton(modalRefs)
+// ===== 计算属性 =====
 
-// 处理后的用户数据计算属性
-const processedOnlineUsers = computed(() => processUsers(roomState.onlineUsers))
+// 处理后的用户数据
+const processedOnlineUsers = computed(() =>
+  processUsers(roomState.onlineUsers),
+)
+
+// 处理后的播放列表数据
 const processedPlaylist = computed(() =>
   playerState.playlist.map((song: Song) => ({
     ...song,
@@ -549,7 +561,7 @@ const processedPlaylist = computed(() =>
   })),
 )
 
-// 进度条计算
+// 播放进度百分比
 const progressPercentage = computed(() => {
   if (playerState.currentSong?.duration) {
     return (playerState.currentTime / (playerState.currentSong.duration / 1000)) * 100
@@ -557,10 +569,13 @@ const progressPercentage = computed(() => {
   return 0
 })
 
+// ===== 工具方法 =====
+
 // 歌词自动滚动功能
 function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
-  if (!container)
+  if (!container) {
     return
+  }
 
   const lyricLines = container.querySelectorAll('.lyric-line')
   if (lyricLines[index]) {
@@ -580,65 +595,7 @@ function scrollLyricsToCenter(container: HTMLElement | undefined, index: number,
   }
 }
 
-// 切换沉浸模式
-function toggleImmersiveMode() {
-  isImmersiveMode.value = !isImmersiveMode.value // 切换模式后立即同步歌词位置（使用瞬间跳转，不使用平滑滚动）
-  nextTick(() => {
-    const currentIndex = currentLyricIndex.value
-    if (currentIndex >= 0 && currentLyrics.value.length > 0) {
-      if (isImmersiveMode.value) {
-        immersiveModeRef.value?.scrollLyricsToCenter(currentIndex, false)
-      } else {
-        scrollLyricsToCenter(lyricsContainer.value, currentIndex, false)
-      }
-    }
-  })
-}
-
-// 确认加入房间相关方法
-function confirmJoinRoom() {
-  showJoinRoomConfirm.value = false
-  // 确认后进行WebSocket连接和初始化
-  initializeApp()
-}
-
-function cancelJoinRoom() {
-  // 取消加入房间，可以跳转到其他页面或显示房间列表
-  alert('您已取消加入房间')
-  // 这里可以添加跳转逻辑，比如：
-  // window.location.href = '/rooms'
-}
-
-// 初始化App
-function initializeApp() {
-  // 输出配置信息
-  logConfig(appConfig)
-
-  // 启动进度更新
-  startProgressUpdate()
-
-  // 延迟连接WebSocket，确保页面加载完成
-  setTimeout(() => {
-    const roomId = roomInfo.value.id
-    connect(roomId)
-  }, 1000)
-  // 确保音频播放器初始化后自动播放第一首歌
-  setTimeout(() => {
-    if (playerState.currentSong && audioPlayer.value) {
-      playAudio()
-    }
-  }, 1500)
-}
-
-// 刷新在线用户列表
-function refreshOnlineUsers() {
-  send({
-    action: '/house/houseuser',
-    data: {},
-  })
-}
-
-// 获取连接状态文本
+// 获取连接状态文本描述
 function getConnectionStatusText() {
   switch (connectionStatus.value) {
     case 'connected':
@@ -656,23 +613,99 @@ function getConnectionStatusText() {
   }
 }
 
-// 监听当前歌词索引变化，实现自动滚动
-watch(() => currentLyricIndex.value, (newIndex) => {
-  if (newIndex >= 0 && currentLyrics.value.length > 0) {
-    // 延迟执行滚动，确保DOM更新完成
-    nextTick(() => {
-      if (isImmersiveMode.value) {
-        immersiveModeRef.value?.scrollLyricsToCenter(newIndex)
-      } else {
-        scrollLyricsToCenter(lyricsContainer.value, newIndex)
-      }
-    })
-  }
-})
+// ===== UI 交互方法 =====
 
-// 连接状态监听
+// 切换沉浸模式
+function toggleImmersiveMode() {
+  isImmersiveMode.value = !isImmersiveMode.value
+
+  // 切换模式后立即同步歌词位置（使用瞬间跳转，不使用平滑滚动）
+  nextTick(() => {
+    const currentIndex = currentLyricIndex.value
+    if (currentIndex >= 0 && currentLyrics.value.length > 0) {
+      if (isImmersiveMode.value) {
+        immersiveModeRef.value?.scrollLyricsToCenter(currentIndex, false)
+      } else {
+        scrollLyricsToCenter(lyricsContainer.value, currentIndex, false)
+      }
+    }
+  })
+}
+
+// ===== 房间管理方法 =====
+
+// 确认加入房间
+function confirmJoinRoom() {
+  showJoinRoomConfirm.value = false
+  initializeApp()
+}
+
+// 取消加入房间
+function cancelJoinRoom() {
+  alert('您已取消加入房间')
+  // 这里可以添加跳转逻辑，比如：
+  // window.location.href = '/rooms'
+}
+
+// 初始化应用
+function initializeApp() {
+  console.log('🚀 开始初始化应用')
+
+  // 输出配置信息
+  logConfig(appConfig)
+
+  // 初始化媒体会话
+  initializeMediaSession()
+
+  // 设置动态标题
+  setupDynamicTitle()
+
+  // 启动进度更新
+  startProgressUpdate()
+
+  // 使用 nextTick 确保 Vue 完成初始化后再连接
+  nextTick(async () => {
+    try {
+      const roomId = roomInfo.value.id
+      console.log('🔗 开始连接房间:', roomId)
+      connect(roomId)
+    } catch (error) {
+      console.error('❌ 连接房间失败:', error)
+      showError('连接房间失败，请稍后重试')
+    }
+  })
+}
+
+// 刷新在线用户列表
+function refreshOnlineUsers() {
+  send({
+    action: '/house/houseuser',
+    data: {},
+  })
+}
+
+// ===== 响应式监听器 =====
+
+// 监听歌词索引变化，实现自动滚动
+watch(
+  () => currentLyricIndex.value,
+  (newIndex) => {
+    if (newIndex >= 0 && currentLyrics.value.length > 0) {
+      // 延迟执行滚动，确保DOM更新完成
+      nextTick(() => {
+        if (isImmersiveMode.value) {
+          immersiveModeRef.value?.scrollLyricsToCenter(newIndex)
+        } else {
+          scrollLyricsToCenter(lyricsContainer.value, newIndex)
+        }
+      })
+    }
+  },
+)
+
+// 监听连接状态变化
 watch(connectionStatus, (status) => {
-  console.log('连接状态变化:', status)
+  console.log('🔗 连接状态变化:', status)
 
   // 根据连接状态显示不同的提示
   switch (status) {
@@ -699,6 +732,9 @@ watch(connectionStatus, (status) => {
   }
 })
 
+// ===== 音乐播放控制 =====
+
+// 切歌功能
 function skipSong() {
   send({
     action: '/music/skip/vote',
@@ -706,6 +742,8 @@ function skipSong() {
   })
   showSkipSong()
 }
+
+// ===== 分享功能 =====
 
 // 分享房间
 function shareRoom() {
@@ -718,12 +756,10 @@ function shareRoom() {
   // 检查是否支持 Web Share API
   if (navigator.share) {
     navigator.share(shareData).catch((error) => {
-      console.log('分享失败:', error)
-      // 降级到复制链接
+      console.log('🚫 分享失败:', error)
       fallbackShare()
     })
   } else {
-    // 降级到复制链接
     fallbackShare()
   }
 }
@@ -745,16 +781,19 @@ function fallbackShare() {
   }
 }
 
-// 音量控制事件处理
+// ===== 音量控制处理 =====
+
+// 音量变化处理
 function handleVolumeChange(newVolume: number) {
-  // 音量变化时，同步到音频元素（在 watch 中处理）
   volume.value = newVolume
 }
 
+// 静音状态切换处理
 function handleMuteToggle(muted: boolean) {
-  // 静音状态变化时，同步到音频元素（在 watch 中处理）
   isMuted.value = muted
 }
+
+// ===== 页面功能初始化 =====
 
 // 动态更新页面标题
 function setupDynamicTitle() {
@@ -762,10 +801,10 @@ function setupDynamicTitle() {
     () => playerState.currentSong,
     (newSong) => {
       if (newSong) {
-      // 有歌曲播放时，显示歌曲信息
+        // 有歌曲播放时，显示歌曲信息
         document.title = `${newSong.title} - ${newSong.artist} | ${appConfig.app.name}`
       } else {
-      // 没有歌曲播放时，显示默认标题
+        // 没有歌曲播放时，显示默认标题
         document.title = appConfig.app.name
       }
     },
@@ -776,13 +815,15 @@ function setupDynamicTitle() {
 // 初始化媒体会话
 function initializeMediaSession() {
   if (!isMediaSessionSupported()) {
-    console.log('当前浏览器不支持 Media Session API')
+    console.log('⚠️ 当前浏览器不支持 Media Session API')
     return
   }
+
   console.log('🎵 初始化媒体会话')
 
   // 设置媒体会话操作处理器
   setupActionHandlers({
+    // 基本播放控制
     // 似乎没法禁用，所以还是实现一下基本功能
     onPlay: () => {
       playAudio()
@@ -802,30 +843,23 @@ function initializeMediaSession() {
     // 只保留下一曲（切歌）功能
     onNextTrack: () => {
       console.log('🎵 媒体会话：用户请求切歌')
-      // 触发切歌功能
       showSkipSong()
-      // 发送切歌请求到服务器
       skipSong()
     },
   })
 }
 
-// 生命周期
+// ===== 生命周期钩子 =====
+
 onMounted(() => {
-  // 页面挂载时不立即初始化，等待用户确认
-  console.log('页面已加载，等待用户确认加入房间')
-
-  // 初始化媒体会话
-  initializeMediaSession()
-
-  // 设置动态页面标题
-  setupDynamicTitle()
+  console.log('📱 页面已加载，等待用户确认加入房间')
 })
 
-// 页面卸载时断开连接
 onUnmounted(() => {
+  console.log('🔌 页面卸载，清理资源')
+
+  // 断开连接并清理资源
   disconnect()
-  // 清理进度更新动画帧
   stopProgressUpdate()
 })
 </script>
