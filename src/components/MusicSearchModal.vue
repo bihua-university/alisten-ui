@@ -320,16 +320,16 @@ const allSearchModes = [
   },
 ]
 
-const selectedMusicSource = ref<MusicSource>(musicSources[0])
-const selectedSearchMode = ref(allSearchModes[0])
+const selectedMusicSource = useStorage<MusicSource>('selected-music-source', musicSources[0])
+const selectedSearchMode = useStorage('selected-search-mode', allSearchModes[0])
 
 // 分页状态
-const currentPage = ref(0)
+const currentPage = useStorage('search-current-page', 0)
 const pageSize = 50
 
 // 为每种搜索模式创建单独的数据绑定
-const songQuery = ref('')
-const playlistQuery = ref('')
+const songQuery = useStorage('song-query', '')
+const playlistQuery = useStorage('playlist-query', '')
 const userPlaylistQuery = useStorage('user-playlist-query', '')
 
 // 当前搜索查询的计算属性
@@ -519,18 +519,21 @@ function viewPlaylist(playlist: any) {
   selectedSearchMode.value = availableSearchModes.value[0] // 切换到第一个搜索模式（通常是歌曲搜索）
   // 使用计算属性设置值，它会根据当前搜索模式自动分配到对应的变量
   songSearchQuery.value = `*${playlist.id}`
+  currentPage.value = 0 // 重置页码
   clearSearchResults()
   handleSearch()
 }
 
-// 监听点歌台显示状态，清空搜索内容
+// 监听点歌台显示状态
 watch(() => props.show, (isVisible) => {
   if (isVisible) {
-    // 只清空非持久化的搜索框内容
-    songQuery.value = ''
-    playlistQuery.value = ''
-    currentPage.value = 0 // 重置页码
-    // 注意：不清空userPlaylistQuery，因为它是持久化的
+    // 当点歌台打开时，如果是用户歌单模式且有内容，则自动搜索
+    if (selectedSearchMode.value.id === 'user_playlist' && userPlaylistQuery.value.trim()) {
+      handleSearch()
+    }
+  } else {
+    // 关闭时清空搜索结果
+    clearSearchResults()
   }
 })
 
