@@ -1,13 +1,14 @@
 import type { Song } from '@/types'
 import { reactive, ref, watch } from 'vue'
 import { getDefaultAvatar } from '@/utils/user'
-import { useLyrics } from './useLyrics'
-import { useMediaSession } from './useMediaSession'
 
-// 获取媒体会话控制
-const { updateMetadata } = useMediaSession()
-// 引入歌词处理
-const { loadLrcLyrics, syncLyrics } = useLyrics()
+// 定义 usePlayer 的选项类型
+interface UsePlayerOptions {
+  updateMetadata: (song: Song | null) => void
+  loadLrcLyrics: (lyrics: string) => void
+  syncLyrics: (currentTime: number) => void
+  registerMessageHandler?: (type: string, handler: (message: any) => void) => void
+}
 
 // 全局共享的播放器状态
 const playerState = reactive<{
@@ -76,22 +77,7 @@ watch(isMuted, (newMuteState) => {
   saveMuteStateToStorage(newMuteState)
 })
 
-// 音频事件处理函数
-function onAudioTimeUpdate(event: Event) {
-  const audio = event.target as HTMLAudioElement
-  if (audio) {
-    // 根据audio的currentTime更新pushTime，使其与服务器保持同步
-    const currentTimeFromAudio = audio.currentTime
-    syncLyrics(currentTimeFromAudio)
-    // 更新当前时间（用于歌词同步和显示）
-    playerState.currentTime = currentTimeFromAudio
-  }
-}
-
-function onAudioError(event: Event) {
-  const audio = event.target as HTMLAudioElement
-  console.error('音频播放错误:', audio.error)
-}
+// 音频事件处理函数 - 这些函数现在在 usePlayer 内部定义
 
 // 音频播放控制函数
 function playAudio() {
@@ -110,56 +96,6 @@ function setAudioCurrentTime(time: number) {
 
 // 全局设置音频播放器的监听器（只设置一次）
 let watchersInitialized = false
-
-function initializeAudioWatchers() {
-  if (watchersInitialized)
-    return
-
-  // 监听计算出的当前时间变化，同步音频播放器
-  watch(() => playerState.pushTime, (pushTime) => {
-    if (!pushTime || pushTime === 0)
-      return // 如果pushTime为0，则不进行同步
-    const delta = Date.now() - pushTime
-    const newTime = delta / 1000 // 转换为秒
-    if (audioPlayer.value) {
-      setAudioCurrentTime(newTime)
-      audioPlayer.value.play()
-    }
-  }, { immediate: true })
-
-  // 监听当前歌曲变化，更新音频源并自动播放
-  watch(() => playerState.currentSong, (newSong) => {
-    if (newSong && audioPlayer.value) {
-      // 如果有新歌曲且有音频URL，则加载新音频
-      if (newSong.url) {
-        audioPlayer.value.load()
-        // 自动播放
-        setTimeout(() => {
-          playAudio()
-        }, 100) // 稍微延迟确保音频加载完成
-      }
-    }
-
-    // 更新媒体会话元数据
-    updateMetadata(newSong)
-  }, { immediate: true })
-
-  // 监听音量变化，同步到音频元素
-  watch(volume, (newVolume) => {
-    if (audioPlayer.value) {
-      audioPlayer.value.volume = newVolume / 100
-    }
-  }, { immediate: true })
-
-  // 监听静音状态变化
-  watch(isMuted, (muted) => {
-    if (audioPlayer.value) {
-      audioPlayer.value.muted = muted
-    }
-  }, { immediate: true })
-
-  watchersInitialized = true
-}
 
 // 从本地存储读取音量设置
 function getStoredVolume(): number {
@@ -190,7 +126,85 @@ function saveMuteStateToStorage(isMuted: boolean) {
   localStorage.setItem('MUTE', isMuted.toString())
 }
 
-export function usePlayer(websocket?: any) {
+export function usePlayer(
+  options: UsePlayerOptions,
+) {
+  // 从选项中解构函数
+  const {
+    updateMetadata,
+    loadLrcLyrics,
+    syncLyrics,
+    registerMessageHandler,
+  } = options
+
+  // 音频事件处理函数
+  const onAudioTimeUpdate = (event: Event) => {
+    const audio = event.target as HTMLAudioElement
+    if (audio) {
+      // 根据audio的currentTime更新pushTime，使其与服务器保持同步
+      const currentTimeFromAudio = audio.currentTime
+      syncLyrics(currentTimeFromAudio)
+      // 更新当前时间（用于歌词同步和显示）
+      playerState.currentTime = currentTimeFromAudio
+    }
+  }
+
+  const onAudioError = (event: Event) => {
+    const audio = event.target as HTMLAudioElement
+    console.error('音频播放错误:', audio.error)
+  }
+
+  // 初始化音频监听器
+  const initializeAudioWatchers = () => {
+    if (watchersInitialized)
+      return
+
+    // 监听计算出的当前时间变化，同步音频播放器
+    watch(() => playerState.pushTime, (pushTime) => {
+      if (!pushTime || pushTime === 0)
+        return // 如果pushTime为0，则不进行同步
+      const delta = Date.now() - pushTime
+      const newTime = delta / 1000 // 转换为秒
+      if (audioPlayer.value) {
+        setAudioCurrentTime(newTime)
+        audioPlayer.value.play()
+      }
+    }, { immediate: true })
+
+    // 监听当前歌曲变化，更新音频源并自动播放
+    watch(() => playerState.currentSong, (newSong) => {
+      if (newSong && audioPlayer.value) {
+        // 如果有新歌曲且有音频URL，则加载新音频
+        if (newSong.url) {
+          audioPlayer.value.load()
+          // 自动播放
+          setTimeout(() => {
+            playAudio()
+          }, 100) // 稍微延迟确保音频加载完成
+        }
+      }
+
+      // 更新媒体会话元数据
+      updateMetadata(newSong)
+    }, { immediate: true })
+
+    // 监听音量变化，同步到音频元素
+    watch(volume, (newVolume) => {
+      if (audioPlayer.value) {
+        audioPlayer.value.volume = newVolume / 100
+      }
+    }, { immediate: true })
+
+    // 监听静音状态变化
+    watch(isMuted, (muted) => {
+      if (audioPlayer.value) {
+        audioPlayer.value.muted = muted
+      }
+    }, { immediate: true })
+
+    watchersInitialized = true
+  }
+
   // 播放器状态相关操作
   const setCurrentSong = (song: Song | null) => {
     playerState.currentSong = song
@@ -225,10 +239,10 @@ export function usePlayer(websocket?: any) {
     setCurrentSong(null)
   }
 
-  // 如果提供了 websocket，注册消息处理器
-  if (websocket && websocket.registerMessageHandler) {
+  // 如果提供了 registerMessageHandler，注册消息处理器
+  if (registerMessageHandler) {
     // 注册音乐消息处理器
-    websocket.registerMessageHandler('music', (message: any) => {
+    registerMessageHandler('music', (message: any) => {
       if (!message.url) {
         console.warn('收到不完整的音乐消息:', message)
         return
@@ -258,7 +272,7 @@ export function usePlayer(websocket?: any) {
     })
 
     // 注册播放列表消息处理器
-    websocket.registerMessageHandler('pick', (message: any) => {
+    registerMessageHandler('pick', (message: any) => {
       if (!message.data || !Array.isArray(message.data)) {
         console.warn('收到无效的播放列表:', message)
         return

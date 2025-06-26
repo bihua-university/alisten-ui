@@ -470,6 +470,15 @@ const {
   sendSongLike,
 } = websocket
 
+const { chatMessages, sendMessage } = useChat(websocket)
+const {
+  currentLyrics,
+  currentLyricIndex,
+  loadLrcLyrics,
+  syncLyrics,
+} = useLyrics()
+const { updateMetadata } = useMediaSession()
+
 const {
   playerState,
   audioPlayer,
@@ -481,18 +490,18 @@ const {
   stopProgressUpdate,
   onAudioTimeUpdate,
   onAudioError,
-} = usePlayer(websocket)
+} = usePlayer({
+  updateMetadata,
+  loadLrcLyrics,
+  syncLyrics,
+  registerMessageHandler: websocket.registerMessageHandler,
+})
 
 const {
   searchCounts,
   searchResults,
 } = useSearch(websocket)
 
-const { chatMessages, sendMessage } = useChat(websocket)
-const {
-  currentLyrics,
-  currentLyricIndex,
-} = useLyrics()
 const {
   showError,
   showInfo,
