@@ -163,11 +163,16 @@ export function usePlayer(options: UsePlayerOptions) {
       if (!pushTime || pushTime === 0)
         return // 如果 pushTime 为 0，则不进行同步
       const delta = Date.now() - pushTime
-      const newTime = delta / 1000 // 转换为秒
+
+      // 确保播放时间不超过歌曲长度
+      const newTime = Math.min(delta, playerState.currentSong?.duration ?? 0)
       if (audioPlayer.value) {
+        // 转换为秒
+        const newTimeSeconds = newTime / 1000
         // 监听 currentSong 的时候已经会自动播放
         // 所以这里只需要设置同步所需时间
-        setAudioCurrentTime(newTime)
+        setAudioCurrentTime(newTimeSeconds)
+        console.log('🕐 同步新时间:', newTimeSeconds)
       }
     }, { immediate: true })
 
@@ -176,6 +181,7 @@ export function usePlayer(options: UsePlayerOptions) {
       if (newSong && audioPlayer.value) {
         // 如果有新歌曲且有音频URL，则加载新音频
         if (newSong.url) {
+          console.log('🎵 加载新歌曲:', newSong.title)
           audioPlayer.value.load()
           // 自动播放
           audioPlayer.value.addEventListener('canplay', function onCanPlay() {
