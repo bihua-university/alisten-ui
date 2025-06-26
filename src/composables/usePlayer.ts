@@ -178,9 +178,10 @@ export function usePlayer(options: UsePlayerOptions) {
         if (newSong.url) {
           audioPlayer.value.load()
           // 自动播放
-          setTimeout(() => {
+          audioPlayer.value.addEventListener('canplay', function onCanPlay() {
             playAudio()
-          }, 100) // 稍微延迟确保音频加载完成
+            audioPlayer.value?.removeEventListener('canplay', onCanPlay)
+          })
         }
       }
     }, { immediate: true })
