@@ -746,8 +746,6 @@ function skipSong() {
   showSkipSong()
 }
 
-// 删除播放列表中的歌曲
-
 // ===== 分享功能 =====
 
 // 分享房间
