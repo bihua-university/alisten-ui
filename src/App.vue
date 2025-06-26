@@ -654,21 +654,26 @@ function initializeApp() {
   // 输出配置信息
   logConfig(appConfig)
 
+  // 初始化媒体会话
+  initializeMediaSession()
+
+  // 设置动态标题
+  setupDynamicTitle()
+
   // 启动进度更新
   startProgressUpdate()
 
-  // 延迟连接WebSocket，确保页面加载完成
-  setTimeout(() => {
-    const roomId = roomInfo.value.id
-    connect(roomId)
-  }, 1000)
-
-  // 确保音频播放器初始化后自动播放第一首歌
-  setTimeout(() => {
-    if (playerState.currentSong && audioPlayer.value) {
-      playAudio()
+  // 使用 nextTick 确保 Vue 完成初始化后再连接
+  nextTick(async () => {
+    try {
+      const roomId = roomInfo.value.id
+      console.log('🔗 开始连接房间:', roomId)
+      connect(roomId)
+    } catch (error) {
+      console.error('❌ 连接房间失败:', error)
+      showError('连接房间失败，请稍后重试')
     }
-  }, 1500)
+  })
 }
 
 // 刷新在线用户列表
@@ -848,10 +853,6 @@ function initializeMediaSession() {
 
 onMounted(() => {
   console.log('📱 页面已加载，等待用户确认加入房间')
-
-  // 初始化各种功能模块
-  initializeMediaSession()
-  setupDynamicTitle()
 })
 
 onUnmounted(() => {

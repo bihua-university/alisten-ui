@@ -244,6 +244,7 @@ export function usePlayer(options: UsePlayerOptions) {
       console.warn('收到不完整的音乐消息:', message)
       return
     }
+    console.log('📥 收到音乐消息:', message)
 
     let url = message.url || ''
     if (url.includes('kuwo.cn') && !url.includes('-')) {
