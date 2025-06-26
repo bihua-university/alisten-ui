@@ -111,15 +111,15 @@
             <div class="flex items-center space-x-2 sm:space-x-2 flex-shrink-0">
               <!-- 切歌 -->
               <button
-                :disabled="isSkipping"
+                :disabled="playerState.isSkipping"
                 class="bg-orange-500/20 hover:bg-orange-500/30 active:bg-orange-500/40 text-orange-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-                :class="[{ 'opacity-50 cursor-not-allowed': isSkipping }]" @click="skipSong"
+                :class="[{ 'opacity-50 cursor-not-allowed': playerState.isSkipping }]" @click="skipSong"
               >
                 <i
-                  :class="isSkipping ? 'fa-solid fa-spinner fa-spin mr-1 sm:mr-2' : 'fa-solid fa-forward mr-1 sm:mr-2'"
+                  :class="playerState.isSkipping ? 'fa-solid fa-spinner fa-spin mr-1 sm:mr-2' : 'fa-solid fa-forward mr-1 sm:mr-2'"
                 />
-                <span class="hidden sm:inline">{{ isSkipping ? '切歌中...' : '切歌' }}</span>
-                <span class="sm:hidden">{{ isSkipping ? '切歌中' : '切歌' }}</span>
+                <span class="hidden sm:inline">{{ playerState.isSkipping ? '切歌中...' : '切歌' }}</span>
+                <span class="sm:hidden">{{ playerState.isSkipping ? '切歌中' : '切歌' }}</span>
               </button>
 
               <!-- 点歌台 -->
@@ -175,11 +175,11 @@
           >
             <!-- 切歌提示消息 -->
             <transition name="modal">
-              <div v-if="showSkipMessage" class="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+              <div v-if="playerState.showSkipMessage" class="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
                 <div
                   class="bg-orange-500/90 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm message-bubble"
                 >
-                  <i class="fa-solid fa-forward mr-2" />{{ skipMessage }}
+                  <i class="fa-solid fa-forward mr-2" />{{ playerState.skipMessage }}
                 </div>
               </div>
             </transition>
@@ -215,7 +215,7 @@
             :current-song="playerState.currentSong" :lyrics="currentLyrics"
             :current-lyric-index="currentLyricIndex"
             :progress-percentage="progressPercentage"
-            :current-time="currentTime"
+            :current-time="playerState.currentTime"
             @toggle-immersive="toggleImmersiveMode"
             @show-help="showHelp = true"
           />
@@ -253,7 +253,7 @@
               <div class="flex flex-col items-center space-x-2 sm:space-x-3 flex-shrink-0">
                 <div class="relative ml-auto">
                   <div class="flex justify-between text-xs text-gray-400 mt-1">
-                    <span>{{ formatTime(currentTime || 0) }} /
+                    <span>{{ formatTime(playerState.currentTime || 0) }} /
                       {{ formatTime((playerState.currentSong?.duration || 0) / 1000) }}</span>
                   </div>
                 </div>
@@ -408,6 +408,7 @@ import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import UserListComponent from '@/components/UserListComponent.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
 import { useChat } from '@/composables/useChat'
+import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import { useLyrics } from '@/composables/useLyrics'
 import { useMediaSession } from '@/composables/useMediaSession'
 import { useNotification } from '@/composables/useNotification'
@@ -429,18 +430,6 @@ if (configErrors.length > 0) {
   console.warn('⚠️ 配置错误:', configErrors)
 }
 
-// 初始化WebSocket连接
-const websocket = useWebSocket()
-const {
-  connectionStatus,
-  connect,
-  disconnect,
-  reconnectAttempts,
-  on: onWebSocketEvent,
-  send,
-  sendSongLike,
-} = websocket
-
 // UI状态
 const showMusicSearchModal = ref(false)
 const showHelp = ref(false)
@@ -450,9 +439,6 @@ const showMobilePlaylist = ref(false)
 const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
 const isImmersiveMode = ref(false) // 沉浸模式状态
 const isDevelopment = import.meta.env.DEV
-
-// 音频播放器引用
-const audioPlayer = ref<HTMLAudioElement>()
 
 // 歌词容器引用
 const lyricsContainer = ref<HTMLElement>()
@@ -472,27 +458,50 @@ const {
   roomState,
 } = useRoomState()
 
+// WebSocket 连接
+const websocket = useWebSocket()
+const {
+  connectionStatus,
+  connect,
+  disconnect,
+  reconnectAttempts,
+  on: onWebSocketEvent,
+  send,
+  sendSongLike,
+} = websocket
+
+const { chatMessages, sendMessage } = useChat(websocket)
+const {
+  currentLyrics,
+  currentLyricIndex,
+  loadLrcLyrics,
+  syncLyrics,
+} = useLyrics()
+const { updateMetadata } = useMediaSession()
+
+const {
+  playerState,
+  audioPlayer,
+  volume,
+  isMuted,
+  showSkipSong,
+  playAudio,
+  startProgressUpdate,
+  stopProgressUpdate,
+  onAudioTimeUpdate,
+  onAudioError,
+} = usePlayer({
+  updateMetadata,
+  loadLrcLyrics,
+  syncLyrics,
+  registerMessageHandler: websocket.registerMessageHandler,
+})
+
 const {
   searchCounts,
   searchResults,
 } = useSearch(websocket)
 
-const {
-  playerState,
-  volume,
-  isMuted,
-  skipMessage,
-  showSkipMessage,
-  isSkipping,
-  showSkipSong,
-} = usePlayer(websocket)
-
-const { chatMessages, sendMessage } = useChat(websocket)
-const {
-  syncLyrics,
-  currentLyrics,
-  currentLyricIndex,
-} = useLyrics()
 const {
   showError,
   showInfo,
@@ -502,9 +511,11 @@ const {
   showConnectionWarning,
 } = useNotification()
 
+// 键盘快捷键处理
+useKeyboardShortcuts(isImmersiveMode, toggleImmersiveMode)
+
 // 媒体会话控制
 const {
-  updateMetadata,
   setupActionHandlers,
   isSupported: isMediaSessionSupported,
 } = useMediaSession()
@@ -526,43 +537,13 @@ const processedPlaylist = computed(() =>
   })),
 )
 
-// 进度条 - 实时渲染
-const currentTime = ref(0)
+// 进度条计算
 const progressPercentage = computed(() => {
   if (playerState.currentSong?.duration) {
-    return (currentTime.value / (playerState.currentSong.duration / 1000)) * 100
+    return (playerState.currentTime / (playerState.currentSong.duration / 1000)) * 100
   }
   return 0
 })
-
-// 实时更新进度条
-let animationFrameId: number | null = null
-
-function updateProgress() {
-  if (audioPlayer.value) {
-    // 只有在音频存在且不是暂停状态时才更新
-    if (!audioPlayer.value.paused && !audioPlayer.value.ended) {
-      currentTime.value = audioPlayer.value.currentTime
-    }
-  }
-  // 只有在需要时才继续动画循环
-  if (animationFrameId !== null) {
-    animationFrameId = requestAnimationFrame(updateProgress)
-  }
-}
-
-function startProgressUpdate() {
-  if (animationFrameId === null) {
-    animationFrameId = requestAnimationFrame(updateProgress)
-  }
-}
-
-function stopProgressUpdate() {
-  if (animationFrameId !== null) {
-    cancelAnimationFrame(animationFrameId)
-    animationFrameId = null
-  }
-}
 
 // 歌词自动滚动功能
 function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
@@ -662,49 +643,6 @@ function getConnectionStatusText() {
       return '未知状态'
   }
 }
-
-// 监听计算出的当前时间变化，同步音频播放器
-watch(() => playerState.pushTime, (pushTime) => {
-  if (!pushTime || pushTime === 0)
-    return // 如果pushTime为0，则不进行同步
-  const delta = Date.now() - pushTime
-  const newTime = delta / 1000 // 转换为秒
-  if (audioPlayer.value) {
-    setAudioCurrentTime(newTime)
-    audioPlayer.value.play()
-  }
-}, { immediate: true })
-
-// 监听当前歌曲变化，更新音频源并自动播放
-watch(() => playerState.currentSong, (newSong) => {
-  if (newSong && audioPlayer.value) {
-    // 如果有新歌曲且有音频URL，则加载新音频
-    if (newSong.url) {
-      audioPlayer.value.load()
-      // 自动播放
-      setTimeout(() => {
-        playAudio()
-      }, 100) // 稍微延迟确保音频加载完成
-    }
-  }
-
-  // 更新媒体会话元数据
-  updateMetadata(newSong)
-}, { immediate: true })
-
-// 监听音量变化，同步到音频元素
-watch(volume, (newVolume) => {
-  if (audioPlayer.value) {
-    audioPlayer.value.volume = newVolume / 100
-  }
-}, { immediate: true })
-
-// 监听静音状态变化
-watch(isMuted, (muted) => {
-  if (audioPlayer.value) {
-    audioPlayer.value.muted = muted
-  }
-}, { immediate: true })
 
 // 监听当前歌词索引变化，实现自动滚动
 watch(() => currentLyricIndex.value, (newIndex) => {
@@ -812,39 +750,6 @@ function fallbackShare() {
   }
 }
 
-// 音频播放器事件处理方法
-function onAudioTimeUpdate(event: Event) {
-  const audio = event.target as HTMLAudioElement
-  if (audio) {
-    // 根据audio的currentTime更新pushTime，使其与服务器保持同步
-    const currentTimeFromAudio = audio.currentTime
-    syncLyrics(currentTimeFromAudio)
-    // 更新当前时间（用于歌词同步和显示）
-    currentTime.value = currentTimeFromAudio
-  }
-}
-
-function onAudioError(event: Event) {
-  const audio = event.target as HTMLAudioElement
-  console.error('音频播放错误:', audio.error)
-}
-
-// 音频控制方法
-function playAudio() {
-  if (audioPlayer.value) {
-    audioPlayer.value.volume = volume.value / 100
-    audioPlayer.value.play()
-    startProgressUpdate()
-  }
-}
-
-function setAudioCurrentTime(time: number) {
-  if (audioPlayer.value) {
-    audioPlayer.value.currentTime = time
-    currentTime.value = time
-  }
-}
-
 // 音量控制事件处理
 function handleVolumeChange(newVolume: number) {
   // 音量变化时，同步到音频元素（在 watch 中处理）
@@ -877,9 +782,6 @@ function setupDynamicTitle() {
 onMounted(() => {
   // 页面挂载时不立即初始化，等待用户确认
   console.log('页面已加载，等待用户确认加入房间')
-
-  // 添加键盘事件监听
-  document.addEventListener('keydown', handleKeyDown)
 
   // 初始化媒体会话
   initializeMediaSession()
@@ -925,29 +827,9 @@ function initializeMediaSession() {
   })
 }
 
-// 键盘事件处理
-function handleKeyDown(event: KeyboardEvent) {
-  // 按 F 键切换沉浸模式（仅在没有聚焦输入框时）
-  if (event.key === 'f' || event.key === 'F') {
-    const activeElement = document.activeElement
-    if (activeElement?.tagName !== 'INPUT' && activeElement?.tagName !== 'TEXTAREA') {
-      event.preventDefault()
-      toggleImmersiveMode()
-    }
-  }
-
-  // 按 Escape 键退出沉浸模式
-  if (event.key === 'Escape' && isImmersiveMode.value) {
-    event.preventDefault()
-    isImmersiveMode.value = false
-  }
-}
-
 // 页面卸载时断开连接
 onUnmounted(() => {
   disconnect()
-  // 移除键盘事件监听
-  document.removeEventListener('keydown', handleKeyDown)
   // 清理进度更新动画帧
   stopProgressUpdate()
 })
