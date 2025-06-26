@@ -477,8 +477,8 @@ const {
 
 // 5. 媒体会话控制
 const {
-  updateMetadata,
   setupActionHandlers,
+  clearSession,
   isSupported: isMediaSessionSupported,
 } = useMediaSession()
 
@@ -494,9 +494,7 @@ const {
   stopProgressUpdate,
   onAudioTimeUpdate,
   onAudioError,
-} = usePlayer({
-  updateMetadata,
-})
+} = usePlayer()
 
 // 7. 通知系统
 const {
@@ -788,6 +786,9 @@ onUnmounted(() => {
   if (lyricsContainer.value) {
     unregisterLyricsContainer(lyricsContainer.value)
   }
+
+  // 清除媒体会话
+  clearSession()
 
   // 断开连接并清理资源
   disconnect()

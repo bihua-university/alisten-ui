@@ -2,12 +2,8 @@ import type { Song } from '@/types'
 import { reactive, ref, watch } from 'vue'
 import { getDefaultAvatar } from '@/utils/user'
 import { useLyrics } from './useLyrics'
+import { useMediaSession } from './useMediaSession'
 import { useWebSocket } from './useWebSocket'
-
-// 定义 usePlayer 的选项类型
-interface UsePlayerOptions {
-  updateMetadata: (song: Song | null) => void
-}
 
 // 全局共享的播放器状态
 const playerState = reactive<{
@@ -39,9 +35,6 @@ const isMuted = ref(getStoredMuteState())
 
 // 进度更新相关
 let animationFrameId: number | null = null
-
-// 全局设置音频播放器的监听器（只设置一次）
-let watchersInitialized = false
 
 function updateProgress() {
   if (audioPlayer.value) {
@@ -126,16 +119,119 @@ function saveMuteStateToStorage(isMuted: boolean) {
   localStorage.setItem('MUTE', isMuted.toString())
 }
 
-export function usePlayer(options: UsePlayerOptions) {
-  // 直接使用 useWebSocket 和 useLyrics
-  const { registerMessageHandler } = useWebSocket()
-  const { loadLrcLyrics, syncLyrics } = useLyrics()
+// 在模块加载时初始化全局监听器（只执行一次）
+const { registerMessageHandler } = useWebSocket()
+const { loadLrcLyrics, syncLyrics } = useLyrics()
+const { updateMetadata } = useMediaSession()
 
-  // 从选项中解构函数
-  const {
-    updateMetadata,
-  } = options
+// 监听计算出的当前时间变化，同步音频播放器
+watch(() => playerState.pushTime, (pushTime) => {
+  if (!pushTime || pushTime === 0)
+    return // 如果 pushTime 为 0，则不进行同步
+  const delta = Date.now() - pushTime
 
+  // 确保播放时间不超过歌曲长度
+  const newTime = Math.min(delta, playerState.currentSong?.duration ?? 0)
+  if (audioPlayer.value) {
+    // 转换为秒
+    const newTimeSeconds = newTime / 1000
+    // 监听 currentSong 的时候已经会自动播放
+    // 所以这里只需要设置同步所需时间
+    setAudioCurrentTime(newTimeSeconds)
+    console.log('🕐 同步新时间:', newTimeSeconds)
+  }
+}, { immediate: true })
+
+// 监听当前歌曲变化，更新音频源并自动播放
+watch(() => playerState.currentSong, (newSong) => {
+  if (newSong && audioPlayer.value) {
+    // 如果有新歌曲且有音频URL，则加载新音频
+    if (newSong.url) {
+      console.log('🎵 加载新歌曲:', newSong.title)
+      audioPlayer.value.load()
+      // 自动播放
+      audioPlayer.value.addEventListener('canplay', function onCanPlay() {
+        playAudio()
+        audioPlayer.value?.removeEventListener('canplay', onCanPlay)
+      })
+    }
+  }
+}, { immediate: true })
+
+// 监听音量变化，同步到音频元素
+watch(volume, (newVolume) => {
+  if (audioPlayer.value) {
+    audioPlayer.value.volume = newVolume / 100
+  }
+}, { immediate: true })
+
+// 监听静音状态变化
+watch(isMuted, (muted) => {
+  if (audioPlayer.value) {
+    audioPlayer.value.muted = muted
+  }
+}, { immediate: true })
+
+// 注册音乐消息处理器
+registerMessageHandler('music', (message: any) => {
+  if (!message.url) {
+    console.warn('收到不完整的音乐消息:', message)
+    return
+  }
+  console.log('📥 收到音乐消息:', message)
+
+  let url = message.url || ''
+  if (url.includes('kuwo.cn') && !url.includes('-')) {
+    const urls = url.split('.sycdn.')
+    const headUrls = urls[0].replace('http://', '').split('.')
+    const lastHeadUrl = headUrls[headUrls.length - 1]
+    url = `https://${lastHeadUrl}-sycdn.${urls[1]}&timestamp=${Date.now()}`
+  }
+  url = url.replace('http://', 'https://')
+
+  const music: Song = {
+    url,
+    title: message.name,
+    artist: message.artist || '未知艺术家',
+    album: message.album?.name || '未知专辑',
+    duration: message.duration || 0,
+    cover: message.pictureUrl || getDefaultAvatar(message.id),
+  }
+
+  playerState.currentSong = music
+  playerState.pushTime = message.pushTime || Date.now()
+  loadLrcLyrics(message.lyric || '')
+  // 直接更新媒体会话元数据
+  updateMetadata(music)
+})
+
+// 注册播放列表消息处理器
+registerMessageHandler('pick', (message: any) => {
+  if (!message.data || !Array.isArray(message.data)) {
+    console.warn('收到无效的播放列表:', message)
+    return
+  }
+
+  const playlist: Song[] = message.data
+    .filter((item: any) => item && item.name) // 过滤无效数据
+    .map((item: any) => ({
+      id: item.id,
+      url: item.url || '',
+      title: item.name,
+      artist: item.artist || '未知艺术家',
+      album: item.album?.name || '未知专辑',
+      duration: item.duration ? (item.duration / 1000) : 240,
+      cover: item.pictureUrl || getDefaultAvatar(item.id),
+      requestedBy: {
+        name: item.nickName || '未知用户',
+        avatar: getDefaultAvatar(),
+      },
+    }))
+
+  playerState.playlist = [...playlist]
+})
+
+export function usePlayer() {
   // 音频事件处理函数
   const onAudioTimeUpdate = (event: Event) => {
     const audio = event.target as HTMLAudioElement
@@ -153,65 +249,11 @@ export function usePlayer(options: UsePlayerOptions) {
     console.error('音频播放错误:', audio.error)
   }
 
-  // 初始化音频监听器
-  const initializeAudioWatchers = () => {
-    if (watchersInitialized)
-      return
-
-    // 监听计算出的当前时间变化，同步音频播放器
-    watch(() => playerState.pushTime, (pushTime) => {
-      if (!pushTime || pushTime === 0)
-        return // 如果 pushTime 为 0，则不进行同步
-      const delta = Date.now() - pushTime
-
-      // 确保播放时间不超过歌曲长度
-      const newTime = Math.min(delta, playerState.currentSong?.duration ?? 0)
-      if (audioPlayer.value) {
-        // 转换为秒
-        const newTimeSeconds = newTime / 1000
-        // 监听 currentSong 的时候已经会自动播放
-        // 所以这里只需要设置同步所需时间
-        setAudioCurrentTime(newTimeSeconds)
-        console.log('🕐 同步新时间:', newTimeSeconds)
-      }
-    }, { immediate: true })
-
-    // 监听当前歌曲变化，更新音频源并自动播放
-    watch(() => playerState.currentSong, (newSong) => {
-      if (newSong && audioPlayer.value) {
-        // 如果有新歌曲且有音频URL，则加载新音频
-        if (newSong.url) {
-          console.log('🎵 加载新歌曲:', newSong.title)
-          audioPlayer.value.load()
-          // 自动播放
-          audioPlayer.value.addEventListener('canplay', function onCanPlay() {
-            playAudio()
-            audioPlayer.value?.removeEventListener('canplay', onCanPlay)
-          })
-        }
-      }
-    }, { immediate: true })
-
-    // 监听音量变化，同步到音频元素
-    watch(volume, (newVolume) => {
-      if (audioPlayer.value) {
-        audioPlayer.value.volume = newVolume / 100
-      }
-    }, { immediate: true })
-
-    // 监听静音状态变化
-    watch(isMuted, (muted) => {
-      if (audioPlayer.value) {
-        audioPlayer.value.muted = muted
-      }
-    }, { immediate: true })
-
-    watchersInitialized = true
-  }
-
   // 播放器状态相关操作
   const setCurrentSong = (song: Song | null) => {
     playerState.currentSong = song
+    // 直接更新媒体会话元数据
+    updateMetadata(song)
   }
 
   const setPushTime = (time: number | null) => {
@@ -243,66 +285,6 @@ export function usePlayer(options: UsePlayerOptions) {
     setCurrentSong(null)
   }
 
-  // 注册消息处理器
-  // 注册音乐消息处理器
-  registerMessageHandler('music', (message: any) => {
-    if (!message.url) {
-      console.warn('收到不完整的音乐消息:', message)
-      return
-    }
-    console.log('📥 收到音乐消息:', message)
-
-    let url = message.url || ''
-    if (url.includes('kuwo.cn') && !url.includes('-')) {
-      const urls = url.split('.sycdn.')
-      const headUrls = urls[0].replace('http://', '').split('.')
-      const lastHeadUrl = headUrls[headUrls.length - 1]
-      url = `https://${lastHeadUrl}-sycdn.${urls[1]}&timestamp=${Date.now()}`
-    }
-    url = url.replace('http://', 'https://')
-
-    const music: Song = {
-      url,
-      title: message.name,
-      artist: message.artist || '未知艺术家',
-      album: message.album?.name || '未知专辑',
-      duration: message.duration || 0,
-      cover: message.pictureUrl || getDefaultAvatar(message.id),
-    }
-
-    setCurrentSong(music)
-    setPushTime(message.pushTime || Date.now())
-    loadLrcLyrics(message.lyric || '')
-    // 更新媒体会话元数据
-    updateMetadata(music)
-  })
-
-  // 注册播放列表消息处理器
-  registerMessageHandler('pick', (message: any) => {
-    if (!message.data || !Array.isArray(message.data)) {
-      console.warn('收到无效的播放列表:', message)
-      return
-    }
-
-    const playlist: Song[] = message.data
-      .filter((item: any) => item && item.name) // 过滤无效数据
-      .map((item: any) => ({
-        id: item.id,
-        url: item.url || '',
-        title: item.name,
-        artist: item.artist || '未知艺术家',
-        album: item.album?.name || '未知专辑',
-        duration: item.duration ? (item.duration / 1000) : 240,
-        cover: item.pictureUrl || getDefaultAvatar(item.id),
-        requestedBy: {
-          name: item.nickName || '未知用户',
-          avatar: getDefaultAvatar(),
-        },
-      }))
-
-    updatePlaylist(playlist)
-  })
-
   const setVolume = (event: MouseEvent) => {
     const target = event.currentTarget as HTMLElement
     const rect = target.getBoundingClientRect()
@@ -331,9 +313,6 @@ export function usePlayer(options: UsePlayerOptions) {
       playerState.isSkipping = false
     }, 1000)
   }
-
-  // 初始化音频监听器
-  initializeAudioWatchers()
 
   return {
     // 播放器状态

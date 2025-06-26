@@ -12,61 +12,48 @@ const chatState = reactive<{
   onlineUsers: [],
 })
 
-// 全局消息处理器注册（只执行一次）
-let handlersInitialized = false
+// 在模块加载时就注册消息处理器（只执行一次）
+const { registerMessageHandler } = useWebSocket()
 
-function initializeChatHandlers() {
-  if (handlersInitialized) {
+// 注册聊天消息处理器
+registerMessageHandler('chat', (message: any) => {
+  if (!message.content) {
+    console.warn('收到空的聊天消息')
     return
   }
 
-  const { registerMessageHandler } = useWebSocket()
+  const msg: ChatMessage = {
+    content: message.content,
+    timestamp: message.sendTime || Date.now(),
+    user: {
+      name: message.nickName || '未知用户',
+      avatar: message.userAvatar || getDefaultAvatar(),
+    },
+  }
 
-  // 注册聊天消息处理器
-  registerMessageHandler('chat', (message: any) => {
-    if (!message.content) {
-      console.warn('收到空的聊天消息')
-      return
-    }
+  // 直接操作全局状态
+  chatState.chatMessages.push(msg)
+})
 
-    const msg: ChatMessage = {
-      content: message.content,
-      timestamp: message.sendTime || Date.now(),
-      user: {
-        name: message.nickName || '未知用户',
-        avatar: message.userAvatar || getDefaultAvatar(),
-      },
-    }
+// 注册在线用户处理器
+registerMessageHandler('house_user', (message: any) => {
+  if (!message.data || !Array.isArray(message.data)) {
+    console.warn('📧 收到无效的用户列表:', message)
+    return
+  }
 
-    // 直接操作全局状态
-    chatState.chatMessages.push(msg)
-  })
+  const users: User[] = message.data
+    .filter((item: any) => item && typeof item === 'string') // 确保是字符串类型
+    .map((item: string) => ({
+      name: item,
+      avatar: getDefaultAvatar(1),
+    }))
 
-  // 注册在线用户处理器
-  registerMessageHandler('house_user', (message: any) => {
-    if (!message.data || !Array.isArray(message.data)) {
-      console.warn('📧 收到无效的用户列表:', message)
-      return
-    }
-
-    const users: User[] = message.data
-      .filter((item: any) => item && typeof item === 'string') // 确保是字符串类型
-      .map((item: string) => ({
-        name: item,
-        avatar: getDefaultAvatar(1),
-      }))
-
-    // 直接操作全局状态
-    chatState.onlineUsers = [...processUsers(users)]
-  })
-
-  handlersInitialized = true
-}
+  // 直接操作全局状态
+  chatState.onlineUsers = [...processUsers(users)]
+})
 
 export function useChat() {
-  // 初始化消息处理器（只在第一次调用时执行）
-  initializeChatHandlers()
-
   const { sendChatMessage, send } = useWebSocket()
 
   // 聊天消息相关操作
