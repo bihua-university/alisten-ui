@@ -485,8 +485,8 @@ const {
 } = useLyrics()
 
 // 5. 媒体会话控制
-const { updateMetadata } = useMediaSession()
 const {
+  updateMetadata,
   setupActionHandlers,
   isSupported: isMediaSessionSupported,
 } = useMediaSession()
