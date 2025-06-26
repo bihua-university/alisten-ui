@@ -45,16 +45,30 @@
       {{ formatTime(song.duration) }}
     </div>
 
-    <!-- 点赞按钮 - 非当前播放歌曲才显示 -->
-    <div v-if="!isCurrent" class="flex items-center space-x-2 ml-2">
+    <!-- 操作按钮 - 非当前播放歌曲才显示 -->
+    <div v-if="!isCurrent" class="group flex items-center space-x-2 ml-2">
+      <!-- 点赞按钮 -->
       <button
         class="like-button flex items-center justify-center rounded-full text-xs transition-all bg-red-500/20 text-red-400 hover:bg-red-500/30 active:bg-red-500/40 touch-target"
         :class="[
-          isDesktop ? 'space-x-1 px-2 py-1' : 'w-8 h-8',
+          isDesktop ? 'space-x-1 px-2 py-1' : 'w-9 h-9',
         ]"
         @click.stop="$emit('like')"
       >
         <i class="fa-solid fa-heart" />
+      </button>
+
+      <!-- 删除按钮 -->
+      <button
+        class="delete-button flex items-center justify-center rounded-full text-xs transition-all bg-gray-500/20 text-gray-400 hover:bg-red-500/30 hover:text-red-400 active:bg-red-500/40 touch-target"
+        :class="[
+          isDesktop ? 'space-x-1 px-2 py-1' : 'w-9 h-9',
+        ]"
+        :title="`删除${song.title}`"
+        :aria-label="`删除歌曲 ${song.title}`"
+        @click.stop="$emit('delete', song.title)"
+      >
+        <i class="fa-solid fa-trash" />
       </button>
     </div>
   </div>
@@ -82,6 +96,7 @@ withDefaults(defineProps<Props>(), {
 // 定义 emits
 defineEmits<{
   like: []
+  delete: [songName: string]
 }>()
 </script>
 
@@ -109,5 +124,26 @@ defineEmits<{
 
 .like-button:active {
   transform: scale(0.95);
+}
+
+/* 删除按钮样式 */
+.delete-button {
+  transition: all 0.2s ease;
+}
+
+.delete-button:hover {
+  transform: scale(1.05);
+}
+
+.delete-button:active {
+  transform: scale(0.95);
+}
+
+/* 移动端触摸优化 */
+@media (max-width: 768px) {
+  .delete-button:active {
+    background-color: rgba(239, 68, 68, 0.4) !important;
+    color: rgb(248, 113, 113) !important;
+  }
 }
 </style>

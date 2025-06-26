@@ -21,6 +21,7 @@
         :is-current="index === 0"
         :is-desktop="true"
         @like="$emit('songLike', index, song.title)"
+        @delete="(songName: string) => $emit('songDelete', songName)"
       />
     </div>
   </aside>
@@ -56,6 +57,7 @@
               :is-current="index === 0"
               :is-mobile="true"
               @like="$emit('songLike', index, song.title)"
+              @delete="(songName: string) => $emit('songDelete', songName)"
             />
           </div>
         </div>
@@ -88,6 +90,7 @@ const props = withDefaults(defineProps<Props>(), {
 defineEmits<{
   close: []
   songLike: [index: number, title: string]
+  songDelete: [songName: string]
 }>()
 
 // 计算播放列表总时长

@@ -349,6 +349,16 @@ function sendSongLike(index: number, name: string) {
   })
 }
 
+// 删除播放列表中的歌曲
+function sendDeleteSong(songName: string) {
+  return send({
+    action: '/music/delete',
+    data: {
+      id: songName,
+    },
+  })
+}
+
 // 设置基础WebSocket事件监听器
 function setupCoreEventListeners() {
   // 防止重复设置
@@ -404,6 +414,7 @@ export function useWebSocket() {
     // 业务方法
     sendChatMessage,
     sendSongLike,
+    sendDeleteSong,
     registerMessageHandler,
 
     // 配置
