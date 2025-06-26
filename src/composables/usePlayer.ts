@@ -7,7 +7,7 @@ import { useMediaSession } from './useMediaSession'
 // 获取媒体会话控制
 const { updateMetadata } = useMediaSession()
 // 引入歌词处理
-const { loadLrcLyrics } = useLyrics()
+const { loadLrcLyrics, syncLyrics } = useLyrics()
 
 // 全局共享的播放器状态
 const playerState = reactive<{
@@ -75,6 +75,23 @@ watch(volume, (newVolume) => {
 watch(isMuted, (newMuteState) => {
   saveMuteStateToStorage(newMuteState)
 })
+
+// 音频事件处理函数
+function onAudioTimeUpdate(event: Event) {
+  const audio = event.target as HTMLAudioElement
+  if (audio) {
+    // 根据audio的currentTime更新pushTime，使其与服务器保持同步
+    const currentTimeFromAudio = audio.currentTime
+    syncLyrics(currentTimeFromAudio)
+    // 更新当前时间（用于歌词同步和显示）
+    playerState.currentTime = currentTimeFromAudio
+  }
+}
+
+function onAudioError(event: Event) {
+  const audio = event.target as HTMLAudioElement
+  console.error('音频播放错误:', audio.error)
+}
 
 // 音频播放控制函数
 function playAudio() {
@@ -315,6 +332,10 @@ export function usePlayer(websocket?: any) {
     // 音频控制
     playAudio,
     setAudioCurrentTime,
+
+    // 音频事件处理
+    onAudioTimeUpdate,
+    onAudioError,
 
     // 进度控制
     startProgressUpdate,

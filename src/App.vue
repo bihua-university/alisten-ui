@@ -479,6 +479,8 @@ const {
   playAudio,
   startProgressUpdate,
   stopProgressUpdate,
+  onAudioTimeUpdate,
+  onAudioError,
 } = usePlayer(websocket)
 
 const {
@@ -488,7 +490,6 @@ const {
 
 const { chatMessages, sendMessage } = useChat(websocket)
 const {
-  syncLyrics,
   currentLyrics,
   currentLyricIndex,
 } = useLyrics()
@@ -738,23 +739,6 @@ function fallbackShare() {
     // 兼容性处理：显示链接供用户手动复制
     prompt('请复制房间链接:', url)
   }
-}
-
-// 音频播放器事件处理方法
-function onAudioTimeUpdate(event: Event) {
-  const audio = event.target as HTMLAudioElement
-  if (audio) {
-    // 根据audio的currentTime更新pushTime，使其与服务器保持同步
-    const currentTimeFromAudio = audio.currentTime
-    syncLyrics(currentTimeFromAudio)
-    // 更新当前时间（用于歌词同步和显示）
-    playerState.currentTime = currentTimeFromAudio
-  }
-}
-
-function onAudioError(event: Event) {
-  const audio = event.target as HTMLAudioElement
-  console.error('音频播放错误:', audio.error)
 }
 
 // 音量控制事件处理
