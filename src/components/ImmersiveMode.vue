@@ -121,7 +121,8 @@
 
 <script setup lang="ts">
 import type { LyricLine, Song } from '@/types'
-import { nextTick, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { useLyrics } from '@/composables/useLyrics'
 import { formatTime } from '@/utils/time'
 
 // 定义 props
@@ -134,7 +135,7 @@ interface Props {
 }
 
 // 接收 props
-const props = defineProps<Props>()
+defineProps<Props>()
 
 // 定义 emits
 defineEmits<{
@@ -142,47 +143,24 @@ defineEmits<{
   showHelp: []
 }>()
 
+// 使用歌词组合式函数
+const { registerLyricsContainer, unregisterLyricsContainer } = useLyrics()
+
 // 歌词容器引用
 const lyricsContainer = ref<HTMLElement>()
 
-// 歌词自动滚动功能
-function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
-  if (!container)
-    return
-
-  const lyricLines = container.querySelectorAll('.lyric-line')
-  if (lyricLines[index]) {
-    const targetLine = lyricLines[index] as HTMLElement
-    const containerHeight = container.clientHeight
-    const targetTop = targetLine.offsetTop
-    const targetHeight = targetLine.clientHeight
-
-    // 计算目标滚动位置（让当前歌词居中）
-    const targetScrollTop = targetTop - (containerHeight / 2) + (targetHeight / 2)
-
-    // 根据参数决定是否平滑滚动
-    container.scrollTo({
-      top: Math.max(0, targetScrollTop),
-      behavior: smooth ? 'smooth' : 'instant',
-    })
-  }
-}
-
-// 监听当前歌词索引变化，实现自动滚动
-watch(() => props.currentLyricIndex, (newIndex) => {
-  if (newIndex >= 0 && props.lyrics.length > 0) {
-    // 延迟执行滚动，确保DOM更新完成
-    nextTick(() => {
-      scrollLyricsToCenter(lyricsContainer.value, newIndex)
-    })
+// 组件挂载时注册容器
+onMounted(() => {
+  if (lyricsContainer.value) {
+    registerLyricsContainer(lyricsContainer.value)
   }
 })
 
-// 暴露方法供父组件使用
-defineExpose({
-  scrollLyricsToCenter: (index: number, smooth: boolean = true) => {
-    scrollLyricsToCenter(lyricsContainer.value, index, smooth)
-  },
+// 组件卸载时取消注册容器
+onUnmounted(() => {
+  if (lyricsContainer.value) {
+    unregisterLyricsContainer(lyricsContainer.value)
+  }
 })
 </script>
 

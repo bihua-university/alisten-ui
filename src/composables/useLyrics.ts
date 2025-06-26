@@ -1,15 +1,61 @@
 import type { LyricLine } from '@/types'
-import { computed, reactive } from 'vue'
+import { computed, nextTick, reactive, watch } from 'vue'
 import { isValidLrc, parseLyrics } from '@/utils/lrcParser'
 
 // 全局共享的歌词状态
 const lyricsState = reactive<{
   currentLyrics: LyricLine[]
   currentLyricIndex: number
+  registeredContainers: Set<HTMLElement>
 }>({
   currentLyrics: [],
   currentLyricIndex: 0,
+  registeredContainers: new Set(),
 })
+
+// 歌词自动滚动功能（全局函数，避免重复定义）
+function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
+  if (!container) {
+    return
+  }
+
+  const lyricLines = container.querySelectorAll('.lyric-line')
+  if (lyricLines[index]) {
+    const targetLine = lyricLines[index] as HTMLElement
+    const containerHeight = container.clientHeight
+    const targetTop = targetLine.offsetTop
+    const targetHeight = targetLine.clientHeight
+
+    // 计算目标滚动位置（让当前歌词居中）
+    const targetScrollTop = targetTop - (containerHeight / 2) + (targetHeight / 2)
+
+    // 根据参数决定是否平滑滚动
+    container.scrollTo({
+      top: Math.max(0, targetScrollTop),
+      behavior: smooth ? 'smooth' : 'instant',
+    })
+  }
+}
+
+// 同步滚动所有已注册的容器（全局函数）
+function syncScrollAllContainers(smooth: boolean = true) {
+  lyricsState.registeredContainers.forEach((container) => {
+    scrollLyricsToCenter(container, lyricsState.currentLyricIndex, smooth)
+  })
+}
+
+// 全局监听歌词索引变化，确保只创建一次
+watch(
+  () => lyricsState.currentLyricIndex,
+  (newIndex) => {
+    if (newIndex >= 0 && lyricsState.currentLyrics.length > 0) {
+      // 延迟执行滚动，确保DOM更新完成
+      nextTick(() => {
+        syncScrollAllContainers()
+      })
+    }
+  },
+)
 
 export function useLyrics() {
   // 歌词相关操作
@@ -87,6 +133,20 @@ export function useLyrics() {
       totalLines: lyricsState.currentLyrics.length,
     }
   }
+
+  // 注册歌词容器
+  const registerLyricsContainer = (container: HTMLElement) => {
+    if (container) {
+      lyricsState.registeredContainers.add(container)
+    }
+  }
+
+  // 取消注册歌词容器
+  const unregisterLyricsContainer = (container: HTMLElement) => {
+    if (container) {
+      lyricsState.registeredContainers.delete(container)
+    }
+  }
   return {
     // 状态 (从 lyricsState 获取)
     currentLyricIndex: computed(() => lyricsState.currentLyricIndex),
@@ -101,5 +161,8 @@ export function useLyrics() {
     getCurrentLyricInfo,
     setCurrentLyrics,
     setCurrentLyricIndex,
+    registerLyricsContainer,
+    unregisterLyricsContainer,
+    syncScrollAllContainers,
   }
 }

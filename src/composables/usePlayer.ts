@@ -1,13 +1,12 @@
 import type { Song } from '@/types'
 import { reactive, ref, watch } from 'vue'
 import { getDefaultAvatar } from '@/utils/user'
+import { useLyrics } from './useLyrics'
 import { useWebSocket } from './useWebSocket'
 
 // 定义 usePlayer 的选项类型
 interface UsePlayerOptions {
   updateMetadata: (song: Song | null) => void
-  loadLrcLyrics: (lyrics: string) => void
-  syncLyrics: (currentTime: number) => void
 }
 
 // 全局共享的播放器状态
@@ -128,14 +127,13 @@ function saveMuteStateToStorage(isMuted: boolean) {
 }
 
 export function usePlayer(options: UsePlayerOptions) {
-  // 直接使用 useWebSocket
+  // 直接使用 useWebSocket 和 useLyrics
   const { registerMessageHandler } = useWebSocket()
+  const { loadLrcLyrics, syncLyrics } = useLyrics()
 
   // 从选项中解构函数
   const {
     updateMetadata,
-    loadLrcLyrics,
-    syncLyrics,
   } = options
 
   // 音频事件处理函数

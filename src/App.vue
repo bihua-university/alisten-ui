@@ -480,8 +480,9 @@ const {
 const {
   currentLyrics,
   currentLyricIndex,
-  loadLrcLyrics,
-  syncLyrics,
+  registerLyricsContainer,
+  unregisterLyricsContainer,
+  syncScrollAllContainers,
 } = useLyrics()
 
 // 5. 媒体会话控制
@@ -505,8 +506,6 @@ const {
   onAudioError,
 } = usePlayer({
   updateMetadata,
-  loadLrcLyrics,
-  syncLyrics,
 })
 
 // 7. 通知系统
@@ -559,30 +558,6 @@ const progressPercentage = computed(() => {
 
 // ===== 工具方法 =====
 
-// 歌词自动滚动功能
-function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
-  if (!container) {
-    return
-  }
-
-  const lyricLines = container.querySelectorAll('.lyric-line')
-  if (lyricLines[index]) {
-    const targetLine = lyricLines[index] as HTMLElement
-    const containerHeight = container.clientHeight
-    const targetTop = targetLine.offsetTop
-    const targetHeight = targetLine.clientHeight
-
-    // 计算目标滚动位置（让当前歌词居中）
-    const targetScrollTop = targetTop - (containerHeight / 2) + (targetHeight / 2)
-
-    // 根据参数决定是否平滑滚动
-    container.scrollTo({
-      top: Math.max(0, targetScrollTop),
-      behavior: smooth ? 'smooth' : 'instant',
-    })
-  }
-}
-
 // 获取连接状态文本描述
 function getConnectionStatusText() {
   switch (connectionStatus.value) {
@@ -609,14 +584,7 @@ function toggleImmersiveMode() {
 
   // 切换模式后立即同步歌词位置（使用瞬间跳转，不使用平滑滚动）
   nextTick(() => {
-    const currentIndex = currentLyricIndex.value
-    if (currentIndex >= 0 && currentLyrics.value.length > 0) {
-      if (isImmersiveMode.value) {
-        immersiveModeRef.value?.scrollLyricsToCenter(currentIndex, false)
-      } else {
-        scrollLyricsToCenter(lyricsContainer.value, currentIndex, false)
-      }
-    }
+    syncScrollAllContainers(false)
   })
 }
 
@@ -673,23 +641,6 @@ function refreshOnlineUsers() {
 }
 
 // ===== 响应式监听器 =====
-
-// 监听歌词索引变化，实现自动滚动
-watch(
-  () => currentLyricIndex.value,
-  (newIndex) => {
-    if (newIndex >= 0 && currentLyrics.value.length > 0) {
-      // 延迟执行滚动，确保DOM更新完成
-      nextTick(() => {
-        if (isImmersiveMode.value) {
-          immersiveModeRef.value?.scrollLyricsToCenter(newIndex)
-        } else {
-          scrollLyricsToCenter(lyricsContainer.value, newIndex)
-        }
-      })
-    }
-  },
-)
 
 // 监听连接状态变化
 watch(connectionStatus, (status) => {
@@ -841,10 +792,20 @@ function initializeMediaSession() {
 
 onMounted(() => {
   console.log('📱 页面已加载，等待用户确认加入房间')
+
+  // 注册歌词容器
+  if (lyricsContainer.value) {
+    registerLyricsContainer(lyricsContainer.value)
+  }
 })
 
 onUnmounted(() => {
   console.log('🔌 页面卸载，清理资源')
+
+  // 取消注册歌词容器
+  if (lyricsContainer.value) {
+    unregisterLyricsContainer(lyricsContainer.value)
+  }
 
   // 断开连接并清理资源
   disconnect()
