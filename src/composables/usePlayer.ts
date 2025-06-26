@@ -83,6 +83,7 @@ watch(isMuted, (newMuteState) => {
 function playAudio() {
   if (audioPlayer.value) {
     audioPlayer.value.volume = volume.value / 100
+    audioPlayer.value.muted = isMuted.value
     audioPlayer.value.play()
     startProgressUpdate()
   }
