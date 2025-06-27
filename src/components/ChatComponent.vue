@@ -181,6 +181,6 @@ function handleSendMessage() {
 }
 
 .message-item {
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 </style>
