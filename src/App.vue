@@ -212,11 +212,6 @@
           <!-- 沉浸模式组件 -->
           <ImmersiveMode
             v-if="isImmersiveMode"
-            ref="immersiveModeRef"
-            :current-song="playerState.currentSong" :lyrics="currentLyrics"
-            :current-lyric-index="currentLyricIndex"
-            :progress-percentage="progressPercentage"
-            :current-time="playerState.currentTime"
             @toggle-immersive="toggleImmersiveMode"
             @show-help="showHelp = true"
           />
@@ -438,7 +433,6 @@ const isImmersiveMode = ref(false) // 沉浸模式状态
 
 // ===== DOM 引用 =====
 const lyricsContainer = ref<HTMLElement>()
-const immersiveModeRef = ref<any>()
 
 // ===== 房间数据 =====
 const roomInfo = ref<RoomInfo>({
@@ -497,6 +491,7 @@ const {
   stopProgressUpdate,
   onAudioTimeUpdate,
   onAudioError,
+  progressPercentage,
 } = usePlayer()
 
 // 7. 通知系统
@@ -538,14 +533,6 @@ const processedPlaylist = computed(() =>
     requestedBy: song.requestedBy ? processUser(song.requestedBy) : undefined,
   })),
 )
-
-// 播放进度百分比
-const progressPercentage = computed(() => {
-  if (playerState.currentSong?.duration) {
-    return (playerState.currentTime / (playerState.currentSong.duration / 1000)) * 100
-  }
-  return 0
-})
 
 // ===== 工具方法 =====
 
@@ -777,18 +764,14 @@ onMounted(() => {
   console.log('📱 页面已加载，等待用户确认加入房间')
 
   // 注册歌词容器
-  if (lyricsContainer.value) {
-    registerLyricsContainer(lyricsContainer.value)
-  }
+  registerLyricsContainer(lyricsContainer)
 })
 
 onUnmounted(() => {
   console.log('🔌 页面卸载，清理资源')
 
   // 取消注册歌词容器
-  if (lyricsContainer.value) {
-    unregisterLyricsContainer(lyricsContainer.value)
-  }
+  unregisterLyricsContainer(lyricsContainer)
 
   // 清除媒体会话
   clearSession()

@@ -6,8 +6,8 @@
     <!-- 专辑封面背景 -->
     <div class="absolute inset-0 opacity-30">
       <img
-        :src="currentSong?.cover"
-        :alt="currentSong?.title"
+        :src="playerState.currentSong?.cover"
+        :alt="playerState.currentSong?.title"
         class="w-full h-full object-cover blur-3xl scale-110 transform"
       >
     </div>
@@ -23,21 +23,20 @@
               class="w-80 h-80 lg:w-96 lg:h-96 rounded-3xl overflow-hidden shadow-2xl transform transition-all duration-500"
             >
               <img
-                :src="currentSong?.cover"
-                :alt="currentSong?.title"
+                :src="playerState.currentSong?.cover"
+                :alt="playerState.currentSong?.title"
                 class="w-full h-full"
               >
             </div>
           </div>
 
-          <!-- 歌曲信息 -->
           <div class="text-center lg:text-left space-y-4 w-80 lg:w-96">
             <div>
               <h1 class="immersive-title text-2xl lg:text-4xl font-bold text-white mb-2 leading-tight">
-                {{ currentSong?.title || '暂无歌曲' }}
+                {{ playerState.currentSong?.title || '暂无歌曲' }}
               </h1>
               <p class="immersive-artist relative py-3 text-xl lg:text-2xl text-gray-300">
-                {{ currentSong?.artist }}
+                {{ playerState.currentSong?.artist }}
               </p>
             </div>
           </div>
@@ -51,7 +50,7 @@
           >
             <div class="pr-4">
               <div
-                v-for="(line, index) in lyrics"
+                v-for="(line, index) in currentLyrics"
                 :key="index"
                 class="lyric-line transition-all duration-300"
                 :class="[{
@@ -65,7 +64,7 @@
               </div>
 
               <!-- 当没有歌词时的占位符 -->
-              <div v-if="lyrics.length === 0" class="text-center text-gray-400 py-16">
+              <div v-if="currentLyrics.length === 0" class="text-center text-gray-400 py-16">
                 <i class="fa-solid fa-music text-6xl mb-6 opacity-50" />
                 <p class="text-xl">
                   暂无歌词
@@ -92,8 +91,8 @@
           />
         </div>
         <div class="flex justify-between text-sm text-gray-400">
-          <span>{{ formatTime(currentTime || 0) }}</span>
-          <span>{{ formatTime((currentSong?.duration || 0) / 1000) }}</span>
+          <span>{{ formatTime(playerState.currentTime || 0) }}</span>
+          <span>{{ formatTime((playerState.currentSong?.duration || 0) / 1000) }}</span>
         </div>
       </div>
     </div>
@@ -123,22 +122,10 @@
 </template>
 
 <script setup lang="ts">
-import type { LyricLine, Song } from '@/types'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useLyrics } from '@/composables/useLyrics'
+import { usePlayer } from '@/composables/usePlayer'
 import { formatTime } from '@/utils/time'
-
-// 定义 props
-interface Props {
-  currentSong?: Song | null
-  lyrics: LyricLine[]
-  currentLyricIndex: number
-  progressPercentage: number
-  currentTime?: number
-}
-
-// 接收 props
-defineProps<Props>()
 
 // 定义 emits
 defineEmits<{
@@ -146,8 +133,16 @@ defineEmits<{
   showHelp: []
 }>()
 
+// 使用播放器组合式函数
+const { playerState, progressPercentage } = usePlayer()
+
 // 使用歌词组合式函数
-const { registerLyricsContainer, unregisterLyricsContainer } = useLyrics()
+const {
+  registerLyricsContainer,
+  unregisterLyricsContainer,
+  currentLyrics,
+  currentLyricIndex,
+} = useLyrics()
 
 // 歌词容器引用
 const lyricsContainer = ref<HTMLElement>()
@@ -155,14 +150,14 @@ const lyricsContainer = ref<HTMLElement>()
 // 组件挂载时注册容器
 onMounted(() => {
   if (lyricsContainer.value) {
-    registerLyricsContainer(lyricsContainer.value)
+    registerLyricsContainer(lyricsContainer)
   }
 })
 
 // 组件卸载时取消注册容器
 onUnmounted(() => {
   if (lyricsContainer.value) {
-    unregisterLyricsContainer(lyricsContainer.value)
+    unregisterLyricsContainer(lyricsContainer)
   }
 })
 </script>
