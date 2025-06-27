@@ -96,10 +96,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import { useRoom } from '@/composables/useRoom'
-import { saveRoomPassword } from '@/utils/user'
+import { getSavedRoomPassword, saveRoomPassword } from '@/utils/user'
 
 interface Props {
   show: boolean
@@ -119,6 +119,14 @@ const { roomInfo } = useRoom()
 // 响应式数据
 const password = ref('')
 const showPassword = ref(false)
+
+// 监听 roomInfo 变化，自动加载保存的密码
+watch(() => roomInfo.value.id, (newRoomId) => {
+  if (newRoomId && roomInfo.value.needPwd) {
+    const savedPassword = getSavedRoomPassword(newRoomId)
+    password.value = savedPassword || ''
+  }
+}, { immediate: true })
 
 function handleConfirm() {
   // 如果需要密码且密码为空，不允许确认
