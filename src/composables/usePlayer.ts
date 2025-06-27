@@ -119,19 +119,18 @@ function saveMuteStateToStorage(isMuted: boolean) {
   localStorage.setItem('MUTE', isMuted.toString())
 }
 
-// 在模块加载时初始化全局监听器（只执行一次）
-const { registerMessageHandler } = useWebSocket()
-const { loadLrcLyrics, syncLyrics } = useLyrics()
-const { updateMetadata } = useMediaSession()
+// 同步音频当前时间到服务器
+function syncAudioCurrentTime() {
+  // 如果 pushTime 为 0，则不进行同步
+  if (!playerState.pushTime || playerState.pushTime === 0) {
+    return
+  }
 
-// 监听计算出的当前时间变化，同步音频播放器
-watch(() => playerState.pushTime, (pushTime) => {
-  if (!pushTime || pushTime === 0)
-    return // 如果 pushTime 为 0，则不进行同步
-  const delta = Date.now() - pushTime
+  const delta = Date.now() - playerState.pushTime
+  const duration = playerState.currentSong?.duration ?? 0
 
   // 确保播放时间不超过歌曲长度
-  const newTime = Math.min(delta, playerState.currentSong?.duration ?? 0)
+  const newTime = Math.min(delta, duration)
   if (audioPlayer.value) {
     // 转换为秒
     const newTimeSeconds = newTime / 1000
@@ -140,7 +139,12 @@ watch(() => playerState.pushTime, (pushTime) => {
     setAudioCurrentTime(newTimeSeconds)
     console.log('🕐 同步新时间:', newTimeSeconds)
   }
-}, { immediate: true })
+}
+
+// 在模块加载时初始化全局监听器（只执行一次）
+const { registerMessageHandler } = useWebSocket()
+const { loadLrcLyrics, syncLyrics } = useLyrics()
+const { updateMetadata } = useMediaSession()
 
 // 监听当前歌曲变化，更新音频源并自动播放
 watch(() => playerState.currentSong, (newSong) => {
@@ -152,6 +156,7 @@ watch(() => playerState.currentSong, (newSong) => {
       // 自动播放
       audioPlayer.value.addEventListener('canplay', function onCanPlay() {
         playAudio()
+        syncAudioCurrentTime()
         audioPlayer.value?.removeEventListener('canplay', onCanPlay)
       })
     }
