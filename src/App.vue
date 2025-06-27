@@ -86,105 +86,22 @@
 
         <!-- 中间歌词区域 -->
         <section class="flex-1 flex flex-col overflow-hidden relative">
-          <!-- 房间信息 -->
-          <div
+          <!-- 顶部栏 -->
+          <TopBar
             v-if="!isImmersiveMode"
-            class="p-3 sm:p-4 border-b border-white/10 flex flex-col sm:flex-row sm:justify-between sm:items-center glass-effect bg-dark/70 backdrop-blur-xl space-y-2 sm:space-y-0"
-          >
-            <div class="flex-1 min-w-0">
-              <h2 class="text-base sm:text-lg font-semibold truncate flex items-center">
-                {{ roomInfo.name }}
-                <!-- 连接状态指示器 -->
-                <div class="ml-2 flex items-center">
-                  <div
-                    class="w-2 h-2 rounded-full transition-all duration-300" :class="[connectionStatus === 'connected' ? 'bg-green-500'
-                      : connectionStatus === 'connecting' || connectionStatus === 'reconnecting' ? 'bg-yellow-500 animate-pulse'
-                        : connectionStatus === 'error' ? 'bg-red-500' : 'bg-gray-500']"
-                    :title="getConnectionStatusText()"
-                  />
-                </div>
-              </h2>
-              <p class="text-xs text-gray-400 truncate">
-                {{ onlineUsers.length }}人在线
-              </p>
-            </div>
-
-            <div class="flex items-center space-x-2 sm:space-x-2 flex-shrink-0">
-              <!-- 切歌 -->
-              <button
-                :disabled="playerState.isSkipping"
-                class="bg-orange-500/20 hover:bg-orange-500/30 active:bg-orange-500/40 text-orange-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-                :class="[{ 'opacity-50 cursor-not-allowed': playerState.isSkipping }]" @click="skipSong"
-              >
-                <i
-                  :class="playerState.isSkipping ? 'fa-solid fa-spinner fa-spin mr-1 sm:mr-2' : 'fa-solid fa-forward mr-1 sm:mr-2'"
-                />
-                <span class="hidden sm:inline">{{ playerState.isSkipping ? '切歌中...' : '切歌' }}</span>
-                <span class="sm:hidden">{{ playerState.isSkipping ? '切歌中' : '切歌' }}</span>
-              </button>
-
-              <!-- 点歌台 -->
-              <button
-                class="bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-                @click="showMusicSearchModal = true"
-              >
-                <i class="fa-solid fa-music mr-1 sm:mr-2" />
-                <span class="hidden sm:inline">点歌台</span>
-                <span class="sm:hidden">点歌</span>
-              </button>
-
-              <!-- 分享 -->
-              <button
-                class="bg-blue-500/20 hover:bg-blue-500/30 active:bg-blue-500/40 text-blue-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-                @click="shareRoom"
-              >
-                <i class="fa-solid fa-share mr-1 sm:mr-2" />
-                <span class="hidden sm:inline">分享</span>
-                <span class="sm:hidden">分享</span>
-              </button>
-
-              <!-- 帮助 -->
-              <button
-                class="bg-green-500/20 hover:bg-green-500/30 active:bg-green-500/40 text-green-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-                @click="showHelp = true"
-              >
-                <i class="fa-solid fa-question-circle mr-1 sm:mr-2" />
-                <span class="hidden sm:inline">帮助</span>
-                <span class="sm:hidden">帮助</span>
-              </button>
-
-              <!-- 沉浸模式, 移动端隐藏 -->
-              <div class="hidden md:block">
-                <button
-                  class="bg-purple-500/20 hover:bg-purple-500/30 active:bg-purple-500/40 text-purple-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-                  @click="toggleImmersiveMode"
-                >
-                  <i
-                    :class="isImmersiveMode ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"
-                    class="mr-1 sm:mr-2 hidden md:block"
-                  />
-                  <span class="hidden md:block">{{ isImmersiveMode ? '退出沉浸' : '沉浸模式' }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
+            :room-info="roomInfo"
+            :connection-status="connectionStatus"
+            @show-music-search="showMusicSearchModal = true"
+            @share-room="shareRoom"
+            @show-help="showHelp = true"
+            @toggle-immersive="toggleImmersiveMode"
+          />
 
           <!-- 歌词显示区域 -->
           <div
             v-if="!isImmersiveMode" ref="lyricsContainer"
             class="lyrics-container overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide flex-1"
           >
-            <!-- 切歌提示消息 -->
-            <transition name="modal">
-              <div v-if="playerState.showSkipMessage" class="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-                <div
-                  class="bg-orange-500/90 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm message-bubble"
-                >
-                  <i class="fa-solid fa-forward mr-2" />{{ playerState.skipMessage }}
-                </div>
-              </div>
-            </transition>
-
             <div
               class="lyrics-content mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4 max-w-2xl"
             >
@@ -377,7 +294,7 @@
             WebSocket 配置
           </div>
           <div>URL: {{ appConfig.websocket.url }}</div>
-          <div>状态: {{ getConnectionStatusText() }}</div>
+          <div>状态: {{ connectionStatus }}</div>
           <div v-if="connectionStatus === 'reconnecting'">
             重连次数: {{ reconnectAttempts }}
           </div>
@@ -397,6 +314,7 @@ import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
 import PlaylistComponent from '@/components/PlaylistComponent.vue'
 import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
+import TopBar from '@/components/TopBar.vue'
 import UserListComponent from '@/components/UserListComponent.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
 import { useBackButton } from '@/composables/useBackButton'
@@ -452,16 +370,12 @@ const {
   connect,
   disconnect,
   reconnectAttempts,
-  send,
   sendSongLike,
   sendDeleteSong,
 } = websocket
 
-// 2. 聊天功能
-const chat = useChat()
-const {
-  onlineUsers, // 仅用于显示在线人数，用户列表组件内部自管理
-} = chat
+// 2. 聊天功能 - 初始化但不直接使用返回值
+useChat()
 
 // 4. 歌词功能
 const {
@@ -485,7 +399,7 @@ const {
   audioPlayer,
   volume,
   isMuted,
-  showSkipSong,
+  skipSong,
   playAudio,
   startProgressUpdate,
   stopProgressUpdate,
@@ -533,26 +447,6 @@ const processedPlaylist = computed(() =>
     requestedBy: song.requestedBy ? processUser(song.requestedBy) : undefined,
   })),
 )
-
-// ===== 工具方法 =====
-
-// 获取连接状态文本描述
-function getConnectionStatusText() {
-  switch (connectionStatus.value) {
-    case 'connected':
-      return '已连接到服务器'
-    case 'connecting':
-      return '正在连接服务器...'
-    case 'reconnecting':
-      return '正在重新连接...'
-    case 'error':
-      return '连接错误'
-    case 'disconnected':
-      return '未连接'
-    default:
-      return '未知状态'
-  }
-}
 
 // ===== UI 交互方法 =====
 
@@ -640,17 +534,6 @@ watch(connectionStatus, (status) => {
       break
   }
 })
-
-// ===== 音乐播放控制 =====
-
-// 切歌功能
-function skipSong() {
-  send({
-    action: '/music/skip/vote',
-    data: {},
-  })
-  showSkipSong()
-}
 
 // ===== 分享功能 =====
 
@@ -752,7 +635,6 @@ function initializeMediaSession() {
     // 只保留下一曲（切歌）功能
     onNextTrack: () => {
       console.log('🎵 媒体会话：用户请求切歌')
-      showSkipSong()
       skipSong()
     },
   })
