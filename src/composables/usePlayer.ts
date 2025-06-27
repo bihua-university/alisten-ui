@@ -135,7 +135,7 @@ function syncAudioCurrentTime() {
 }
 
 // 在模块加载时初始化全局监听器（只执行一次）
-const { registerMessageHandler } = useWebSocket()
+const { registerMessageHandler, send } = useWebSocket()
 const { loadLrcLyrics, syncLyrics } = useLyrics()
 const { updateMetadata } = useMediaSession()
 
@@ -313,7 +313,6 @@ const { showInfo } = useNotification()
 
 // 发送切歌请求
 function skipSong() {
-  const { send } = useWebSocket()
   send({
     action: '/music/skip/vote',
     data: {},
@@ -323,6 +322,15 @@ function skipSong() {
     icon: 'fa-solid fa-forward',
     duration: 2000,
   })
+}
+
+// 请求音乐同步
+function requestMusicSync() {
+  send({
+    action: '/music/sync',
+    data: {},
+  })
+  console.log('🎵 请求重新同步音乐')
 }
 
 export function usePlayer() {
@@ -359,6 +367,9 @@ export function usePlayer() {
 
     // 切歌功能
     skipSong,
+
+    // 音频同步
+    requestMusicSync,
 
     // 播放进度百分比
     progressPercentage,

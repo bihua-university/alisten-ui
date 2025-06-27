@@ -400,12 +400,12 @@ const {
   volume,
   isMuted,
   skipSong,
-  playAudio,
   startProgressUpdate,
   stopProgressUpdate,
   onAudioTimeUpdate,
   onAudioError,
   progressPercentage,
+  requestMusicSync,
 } = usePlayer()
 
 // 7. 通知系统
@@ -618,7 +618,8 @@ function initializeMediaSession() {
     // 基本播放控制
     // 似乎没法禁用，所以还是实现一下基本功能
     onPlay: () => {
-      playAudio()
+      // 请求重新同步音乐
+      requestMusicSync()
     },
     onPause: () => {
       if (audioPlayer.value) {
