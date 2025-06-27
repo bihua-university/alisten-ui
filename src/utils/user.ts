@@ -94,6 +94,32 @@ export function clearNickname(): void {
   localStorage.removeItem('alisten_nickname')
 }
 
+/**
+ * 保存房间密码到本地存储
+ * @param roomId 房间ID
+ * @param password 房间密码
+ */
+export function saveRoomPassword(roomId: string, password: string): void {
+  localStorage.setItem(`alisten_room_password_${roomId}`, password)
+}
+
+/**
+ * 从本地存储获取房间密码
+ * @param roomId 房间ID
+ * @returns 保存的密码，如果没有则返回 null
+ */
+export function getSavedRoomPassword(roomId: string): string | null {
+  return localStorage.getItem(`alisten_room_password_${roomId}`)
+}
+
+/**
+ * 清除保存的房间密码
+ * @param roomId 房间ID
+ */
+export function clearRoomPassword(roomId: string): void {
+  localStorage.removeItem(`alisten_room_password_${roomId}`)
+}
+
 // 获取默认头像
 export function getDefaultAvatar(seed?: string | number): string {
   const randomSeed = seed || Date.now()

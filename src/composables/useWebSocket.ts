@@ -5,6 +5,7 @@ import type {
 } from '@/types'
 import { ref } from 'vue'
 import { getSavedNickname, saveNickname } from '@/utils/user'
+import { useRoom } from './useRoom'
 
 const ws = ref<WebSocket | null>(null)
 const connectionStatus = ref<ConnectionStatus>('disconnected')
@@ -85,8 +86,17 @@ function handleMessage(event: MessageEvent) {
 }
 
 // 连接 WebSocket
-function connect(roomId?: string) {
+function connect() {
   if (isConnecting.value || connectionStatus.value === 'connected') {
+    return
+  }
+
+  const { roomInfo, getCurrentPassword } = useRoom()
+  const password = getCurrentPassword()
+
+  // 如果没有密码但房间需要密码，则不连接
+  if (roomInfo.value.needPwd && !password) {
+    console.warn('⚠️ 房间需要密码但未提供密码')
     return
   }
 
@@ -96,8 +106,13 @@ function connect(roomId?: string) {
   try {
     // 构建连接URL
     let wsUrl = config.url
-    roomId = '733dbb38-31d0-419c-9019-5c12777246c8'
+    const roomId = roomInfo.value.id
     wsUrl += `/server?houseId=${roomId}`
+
+    // 如果有密码，添加到URL中
+    if (password) {
+      wsUrl += `&housePwd=${encodeURIComponent(password)}`
+    }
 
     console.log('🔗 连接 WebSocket:', wsUrl)
     ws.value = new WebSocket(wsUrl)
@@ -177,6 +192,9 @@ function disconnect() {
   connectionStatus.value = 'disconnected'
   isConnecting.value = false
   reconnectAttempts.value = 0
+
+  const { clearCurrentPassword } = useRoom()
+  clearCurrentPassword()
 }
 
 // 手动重连

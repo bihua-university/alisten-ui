@@ -4,51 +4,11 @@
     class="bg-gradient-to-br from-dark to-gray-900 text-light min-h-screen font-inter overflow-hidden relative"
   >
     <!-- 确认加入房间模态框 -->
-    <transition name="modal">
-      <div v-if="showJoinRoomConfirm" class="fixed inset-0 z-[100] flex items-center justify-center">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" />
-        <div
-          class="relative bg-dark border border-white/20 rounded-2xl w-full max-w-md mx-4 overflow-hidden shadow-2xl"
-        >
-          <!-- 房间信息展示 -->
-          <div class="p-6 text-center">
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
-              <i class="fa-solid fa-music text-primary text-2xl" />
-            </div>
-            <h2 class="text-xl font-semibold mb-2">
-              确认加入房间
-            </h2>
-            <div class="bg-white/5 rounded-lg p-4 mb-6 text-left">
-              <div class="flex items-center mb-3">
-                <i class="fa-solid fa-door-open text-primary mr-2" />
-                <span class="font-medium">{{ roomInfo.name }}</span>
-              </div>
-              <div class="flex items-center">
-                <i class="fa-solid fa-users text-primary mr-2" />
-                <span class="text-sm text-gray-300">房间ID：{{ roomInfo.id }}</span>
-              </div>
-            </div>
-            <p class="text-sm text-gray-400 mb-6">
-              加入后您将与其他用户一起听歌、聊天和互动
-            </p>
-            <div class="flex space-x-3">
-              <button
-                class="flex-1 bg-white/10 hover:bg-white/20 text-white rounded-full py-3 px-4 transition-all"
-                @click="cancelJoinRoom"
-              >
-                取消
-              </button>
-              <button
-                class="flex-1 bg-primary hover:bg-primary/90 text-white rounded-full py-3 px-4 transition-all"
-                @click="confirmJoinRoom"
-              >
-                加入房间
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </transition>
+    <JoinRoomModal
+      :show="showJoinRoomConfirm"
+      @confirm="confirmJoinRoom"
+      @cancel="cancelJoinRoom"
+    />
 
     <!-- 动态背景 -->
     <div v-if="!isImmersiveMode" class="fixed inset-0 z-0">
@@ -256,11 +216,12 @@
 </template>
 
 <script setup lang="ts">
-import type { RoomInfo, Song } from '@/types'
+import type { Song } from '@/types'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import ChatComponent from '@/components/ChatComponent.vue'
 import HelpModal from '@/components/HelpModal.vue'
 import ImmersiveMode from '@/components/ImmersiveMode.vue'
+import JoinRoomModal from '@/components/JoinRoomModal.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
 import PlayerInfo from '@/components/PlayerInfo.vue'
@@ -275,6 +236,7 @@ import { useMediaSession } from '@/composables/useMediaSession'
 import { useNotification } from '@/composables/useNotification'
 import { usePlayer } from '@/composables/usePlayer'
 import { usePWA } from '@/composables/usePWA'
+import { useRoom } from '@/composables/useRoom'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
 import { processUser } from '@/utils/user'
@@ -301,16 +263,10 @@ const isImmersiveMode = ref(false) // 沉浸模式状态
 // ===== DOM 引用 =====
 const lyricsContainer = ref<HTMLElement>()
 
-// ===== 房间数据 =====
-const roomInfo = ref<RoomInfo>({
-  id: 'room_001',
-  name: '听歌房',
-  description: '欢迎来到听歌房！',
-  population: 0,
-  needPwd: false,
-})
-
 // ===== 组合式函数初始化 =====
+
+// 房间管理
+const { roomInfo } = useRoom()
 
 // 1. WebSocket 连接管理
 const websocket = useWebSocket()
@@ -406,7 +362,13 @@ function toggleImmersiveMode() {
 // ===== 房间管理方法 =====
 
 // 确认加入房间
-function confirmJoinRoom() {
+function confirmJoinRoom(password?: string) {
+  // 如果提供了密码，先设置到 useRoom 中
+  if (password) {
+    const { setCurrentPassword } = useRoom()
+    setCurrentPassword(password)
+  }
+
   showJoinRoomConfirm.value = false
   initializeApp()
 }
@@ -439,7 +401,7 @@ function initializeApp() {
     try {
       const roomId = roomInfo.value.id
       console.log('🔗 开始连接房间:', roomId)
-      connect(roomId)
+      connect()
     } catch (error) {
       console.error('❌ 连接房间失败:', error)
       showError('连接房间失败，请稍后重试')
@@ -625,18 +587,6 @@ onUnmounted(() => {
 
 .lyrics-container::-webkit-scrollbar-thumb:hover {
   background: rgba(79, 70, 229, 0.8);
-}
-
-/* 模态框动画 */
-.modal-enter-active,
-.modal-leave-active {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
 }
 
 /* 淡入淡出动画 */
