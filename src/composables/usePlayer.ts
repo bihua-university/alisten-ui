@@ -146,10 +146,10 @@ watch(() => playerState.currentSong, (newSong) => {
     if (newSong.url) {
       console.log('🎵 加载新歌曲:', newSong.title)
       audioPlayer.value.load()
-      // 应该在播放前设置 currentTime
-      syncAudioCurrentTime()
       // 自动播放
       audioPlayer.value.addEventListener('canplay', function onCanPlay() {
+        // 应该在播放前设置 currentTime
+        syncAudioCurrentTime()
         playAudio()
         audioPlayer.value?.removeEventListener('canplay', onCanPlay)
       })
