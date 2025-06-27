@@ -133,57 +133,8 @@
             @show-help="showHelp = true"
           />
 
-          <!-- 进度条 - 仅非沉浸模式 -->
-          <div
-            v-if="!isImmersiveMode"
-            class="h-3 md:h-1 bg-white/10 rounded-full overflow-hidden relative hidden md:block"
-          >
-            <div
-              class="h-full immersive-progress rounded-full w-full origin-left"
-              :style="{
-                transform: `scaleX(${progressPercentage / 100})`,
-                transition: 'transform 200ms linear',
-              }"
-            />
-          </div>
-
-          <!-- 播放信息区域 - 仅非沉浸模式 -->
-          <div v-if="!isImmersiveMode" class="glass-effect bg-dark/80 backdrop-blur-xl p-3 sm:p-4">
-            <div class="flex items-center">
-              <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden mr-3 sm:mr-4 flex-shrink-0">
-                <img
-                  :src="playerState.currentSong?.cover" :alt="playerState.currentSong?.title"
-                  class="w-full h-full object-cover"
-                >
-              </div>
-              <div class="flex-1 mr-2 sm:mr-4 min-w-0">
-                <h3 class="font-medium text-sm sm:text-base truncate">
-                  {{ playerState.currentSong?.title }}
-                </h3>
-                <p class="text-xs text-gray-400 truncate">
-                  {{ playerState.currentSong?.artist }}{{
-                    playerState.currentSong?.album
-                      ? ` - ${playerState.currentSong?.album}` : '' }}
-                </p>
-              </div>
-              <div class="flex flex-col items-center space-x-2 sm:space-x-3 flex-shrink-0">
-                <div class="relative ml-auto">
-                  <div class="flex justify-between text-xs text-gray-400 mt-1">
-                    <span>{{ formatTime(playerState.currentTime || 0) }} /
-                      {{ formatTime((playerState.currentSong?.duration || 0) / 1000) }}</span>
-                  </div>
-                </div>
-
-                <!-- 音量控制 -->
-                <div class="hidden md:flex">
-                  <VolumeSlider
-                    v-model:volume="volume" v-model:is-muted="isMuted" @volume-change="handleVolumeChange"
-                    @mute-toggle="handleMuteToggle"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- 播放信息组件 - 仅非沉浸模式 -->
+          <PlayerInfo v-if="!isImmersiveMode" />
 
           <!-- 移动端底部导航 -->
           <div v-if="!isImmersiveMode" class="left-0 right-0 bg-dark/50 backdrop-blur-md z-30 md:hidden">
@@ -312,13 +263,12 @@ import HelpModal from '@/components/HelpModal.vue'
 import ImmersiveMode from '@/components/ImmersiveMode.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
+import PlayerInfo from '@/components/PlayerInfo.vue'
 import PlaylistComponent from '@/components/PlaylistComponent.vue'
 import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import TopBar from '@/components/TopBar.vue'
 import UserListComponent from '@/components/UserListComponent.vue'
-import VolumeSlider from '@/components/VolumeSlider.vue'
 import { useBackButton } from '@/composables/useBackButton'
-import { useChat } from '@/composables/useChat'
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import { useLyrics } from '@/composables/useLyrics'
 import { useMediaSession } from '@/composables/useMediaSession'
@@ -327,7 +277,6 @@ import { usePlayer } from '@/composables/usePlayer'
 import { usePWA } from '@/composables/usePWA'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
-import { formatTime } from '@/utils/time'
 import { processUser } from '@/utils/user'
 
 // ===== 应用配置 =====
@@ -374,10 +323,7 @@ const {
   sendDeleteSong,
 } = websocket
 
-// 2. 聊天功能 - 初始化但不直接使用返回值
-useChat()
-
-// 4. 歌词功能
+// 2. 歌词功能
 const {
   currentLyrics,
   currentLyricIndex,
@@ -386,29 +332,26 @@ const {
   syncScrollAllContainers,
 } = useLyrics()
 
-// 5. 媒体会话控制
+// 3. 媒体会话控制
 const {
   setupActionHandlers,
   clearSession,
   isSupported: isMediaSessionSupported,
 } = useMediaSession()
 
-// 6. 播放器核心功能
+// 4. 播放器核心功能
 const {
   playerState,
   audioPlayer,
-  volume,
-  isMuted,
   skipSong,
   startProgressUpdate,
   stopProgressUpdate,
   onAudioTimeUpdate,
   onAudioError,
-  progressPercentage,
   requestMusicSync,
 } = usePlayer()
 
-// 7. 通知系统
+// 5. 通知系统
 const {
   showError,
   showInfo,
@@ -418,14 +361,14 @@ const {
   showConnectionWarning,
 } = useNotification()
 
-// 8. PWA 功能
+// 6. PWA 功能
 const {
   showUpdateModal,
   handleUpdateApp,
   handleDismissUpdate,
 } = usePWA()
 
-// 9. UI 交互功能
+// 7. UI 交互功能
 // 键盘快捷键处理
 useKeyboardShortcuts(isImmersiveMode, toggleImmersiveMode)
 
@@ -573,18 +516,6 @@ function fallbackShare() {
   }
 }
 
-// ===== 音量控制处理 =====
-
-// 音量变化处理
-function handleVolumeChange(newVolume: number) {
-  volume.value = newVolume
-}
-
-// 静音状态切换处理
-function handleMuteToggle(muted: boolean) {
-  isMuted.value = muted
-}
-
 // ===== 页面功能初始化 =====
 
 // 动态更新页面标题
@@ -666,17 +597,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 进度条样式增强 */
-.immersive-progress {
-  background: linear-gradient(90deg,
-    theme('colors.primary'),
-    theme('colors.purple.500'),
-    theme('colors.blue.500')
-  );
-  box-shadow: 0 0 8px rgba(79, 70, 229, 0.5);
-  will-change: transform;
-}
-
 /* 歌词样式 */
 .lyric-line {
   padding: 0.5rem 1rem;

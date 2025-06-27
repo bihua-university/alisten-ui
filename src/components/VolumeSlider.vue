@@ -26,27 +26,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { usePlayer } from '@/composables/usePlayer'
 
-// Props
-interface Props {
-  volume?: number
-  isMuted?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  volume: 50,
-  isMuted: false,
-})
-
-const emit = defineEmits<Emits>()
-
-// Emits
-interface Emits {
-  'update:volume': [volume: number]
-  'update:isMuted': [muted: boolean]
-  'volumeChange': [volume: number]
-  'muteToggle': [muted: boolean]
-}
+// 使用播放器状态
+const { volume, isMuted } = usePlayer()
 
 // 音量条容器引用
 const volumeBarContainer = ref<HTMLElement>()
@@ -97,27 +80,23 @@ function handleVolumeWheel(event: WheelEvent) {
 
   // 滚轮向上增加音量，向下减少音量
   const delta = event.deltaY < 0 ? 5 : -5
-  const newVolume = Math.max(0, Math.min(100, props.volume + delta))
+  const newVolume = Math.max(0, Math.min(100, volume.value + delta))
 
   setVolumeValue(newVolume)
 }
 
 function setVolumeValue(newVolume: number) {
-  // 更新音量值
-  emit('update:volume', newVolume)
-  emit('volumeChange', newVolume)
+  // 直接更新音量值
+  volume.value = newVolume
 
   // 如果设置了音量且当前是静音状态，则取消静音
-  if (newVolume > 0 && props.isMuted) {
-    emit('update:isMuted', false)
-    emit('muteToggle', false)
+  if (newVolume > 0 && isMuted.value) {
+    isMuted.value = false
   }
 }
 
 function handleMuteToggle() {
-  const newMutedState = !props.isMuted
-  emit('update:isMuted', newMutedState)
-  emit('muteToggle', newMutedState)
+  isMuted.value = !isMuted.value
 }
 </script>
 
