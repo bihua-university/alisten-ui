@@ -1,3 +1,4 @@
+import type { Ref } from 'vue'
 import type { LyricLine } from '@/types'
 import { computed, nextTick, reactive, watch } from 'vue'
 import { isValidLrc, parseLyrics } from '@/utils/lrcParser'
@@ -11,26 +12,22 @@ const lyricsState = reactive<{
   currentLyricIndex: 0,
 })
 
-// 全局注册的歌词容器（非响应式）
-const registeredContainers = new Set<HTMLElement>()
+// 全局注册的歌词容器（保存 Ref）
+const registeredContainers = new Set<Ref<HTMLElement | undefined>>()
 
 // 歌词自动滚动功能（全局函数，避免重复定义）
-function scrollLyricsToCenter(container: HTMLElement | undefined, index: number, smooth: boolean = true) {
+function scrollLyricsToCenter(containerRef: Ref<HTMLElement | undefined>, index: number, smooth: boolean = true) {
+  const container = containerRef.value
   if (!container) {
     return
   }
-
   const lyricLines = container.querySelectorAll('.lyric-line')
   if (lyricLines[index]) {
     const targetLine = lyricLines[index] as HTMLElement
     const containerHeight = container.clientHeight
     const targetTop = targetLine.offsetTop
     const targetHeight = targetLine.clientHeight
-
-    // 计算目标滚动位置（让当前歌词居中）
     const targetScrollTop = targetTop - (containerHeight / 2) + (targetHeight / 2)
-
-    // 根据参数决定是否平滑滚动
     container.scrollTo({
       top: Math.max(0, targetScrollTop),
       behavior: smooth ? 'smooth' : 'instant',
@@ -40,8 +37,8 @@ function scrollLyricsToCenter(container: HTMLElement | undefined, index: number,
 
 // 同步滚动所有已注册的容器（全局函数）
 function syncScrollAllContainers(smooth: boolean = true) {
-  registeredContainers.forEach((container) => {
-    scrollLyricsToCenter(container, lyricsState.currentLyricIndex, smooth)
+  registeredContainers.forEach((containerRef) => {
+    scrollLyricsToCenter(containerRef, lyricsState.currentLyricIndex, smooth)
   })
 }
 
@@ -136,17 +133,13 @@ export function useLyrics() {
   }
 
   // 注册歌词容器
-  const registerLyricsContainer = (container: HTMLElement) => {
-    if (container) {
-      registeredContainers.add(container)
-    }
+  const registerLyricsContainer = (ref: Ref<HTMLElement | undefined>) => {
+    registeredContainers.add(ref)
   }
 
   // 取消注册歌词容器
-  const unregisterLyricsContainer = (container: HTMLElement) => {
-    if (container) {
-      registeredContainers.delete(container)
-    }
+  const unregisterLyricsContainer = (ref: Ref<HTMLElement | undefined>) => {
+    registeredContainers.delete(ref)
   }
   return {
     // 状态 (从 lyricsState 获取)

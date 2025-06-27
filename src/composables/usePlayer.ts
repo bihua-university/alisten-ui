@@ -1,5 +1,5 @@
 import type { Song } from '@/types'
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { getDefaultAvatar } from '@/utils/user'
 import { useLyrics } from './useLyrics'
 import { useMediaSession } from './useMediaSession'
@@ -307,6 +307,15 @@ function setVolume(event: MouseEvent) {
 function toggleMute() {
   isMuted.value = !isMuted.value
 }
+
+// 播放进度百分比
+const progressPercentage = computed(() => {
+  if (playerState.currentSong?.duration) {
+    return (playerState.currentTime / (playerState.currentSong.duration / 1000)) * 100
+  }
+  return 0
+})
+
 // 切歌功能
 function showSkipSong() {
   // 显示切歌提示消息
@@ -353,5 +362,8 @@ export function usePlayer() {
 
     // 切歌功能
     showSkipSong,
+
+    // 播放进度百分比
+    progressPercentage,
   }
 }
