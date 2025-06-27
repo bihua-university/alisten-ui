@@ -17,28 +17,35 @@
     <!-- 聊天消息区域 -->
     <div
       ref="chatContainer"
-      class="flex-1 overflow-y-auto p-3 space-y-3 smooth-scroll scrollbar-hide"
-      :class="[isDesktop ? 'space-y-4' : 'mobile-chat-scroll']"
+      class="flex-1 overflow-y-auto p-3 smooth-scroll scrollbar-hide"
+      :class="[isDesktop ? '' : 'mobile-chat-scroll']"
     >
-      <div
-        v-for="message in chatMessages"
-        :key="message.timestamp"
-        class="flex items-start"
-        :class="[isDesktop ? '' : 'space-x-3']"
+      <TransitionGroup
+        name="message"
+        tag="div"
+        class="space-y-3"
+        :class="[isDesktop ? 'space-y-4' : '']"
       >
-        <div class="w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
-          <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center space-x-2 mb-1">
-            <span class="font-medium text-sm truncate">{{ message.user.name }}</span>
-            <span class="text-xs text-gray-400 flex-shrink-0">{{ formatTimeHH_MM(message.timestamp) }}</span>
+        <div
+          v-for="message in chatMessages"
+          :key="message.timestamp"
+          class="flex items-start message-item"
+          :class="[isDesktop ? '' : 'space-x-3']"
+        >
+          <div class="w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
+            <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
           </div>
-          <p class="text-sm break-words leading-relaxed" :class="[isDesktop ? 'mt-1' : '']">
-            {{ message.content }}
-          </p>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center space-x-2 mb-1">
+              <span class="font-medium text-sm truncate">{{ message.user.name }}</span>
+              <span class="text-xs text-gray-400 flex-shrink-0">{{ formatTimeHH_MM(message.timestamp) }}</span>
+            </div>
+            <p class="text-sm break-words leading-relaxed" :class="[isDesktop ? 'mt-1' : '']">
+              {{ message.content }}
+            </p>
+          </div>
         </div>
-      </div>
+      </TransitionGroup>
     </div>
 
     <!-- 消息输入区域 -->
@@ -148,5 +155,32 @@ function handleSendMessage() {
 .touch-target {
   min-height: 44px;
   min-width: 44px;
+}
+
+/* TransitionGroup 动画 */
+.message-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.message-leave-active {
+  transition: all 0.3s ease-in;
+}
+
+.message-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+.message-leave-to {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+}
+
+.message-move {
+  transition: transform 0.3s ease;
+}
+
+.message-item {
+  transition: all 0.3s ease;
 }
 </style>
