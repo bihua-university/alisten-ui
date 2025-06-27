@@ -49,16 +49,20 @@ export default defineConfig({
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
+        lang: 'zh-CN',
+        categories: ['music', 'entertainment', 'multimedia'],
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
+            purpose: 'any maskable', // 同时支持普通显示和 maskable
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
+            purpose: 'any maskable', // 同时支持普通显示和 maskable
           },
         ],
       },
