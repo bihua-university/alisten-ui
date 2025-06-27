@@ -134,9 +134,9 @@ function syncAudioCurrentTime() {
   if (audioPlayer.value) {
     // 转换为秒
     const newTimeSeconds = newTime / 1000
-    // 监听 currentSong 的时候已经会自动播放
-    // 所以这里只需要设置同步所需时间
+    // 同时设置音频元素的 currentTime 和播放器状态的 currentTime
     setAudioCurrentTime(newTimeSeconds)
+    setCurrentTime(newTimeSeconds)
     console.log('🕐 同步新时间:', newTimeSeconds)
   }
 }
@@ -153,10 +153,11 @@ watch(() => playerState.currentSong, (newSong) => {
     if (newSong.url) {
       console.log('🎵 加载新歌曲:', newSong.title)
       audioPlayer.value.load()
+      // 应该在播放前设置 currentTime
+      syncAudioCurrentTime()
       // 自动播放
       audioPlayer.value.addEventListener('canplay', function onCanPlay() {
         playAudio()
-        syncAudioCurrentTime()
         audioPlayer.value?.removeEventListener('canplay', onCanPlay)
       })
     }
@@ -236,89 +237,89 @@ registerMessageHandler('pick', (message: any) => {
   playerState.playlist = [...playlist]
 })
 
+// 音频事件处理函数
+function onAudioTimeUpdate(event: Event) {
+  const audio = event.target as HTMLAudioElement
+  if (audio) {
+    // 根据audio的currentTime更新pushTime，使其与服务器保持同步
+    const currentTimeFromAudio = audio.currentTime
+    syncLyrics(currentTimeFromAudio)
+    // 更新当前时间（用于歌词同步和显示）
+    playerState.currentTime = currentTimeFromAudio
+  }
+}
+
+function onAudioError(event: Event) {
+  const audio = event.target as HTMLAudioElement
+  console.error('音频播放错误:', audio.error)
+}
+
+// 播放器状态相关操作
+function setCurrentSong(song: Song | null) {
+  playerState.currentSong = song
+  // 直接更新媒体会话元数据
+  updateMetadata(song)
+}
+
+function setPushTime(time: number | null) {
+  playerState.pushTime = time
+}
+
+function setCurrentTime(time: number) {
+  playerState.currentTime = time
+}
+
+// 更新播放状态和时间（用于服务器同步）
+function updatePlayState(currentTime: number, pushTime?: number) {
+  playerState.currentTime = currentTime
+  if (pushTime !== undefined) {
+    playerState.pushTime = pushTime
+  } else {
+    // 如果没有提供pushTime，使用当前时间
+    playerState.pushTime = Date.now()
+  }
+}
+
+// 播放列表相关
+function updatePlaylist(playlist: Song[]) {
+  playerState.playlist = [...playlist]
+}
+
+function clearPlaylist() {
+  playerState.playlist = []
+  setCurrentSong(null)
+}
+
+function setVolume(event: MouseEvent) {
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+  const clickX = event.clientX - rect.left
+  const percentage = (clickX / rect.width) * 100
+
+  volume.value = Math.max(0, Math.min(100, percentage))
+
+  // 如果音量大于0，自动取消静音
+  if (volume.value > 0 && isMuted.value) {
+    isMuted.value = false
+  }
+}
+
+function toggleMute() {
+  isMuted.value = !isMuted.value
+}
+// 切歌功能
+function showSkipSong() {
+  // 显示切歌提示消息
+  playerState.skipMessage = '切换中'
+  playerState.showSkipMessage = true
+  playerState.isSkipping = true
+  setTimeout(() => {
+    playerState.showSkipMessage = false
+    playerState.isSkipping = false
+  }, 1000)
+}
+
 export function usePlayer() {
-  // 音频事件处理函数
-  const onAudioTimeUpdate = (event: Event) => {
-    const audio = event.target as HTMLAudioElement
-    if (audio) {
-      // 根据audio的currentTime更新pushTime，使其与服务器保持同步
-      const currentTimeFromAudio = audio.currentTime
-      syncLyrics(currentTimeFromAudio)
-      // 更新当前时间（用于歌词同步和显示）
-      playerState.currentTime = currentTimeFromAudio
-    }
-  }
-
-  const onAudioError = (event: Event) => {
-    const audio = event.target as HTMLAudioElement
-    console.error('音频播放错误:', audio.error)
-  }
-
-  // 播放器状态相关操作
-  const setCurrentSong = (song: Song | null) => {
-    playerState.currentSong = song
-    // 直接更新媒体会话元数据
-    updateMetadata(song)
-  }
-
-  const setPushTime = (time: number | null) => {
-    playerState.pushTime = time
-  }
-
-  const setCurrentTime = (time: number) => {
-    playerState.currentTime = time
-  }
-
-  // 更新播放状态和时间（用于服务器同步）
-  const updatePlayState = (currentTime: number, pushTime?: number) => {
-    playerState.currentTime = currentTime
-    if (pushTime !== undefined) {
-      playerState.pushTime = pushTime
-    } else {
-      // 如果没有提供pushTime，使用当前时间
-      playerState.pushTime = Date.now()
-    }
-  }
-
-  // 播放列表相关
-  const updatePlaylist = (playlist: Song[]) => {
-    playerState.playlist = [...playlist]
-  }
-
-  const clearPlaylist = () => {
-    playerState.playlist = []
-    setCurrentSong(null)
-  }
-
-  const setVolume = (event: MouseEvent) => {
-    const target = event.currentTarget as HTMLElement
-    const rect = target.getBoundingClientRect()
-    const clickX = event.clientX - rect.left
-    const percentage = (clickX / rect.width) * 100
-
-    volume.value = Math.max(0, Math.min(100, percentage))
-
-    // 如果音量大于0，自动取消静音
-    if (volume.value > 0 && isMuted.value) {
-      isMuted.value = false
-    }
-  }
-
-  const toggleMute = () => {
-    isMuted.value = !isMuted.value
-  }
-  // 切歌功能
-  const showSkipSong = () => {
-    // 显示切歌提示消息
-    playerState.skipMessage = '切换中'
-    playerState.showSkipMessage = true
-    playerState.isSkipping = true
-    setTimeout(() => {
-      playerState.showSkipMessage = false
-      playerState.isSkipping = false
-    }, 1000)
-  }
-
   return {
     // 播放器状态
     playerState,

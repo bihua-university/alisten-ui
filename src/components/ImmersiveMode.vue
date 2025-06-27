@@ -84,8 +84,11 @@
       <div class="space-y-3 py-3">
         <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
           <div
-            class="immersive-progress h-full rounded-full transition-all duration-300"
-            :style="{ width: `${progressPercentage}%` }"
+            class="immersive-progress h-full rounded-full w-full origin-left"
+            :style="{
+              transform: `scaleX(${progressPercentage / 100})`,
+              transition: 'transform 200ms linear',
+            }"
           />
         </div>
         <div class="flex justify-between text-sm text-gray-400">

@@ -227,8 +227,11 @@
             class="h-3 md:h-1 bg-white/10 rounded-full overflow-hidden relative hidden md:block"
           >
             <div
-              class="h-full immersive-progress rounded-full transition-all duration-300"
-              :style="{ width: `${progressPercentage}%` }"
+              class="h-full immersive-progress rounded-full w-full origin-left"
+              :style="{
+                transform: `scaleX(${progressPercentage / 100})`,
+                transition: 'transform 200ms linear',
+              }"
             />
           </div>
 
@@ -797,6 +800,17 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* 进度条样式增强 */
+.immersive-progress {
+  background: linear-gradient(90deg,
+    theme('colors.primary'),
+    theme('colors.purple.500'),
+    theme('colors.blue.500')
+  );
+  box-shadow: 0 0 8px rgba(79, 70, 229, 0.5);
+  will-change: transform;
+}
+
 /* 歌词样式 */
 .lyric-line {
   padding: 0.5rem 1rem;
