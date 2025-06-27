@@ -159,11 +159,11 @@ function handleSendMessage() {
 
 /* TransitionGroup 动画 */
 .message-enter-active {
-  transition: all 0.3s ease-out;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
 }
 
 .message-leave-active {
-  transition: all 0.3s ease-in;
+  transition: opacity 0.3s ease-in, transform 0.3s ease-in;
 }
 
 .message-enter-from {
@@ -181,6 +181,6 @@ function handleSendMessage() {
 }
 
 .message-item {
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 </style>
