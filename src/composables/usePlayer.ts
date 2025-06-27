@@ -12,14 +12,15 @@ const playerState = reactive<{
   currentSong: Song | null
   pushTime: number | null
   playlist: Song[]
-  delay: number // 网络延迟（毫秒）
 }>({
   currentTime: 0,
   currentSong: null,
   pushTime: null,
   playlist: [],
-  delay: 0,
 })
+
+// 网络延迟（毫秒）
+let networkDelay = 0
 
 // 全局共享的音频播放器引用
 const audioPlayer = ref<HTMLAudioElement>()
@@ -121,8 +122,8 @@ function syncAudioCurrentTime() {
     return
   }
 
-  // 使用 delay 修正时间差
-  const delta = Date.now() - playerState.pushTime - playerState.delay
+  // 使用 pushTime 和 networkDelay 修正时间差
+  const delta = Date.now() - playerState.pushTime - networkDelay
   const duration = playerState.currentSong?.duration ?? 0
 
   // 确保播放时间不超过歌曲长度
@@ -236,7 +237,7 @@ registerMessageHandler('pick', (message: any) => {
 // 注册延迟消息处理器
 registerMessageHandler('delay', (message: any) => {
   if (typeof message.delay === 'number') {
-    setDelay(message.delay)
+    networkDelay = message.delay
     console.log('📡 收到延迟信息:', `${message.delay}ms`)
   }
 })
@@ -271,11 +272,6 @@ function setPushTime(time: number | null) {
 
 function setCurrentTime(time: number) {
   playerState.currentTime = time
-}
-
-// 设置延迟
-function setDelay(delay: number) {
-  playerState.delay = delay
 }
 
 // 更新播放状态和时间（用于服务器同步）
@@ -386,7 +382,6 @@ export function usePlayer() {
 
     // 音频同步
     requestMusicSync,
-    setDelay, // 延迟设置
 
     // 播放进度百分比
     progressPercentage,
