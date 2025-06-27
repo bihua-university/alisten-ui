@@ -3,6 +3,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import { getDefaultAvatar } from '@/utils/user'
 import { useLyrics } from './useLyrics'
 import { useMediaSession } from './useMediaSession'
+import { useNotification } from './useNotification'
 import { useWebSocket } from './useWebSocket'
 
 // 全局共享的播放器状态
@@ -11,19 +12,11 @@ const playerState = reactive<{
   currentSong: Song | null
   pushTime: number | null
   playlist: Song[]
-  // 界面状态
-  skipMessage: string
-  showSkipMessage: boolean
-  isSkipping: boolean
 }>({
   currentTime: 0,
   currentSong: null,
   pushTime: null,
   playlist: [],
-  // 界面状态初始值
-  skipMessage: '',
-  showSkipMessage: false,
-  isSkipping: false,
 })
 
 // 全局共享的音频播放器引用
@@ -316,16 +309,20 @@ const progressPercentage = computed(() => {
   return 0
 })
 
-// 切歌功能
-function showSkipSong() {
-  // 显示切歌提示消息
-  playerState.skipMessage = '切换中'
-  playerState.showSkipMessage = true
-  playerState.isSkipping = true
-  setTimeout(() => {
-    playerState.showSkipMessage = false
-    playerState.isSkipping = false
-  }, 1000)
+const { showInfo } = useNotification()
+
+// 发送切歌请求
+function skipSong() {
+  const { send } = useWebSocket()
+  send({
+    action: '/music/skip/vote',
+    data: {},
+  })
+  // 显示通知
+  showInfo('正在切歌...', {
+    icon: 'fa-solid fa-forward',
+    duration: 2000,
+  })
 }
 
 export function usePlayer() {
@@ -361,7 +358,7 @@ export function usePlayer() {
     toggleMute,
 
     // 切歌功能
-    showSkipSong,
+    skipSong,
 
     // 播放进度百分比
     progressPercentage,
