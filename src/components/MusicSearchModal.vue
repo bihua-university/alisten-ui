@@ -78,17 +78,27 @@
             <input
               ref="searchInputRef" v-model="songSearchQuery" type="text"
               :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
-              class="w-full bg-white/10 rounded-lg py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
+              class="w-full bg-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
+              :class="[
+                currentSearchHistory.length > 0 ? 'pr-20' : 'pr-12',
+              ]"
               @keyup.enter="handleSearch" @keydown="handleKeyDown" @focus="handleInputFocus" @blur="handleInputBlur"
             >
             <!-- 搜索历史按钮 - 仅在有历史记录时显示 -->
             <button
               v-if="currentSearchHistory.length > 0"
-              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors touch-target w-8 h-8 flex items-center justify-center search-history-toggle"
+              class="absolute right-11 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors touch-target w-8 h-8 flex items-center justify-center search-history-toggle"
               :class="{ 'text-primary': showSearchHistory }"
               @click="toggleSearchHistory"
             >
               <i class="fa-solid fa-clock-rotate-left text-sm" />
+            </button>
+            <!-- 搜索按钮 -->
+            <button
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors touch-target w-8 h-8 flex items-center justify-center"
+              @click="handleSearch"
+            >
+              <i class="fa-solid fa-search text-sm" />
             </button>
           </div>
 
