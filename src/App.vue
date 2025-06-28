@@ -2,6 +2,7 @@
   <div
     id="app"
     class="bg-gradient-to-br from-dark to-gray-900 text-light min-h-screen font-inter overflow-hidden relative"
+    :class="getPerformanceClasses()"
   >
     <!-- 确认加入房间模态框 -->
     <JoinRoomModal
@@ -55,6 +56,7 @@
             @share-room="shareRoom"
             @show-help="showHelp = true"
             @toggle-immersive="toggleImmersiveMode"
+            @show-performance-settings="showPerformanceModal = true"
           />
 
           <!-- 歌词显示区域 -->
@@ -158,6 +160,9 @@
       <!-- 帮助弹窗 -->
       <HelpModal :show="showHelp" @close="showHelp = false" />
 
+      <!-- 性能设置弹窗 -->
+      <PerformanceModal :show="showPerformanceModal" @close="showPerformanceModal = false" />
+
       <!-- 移动端播放列表模态框 -->
       <PlaylistComponent
         :playlist="processedPlaylist"
@@ -198,6 +203,11 @@
         @dismiss-update="handleDismissUpdate"
       />
 
+      <!-- 低功耗模式指示器 -->
+      <div v-if="performanceConfig.lowPowerMode && !isImmersiveMode" class="low-power-indicator">
+        低功耗模式
+      </div>
+
       <!-- WebSocket 连接配置显示（开发环境） -->
       <div v-if="isDevelopment && !isImmersiveMode" class="fixed bottom-4 right-4 z-40">
         <div class="bg-black/80 text-white text-xs p-2 rounded backdrop-blur-sm max-w-xs">
@@ -224,6 +234,7 @@ import ImmersiveMode from '@/components/ImmersiveMode.vue'
 import JoinRoomModal from '@/components/JoinRoomModal.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
+import PerformanceModal from '@/components/PerformanceModal.vue'
 import PlayerInfo from '@/components/PlayerInfo.vue'
 import PlaylistComponent from '@/components/PlaylistComponent.vue'
 import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
@@ -234,6 +245,7 @@ import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import { useLyrics } from '@/composables/useLyrics'
 import { useMediaSession } from '@/composables/useMediaSession'
 import { useNotification } from '@/composables/useNotification'
+import { usePerformance } from '@/composables/usePerformance'
 import { usePlayer } from '@/composables/usePlayer'
 import { usePWA } from '@/composables/usePWA'
 import { useRoom } from '@/composables/useRoom'
@@ -254,6 +266,7 @@ if (configErrors.length > 0) {
 // ===== UI 状态管理 =====
 const showMusicSearchModal = ref(false)
 const showHelp = ref(false)
+const showPerformanceModal = ref(false)
 const showMobileChat = ref(false)
 const showMobileUsers = ref(false)
 const showMobilePlaylist = ref(false)
@@ -267,6 +280,9 @@ const lyricsContainer = ref<HTMLElement>()
 
 // 房间管理
 const { roomInfo } = useRoom()
+
+// 性能设置
+const { getPerformanceClasses, performanceConfig } = usePerformance()
 
 // 1. WebSocket 连接管理
 const websocket = useWebSocket()
@@ -598,5 +614,20 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 低功耗模式指示器样式 */
+.low-power-indicator {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  font-size: 0.875rem;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
 }
 </style>

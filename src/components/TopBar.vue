@@ -68,6 +68,17 @@
         <span class="sm:hidden">帮助</span>
       </button>
 
+      <!-- 性能设置 -->
+      <button
+        title="性能设置"
+        class="bg-green-500/20 hover:bg-green-500/30 active:bg-green-500/40 text-green-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
+        @click="$emit('showPerformanceSettings')"
+      >
+        <i class="fa-solid fa-bolt mr-1 sm:mr-2" />
+        <span class="hidden sm:inline">性能</span>
+        <span class="sm:hidden">性能</span>
+      </button>
+
       <!-- 沉浸模式, 移动端隐藏 -->
       <div class="hidden md:block">
         <button
@@ -104,6 +115,7 @@ defineEmits<{
   shareRoom: []
   showHelp: []
   toggleImmersive: []
+  showPerformanceSettings: []
 }>()
 
 // 使用 useChat 获取在线用户信息

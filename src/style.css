@@ -656,3 +656,148 @@
   position: relative;
   z-index: 1;
 }
+
+/* 低功耗模式样式 */
+.low-power-mode {
+  /* 使用 will-change 优化性能 */
+  will-change: auto;
+}
+
+/* 减少动画模式 */
+.reduce-animations * {
+  animation-duration: 0.15s !important;
+  transition-duration: 0.15s !important;
+  animation-iteration-count: 1 !important;
+}
+
+.reduce-animations .lyric-line {
+  transition: color 0.1s ease, font-size 0.1s ease !important;
+  transform: none !important;
+  text-shadow: none !important;
+}
+
+.reduce-animations .lyric-line.active {
+  transform: none !important;
+  text-shadow: 0 0 3px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* 禁用背景模糊 */
+.disable-blur .dynamic-bg img {
+  filter: none !important;
+}
+
+.disable-blur .backdrop-blur-md,
+.disable-blur .backdrop-blur-lg,
+.disable-blur .backdrop-blur-xl,
+.disable-blur .backdrop-blur-2xl,
+.disable-blur .backdrop-blur-3xl {
+  backdrop-filter: none !important;
+}
+
+.disable-blur .blur-3xl,
+.disable-blur .blur-2xl,
+.disable-blur .blur-xl {
+  filter: none !important;
+}
+
+/* 简化特效 */
+.simplify-effects .glass-effect {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: none !important;
+}
+
+.simplify-effects .shadow-2xl,
+.simplify-effects .shadow-xl,
+.simplify-effects .shadow-lg {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.simplify-effects .album-cover-immersive {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.simplify-effects .album-cover-immersive::before {
+  display: none !important;
+}
+
+/* 禁用粒子效果和复杂动画 */
+.disable-particles .animate-pulse,
+.disable-particles .animate-float,
+.disable-particles .animate-bounce {
+  animation: none !important;
+}
+
+.disable-particles .dynamic-bg img {
+  animation: none !important;
+}
+
+/* 低功耗模式下的渐变优化 */
+.low-power-mode .bg-gradient-to-br,
+.low-power-mode .bg-gradient-to-r {
+  background: #1a1a1a !important;
+}
+
+.low-power-mode .text-gradient {
+  background: white !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* 低功耗模式下的进度条简化 */
+.low-power-mode .immersive-progress {
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%) !important;
+}
+
+/* 性能优化相关样式 */
+.performance-optimized {
+  transform: translateZ(0); /* 启用硬件加速 */
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.performance-optimized * {
+  transform: translateZ(0);
+}
+
+/* 减少重绘的歌词样式 */
+.reduce-animations .lyrics-container {
+  scroll-behavior: auto !important;
+}
+
+.reduce-animations .lyrics-scroll-animation {
+  transition: none !important;
+}
+
+/* 低功耗模式指示器 */
+.low-power-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.low-power-indicator::before {
+  content: '⚡';
+  margin-right: 0.5rem;
+}
+
+/* 移动端低功耗优化 */
+@media (max-width: 768px) {
+  .low-power-mode .immersive-mode {
+    background: #1a1a1a !important;
+  }
+  
+  .low-power-mode .dynamic-bg {
+    display: none !important;
+  }
+}

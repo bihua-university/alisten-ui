@@ -4,6 +4,7 @@ import { getDefaultAvatar } from '@/utils/user'
 import { useLyrics } from './useLyrics'
 import { useMediaSession } from './useMediaSession'
 import { useNotification } from './useNotification'
+import { usePerformance } from './usePerformance'
 import { useWebSocket } from './useWebSocket'
 
 // 全局共享的播放器状态
@@ -31,8 +32,24 @@ const isMuted = ref(getStoredMuteState())
 
 // 进度更新相关
 let animationFrameId: number | null = null
+let lastUpdateTime = 0
+const { getRefreshRateLimit } = usePerformance()
 
 function updateProgress() {
+  const now = performance.now()
+  const refreshRateLimit = getRefreshRateLimit()
+  const minInterval = 1000 / refreshRateLimit // 根据性能设置调整更新间隔
+
+  if (now - lastUpdateTime < minInterval) {
+    // 跳过这次更新，保持低功耗
+    if (animationFrameId !== null) {
+      animationFrameId = requestAnimationFrame(updateProgress)
+    }
+    return
+  }
+
+  lastUpdateTime = now
+
   if (audioPlayer.value) {
     // 只有在音频存在且不是暂停状态时才更新
     if (!audioPlayer.value.paused && !audioPlayer.value.ended) {
