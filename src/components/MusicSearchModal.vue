@@ -533,6 +533,10 @@ const visiblePages = computed(() => {
 // 搜索音乐方法
 function handleSearch() {
   if (songSearchQuery.value.trim()) {
+    // 隐藏搜索历史菜单
+    showSearchHistory.value = false
+    selectedHistoryIndex.value = -1
+
     let action = ''
     let source = selectedMusicSource.value.id
     switch (selectedSearchMode.value.id) {
