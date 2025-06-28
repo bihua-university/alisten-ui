@@ -1,7 +1,7 @@
 <template>
   <div class="flex-1 flex items-center justify-center p-8 relative overflow-hidden immersive-mode">
     <!-- 背景模糊效果 -->
-    <div class="absolute inset-0 bg-gradient-to-br from-dark/90 via-dark/80 to-dark/90 backdrop-blur-3xl" />
+    <div class="absolute inset-0 from-dark/90 via-dark/80 to-dark/90" />
 
     <!-- 专辑封面背景 -->
     <div class="absolute inset-0 opacity-30">
