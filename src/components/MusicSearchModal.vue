@@ -219,27 +219,28 @@
 
         <!-- 分页控制 -->
         <div v-if="searchResults.length > 0" class="mb-6">
-          <div class="flex items-center justify-between bg-white/5 rounded-lg p-4">
-            <div class="text-xs text-gray-400">
-              第 {{ currentPage + 1 }} 页，共 {{ totalPages }} 页
+          <div class="flex items-center justify-between bg-white/5 rounded-lg p-2 md:p-4">
+            <div class="text-xs text-gray-400 flex-shrink-0">
+              <span class="hidden sm:inline">第 {{ currentPage + 1 }} 页，共 {{ totalPages }} 页</span>
+              <span class="sm:hidden">第{{ currentPage + 1 }}/{{ totalPages }}页</span>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-0.5 md:space-x-2 ml-1 md:ml-2">
               <button
                 :disabled="currentPage === 0"
-                class="w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target" :class="[
+                class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all touch-target flex-shrink-0" :class="[
                   currentPage === 0
                     ? 'text-gray-500 cursor-not-allowed'
                     : 'text-white hover:bg-white/10 active:bg-white/20',
                 ]" @click="changePage(currentPage - 1)"
               >
-                <i class="fa-solid fa-chevron-left text-sm" />
+                <i class="fa-solid fa-chevron-left text-xs" />
               </button>
 
-              <div class="flex items-center space-x-1">
+              <div class="flex items-center space-x-0.5 md:space-x-1 overflow-x-auto scrollbar-hide">
                 <template v-for="page in visiblePages" :key="page">
                   <button
                     v-if="page !== -1"
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all touch-target"
+                    class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs transition-all touch-target flex-shrink-0"
                     :class="[
                       currentPage === page
                         ? 'bg-primary text-white'
@@ -248,19 +249,19 @@
                   >
                     {{ page + 1 }}
                   </button>
-                  <span v-else class="text-gray-500 px-1">...</span>
+                  <span v-else class="text-gray-500 px-0.5 text-xs">...</span>
                 </template>
               </div>
 
               <button
                 :disabled="!hasNextPage"
-                class="w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target" :class="[
+                class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all touch-target flex-shrink-0" :class="[
                   !hasNextPage
                     ? 'text-gray-500 cursor-not-allowed'
                     : 'text-white hover:bg-white/10 active:bg-white/20',
                 ]" @click="changePage(currentPage + 1)"
               >
-                <i class="fa-solid fa-chevron-right text-sm" />
+                <i class="fa-solid fa-chevron-right text-xs" />
               </button>
             </div>
           </div>
@@ -467,36 +468,62 @@ const visiblePages = computed(() => {
   const total = totalPages.value
   const current = currentPage.value
 
-  if (total <= 7) {
-    // 总页数少于等于7页，显示所有页码
-    for (let i = 0; i < total; i++) {
-      pages.push(i)
-    }
-  } else {
-    // 总页数大于7页，显示省略号
-    if (current <= 3) {
-      // 当前页在前面
-      for (let i = 0; i <= 4; i++) {
-        pages.push(i)
-      }
-      pages.push(-1) // 省略号
-      pages.push(total - 1)
-    } else if (current >= total - 4) {
-      // 当前页在后面
-      pages.push(0)
-      pages.push(-1) // 省略号
-      for (let i = total - 5; i < total; i++) {
+  // 检测是否为移动设备（简单的屏幕宽度检测）
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+
+  if (isMobile) {
+    // 移动设备：紧凑分页，始终保留首页和尾页的快速跳转
+    if (total <= 4) {
+      // 总页数少于等于4页，显示所有页码
+      for (let i = 0; i < total; i++) {
         pages.push(i)
       }
     } else {
-      // 当前页在中间
-      pages.push(0)
-      pages.push(-1) // 省略号
-      for (let i = current - 1; i <= current + 1; i++) {
+      // 总页数大于4页，智能显示
+      if (current <= 1) {
+        // 当前在前2页：显示 1 2 3 ... last
+        pages.push(0, 1, 2, -1, total - 1)
+      } else if (current >= total - 2) {
+        // 当前在后2页：显示 1 ... prev-1 prev last
+        pages.push(0, -1, total - 3, total - 2, total - 1)
+      } else {
+        // 当前在中间：显示 1 ... current ... last
+        pages.push(0, -1, current, -1, total - 1)
+      }
+    }
+  } else {
+    // 桌面设备：保持原有逻辑
+    if (total <= 7) {
+      // 总页数少于等于7页，显示所有页码
+      for (let i = 0; i < total; i++) {
         pages.push(i)
       }
-      pages.push(-1) // 省略号
-      pages.push(total - 1)
+    } else {
+      // 总页数大于7页，显示省略号
+      if (current <= 3) {
+        // 当前页在前面
+        for (let i = 0; i <= 4; i++) {
+          pages.push(i)
+        }
+        pages.push(-1) // 省略号
+        pages.push(total - 1)
+      } else if (current >= total - 4) {
+        // 当前页在后面
+        pages.push(0)
+        pages.push(-1) // 省略号
+        for (let i = total - 5; i < total; i++) {
+          pages.push(i)
+        }
+      } else {
+        // 当前页在中间
+        pages.push(0)
+        pages.push(-1) // 省略号
+        for (let i = current - 1; i <= current + 1; i++) {
+          pages.push(i)
+        }
+        pages.push(-1) // 省略号
+        pages.push(total - 1)
+      }
     }
   }
 
