@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative"
+    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative touch-none"
   >
     <!-- 确认加入房间模态框 -->
     <JoinRoomModal
@@ -23,7 +23,7 @@
     </div>
 
     <!-- 主要内容 -->
-    <div v-if="initialized" class="relative z-10">
+    <div v-if="initialized" class="relative z-10 h-full overflow-hidden">
       <!-- 音频播放器 - 隐藏但可控制 -->
       <audio
         ref="audioPlayer" preload="auto" @canplay="true" @autoplay="true"
@@ -538,6 +538,8 @@ function initializeMediaSession() {
 // 用于存储事件监听器引用，便于清理
 let viewportResizeHandler: ((this: Window, ev: UIEvent) => any) | null = null
 let viewportOrientationHandler: ((this: Window, ev: Event) => any) | null = null
+let preventScrollHandler: ((e: Event) => void) | null = null
+let preventTouchMoveHandler: ((e: TouchEvent) => void) | null = null
 
 // 修复移动端视口高度变化问题
 function setupMobileViewportFix() {
@@ -561,6 +563,33 @@ function setupMobileViewportFix() {
   }
 
   console.log('📱 初始化移动端视口适配')
+
+  // 阻止移动端页面滚动
+  function preventScroll(e: Event) {
+    // 只在主容器级别阻止滚动，不影响内部滚动区域
+    if (e.target === document.body || e.target === document.documentElement) {
+      e.preventDefault()
+    }
+  }
+
+  // 阻止触摸滚动
+  function preventTouchMove(e: TouchEvent) {
+    // 检查触摸目标是否是可滚动的内容区域
+    const target = e.target as Element
+    const scrollableElement = target.closest('.lyrics-container, .overflow-y-auto, .overflow-auto')
+
+    if (!scrollableElement) {
+      e.preventDefault()
+    }
+  }
+
+  // 存储事件处理器引用
+  preventScrollHandler = preventScroll
+  preventTouchMoveHandler = preventTouchMove
+
+  // 添加滚动阻止事件
+  document.addEventListener('wheel', preventScrollHandler, { passive: false })
+  document.addEventListener('touchmove', preventTouchMoveHandler, { passive: false })
 
   // 创建事件处理器
   viewportResizeHandler = setViewportHeight
@@ -588,6 +617,16 @@ function cleanupMobileViewportFix() {
   if (viewportOrientationHandler) {
     window.removeEventListener('orientationchange', viewportOrientationHandler)
     viewportOrientationHandler = null
+  }
+
+  if (preventScrollHandler) {
+    document.removeEventListener('wheel', preventScrollHandler)
+    preventScrollHandler = null
+  }
+
+  if (preventTouchMoveHandler) {
+    document.removeEventListener('touchmove', preventTouchMoveHandler)
+    preventTouchMoveHandler = null
   }
 }
 
@@ -678,11 +717,33 @@ onUnmounted(() => {
     margin: 0;
     padding: 0;
     background: #1E293B;
+    overflow: hidden; /* 阻止页面滚动 */
+    position: fixed; /* 完全固定页面 */
+    width: 100%;
+    touch-action: none; /* 阻止触摸操作导致的滚动 */
   }
 
   #app {
     height: calc(var(--vh, 1vh) * 100);
     min-height: calc(var(--vh, 1vh) * 100);
+    overflow: hidden; /* 阻止应用级别滚动 */
+    touch-action: manipulation; /* 只允许必要的触摸操作 */
+  }
+
+  /* 阻止过度滚动（橡皮筋效果） */
+  body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auto;
+  }
+
+  /* 确保主容器不能滚动 */
+  #app > * {
+    overscroll-behavior: none;
+  }
+
+  /* 确保只有内容区域可以滚动 */
+  .lyrics-container {
+    touch-action: pan-y; /* 只允许垂直滚动 */
   }
 }
 
