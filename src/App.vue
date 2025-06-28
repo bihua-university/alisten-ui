@@ -2,6 +2,7 @@
   <div
     id="app"
     class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative touch-none"
+    style="scrollbar-width: none; -ms-overflow-style: none;"
   >
     <!-- 确认加入房间模态框 -->
     <JoinRoomModal
@@ -23,7 +24,7 @@
     </div>
 
     <!-- 主要内容 -->
-    <div v-if="initialized" class="relative z-10 h-full overflow-hidden">
+    <div v-if="initialized" class="relative z-10 h-full overflow-hidden" style="scrollbar-width: none; -ms-overflow-style: none;">
       <!-- 音频播放器 - 隐藏但可控制 -->
       <audio
         ref="audioPlayer" preload="auto" @canplay="true" @autoplay="true"
@@ -35,7 +36,7 @@
       </audio>
 
       <!-- 主内容区 -->
-      <main class="flex h-screen-mobile">
+      <main class="flex h-screen-mobile" style="scrollbar-width: none; -ms-overflow-style: none;">
         <!-- 左侧播放列表 -->
         <PlaylistComponent
           :playlist="processedPlaylist"
@@ -239,6 +240,13 @@ import { usePWA } from '@/composables/usePWA'
 import { useRoom } from '@/composables/useRoom'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
+import {
+  createPreventScrollHandler,
+  createPreventTouchMoveHandler,
+  createPreventTouchStartHandler,
+  isMobileDevice,
+  setViewportHeight,
+} from '@/utils/mobile'
 import { processUser } from '@/utils/user'
 
 // ===== 应用配置 =====
@@ -535,6 +543,8 @@ function initializeMediaSession() {
 
 // ===== 移动端适配 =====
 
+// ===== 移动端适配 =====
+
 // 用于存储事件监听器引用，便于清理
 let viewportResizeHandler: ((this: Window, ev: UIEvent) => any) | null = null
 let viewportOrientationHandler: ((this: Window, ev: Event) => any) | null = null
@@ -543,67 +553,38 @@ let preventTouchMoveHandler: ((e: TouchEvent) => void) | null = null
 
 // 修复移动端视口高度变化问题
 function setupMobileViewportFix() {
-  // 设置 CSS 自定义属性用于视口高度
-  function setViewportHeight() {
-    const vh = window.innerHeight * 0.01
-    document.documentElement.style.setProperty('--vh', `${vh}px`)
-    console.log(`📱 更新视口高度: ${window.innerHeight}px -> ${vh}px per vh`)
-  }
-
-  // 总是设置初始值，不管是否为移动设备
+  // 总是设置初始值
   setViewportHeight()
 
-  // 检查是否为移动设备
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-  const isSmallScreen = window.innerWidth <= 768
-
-  if (!isMobile && !isSmallScreen) {
+  // 检查是否需要移动端适配
+  if (!isMobileDevice()) {
     console.log('🖥️ 桌面设备，跳过移动端适配')
     return
   }
 
   console.log('📱 初始化移动端视口适配')
 
-  // 阻止移动端页面滚动
-  function preventScroll(e: Event) {
-    // 只在主容器级别阻止滚动，不影响内部滚动区域
-    if (e.target === document.body || e.target === document.documentElement) {
-      e.preventDefault()
-    }
-  }
-
-  // 阻止触摸滚动
-  function preventTouchMove(e: TouchEvent) {
-    // 检查触摸目标是否是可滚动的内容区域
-    const target = e.target as Element
-    const scrollableElement = target.closest('.lyrics-container, .overflow-y-auto, .overflow-auto')
-
-    if (!scrollableElement) {
-      e.preventDefault()
-    }
-  }
+  // 创建事件处理器
+  const preventScroll = createPreventScrollHandler()
+  const preventTouchMove = createPreventTouchMoveHandler()
+  const preventTouchStart = createPreventTouchStartHandler()
 
   // 存储事件处理器引用
   preventScrollHandler = preventScroll
   preventTouchMoveHandler = preventTouchMove
 
-  // 添加滚动阻止事件
-  document.addEventListener('wheel', preventScrollHandler, { passive: false })
-  document.addEventListener('touchmove', preventTouchMoveHandler, { passive: false })
+  // 添加事件监听器
+  document.addEventListener('wheel', preventScrollHandler, { passive: false, capture: true })
+  document.addEventListener('touchmove', preventTouchMoveHandler, { passive: false, capture: true })
+  document.addEventListener('touchstart', preventTouchStart, { passive: false, capture: true })
 
-  // 创建事件处理器
+  // 视口变化处理
   viewportResizeHandler = setViewportHeight
   viewportOrientationHandler = () => {
-    // 方向改变时延迟执行，等待完成
-    setTimeout(() => {
-      setViewportHeight()
-    }, 200)
+    setTimeout(setViewportHeight, 200)
   }
 
-  // 监听视口大小变化
   window.addEventListener('resize', viewportResizeHandler, { passive: true })
-
-  // 监听方向改变
   window.addEventListener('orientationchange', viewportOrientationHandler, { passive: true })
 }
 
@@ -702,57 +683,5 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-/* 移动端适配 */
-:root {
-  --vh: 1vh;
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  html, body {
-    height: calc(var(--vh, 1vh) * 100);
-    min-height: calc(var(--vh, 1vh) * 100);
-    margin: 0;
-    padding: 0;
-    background: #1E293B;
-    overflow: hidden; /* 阻止页面滚动 */
-    position: fixed; /* 完全固定页面 */
-    width: 100%;
-    touch-action: none; /* 阻止触摸操作导致的滚动 */
-  }
-
-  #app {
-    height: calc(var(--vh, 1vh) * 100);
-    min-height: calc(var(--vh, 1vh) * 100);
-    overflow: hidden; /* 阻止应用级别滚动 */
-    touch-action: manipulation; /* 只允许必要的触摸操作 */
-  }
-
-  /* 阻止过度滚动（橡皮筋效果） */
-  body {
-    overscroll-behavior: none;
-    -webkit-overflow-scrolling: auto;
-  }
-
-  /* 确保主容器不能滚动 */
-  #app > * {
-    overscroll-behavior: none;
-  }
-
-  /* 确保只有内容区域可以滚动 */
-  .lyrics-container {
-    touch-action: pan-y; /* 只允许垂直滚动 */
-  }
-}
-
-/* 确保所有容器都使用正确的高度 */
-.h-screen-mobile {
-  height: calc(var(--vh, 1vh) * 100) !important;
-}
-
-.min-h-screen-mobile {
-  min-height: calc(var(--vh, 1vh) * 100) !important;
 }
 </style>

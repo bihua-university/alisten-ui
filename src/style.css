@@ -658,3 +658,174 @@
   position: relative;
   z-index: 1;
 }
+
+/* ===== 移动端滚动适配 ===== */
+
+/* CSS 自定义属性用于视口高度 */
+:root {
+  --vh: 1vh;
+}
+
+/* 移动端高度工具类 */
+.h-screen-mobile {
+  height: calc(var(--vh, 1vh) * 100) !important;
+}
+
+.min-h-screen-mobile {
+  min-height: calc(var(--vh, 1vh) * 100) !important;
+}
+
+/* 移动端滚动适配 - 适用于所有窗口和模态框 */
+@media (max-width: 768px) {
+  /* 页面级别滚动阻止 */
+  html, body {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    height: calc(var(--vh, 1vh) * 100) !important;
+    min-height: calc(var(--vh, 1vh) * 100) !important;
+    max-height: calc(var(--vh, 1vh) * 100) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #1E293B !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: auto !important;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* 应用容器适配 */
+  #app {
+    height: calc(var(--vh, 1vh) * 100) !important;
+    min-height: calc(var(--vh, 1vh) * 100) !important;
+    max-height: calc(var(--vh, 1vh) * 100) !important;
+    overflow: hidden !important;
+    touch-action: manipulation !important;
+    position: relative !important;
+    width: 100% !important;
+    overscroll-behavior: none !important;
+  }
+
+  /* 全局滚动条隐藏 */
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    overscroll-behavior: none !important;
+  }
+
+  *::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* 容器和模态框滚动阻止 */
+  .fixed, .absolute, .relative, .sticky,
+  main, section, div, header, footer, nav, article, aside,
+  .modal, .modal-content, .dialog, .popup, .overlay {
+    overscroll-behavior: none !important;
+    touch-action: manipulation !important;
+  }
+
+  /* 模态框背景特殊处理 */
+  .fixed.inset-0 {
+    touch-action: none !important;
+    overflow: hidden !important;
+    position: fixed !important;
+  }
+
+  .fixed.inset-0 > *,
+  .modal > *,
+  .modal-content > * {
+    touch-action: manipulation !important;
+  }
+
+  /* 允许滚动的内容区域 */
+  .lyrics-container,
+  .chat-container,
+  .playlist-container,
+  .search-results,
+  .help-content,
+  .modal-scroll,
+  .mobile-chat-scroll,
+  .smooth-scroll,
+  [class*="overflow-y-auto"],
+  [class*="scrollable"],
+  [data-scrollable="true"] {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* 内容滚动区域的滚动条样式 */
+  .lyrics-container,
+  .overflow-y-auto.smooth-scroll,
+  .modal-scroll,
+  .mobile-chat-scroll {
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+  }
+
+  .lyrics-container::-webkit-scrollbar,
+  .overflow-y-auto.smooth-scroll::-webkit-scrollbar,
+  .modal-scroll::-webkit-scrollbar,
+  .mobile-chat-scroll::-webkit-scrollbar {
+    display: block !important;
+    width: 4px !important;
+  }
+
+  .lyrics-container::-webkit-scrollbar-track,
+  .overflow-y-auto.smooth-scroll::-webkit-scrollbar-track,
+  .modal-scroll::-webkit-scrollbar-track,
+  .mobile-chat-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 2px !important;
+  }
+
+  .lyrics-container::-webkit-scrollbar-thumb,
+  .overflow-y-auto.smooth-scroll::-webkit-scrollbar-thumb,
+  .modal-scroll::-webkit-scrollbar-thumb,
+  .mobile-chat-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 2px !important;
+  }
+
+  /* 特定组件的滚动区域 */
+  .chat-component .overflow-y-auto,
+  .playlist-component .overflow-y-auto,
+  .help-modal .overflow-y-auto,
+  .music-search-modal .overflow-y-auto {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+  }
+
+  .chat-component .overflow-y-auto::-webkit-scrollbar,
+  .playlist-component .overflow-y-auto::-webkit-scrollbar,
+  .help-modal .overflow-y-auto::-webkit-scrollbar,
+  .music-search-modal .overflow-y-auto::-webkit-scrollbar {
+    display: block !important;
+    width: 4px !important;
+  }
+
+  .chat-component .overflow-y-auto::-webkit-scrollbar-track,
+  .playlist-component .overflow-y-auto::-webkit-scrollbar-track,
+  .help-modal .overflow-y-auto::-webkit-scrollbar-track,
+  .music-search-modal .overflow-y-auto::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 2px !important;
+  }
+
+  .chat-component .overflow-y-auto::-webkit-scrollbar-thumb,
+  .playlist-component .overflow-y-auto::-webkit-scrollbar-thumb,
+  .help-modal .overflow-y-auto::-webkit-scrollbar-thumb,
+  .music-search-modal .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 2px !important;
+  }
+}
