@@ -78,9 +78,9 @@
   will-change: auto !important;
 }
 
+/* 极简模式玻璃效果替代背景 */
 .performance-off .glass-effect {
   background: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: none !important;
 }
 
 .performance-off .blur-3xl,
