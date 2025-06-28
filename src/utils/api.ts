@@ -1,0 +1,52 @@
+import type { RoomInfo } from '@/types'
+import { getAppConfig } from './config'
+
+/**
+ * 搜索房间列表
+ * @param keyword 搜索关键词（可选）
+ * @returns Promise<RoomSearchResponse>
+ */
+export async function searchRooms(keyword?: string): Promise<RoomInfo[]> {
+  const config = getAppConfig()
+  const url = new URL('/house/search', config.api.baseUrl)
+
+  if (keyword) {
+    url.searchParams.append('keyword', keyword)
+  }
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+
+    return data.data as RoomInfo[]
+  } catch (error) {
+    console.error('搜索房间失败:', error)
+    throw error
+  }
+}
+
+/**
+ * 根据房间ID获取房间详情
+ * @param roomId 房间ID
+ * @returns Promise<RoomInfo>
+ */
+export async function getRoomById(roomId: string): Promise<import('@/types').RoomInfo | null> {
+  try {
+    const response = await searchRooms()
+    const room = response.rooms.find(r => r.id === roomId)
+    return room || null
+  } catch (error) {
+    console.error('获取房间详情失败:', error)
+    return null
+  }
+}

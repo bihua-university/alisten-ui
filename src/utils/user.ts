@@ -120,6 +120,29 @@ export function clearRoomPassword(roomId: string): void {
   localStorage.removeItem(`alisten_room_password_${roomId}`)
 }
 
+/**
+ * 保存上次进入的房间ID
+ * @param roomId 房间ID
+ */
+export function saveLastJoinedRoom(roomId: string): void {
+  localStorage.setItem('alisten_last_joined_room', roomId)
+}
+
+/**
+ * 从本地存储获取上次进入的房间ID
+ * @returns 保存的房间ID，如果没有则返回 null
+ */
+export function getLastJoinedRoom(): string | null {
+  return localStorage.getItem('alisten_last_joined_room')
+}
+
+/**
+ * 清除保存的上次进入房间记录
+ */
+export function clearLastJoinedRoom(): void {
+  localStorage.removeItem('alisten_last_joined_room')
+}
+
 // 获取默认头像
 export function getDefaultAvatar(seed?: string | number): string {
   const randomSeed = seed || Date.now()

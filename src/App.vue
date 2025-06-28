@@ -11,9 +11,9 @@
     />
 
     <!-- 动态背景 -->
-    <div v-if="!isImmersiveMode" class="fixed inset-0 z-0">
+    <div v-if="!isImmersiveMode && initialized" class="fixed inset-0 z-0">
       <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />
-      <div v-if="playerState.currentSong" class="absolute inset-0 opacity-50 dynamic-bg">
+      <div v-if="playerState.currentSong" class="absolute inset-0 opacity-50">
         <img
           :key="playerState.currentSong.id" :src="playerState.currentSong.cover" :alt="playerState.currentSong.title"
           class="w-full h-full object-cover blur-3xl scale-110 transition-all duration-1000"
@@ -23,7 +23,7 @@
     </div>
 
     <!-- 主要内容 -->
-    <div class="relative z-10">
+    <div v-if="initialized" class="relative z-10">
       <!-- 音频播放器 - 隐藏但可控制 -->
       <audio
         ref="audioPlayer" preload="auto" @canplay="true" @autoplay="true"
@@ -252,6 +252,7 @@ if (configErrors.length > 0) {
 }
 
 // ===== UI 状态管理 =====
+const initialized = ref(false) // 应用是否已初始化
 const showMusicSearchModal = ref(false)
 const showHelp = ref(false)
 const showMobileChat = ref(false)
@@ -362,13 +363,7 @@ function toggleImmersiveMode() {
 // ===== 房间管理方法 =====
 
 // 确认加入房间
-function confirmJoinRoom(password?: string) {
-  // 如果提供了密码，先设置到 useRoom 中
-  if (password) {
-    const { setCurrentPassword } = useRoom()
-    setCurrentPassword(password)
-  }
-
+function confirmJoinRoom() {
   showJoinRoomConfirm.value = false
   initializeApp()
 }
@@ -383,6 +378,8 @@ function cancelJoinRoom() {
 // 初始化应用
 function initializeApp() {
   console.log('🚀 开始初始化应用')
+
+  initialized.value = true
 
   // 输出配置信息
   logConfig(appConfig)
