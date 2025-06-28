@@ -134,7 +134,7 @@
         <!-- 右侧聊天和用户列表 -->
         <aside
           v-if="!isImmersiveMode"
-          class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:flex overflow-hidden flex-col"
+          class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden md:flex overflow-hidden flex-col"
         >
           <!-- 聊天区域 -->
           <div class="flex-1 flex flex-col overflow-hidden">
