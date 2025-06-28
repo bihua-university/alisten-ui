@@ -257,14 +257,58 @@
 }
 
 /* 禁用模糊时的按钮优化 */
-.disable-blur button:not(.music-source-button) {
+/* 只为没有特定背景色的按钮添加默认背景 */
+.disable-blur button:not(.music-source-button):not(.bg-green-500):not(.bg-green-600):not(.bg-blue-500):not(.bg-blue-600):not(.bg-red-500):not(.bg-red-600):not(.bg-purple-500):not(.bg-purple-600):not([class*="bg-"]) {
   background: rgba(0, 0, 0, 0.7) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-.disable-blur button:not(.music-source-button):hover {
+.disable-blur button:not(.music-source-button):not(.bg-green-500):not(.bg-green-600):not(.bg-blue-500):not(.bg-blue-600):not(.bg-red-500):not(.bg-red-600):not(.bg-purple-500):not(.bg-purple-600):not([class*="bg-"]):hover {
   background: rgba(0, 0, 0, 0.85) !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 为有颜色的按钮增强不透明度而不改变颜色 */
+.disable-blur button.bg-green-500,
+.disable-blur button.bg-green-600 {
+  background-color: rgba(34, 197, 94, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.3) !important;
+}
+
+.disable-blur button.bg-green-500:hover,
+.disable-blur button.bg-green-600:hover {
+  background-color: rgba(34, 197, 94, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4) !important;
+}
+
+.disable-blur button.bg-blue-500,
+.disable-blur button.bg-blue-600 {
+  background-color: rgba(59, 130, 246, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3) !important;
+}
+
+.disable-blur button.bg-blue-500:hover,
+.disable-blur button.bg-blue-600:hover {
+  background-color: rgba(59, 130, 246, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4) !important;
+}
+
+.disable-blur button.bg-red-500,
+.disable-blur button.bg-red-600 {
+  background-color: rgba(239, 68, 68, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3) !important;
+}
+
+.disable-blur button.bg-red-500:hover,
+.disable-blur button.bg-red-600:hover {
+  background-color: rgba(239, 68, 68, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
 }
 
 /* 禁用模糊时的下拉菜单优化 */
