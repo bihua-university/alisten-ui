@@ -90,42 +90,44 @@
           <!-- 搜索历史下拉菜单 -->
           <div
             v-if="showSearchHistory"
-            class="absolute left-0 right-0 mt-1 bg-dark border border-white/20 rounded-lg shadow-2xl z-50 max-h-64 overflow-y-auto custom-scrollbar"
+            class="absolute left-0 right-0 mt-2 bg-dark border border-white/10 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto custom-scrollbar"
           >
-            <div v-if="currentSearchHistory.length === 0" class="p-4 text-sm text-gray-400 text-center">
-              <i class="fa-solid fa-clock-rotate-left text-lg mb-2 block opacity-50" />
-              暂无搜索历史
-              <div class="text-xs mt-1 opacity-75">
+            <div v-if="currentSearchHistory.length === 0" class="p-6 text-sm text-gray-400 text-center">
+              <i class="fa-solid fa-clock-rotate-left text-2xl mb-3 block opacity-50" />
+              <div class="font-medium mb-1">
+                暂无搜索历史
+              </div>
+              <div class="text-xs opacity-75">
                 开始搜索后会显示历史记录
               </div>
             </div>
             <div v-else>
-              <div class="p-2 border-b border-white/10">
-                <div class="text-xs text-gray-400 px-2 py-1">
-                  <i class="fa-solid fa-clock-rotate-left mr-1" />
+              <div class="px-4 py-3 border-b border-white/10 bg-white/10">
+                <div class="text-xs font-medium text-gray-200 flex items-center">
+                  <i class="fa-solid fa-clock-rotate-left mr-2 text-gray-300" />
                   最近搜索 ({{ selectedMusicSource.name }} - {{ selectedSearchMode.name }})
                 </div>
               </div>
               <div
                 v-for="(item, index) in currentSearchHistory" :key="index"
-                class="group flex items-center p-3 text-sm cursor-pointer transition-colors border-b border-white/5 last:border-b-0"
+                class="group flex items-center px-4 py-3 text-sm cursor-pointer transition-all duration-200 border-b border-white/5 last:border-b-0"
                 :class="[
                   selectedHistoryIndex === index
                     ? 'bg-primary/20 text-white'
-                    : 'text-white hover:bg-white/10',
+                    : 'text-white hover:bg-white/10 hover:text-white',
                 ]"
                 @click="selectFromHistory(item)"
               >
                 <div class="flex items-center flex-1 min-w-0">
-                  <i class="fa-solid fa-search text-gray-400 mr-3 flex-shrink-0" />
-                  <span class="truncate">{{ item }}</span>
+                  <i class="fa-solid fa-search text-gray-300 mr-3 flex-shrink-0 text-xs" />
+                  <span class="truncate font-medium">{{ item }}</span>
                 </div>
               </div>
             </div>
-            <div class="border-t border-white/10 bg-white/5">
+            <div class="border-t border-white/10 bg-white/10">
               <button
                 v-if="currentSearchHistory.length > 0"
-                class="w-full p-3 text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors flex items-center justify-center"
+                class="w-full px-4 py-3 text-xs font-medium text-gray-300 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 flex items-center justify-center"
                 @click="clearCurrentHistory"
               >
                 <i class="fa-solid fa-trash mr-2" />
