@@ -46,6 +46,7 @@ export default defineConfig({
         theme_color: '#1f2937',
         background_color: '#ffffff',
         display: 'standalone',
+        display_override: ['window-controls-overlay'],
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
