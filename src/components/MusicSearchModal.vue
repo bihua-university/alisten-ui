@@ -74,17 +74,29 @@
 
         <!-- 搜索框 -->
         <div class="relative mb-6">
-          <input
-            ref="searchInputRef" v-model="songSearchQuery" type="text"
-            :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
-            class="w-full bg-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
-            @keyup.enter="handleSearch" @keydown="handleKeyDown" @focus="handleInputFocus" @blur="handleInputBlur"
-          >
+          <div class="relative">
+            <input
+              ref="searchInputRef" v-model="songSearchQuery" type="text"
+              :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
+              class="w-full bg-white/10 rounded-lg py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
+              @keyup.enter="handleSearch" @keydown="handleKeyDown" @focus="handleInputFocus" @blur="handleInputBlur"
+            >
+            <!-- 搜索历史按钮 - 仅在有历史记录时显示 -->
+            <button
+              v-if="currentSearchHistory.length > 0"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors touch-target w-8 h-8 flex items-center justify-center search-history-toggle"
+              :class="{ 'text-primary': showSearchHistory }"
+              @click="toggleSearchHistory"
+            >
+              <i class="fa-solid fa-clock-rotate-left text-sm" />
+            </button>
+          </div>
 
           <!-- 搜索提示 -->
           <div v-if="currentSearchHistory.length > 0 && !showSearchHistory" class="text-xs text-gray-500 mt-2 px-4">
             已保存 {{ currentSearchHistory.length }} 条历史记录
-            <span class="text-gray-600">• 按 ↓ 键查看，↑↓ 导航，回车选择</span>
+            <span class="hidden md:inline text-gray-600">• 按 ↓ 键查看，↑↓ 导航，回车选择</span>
+            <span class="md:hidden text-gray-600">• 点击时钟图标查看历史</span>
           </div>
 
           <!-- 搜索历史下拉菜单 -->
@@ -634,12 +646,31 @@ function handleInputFocus() {
 }
 
 // 处理输入框失焦
-function handleInputBlur() {
+function handleInputBlur(event: FocusEvent) {
+  // 如果失焦是因为点击了搜索历史按钮，不隐藏搜索历史
+  const relatedTarget = event.relatedTarget as HTMLElement
+  if (relatedTarget && relatedTarget.closest('.search-history-toggle')) {
+    return
+  }
+
   // 延迟隐藏以允许点击历史记录
   setTimeout(() => {
     showSearchHistory.value = false
     selectedHistoryIndex.value = -1
   }, 200)
+}
+
+// 切换搜索历史显示状态
+function toggleSearchHistory() {
+  showSearchHistory.value = !showSearchHistory.value
+  selectedHistoryIndex.value = -1
+
+  // 如果显示搜索历史，聚焦到输入框
+  if (showSearchHistory.value) {
+    setTimeout(() => {
+      searchInputRef.value?.focus()
+    }, 100)
+  }
 }
 
 // 处理键盘事件
