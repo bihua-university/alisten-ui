@@ -53,11 +53,30 @@
     <!-- 减少动效选项 -->
     <div class="mb-4">
       <label class="flex items-center space-x-3 cursor-pointer">
-        <input
-          v-model="reducedMotion"
-          type="checkbox"
-          class="form-checkbox h-4 w-4 text-blue-500 rounded focus:ring-blue-500 focus:ring-2"
-        >
+        <div class="relative">
+          <input
+            v-model="reducedMotion"
+            type="checkbox"
+            class="sr-only"
+          >
+          <div
+            class="custom-checkbox"
+            :class="{ checked: reducedMotion }"
+          >
+            <svg
+              v-if="reducedMotion"
+              class="check-icon"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+        </div>
         <div>
           <span class="text-sm font-medium text-gray-300">减少动效</span>
           <p class="text-xs text-gray-500">适合晕动症用户或节能需求</p>
@@ -96,7 +115,7 @@
         class="flex-1 px-3 py-2 bg-red-500/20 border border-red-500/50 text-red-400 rounded-lg text-sm hover:bg-red-500/30 transition-colors"
         @click="disableAnimations"
       >
-        紧急模式
+        最低性能
       </button>
     </div>
   </div>
@@ -234,5 +253,54 @@ function getPrefersReducedMotion() {
 .impact-fill {
   height: 100%;
   transition: width 0.3s ease;
+}
+
+/* 自定义checkbox样式 */
+.custom-checkbox {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #6b7280;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.custom-checkbox:hover {
+  border-color: #9ca3af;
+}
+
+.custom-checkbox.checked {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.check-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: white;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.15s ease;
+}
+
+.custom-checkbox.checked .check-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 隐藏原生checkbox但保持可访问性 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>
