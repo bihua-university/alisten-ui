@@ -34,19 +34,3 @@ export async function searchRooms(keyword?: string): Promise<RoomInfo[]> {
     throw error
   }
 }
-
-/**
- * 根据房间ID获取房间详情
- * @param roomId 房间ID
- * @returns Promise<RoomInfo>
- */
-export async function getRoomById(roomId: string): Promise<import('@/types').RoomInfo | null> {
-  try {
-    const response = await searchRooms()
-    const room = response.rooms.find(r => r.id === roomId)
-    return room || null
-  } catch (error) {
-    console.error('获取房间详情失败:', error)
-    return null
-  }
-}
