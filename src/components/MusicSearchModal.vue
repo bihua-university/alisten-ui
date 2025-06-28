@@ -606,6 +606,9 @@ function viewPlaylist(playlist: any) {
 
 // 添加搜索历史
 function addToSearchHistory(query: string) {
+  if (!query.trim()) {
+    return // 如果查询为空字符串，直接返回
+  }
   const key = currentHistoryKey.value
   const history = searchHistory.value[key] || []
 
