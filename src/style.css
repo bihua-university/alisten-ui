@@ -658,3 +658,362 @@
   position: relative;
   z-index: 1;
 }
+
+/* ===== 移动端滚动适配 ===== */
+
+/* CSS 自定义属性用于视口高度 */
+:root {
+  --vh: 1vh;
+}
+
+/* 移动端高度工具类 */
+.h-screen-mobile {
+  height: calc(var(--vh, 1vh) * 100) !important;
+}
+
+.min-h-screen-mobile {
+  min-height: calc(var(--vh, 1vh) * 100) !important;
+}
+
+/* 移动端滚动适配 - 适用于所有窗口和模态框 */
+@media (max-width: 768px) {
+  /* 页面级别滚动阻止 */
+  html, body {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    height: calc(var(--vh, 1vh) * 100) !important;
+    min-height: calc(var(--vh, 1vh) * 100) !important;
+    max-height: calc(var(--vh, 1vh) * 100) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #1E293B !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: auto !important;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* 应用容器适配 */
+  #app {
+    height: calc(var(--vh, 1vh) * 100) !important;
+    min-height: calc(var(--vh, 1vh) * 100) !important;
+    max-height: calc(var(--vh, 1vh) * 100) !important;
+    overflow: hidden !important;
+    touch-action: manipulation !important;
+    position: relative !important;
+    width: 100% !important;
+    overscroll-behavior: none !important;
+  }
+
+  /* 全局滚动条隐藏 */
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    overscroll-behavior: none !important;
+  }
+
+  *::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* 容器和模态框滚动阻止 */
+  .fixed, .absolute, .relative, .sticky,
+  main, section, div, header, footer, nav, article, aside,
+  .modal, .modal-content, .dialog, .popup, .overlay {
+    overscroll-behavior: none !important;
+    touch-action: manipulation !important;
+  }
+
+  /* 模态框背景特殊处理 */
+  .fixed.inset-0 {
+    touch-action: none !important;
+    overflow: hidden !important;
+    position: fixed !important;
+  }
+
+  .fixed.inset-0 > *,
+  .modal > *,
+  .modal-content > * {
+    touch-action: manipulation !important;
+  }
+
+  /* 允许滚动的内容区域 */
+  .lyrics-container,
+  .overflow-y-auto,
+  .overflow-auto,
+  .modal-scroll,
+  .mobile-chat-scroll,
+  .smooth-scroll,
+  [data-scrollable="true"] {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* 确保模态框内的滚动区域能正常工作 */
+  .fixed .overflow-y-auto,
+  .fixed .overflow-auto,
+  .fixed .modal-scroll,
+  .fixed .mobile-chat-scroll,
+  .fixed .smooth-scroll,
+  .modal .overflow-y-auto,
+  .modal .overflow-auto,
+  .modal .modal-scroll,
+  .modal .mobile-chat-scroll,
+  .modal .smooth-scroll {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+
+  /* 内容滚动区域的滚动条样式 */
+  .lyrics-container,
+  .overflow-y-auto,
+  .overflow-auto,
+  .modal-scroll,
+  .mobile-chat-scroll {
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+  }
+
+  .lyrics-container::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar,
+  .overflow-auto::-webkit-scrollbar,
+  .modal-scroll::-webkit-scrollbar,
+  .mobile-chat-scroll::-webkit-scrollbar {
+    display: block !important;
+    width: 4px !important;
+  }
+
+  .lyrics-container::-webkit-scrollbar-track,
+  .overflow-y-auto::-webkit-scrollbar-track,
+  .overflow-auto::-webkit-scrollbar-track,
+  .modal-scroll::-webkit-scrollbar-track,
+  .mobile-chat-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 2px !important;
+  }
+
+  .lyrics-container::-webkit-scrollbar-thumb,
+  .overflow-y-auto::-webkit-scrollbar-thumb,
+  .overflow-auto::-webkit-scrollbar-thumb,
+  .modal-scroll::-webkit-scrollbar-thumb,
+  .mobile-chat-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 2px !important;
+  }
+
+  /* 特定组件的滚动区域 */
+  .overflow-y-auto {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    scrollbar-width: thin !important;
+    -ms-overflow-style: auto !important;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar {
+    display: block !important;
+    width: 4px !important;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 2px !important;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 2px !important;
+  }
+}
+
+/* 确保模态框内的滚动区域能正常工作 */
+.fixed .overflow-y-auto,
+.modal .overflow-y-auto,
+.dialog .overflow-y-auto {
+  touch-action: pan-y !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  position: relative !important;
+}
+
+/* 模态框内滚动条样式 */
+.fixed .overflow-y-auto::-webkit-scrollbar,
+.modal .overflow-y-auto::-webkit-scrollbar,
+.dialog .overflow-y-auto::-webkit-scrollbar {
+  display: block !important;
+  width: 4px !important;
+}
+
+.fixed .overflow-y-auto::-webkit-scrollbar-track,
+.modal .overflow-y-auto::-webkit-scrollbar-track,
+.dialog .overflow-y-auto::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 2px !important;
+}
+
+.fixed .overflow-y-auto::-webkit-scrollbar-thumb,
+.modal .overflow-y-auto::-webkit-scrollbar-thumb,
+.dialog .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 2px !important;
+}
+
+/* 重要：覆盖所有可能阻止滚动的规则 */
+.overflow-y-auto.scrollbar-hide,
+.overflow-y-auto.smooth-scroll,
+.flex-1.overflow-y-auto,
+[class*="overflow-y-auto"] {
+  touch-action: pan-y !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  overflow-y: auto !important;
+}
+
+/* 强制显示滚动条（移动端） */
+.overflow-y-auto::-webkit-scrollbar {
+  display: block !important;
+  width: 4px !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 2px !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 2px !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 移动端模态框滚动强制规则 */
+@media (max-width: 768px) {
+  .fixed .overflow-y-auto,
+  .fixed .overflow-auto,
+  .fixed .modal-scroll,
+  .fixed .mobile-chat-scroll,
+  .fixed .smooth-scroll,
+  .fixed [data-scrollable="true"] {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+    position: relative !important;
+  }
+  
+  /* 确保模态框本身不会滚动 */
+  .fixed.inset-0 {
+    touch-action: none !important;
+    overflow: hidden !important;
+  }
+  
+  /* 但允许模态框内的内容区域滚动 */
+  .fixed.inset-0 .overflow-y-auto,
+  .fixed.inset-0 .overflow-auto,
+  .fixed.inset-0 .modal-scroll,
+  .fixed.inset-0 .mobile-chat-scroll,
+  .fixed.inset-0 .smooth-scroll {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* 特定组件的移动端滚动适配 */
+@media (max-width: 768px) {
+  /* 聊天组件滚动 */
+  .chat-component .overflow-y-auto,
+  .chat-component .mobile-chat-scroll,
+  .chat-component .smooth-scroll {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+  
+  /* 播放列表组件滚动 */
+  .playlist-component .overflow-y-auto,
+  .playlist-component .modal-scroll,
+  .playlist-component .smooth-scroll {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+  
+  /* 点歌台模态框滚动 */
+  .music-search-modal .overflow-y-auto,
+  .music-search-modal .smooth-scroll,
+  .music-search-modal .custom-scrollbar {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+  
+  /* 帮助模态框滚动 */
+  .help-modal .overflow-y-auto,
+  .help-modal .modal-scroll {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+  
+  /* 通用模态框内滚动区域 */
+  [class*="modal"] .overflow-y-auto,
+  [class*="modal"] .overflow-auto,
+  [class*="modal"] .scrollbar-hide,
+  [class*="modal"] .custom-scrollbar,
+  [class*="modal"] .smooth-scroll {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* 最终强制规则：确保所有可能的滚动区域都能正常工作 */
+@media (max-width: 768px) {
+  /* 使用更强制的选择器确保所有滚动区域都能工作 */
+  .fixed [class*="overflow-y"],
+  .fixed [class*="overflow-auto"],
+  .fixed [class*="scroll"],
+  .modal [class*="overflow-y"],
+  .modal [class*="overflow-auto"],
+  .modal [class*="scroll"] {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+  
+  /* 确保flex-1容器也能正确处理滚动 */
+  .fixed .flex-1,
+  .modal .flex-1 {
+    overflow: hidden !important;
+  }
+  
+  .fixed .flex-1 [class*="overflow"],
+  .modal .flex-1 [class*="overflow"],
+  .fixed .flex-1 [class*="scroll"],
+  .modal .flex-1 [class*="scroll"] {
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+}

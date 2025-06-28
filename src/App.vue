@@ -1,7 +1,8 @@
 <template>
   <div
     id="app"
-    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen font-inter overflow-hidden relative"
+    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative touch-none"
+    style="scrollbar-width: none; -ms-overflow-style: none;"
   >
     <!-- 确认加入房间模态框 -->
     <JoinRoomModal
@@ -23,7 +24,7 @@
     </div>
 
     <!-- 主要内容 -->
-    <div v-if="initialized" class="relative z-10">
+    <div v-if="initialized" class="relative z-10 h-full overflow-hidden" style="scrollbar-width: none; -ms-overflow-style: none;">
       <!-- 音频播放器 - 隐藏但可控制 -->
       <audio
         ref="audioPlayer" preload="auto" @canplay="true" @autoplay="true"
@@ -35,7 +36,7 @@
       </audio>
 
       <!-- 主内容区 -->
-      <main class="flex h-screen">
+      <main class="flex h-screen-mobile" style="scrollbar-width: none; -ms-overflow-style: none;">
         <!-- 左侧播放列表 -->
         <PlaylistComponent
           :playlist="processedPlaylist"
@@ -136,7 +137,7 @@
           class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:flex overflow-hidden flex-col"
         >
           <!-- 聊天区域 -->
-          <div class="flex-1 flex flex-col overflow-hidden h-[calc(100vh-300px)]">
+          <div class="flex-1 flex flex-col overflow-hidden">
             <ChatComponent
               is-desktop
             />
@@ -173,7 +174,7 @@
         <div v-if="showMobileChat" class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
           <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showMobileChat = false" />
           <div
-            class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
+            class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[calc(var(--vh,1vh)*85)] md:max-h-[calc(var(--vh,1vh)*90)] flex flex-col overflow-hidden"
           >
             <ChatComponent
               show-close-button
@@ -239,6 +240,13 @@ import { usePWA } from '@/composables/usePWA'
 import { useRoom } from '@/composables/useRoom'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
+import {
+  createPreventScrollHandler,
+  createPreventTouchMoveHandler,
+  createPreventTouchStartHandler,
+  isMobileDevice,
+  setViewportHeight,
+} from '@/utils/mobile'
 import { processUser } from '@/utils/user'
 
 // ===== 应用配置 =====
@@ -364,12 +372,14 @@ function toggleImmersiveMode() {
 
 // 确认加入房间
 function confirmJoinRoom() {
+  console.log('✅ 用户确认加入房间')
   showJoinRoomConfirm.value = false
   initializeApp()
 }
 
 // 取消加入房间
 function cancelJoinRoom() {
+  console.log('❌ 用户取消加入房间')
   alert('您已取消加入房间')
   // 这里可以添加跳转逻辑，比如：
   // window.location.href = '/rooms'
@@ -531,13 +541,85 @@ function initializeMediaSession() {
   })
 }
 
+// ===== 移动端适配 =====
+
+// ===== 移动端适配 =====
+
+// 用于存储事件监听器引用，便于清理
+let viewportResizeHandler: ((this: Window, ev: UIEvent) => any) | null = null
+let viewportOrientationHandler: ((this: Window, ev: Event) => any) | null = null
+let preventScrollHandler: ((e: Event) => void) | null = null
+let preventTouchMoveHandler: ((e: TouchEvent) => void) | null = null
+
+// 修复移动端视口高度变化问题
+function setupMobileViewportFix() {
+  // 总是设置初始值
+  setViewportHeight()
+
+  // 检查是否需要移动端适配
+  if (!isMobileDevice()) {
+    return
+  }
+
+  // 创建事件处理器
+  const preventScroll = createPreventScrollHandler()
+  const preventTouchMove = createPreventTouchMoveHandler()
+  const preventTouchStart = createPreventTouchStartHandler()
+
+  // 存储事件处理器引用
+  preventScrollHandler = preventScroll
+  preventTouchMoveHandler = preventTouchMove
+
+  // 添加事件监听器
+  document.addEventListener('wheel', preventScrollHandler, { passive: false, capture: true })
+  document.addEventListener('touchmove', preventTouchMoveHandler, { passive: false, capture: true })
+  document.addEventListener('touchstart', preventTouchStart, { passive: false, capture: true })
+
+  // 视口变化处理
+  viewportResizeHandler = setViewportHeight
+  viewportOrientationHandler = () => {
+    setTimeout(setViewportHeight, 200)
+  }
+
+  window.addEventListener('resize', viewportResizeHandler, { passive: true })
+  window.addEventListener('orientationchange', viewportOrientationHandler, { passive: true })
+}
+
+// 清理移动端视口适配的事件监听器
+function cleanupMobileViewportFix() {
+  if (viewportResizeHandler) {
+    window.removeEventListener('resize', viewportResizeHandler)
+    viewportResizeHandler = null
+  }
+
+  if (viewportOrientationHandler) {
+    window.removeEventListener('orientationchange', viewportOrientationHandler)
+    viewportOrientationHandler = null
+  }
+
+  if (preventScrollHandler) {
+    document.removeEventListener('wheel', preventScrollHandler)
+    preventScrollHandler = null
+  }
+
+  if (preventTouchMoveHandler) {
+    document.removeEventListener('touchmove', preventTouchMoveHandler)
+    preventTouchMoveHandler = null
+  }
+}
+
 // ===== 生命周期钩子 =====
 
 onMounted(() => {
   console.log('📱 页面已加载，等待用户确认加入房间')
+  console.log('🔍 当前用户代理:', navigator.userAgent)
+  console.log('🔍 当前视口尺寸:', window.innerWidth, 'x', window.innerHeight)
 
   // 注册歌词容器
   registerLyricsContainer(lyricsContainer)
+
+  // 移动端视口高度适配
+  setupMobileViewportFix()
 })
 
 onUnmounted(() => {
@@ -552,6 +634,9 @@ onUnmounted(() => {
   // 断开连接并清理资源
   disconnect()
   stopProgressUpdate()
+
+  // 清理移动端适配的事件监听器
+  cleanupMobileViewportFix()
 })
 </script>
 
