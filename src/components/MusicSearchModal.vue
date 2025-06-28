@@ -678,6 +678,14 @@ function toggleSearchHistory() {
 
 // 处理键盘事件
 function handleKeyDown(event: KeyboardEvent) {
+  // 按ESC键总是隐藏历史记录
+  if (event.key === 'Escape') {
+    showSearchHistory.value = false
+    selectedHistoryIndex.value = -1
+    event.preventDefault()
+    return
+  }
+
   if (!showSearchHistory.value && currentSearchHistory.value.length > 0 && event.key === 'ArrowDown') {
     // 按下方向键显示历史记录
     showSearchHistory.value = true
@@ -700,16 +708,7 @@ function handleKeyDown(event: KeyboardEvent) {
         selectFromHistory(selectedItem)
       }
       event.preventDefault()
-    } else if (event.key === 'Escape') {
-      // 按ESC键隐藏历史记录
-      showSearchHistory.value = false
-      selectedHistoryIndex.value = -1
-      event.preventDefault()
     }
-  } else if (event.key === 'Escape') {
-    // 按ESC键隐藏历史记录
-    showSearchHistory.value = false
-    selectedHistoryIndex.value = -1
   }
 }
 
