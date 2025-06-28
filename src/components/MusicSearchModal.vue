@@ -337,7 +337,7 @@ const musicSources: MusicSource[] = [
     name: '网易云音乐',
     icon: 'fa-solid fa-music',
     color: '#d33a31',
-    description: '歌曲 · 歌单',
+    description: '歌曲 · 歌单 · 用户',
   },
   {
     id: 'qq',
@@ -376,7 +376,7 @@ const allSearchModes = [
     name: '用户歌单',
     icon: 'fa-solid fa-list-ul',
     description: '搜索用户',
-    supportedSources: ['qq'], // 只有QQ音乐支持用户搜索
+    supportedSources: ['wy', 'qq'], // 只有QQ音乐支持用户搜索
   },
 ]
 
@@ -557,7 +557,7 @@ function handleSearch() {
         action = '/music/searchsonglist'
         break
       case 'user_playlist':
-        source = 'qq_user'
+        source += '_user'
         action = '/music/searchsonglist'
         break
       default:
