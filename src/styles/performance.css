@@ -1,0 +1,386 @@
+/* 低功耗模式和性能优化相关样式 */
+
+/* 低功耗模式基础样式 */
+.low-power-mode {
+  /* 使用 will-change 优化性能 */
+  will-change: auto;
+}
+
+/* 减少动画模式 */
+.reduce-animations * {
+  animation-duration: 0.15s !important;
+  transition-duration: 0.15s !important;
+  animation-iteration-count: 1 !important;
+}
+
+.reduce-animations .lyric-line {
+  transition: color 0.1s ease, font-size 0.1s ease !important;
+  transform: none !important;
+  text-shadow: none !important;
+}
+
+.reduce-animations .lyric-line.active {
+  transform: none !important;
+  text-shadow: 0 0 3px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* 禁用背景模糊 */
+.disable-blur .dynamic-bg img {
+  filter: none !important;
+}
+
+.disable-blur .backdrop-blur-md,
+.disable-blur .backdrop-blur-lg,
+.disable-blur .backdrop-blur-xl,
+.disable-blur .backdrop-blur-2xl,
+.disable-blur .backdrop-blur-3xl {
+  backdrop-filter: none !important;
+}
+
+.disable-blur .blur-3xl,
+.disable-blur .blur-2xl,
+.disable-blur .blur-xl {
+  filter: none !important;
+}
+.disable-blur .lyric-line {
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9), 
+               -1px -1px 4px rgba(0, 0, 0, 0.8),
+               0 0 12px rgba(0, 0, 0, 0.7) !important;
+  /* 移除单独背景，使用更强的文字阴影 */
+  background: none !important;
+  padding: 0.5rem 0 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+.disable-blur .lyric-line.active {
+  background: none !important;
+  color: #ffffff !important;
+  text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.95), 
+               -2px -2px 6px rgba(0, 0, 0, 0.9),
+               0 0 20px rgba(59, 130, 246, 0.8),
+               0 0 30px rgba(0, 0, 0, 0.8) !important;
+  border: none !important;
+  box-shadow: none !important;
+  /* 添加微妙的描边效果 */
+  -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.8);
+}
+
+/* 沉浸模式下禁用模糊时的歌词优化 */
+.disable-blur .immersive-lyric-active {
+  background: none !important;
+  border-left: 4px solid rgba(59, 130, 246, 0.9) !important;
+  box-shadow: none !important;
+  padding-left: 1rem !important;
+  margin-left: -1rem !important;
+  border-radius: 0.5rem !important;
+  text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.95), 
+               0 0 20px rgba(59, 130, 246, 0.8),
+               0 0 30px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 禁用模糊时的歌词容器优化 */
+.disable-blur .lyrics-container {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-radius: 1rem !important;
+  padding: 1rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.disable-blur .immersive-lyrics-container {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border-radius: 1rem !important;
+  padding: 1.5rem !important;
+}
+
+/* 低功耗模式基础样式 */
+.low-power-mode {
+  /* 使用 will-change 优化性能 */
+  will-change: auto;
+}
+
+/* 减少动画模式 */
+.reduce-animations * {
+  animation-duration: 0.15s !important;
+  transition-duration: 0.15s !important;
+  animation-iteration-count: 1 !important;
+}
+
+.reduce-animations .lyric-line {
+  transition: color 0.1s ease, font-size 0.1s ease !important;
+  transform: none !important;
+  text-shadow: none !important;
+}
+
+.reduce-animations .lyric-line.active {
+  transform: none !important;
+  text-shadow: 0 0 3px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* 禁用模糊时的全局界面优化 */
+.disable-blur .glass-effect {
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 禁用模糊时的模态框优化 */
+.disable-blur .modal-enter-active,
+.disable-blur .modal-leave-active {
+  transition: all 0.3s ease;
+}
+
+.disable-blur .modal-enter-from,
+.disable-blur .modal-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* 禁用模糊时的消息气泡优化 */
+.disable-blur .message-bubble {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: none !important;
+}
+
+/* 禁用模糊时的播放列表优化 */
+.disable-blur .playlist-item {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-radius: 0.5rem !important;
+  margin: 0.125rem 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.disable-blur .playlist-item:hover {
+  background: rgba(0, 0, 0, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+/* 禁用模糊时的控制面板优化 */
+.disable-blur .bg-black,
+.disable-blur .bg-gray-900 {
+  background: rgba(0, 0, 0, 0.85) !important;
+}
+
+.disable-blur .bg-white {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* 禁用模糊时的半透明背景优化 */
+.disable-blur .bg-black.bg-opacity-10,
+.disable-blur .bg-gray-900.bg-opacity-10 {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.disable-blur .bg-black.bg-opacity-20,
+.disable-blur .bg-gray-900.bg-opacity-20 {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.disable-blur .bg-black.bg-opacity-30,
+.disable-blur .bg-gray-900.bg-opacity-30 {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.disable-blur .bg-black.bg-opacity-50,
+.disable-blur .bg-gray-900.bg-opacity-50 {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+.disable-blur .bg-white.bg-opacity-10 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.disable-blur .bg-white.bg-opacity-20 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.disable-blur .bg-white.bg-opacity-30 {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.disable-blur .bg-white.bg-opacity-50 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* 禁用模糊时的音乐来源按钮优化 */
+.disable-blur .music-source-button {
+  background: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.disable-blur .music-source-button:hover {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+.disable-blur .music-source-button.active {
+  background: rgba(59, 130, 246, 0.8) !important;
+  border: 1px solid rgba(59, 130, 246, 0.6) !important;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* 禁用模糊时的顶部栏优化 */
+.disable-blur .top-bar,
+.disable-blur .header {
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 禁用模糊时的侧边栏优化 */
+.disable-blur .sidebar {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: none !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 禁用模糊时的卡片优化 */
+.disable-blur .card,
+.disable-blur .panel {
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 禁用模糊时的输入框优化 */
+.disable-blur input,
+.disable-blur textarea {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+.disable-blur input::placeholder,
+.disable-blur textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 禁用模糊时的按钮优化 */
+.disable-blur button:not(.music-source-button) {
+  background: rgba(0, 0, 0, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.disable-blur button:not(.music-source-button):hover {
+  background: rgba(0, 0, 0, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 禁用模糊时的下拉菜单优化 */
+.disable-blur .dropdown,
+.disable-blur .menu {
+  background: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 禁用模糊时的工具提示优化 */
+.disable-blur .tooltip {
+  background: rgba(0, 0, 0, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+/* 简化特效 */
+.simplify-effects .glass-effect {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: none !important;
+}
+
+.simplify-effects .shadow-2xl,
+.simplify-effects .shadow-xl,
+.simplify-effects .shadow-lg {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.simplify-effects .album-cover-immersive {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.simplify-effects .album-cover-immersive::before {
+  display: none !important;
+}
+
+/* 禁用粒子效果和复杂动画 */
+.disable-particles .animate-pulse,
+.disable-particles .animate-float,
+.disable-particles .animate-bounce {
+  animation: none !important;
+}
+
+.disable-particles .dynamic-bg img {
+  animation: none !important;
+}
+
+/* 低功耗模式下的渐变优化 */
+.low-power-mode .bg-gradient-to-br,
+.low-power-mode .bg-gradient-to-r {
+  background: #1a1a1a !important;
+}
+
+.low-power-mode .text-gradient {
+  background: white !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* 低功耗模式下的进度条简化 */
+.low-power-mode .immersive-progress {
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%) !important;
+}
+
+/* 性能优化相关样式 */
+.performance-optimized {
+  transform: translateZ(0); /* 启用硬件加速 */
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.performance-optimized * {
+  transform: translateZ(0);
+}
+
+/* 减少重绘的歌词样式 */
+.reduce-animations .lyrics-container {
+  scroll-behavior: auto !important;
+}
+
+.reduce-animations .lyrics-scroll-animation {
+  transition: none !important;
+}
+
+/* 低功耗模式指示器 */
+.low-power-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.low-power-indicator::before {
+  content: '⚡';
+  margin-right: 0.5rem;
+}
+
+/* 移动端低功耗优化 */
+@media (max-width: 768px) {
+  .low-power-mode .immersive-mode {
+    background: #1a1a1a !important;
+  }
+  
+  .low-power-mode .dynamic-bg {
+    display: none !important;
+  }
+}
