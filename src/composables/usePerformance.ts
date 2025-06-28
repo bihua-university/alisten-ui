@@ -20,7 +20,7 @@ function loadPerformanceSettings() {
       reducedMotion.value = JSON.parse(motionSaved)
     }
   } catch (error) {
-    console.warn('读取性能设置失败:', error)
+    console.warn('⚠️ 读取性能设置失败:', error)
   }
 }
 
@@ -30,7 +30,7 @@ function savePerformanceSettings() {
     localStorage.setItem('alisten-performance-level', performanceLevel.value)
     localStorage.setItem('alisten-reduced-motion', JSON.stringify(reducedMotion.value))
   } catch (error) {
-    console.warn('保存性能设置失败:', error)
+    console.warn('⚠️ 保存性能设置失败:', error)
   }
 }
 
@@ -45,22 +45,18 @@ function applyPerformanceSettings() {
   switch (performanceLevel.value) {
     case 'high':
       body.classList.add('performance-high')
-      console.log('Applied performance-high class')
       break
     case 'medium':
       body.classList.add('performance-medium')
       if (window.innerWidth <= 768) {
         body.classList.add('mobile-performance')
       }
-      console.log('Applied performance-medium class')
       break
     case 'low':
       body.classList.add('performance-low', 'mobile-performance')
-      console.log('Applied performance-low class')
       break
     case 'off':
       body.classList.add('performance-off', 'no-animations')
-      console.log('Applied performance-off class')
       break
   }
 
@@ -68,8 +64,6 @@ function applyPerformanceSettings() {
   if (reducedMotion.value) {
     body.classList.add('no-animations')
   }
-
-  console.log('Current body classes:', body.className)
 }
 
 // 自动检测设备性能
@@ -116,7 +110,7 @@ function startPerformanceMonitoring() {
         const currentIndex = levels.indexOf(performanceLevel.value)
         if (currentIndex < levels.length - 1) {
           performanceLevel.value = levels[currentIndex + 1]
-          console.log(`检测到性能问题，自动降低到 ${performanceLevel.value} 模式`)
+          console.warn(`📊 性能监控：检测到低帧率(${fps.toFixed(1)} FPS)，自动降低到 ${performanceLevel.value} 模式`)
         }
       }
 
