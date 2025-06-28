@@ -60,7 +60,7 @@
           <!-- 歌词显示区域 -->
           <div
             v-if="!isImmersiveMode" ref="lyricsContainer"
-            class="lyrics-container overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide flex-1 prevent-bounce"
+            class="lyrics-container overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide flex-1"
           >
             <div
               class="lyrics-content mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4 max-w-2xl"
@@ -136,7 +136,7 @@
           class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:flex overflow-hidden flex-col"
         >
           <!-- 聊天区域 -->
-          <div class="flex-1 flex flex-col overflow-hidden h-[calc(var(--vh,1vh)*100-300px)]">
+          <div class="flex-1 flex flex-col overflow-hidden">
             <ChatComponent
               is-desktop
             />
@@ -364,12 +364,14 @@ function toggleImmersiveMode() {
 
 // 确认加入房间
 function confirmJoinRoom() {
+  console.log('✅ 用户确认加入房间')
   showJoinRoomConfirm.value = false
   initializeApp()
 }
 
 // 取消加入房间
 function cancelJoinRoom() {
+  console.log('❌ 用户取消加入房间')
   alert('您已取消加入房间')
   // 这里可以添加跳转逻辑，比如：
   // window.location.href = '/rooms'
@@ -536,37 +538,29 @@ function initializeMediaSession() {
 // 用于存储事件监听器引用，便于清理
 let viewportResizeHandler: ((this: Window, ev: UIEvent) => any) | null = null
 let viewportOrientationHandler: ((this: Window, ev: Event) => any) | null = null
-let visualViewportHandler: (() => void) | null = null
-let resizeTimeout: number | null = null
 
 // 修复移动端视口高度变化问题
 function setupMobileViewportFix() {
+  // 设置 CSS 自定义属性用于视口高度
+  function setViewportHeight() {
+    const vh = window.innerHeight * 0.01
+    document.documentElement.style.setProperty('--vh', `${vh}px`)
+    console.log(`📱 更新视口高度: ${window.innerHeight}px -> ${vh}px per vh`)
+  }
+
+  // 总是设置初始值，不管是否为移动设备
+  setViewportHeight()
+
   // 检查是否为移动设备
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  const isSmallScreen = window.innerWidth <= 768
 
-  if (!isMobile) {
+  if (!isMobile && !isSmallScreen) {
+    console.log('🖥️ 桌面设备，跳过移动端适配')
     return
   }
 
   console.log('📱 初始化移动端视口适配')
-
-  // 设置 CSS 自定义属性用于视口高度
-  function setViewportHeight() {
-    // 清除之前的定时器
-    if (resizeTimeout) {
-      clearTimeout(resizeTimeout)
-    }
-
-    // 使用防抖处理，避免频繁更新
-    resizeTimeout = window.setTimeout(() => {
-      const vh = window.innerHeight * 0.01
-      document.documentElement.style.setProperty('--vh', `${vh}px`)
-      console.log(`📱 更新视口高度: ${window.innerHeight}px -> ${vh}px per vh`)
-    }, 50)
-  }
-
-  // 初始设置
-  setViewportHeight()
 
   // 创建事件处理器
   viewportResizeHandler = setViewportHeight
@@ -582,12 +576,6 @@ function setupMobileViewportFix() {
 
   // 监听方向改变
   window.addEventListener('orientationchange', viewportOrientationHandler, { passive: true })
-
-  // 监听视觉视口变化（iOS Safari 支持）
-  if (window.visualViewport) {
-    visualViewportHandler = () => setViewportHeight()
-    window.visualViewport.addEventListener('resize', visualViewportHandler)
-  }
 }
 
 // 清理移动端视口适配的事件监听器
@@ -601,22 +589,14 @@ function cleanupMobileViewportFix() {
     window.removeEventListener('orientationchange', viewportOrientationHandler)
     viewportOrientationHandler = null
   }
-
-  if (visualViewportHandler && window.visualViewport) {
-    window.visualViewport.removeEventListener('resize', visualViewportHandler)
-    visualViewportHandler = null
-  }
-
-  if (resizeTimeout) {
-    clearTimeout(resizeTimeout)
-    resizeTimeout = null
-  }
 }
 
 // ===== 生命周期钩子 =====
 
 onMounted(() => {
   console.log('📱 页面已加载，等待用户确认加入房间')
+  console.log('🔍 当前用户代理:', navigator.userAgent)
+  console.log('🔍 当前视口尺寸:', window.innerWidth, 'x', window.innerHeight)
 
   // 注册歌词容器
   registerLyricsContainer(lyricsContainer)
@@ -690,39 +670,19 @@ onUnmounted(() => {
   --vh: 1vh;
 }
 
-/* 移动端全面适配 */
+/* 移动端适配 */
 @media (max-width: 768px) {
-  * {
-    box-sizing: border-box;
-  }
-
-  html {
-    height: calc(var(--vh, 1vh) * 100);
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-  }
-
-  body {
+  html, body {
     height: calc(var(--vh, 1vh) * 100);
     min-height: calc(var(--vh, 1vh) * 100);
     margin: 0;
     padding: 0;
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    background: #1E293B; /* 防止白色背景显示 */
+    background: #1E293B;
   }
 
   #app {
     height: calc(var(--vh, 1vh) * 100);
     min-height: calc(var(--vh, 1vh) * 100);
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
   }
 }
 
@@ -733,13 +693,5 @@ onUnmounted(() => {
 
 .min-h-screen-mobile {
   min-height: calc(var(--vh, 1vh) * 100) !important;
-}
-
-/* 移动端防止橡皮筋效果 */
-@media (max-width: 768px) {
-  .prevent-bounce {
-    overscroll-behavior: none;
-    -webkit-overflow-scrolling: touch;
-  }
 }
 </style>
