@@ -60,7 +60,7 @@
           <!-- 歌词显示区域 -->
           <div
             v-if="!isImmersiveMode" ref="lyricsContainer"
-            class="lyrics-container overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide flex-1"
+            class="lyrics-container overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide flex-1 prevent-bounce"
           >
             <div
               class="lyrics-content mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4 max-w-2xl"
@@ -136,7 +136,7 @@
           class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:flex overflow-hidden flex-col"
         >
           <!-- 聊天区域 -->
-          <div class="flex-1 flex flex-col overflow-hidden h-[calc(100vh-300px)]">
+          <div class="flex-1 flex flex-col overflow-hidden h-[calc(var(--vh,1vh)*100-300px)]">
             <ChatComponent
               is-desktop
             />
@@ -173,7 +173,7 @@
         <div v-if="showMobileChat" class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
           <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showMobileChat = false" />
           <div
-            class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
+            class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[calc(var(--vh,1vh)*85)] md:max-h-[calc(var(--vh,1vh)*90)] flex flex-col overflow-hidden"
           >
             <ChatComponent
               show-close-button
@@ -536,6 +536,8 @@ function initializeMediaSession() {
 // 用于存储事件监听器引用，便于清理
 let viewportResizeHandler: ((this: Window, ev: UIEvent) => any) | null = null
 let viewportOrientationHandler: ((this: Window, ev: Event) => any) | null = null
+let visualViewportHandler: (() => void) | null = null
+let resizeTimeout: number | null = null
 
 // 修复移动端视口高度变化问题
 function setupMobileViewportFix() {
@@ -546,10 +548,21 @@ function setupMobileViewportFix() {
     return
   }
 
+  console.log('📱 初始化移动端视口适配')
+
   // 设置 CSS 自定义属性用于视口高度
   function setViewportHeight() {
-    const vh = window.innerHeight * 0.01
-    document.documentElement.style.setProperty('--vh', `${vh}px`)
+    // 清除之前的定时器
+    if (resizeTimeout) {
+      clearTimeout(resizeTimeout)
+    }
+
+    // 使用防抖处理，避免频繁更新
+    resizeTimeout = window.setTimeout(() => {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty('--vh', `${vh}px`)
+      console.log(`📱 更新视口高度: ${window.innerHeight}px -> ${vh}px per vh`)
+    }, 50)
   }
 
   // 初始设置
@@ -558,15 +571,23 @@ function setupMobileViewportFix() {
   // 创建事件处理器
   viewportResizeHandler = setViewportHeight
   viewportOrientationHandler = () => {
-    // 延迟执行，等待方向改变完成
-    setTimeout(setViewportHeight, 100)
+    // 方向改变时延迟执行，等待完成
+    setTimeout(() => {
+      setViewportHeight()
+    }, 200)
   }
 
   // 监听视口大小变化
-  window.addEventListener('resize', viewportResizeHandler)
+  window.addEventListener('resize', viewportResizeHandler, { passive: true })
 
   // 监听方向改变
-  window.addEventListener('orientationchange', viewportOrientationHandler)
+  window.addEventListener('orientationchange', viewportOrientationHandler, { passive: true })
+
+  // 监听视觉视口变化（iOS Safari 支持）
+  if (window.visualViewport) {
+    visualViewportHandler = () => setViewportHeight()
+    window.visualViewport.addEventListener('resize', visualViewportHandler)
+  }
 }
 
 // 清理移动端视口适配的事件监听器
@@ -579,6 +600,16 @@ function cleanupMobileViewportFix() {
   if (viewportOrientationHandler) {
     window.removeEventListener('orientationchange', viewportOrientationHandler)
     viewportOrientationHandler = null
+  }
+
+  if (visualViewportHandler && window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', visualViewportHandler)
+    visualViewportHandler = null
+  }
+
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout)
+    resizeTimeout = null
   }
 }
 
@@ -656,13 +687,59 @@ onUnmounted(() => {
 
 /* 移动端适配 */
 :root {
-  --vh: 100%;
+  --vh: 1vh;
 }
 
+/* 移动端全面适配 */
 @media (max-width: 768px) {
-  html, body {
-    height: var(--vh);
-    min-height: var(--vh);
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    height: calc(var(--vh, 1vh) * 100);
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+
+  body {
+    height: calc(var(--vh, 1vh) * 100);
+    min-height: calc(var(--vh, 1vh) * 100);
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    background: #1E293B; /* 防止白色背景显示 */
+  }
+
+  #app {
+    height: calc(var(--vh, 1vh) * 100);
+    min-height: calc(var(--vh, 1vh) * 100);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+}
+
+/* 确保所有容器都使用正确的高度 */
+.h-screen-mobile {
+  height: calc(var(--vh, 1vh) * 100) !important;
+}
+
+.min-h-screen-mobile {
+  min-height: calc(var(--vh, 1vh) * 100) !important;
+}
+
+/* 移动端防止橡皮筋效果 */
+@media (max-width: 768px) {
+  .prevent-bounce {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
   }
 }
 </style>
