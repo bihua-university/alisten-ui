@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    class="bg-gradient-to-br from-dark to-gray-900 text-light min-h-screen font-inter overflow-hidden relative"
+    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen font-inter overflow-hidden relative"
   >
     <!-- 确认加入房间模态框 -->
     <JoinRoomModal
