@@ -108,7 +108,7 @@
               </div>
               <div
                 v-for="(item, index) in currentSearchHistory" :key="index"
-                class="group flex items-center justify-between p-3 text-sm cursor-pointer transition-colors border-b border-white/5 last:border-b-0"
+                class="group flex items-center p-3 text-sm cursor-pointer transition-colors border-b border-white/5 last:border-b-0"
                 :class="[
                   selectedHistoryIndex === index
                     ? 'bg-primary/20 text-white'
@@ -120,9 +120,6 @@
                   <i class="fa-solid fa-search text-gray-400 mr-3 flex-shrink-0" />
                   <span class="truncate">{{ item }}</span>
                 </div>
-                <i
-                  class="fa-solid fa-arrow-up-right-from-square text-gray-400 group-hover:text-white transition-colors text-xs ml-2 flex-shrink-0"
-                />
               </div>
             </div>
             <div class="border-t border-white/10 bg-white/5">
