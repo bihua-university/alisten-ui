@@ -558,11 +558,8 @@ function setupMobileViewportFix() {
 
   // 检查是否需要移动端适配
   if (!isMobileDevice()) {
-    console.log('🖥️ 桌面设备，跳过移动端适配')
     return
   }
-
-  console.log('📱 初始化移动端视口适配')
 
   // 创建事件处理器
   const preventScroll = createPreventScrollHandler()

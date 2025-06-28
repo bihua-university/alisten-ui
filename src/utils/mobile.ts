@@ -5,16 +5,15 @@
 // 可滚动区域选择器
 export const MOBILE_SCROLL_SELECTORS = `
   .lyrics-container, 
-  .chat-container .overflow-y-auto, 
-  .playlist-container, 
-  .search-results, 
-  .help-content .overflow-y-auto, 
+  .overflow-y-auto, 
+  .overflow-auto,
   .modal-scroll, 
   .mobile-chat-scroll, 
-  .smooth-scroll, 
-  [data-scrollable="true"], 
-  .overflow-y-auto.scrollbar-hide, 
-  .overflow-y-auto.custom-scrollbar
+  .smooth-scroll,
+  .scrollbar-hide,
+  .custom-scrollbar,
+  [data-scrollable="true"],
+  [class*="scroll"]
 `.replace(/\s+/g, ' ').trim()
 
 /**
@@ -34,14 +33,37 @@ export function isMobileDevice(): boolean {
 export function setViewportHeight(): void {
   const vh = window.innerHeight * 0.01
   document.documentElement.style.setProperty('--vh', `${vh}px`)
-  console.log(`📱 更新视口高度: ${window.innerHeight}px -> ${vh}px per vh`)
 }
 
 /**
  * 检查元素是否在允许滚动的区域内
  */
 export function isScrollableElement(target: Element): Element | null {
-  return target.closest(MOBILE_SCROLL_SELECTORS)
+  // 首先检查精确的滚动选择器
+  const exactMatch = target.closest(MOBILE_SCROLL_SELECTORS)
+  if (exactMatch) {
+    return exactMatch
+  }
+
+  // 检查元素本身或父元素是否有滚动相关的类名
+  let current: Element | null = target
+  while (current && current !== document.body) {
+    const classList = current.className || ''
+
+    // 检查是否包含滚动相关的类名
+    if (
+      classList.includes('overflow-y')
+      || classList.includes('overflow-auto')
+      || classList.includes('scroll')
+      || (classList.includes('flex-1') && current.querySelector('[class*="overflow"]'))
+    ) {
+      return current
+    }
+
+    current = current.parentElement
+  }
+
+  return null
 }
 
 /**
@@ -65,23 +87,29 @@ export function createPreventScrollHandler() {
   return function preventScroll(e: Event) {
     // 阻止页面级别的滚动
     if (e.target === document.body || e.target === document.documentElement) {
-      console.log('阻止页面级滚动')
       e.preventDefault()
       return
     }
 
     const target = e.target as Element
+    const scrollableElement = isScrollableElement(target)
+
+    // 如果在可滚动区域内，总是允许滚动
+    if (scrollableElement) {
+      return
+    }
+
+    // 检查是否在模态框内，如果在模态框内则更宽松地处理
     const inModal = isInModal(target)
+    if (inModal) {
+      return
+    }
+
+    // 只有当不在可滚动区域且不在模态框内时才阻止滚动
     const inApp = isInApp(target)
-
-    if (inModal || !inApp) {
-      const scrollableElement = isScrollableElement(target)
-
-      if (!scrollableElement) {
-        console.log('阻止滚动: 不在允许的滚动区域内', { target: target.className })
-        e.preventDefault()
-        e.stopPropagation()
-      }
+    if (!inApp) {
+      e.preventDefault()
+      e.stopPropagation()
     }
   }
 }
@@ -92,30 +120,20 @@ export function createPreventScrollHandler() {
 export function createPreventTouchMoveHandler() {
   return function preventTouchMove(e: TouchEvent) {
     const target = e.target as Element
+
+    // 检查是否在允许滚动的区域内
     const scrollableElement = isScrollableElement(target)
 
     if (!scrollableElement) {
-      console.log('阻止触摸滚动: 不在允许的滚动区域内', { target: target.className })
-      e.preventDefault()
-      e.stopPropagation()
-    } else {
-      // 防止过度滚动（橡皮筋效果）
-      const element = scrollableElement as HTMLElement
-      const { scrollTop, scrollHeight, clientHeight } = element
-      const targetRect = target?.getBoundingClientRect()
-      const touchY = e.touches[0].clientY
-
-      const isAtTop = scrollTop <= 0
-      const isAtBottom = scrollTop + clientHeight >= scrollHeight
-      const isScrollingUp = touchY > (targetRect?.top || 0)
-      const isScrollingDown = touchY < (targetRect?.bottom || 0)
-
-      if ((isAtTop && isScrollingUp) || (isAtBottom && isScrollingDown)) {
-        console.log('阻止边界触摸滚动: 防止橡皮筋效果')
+      // 检查是否在模态框内，如果在模态框内但没有找到滚动区域，可能是嵌套的情况
+      const inModal = isInModal(target)
+      if (!inModal) {
         e.preventDefault()
         e.stopPropagation()
       }
     }
+
+    // 在滚动区域内，总是允许滚动，让浏览器自然处理边界
   }
 }
 
