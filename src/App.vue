@@ -35,7 +35,7 @@
       </audio>
 
       <!-- 主内容区 -->
-      <main class="flex" :class="[isImmersiveMode ? 'h-screen' : 'h-[calc(100vh)]']">
+      <main class="flex h-screen">
         <!-- 左侧播放列表 -->
         <PlaylistComponent
           :playlist="processedPlaylist"
