@@ -12,6 +12,12 @@ export default {
       fontFamily: {
         inter: ['Inter', 'system-ui', 'sans-serif'],
       },
+      height: {
+        'screen-mobile': 'calc(var(--vh, 1vh) * 100)',
+      },
+      minHeight: {
+        'screen-mobile': 'calc(var(--vh, 1vh) * 100)',
+      },
     },
   },
   plugins: [],

@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen font-inter overflow-hidden relative"
+    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative"
   >
     <!-- 确认加入房间模态框 -->
     <JoinRoomModal
@@ -35,7 +35,7 @@
       </audio>
 
       <!-- 主内容区 -->
-      <main class="flex h-screen">
+      <main class="flex h-screen-mobile">
         <!-- 左侧播放列表 -->
         <PlaylistComponent
           :playlist="processedPlaylist"
@@ -531,6 +531,57 @@ function initializeMediaSession() {
   })
 }
 
+// ===== 移动端适配 =====
+
+// 用于存储事件监听器引用，便于清理
+let viewportResizeHandler: ((this: Window, ev: UIEvent) => any) | null = null
+let viewportOrientationHandler: ((this: Window, ev: Event) => any) | null = null
+
+// 修复移动端视口高度变化问题
+function setupMobileViewportFix() {
+  // 检查是否为移动设备
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
+  if (!isMobile) {
+    return
+  }
+
+  // 设置 CSS 自定义属性用于视口高度
+  function setViewportHeight() {
+    const vh = window.innerHeight * 0.01
+    document.documentElement.style.setProperty('--vh', `${vh}px`)
+  }
+
+  // 初始设置
+  setViewportHeight()
+
+  // 创建事件处理器
+  viewportResizeHandler = setViewportHeight
+  viewportOrientationHandler = () => {
+    // 延迟执行，等待方向改变完成
+    setTimeout(setViewportHeight, 100)
+  }
+
+  // 监听视口大小变化
+  window.addEventListener('resize', viewportResizeHandler)
+
+  // 监听方向改变
+  window.addEventListener('orientationchange', viewportOrientationHandler)
+}
+
+// 清理移动端视口适配的事件监听器
+function cleanupMobileViewportFix() {
+  if (viewportResizeHandler) {
+    window.removeEventListener('resize', viewportResizeHandler)
+    viewportResizeHandler = null
+  }
+
+  if (viewportOrientationHandler) {
+    window.removeEventListener('orientationchange', viewportOrientationHandler)
+    viewportOrientationHandler = null
+  }
+}
+
 // ===== 生命周期钩子 =====
 
 onMounted(() => {
@@ -538,6 +589,9 @@ onMounted(() => {
 
   // 注册歌词容器
   registerLyricsContainer(lyricsContainer)
+
+  // 移动端视口高度适配
+  setupMobileViewportFix()
 })
 
 onUnmounted(() => {
@@ -552,6 +606,9 @@ onUnmounted(() => {
   // 断开连接并清理资源
   disconnect()
   stopProgressUpdate()
+
+  // 清理移动端适配的事件监听器
+  cleanupMobileViewportFix()
 })
 </script>
 
@@ -595,5 +652,17 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 移动端适配 */
+:root {
+  --vh: 100%;
+}
+
+@media (max-width: 768px) {
+  html, body {
+    height: var(--vh);
+    min-height: var(--vh);
+  }
 }
 </style>
