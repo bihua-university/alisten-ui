@@ -20,51 +20,51 @@
 
 /* 高性能模式 - 所有效果全开 */
 .performance-high * {
-  animation-play-state: running;
+  animation-play-state: running !important;
 }
 
 .performance-high .dynamic-bg img {
-  animation: backgroundPulseOptimized 30s ease-in-out infinite;
+  animation: backgroundPulseOptimized 30s ease-in-out infinite !important;
 }
 
 .performance-high .glass-effect {
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px) !important;
 }
 
 .performance-high .lyric-line {
-  transition: all 0.25s ease-out;
+  transition: all 0.25s ease-out !important;
 }
 
 /* 中等性能模式 - 平衡效果 */
 .performance-medium .dynamic-bg img {
   /* 延长动画周期，减少GPU压力 */
-  animation: backgroundPulseOptimized 40s ease-in-out infinite;
+  animation: backgroundPulseOptimized 40s ease-in-out infinite !important;
 }
 
 .performance-medium .glass-effect {
   /* 减少模糊强度 */
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px) !important;
 }
 
 .performance-medium .lyric-line {
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease !important;
 }
 
 /* 低性能模式 - 简化效果 */
 .performance-low .dynamic-bg img {
   /* 完全禁用背景动画 */
-  animation: none;
-  transition: none;
+  animation: none !important;
+  transition: none !important;
 }
 
 .performance-low .glass-effect {
   /* 最小模糊效果 */
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px) !important;
 }
 
 .performance-low .lyric-line {
   /* 仅保留透明度变化 */
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease !important;
 }
 
 /* 极简模式 - 禁用所有动画和效果 */
