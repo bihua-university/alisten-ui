@@ -77,7 +77,7 @@
           <input
             ref="searchInputRef" v-model="songSearchQuery" type="text"
             :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
-            class="w-full bg-white/10 rounded-full py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
+            class="w-full bg-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
             @keyup.enter="handleSearch" @keydown="handleKeyDown" @focus="handleInputFocus" @blur="handleInputBlur"
           >
 
