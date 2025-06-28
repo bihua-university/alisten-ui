@@ -1,0 +1,365 @@
+/* 
+ * 性能优化CSS样式 - 统一管理
+ * 为整个应用提供基于性能级别的样式控制
+ */
+
+/* =================================================================
+   基础性能优化设置
+   ================================================================= */
+
+.performance-high,
+.performance-medium,
+.performance-low,
+.performance-off {
+  contain: paint;
+}
+
+/* =================================================================
+   性能级别控制 - 动画和效果
+   ================================================================= */
+
+/* 高性能模式 - 所有效果全开 */
+.performance-high * {
+  animation-play-state: running;
+}
+
+.performance-high .dynamic-bg img {
+  animation: backgroundPulseOptimized 30s ease-in-out infinite;
+}
+
+.performance-high .glass-effect {
+  backdrop-filter: blur(12px);
+}
+
+.performance-high .lyric-line {
+  transition: all 0.25s ease-out;
+}
+
+/* 中等性能模式 - 平衡效果 */
+.performance-medium .dynamic-bg img {
+  /* 延长动画周期，减少GPU压力 */
+  animation: backgroundPulseOptimized 40s ease-in-out infinite;
+}
+
+.performance-medium .glass-effect {
+  /* 减少模糊强度 */
+  backdrop-filter: blur(8px);
+}
+
+.performance-medium .lyric-line {
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+/* 低性能模式 - 简化效果 */
+.performance-low .dynamic-bg img {
+  /* 完全禁用背景动画 */
+  animation: none;
+  transition: none;
+}
+
+.performance-low .glass-effect {
+  /* 最小模糊效果 */
+  backdrop-filter: blur(4px);
+}
+
+.performance-low .lyric-line {
+  /* 仅保留透明度变化 */
+  transition: opacity 0.15s ease;
+}
+
+/* 极简模式 - 禁用所有动画和效果 */
+.performance-off .dynamic-bg img,
+.performance-off .glass-effect,
+.performance-off * {
+  animation: none !important;
+  transition: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  will-change: auto !important;
+}
+
+.performance-off .glass-effect {
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: none !important;
+}
+
+.performance-off .blur-3xl,
+.performance-off .blur-lg,
+.performance-off .blur-medium,
+.performance-off .blur-heavy {
+  filter: none !important;
+}
+
+/* =================================================================
+   通用组件性能控制
+   ================================================================= */
+
+/* 按钮动画控制 */
+.performance-high button {
+  transition: all 0.3s ease;
+}
+
+.performance-medium button {
+  transition: all 0.25s ease;
+}
+
+.performance-low button {
+  transition: all 0.2s ease;
+}
+
+.performance-off button {
+  transition: none;
+}
+
+/* 模态框动画控制 */
+.performance-high .modal-enter-active,
+.performance-high .modal-leave-active {
+  transition: all 0.3s ease;
+}
+
+.performance-medium .modal-enter-active,
+.performance-medium .modal-leave-active {
+  transition: all 0.25s ease;
+}
+
+.performance-low .modal-enter-active,
+.performance-low .modal-leave-active {
+  transition: all 0.2s ease;
+}
+
+.performance-off .modal-enter-active,
+.performance-off .modal-leave-active {
+  transition: none;
+}
+
+/* 搜索结果动画控制 */
+.performance-low .search-result-enter-active,
+.performance-low .search-result-leave-active {
+  transition-duration: 0.15s;
+}
+
+.performance-off .search-result-enter-active,
+.performance-off .search-result-leave-active {
+  transition: none;
+}
+
+/* 消息动画控制 */
+.performance-low .message-enter-active,
+.performance-low .message-leave-active {
+  transition-duration: 0.15s;
+}
+
+.performance-off .message-enter-active,
+.performance-off .message-leave-active {
+  transition: none;
+}
+
+/* 连接状态指示器动画控制 */
+.performance-high .animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.performance-medium .animate-pulse {
+  animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.performance-low .animate-pulse {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.performance-off .animate-pulse {
+  animation: none;
+}
+
+/* 性能选项动画控制 */
+.performance-high .performance-option {
+  transition: all 0.3s ease;
+}
+
+.performance-medium .performance-option {
+  transition: all 0.25s ease;
+}
+
+.performance-low .performance-option {
+  transition: all 0.2s ease;
+}
+
+.performance-off .performance-option {
+  transition: none;
+}
+
+/* 进度条动画控制 */
+.performance-high .immersive-progress {
+  transition: transform 200ms linear;
+}
+
+.performance-medium .immersive-progress {
+  transition: transform 250ms linear;
+}
+
+.performance-low .immersive-progress {
+  transition: transform 300ms linear;
+}
+
+.performance-off .immersive-progress {
+  transition: none;
+}
+
+/* 影响条动画控制 */
+.performance-high .impact-fill {
+  transition: width 0.3s ease;
+}
+
+.performance-medium .impact-fill {
+  transition: width 0.25s ease;
+}
+
+.performance-low .impact-fill {
+  transition: width 0.2s ease;
+}
+
+.performance-off .impact-fill {
+  transition: none;
+}
+
+/* =================================================================
+   移动端性能优化
+   ================================================================= */
+
+.mobile-performance .backdrop-blur-3xl {
+  backdrop-filter: blur(4px);
+}
+
+.mobile-performance .blur-3xl {
+  filter: blur(8px);
+}
+
+.mobile-performance .transition-all {
+  transition-duration: 0.2s;
+}
+
+.mobile-performance .glass-effect {
+  backdrop-filter: blur(6px);
+}
+
+.mobile-performance .dynamic-bg img {
+  animation: backgroundPulseOptimized 50s ease-in-out infinite;
+}
+
+.mobile-performance button {
+  transition-duration: 0.2s;
+}
+
+.mobile-performance .animate-pulse {
+  animation-duration: 3s;
+}
+
+.mobile-performance .modal-enter-active,
+.mobile-performance .modal-leave-active {
+  transition-duration: 0.2s;
+}
+
+.mobile-performance .impact-fill {
+  transition-duration: 0.2s;
+}
+
+.mobile-performance .performance-option {
+  transition-duration: 0.2s;
+}
+
+.mobile-performance .immersive-progress {
+  transition: transform 300ms linear;
+  box-shadow: none;
+}
+
+/* =================================================================
+   减少动效模式支持
+   ================================================================= */
+
+/* 全局减少动效模式 */
+.no-animations *,
+.no-animations button,
+.no-animations .animate-pulse,
+.no-animations .modal-enter-active,
+.no-animations .modal-leave-active,
+.no-animations .impact-fill,
+.no-animations .radio-indicator,
+.no-animations .performance-option,
+.no-animations .immersive-progress,
+.no-animations *::before,
+.no-animations *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* 系统偏好设置支持 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .dynamic-bg img {
+    animation: none !important;
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(4px) !important;
+  }
+}
+
+/* =================================================================
+   响应式设备优化
+   ================================================================= */
+
+/* 低功耗设备检测优化 */
+@media (max-width: 768px) and (max-height: 1024px) {
+  .performance-medium .dynamic-bg img,
+  .performance-high .dynamic-bg img {
+    animation: backgroundPulseOptimized 60s ease-in-out infinite;
+  }
+  
+  .performance-medium .glass-effect,
+  .performance-high .glass-effect {
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* 极低端设备优化 */
+@media (max-width: 480px) {
+  .performance-medium .glass-effect,
+  .performance-high .glass-effect {
+    backdrop-filter: blur(4px);
+  }
+  
+  .performance-medium .dynamic-bg img,
+  .performance-high .dynamic-bg img {
+    animation: none;
+  }
+}
+
+/* =================================================================
+   性能优化关键帧动画
+   ================================================================= */
+
+@keyframes backgroundPulseOptimized {
+  0%, 100% { 
+    transform: scale(1.1); 
+    filter: blur(40px) brightness(0.8);
+  }
+  50% { 
+    transform: scale(1.15); 
+    filter: blur(45px) brightness(0.9);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}

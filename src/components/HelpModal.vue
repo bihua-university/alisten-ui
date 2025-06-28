@@ -198,6 +198,15 @@
             </ul>
           </div>
 
+          <!-- 性能设置 -->
+          <div class="bg-white/5 border border-white/10 rounded-lg p-4 mb-6">
+            <h4 class="text-white font-medium mb-3 flex items-center">
+              <i class="fa-solid fa-gauge mr-2" />
+              性能设置
+            </h4>
+            <PerformanceSettings :show-advanced="true" />
+          </div>
+
           <!-- 版本信息 -->
           <div class="bg-white/5 border border-white/10 rounded-lg p-4">
             <h4 class="text-gray-300 font-medium mb-3 flex items-center">
@@ -213,6 +222,7 @@
 </template>
 
 <script setup lang="ts">
+import PerformanceSettings from './PerformanceSettings.vue'
 import VersionInfo from './VersionInfo.vue'
 
 // 定义 props
