@@ -2,7 +2,7 @@
   <!-- 桌面端播放列表 - 侧边栏模式 -->
   <aside
     v-if="!isMobile && !isImmersiveMode"
-    class="w-72 bg-dark/60 backdrop-blur-xl border-r border-white/10 hidden md:block overflow-y-auto scrollbar-hide"
+    class="w-72 bg-dark/60 border-r border-white/10 hidden md:block overflow-y-auto scrollbar-hide"
   >
     <div class="p-4 border-b border-white/10">
       <h2 class="text-lg font-semibold flex items-center">

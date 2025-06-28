@@ -2,7 +2,7 @@
   <div
     id="app"
     class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative touch-none"
-    style="scrollbar-width: none; -ms-overflow-style: none;"
+    style="scrollbar-width: none; -ms-overflow-style: none; padding-top: env(safe-area-inset-top);"
   >
     <!-- 确认加入房间模态框 -->
     <JoinRoomModal
@@ -12,7 +12,7 @@
     />
 
     <!-- 动态背景 -->
-    <div v-if="!isImmersiveMode && initialized" class="fixed inset-0 z-0">
+    <div v-if="!isImmersiveMode && initialized" class="fixed inset-0 z-0" style="top: env(safe-area-inset-top); bottom: env(safe-area-inset-bottom);">
       <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />
       <div v-if="playerState.currentSong" class="absolute inset-0 opacity-50">
         <img
@@ -36,7 +36,7 @@
       </audio>
 
       <!-- 主内容区 -->
-      <main class="flex h-screen-mobile" style="scrollbar-width: none; -ms-overflow-style: none;">
+      <main class="flex h-screen-mobile" style="scrollbar-width: none; -ms-overflow-style: none; height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));">
         <!-- 左侧播放列表 -->
         <PlaylistComponent
           :playlist="processedPlaylist"
@@ -90,6 +90,7 @@
           <!-- 沉浸模式组件 -->
           <ImmersiveMode
             v-if="isImmersiveMode"
+            class="safe-area-top safe-area-bottom"
             @toggle-immersive="toggleImmersiveMode"
             @show-help="showHelp = true"
           />
@@ -98,7 +99,7 @@
           <PlayerInfo v-if="!isImmersiveMode" />
 
           <!-- 移动端底部导航 -->
-          <div v-if="!isImmersiveMode" class="left-0 right-0 bg-dark/50 backdrop-blur-md z-30 md:hidden">
+          <div v-if="!isImmersiveMode" class="left-0 right-0 bg-dark/50 backdrop-blur-md z-30 md:hidden" style="padding-bottom: env(safe-area-inset-bottom);">
             <div class="flex justify-around items-center py-2 px-2">
               <button
                 class="flex flex-col items-center text-gray-400 hover:text-white hover:bg-white/5 active:bg-white/10 transition-all min-w-0 flex-1 py-2 px-1 rounded-lg touch-target"
@@ -171,10 +172,11 @@
 
       <!-- 移动端聊天模态框 -->
       <transition name="modal">
-        <div v-if="showMobileChat" class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
+        <div v-if="showMobileChat" class="fixed inset-0 z-50 flex items-end md:items-center justify-center" style="top: env(safe-area-inset-top); bottom: env(safe-area-inset-bottom);">
           <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showMobileChat = false" />
           <div
             class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[calc(var(--vh,1vh)*85)] md:max-h-[calc(var(--vh,1vh)*90)] flex flex-col overflow-hidden"
+            style="margin-bottom: env(safe-area-inset-bottom);"
           >
             <ChatComponent
               show-close-button
@@ -200,7 +202,7 @@
       />
 
       <!-- WebSocket 连接配置显示（开发环境） -->
-      <div v-if="isDevelopment && !isImmersiveMode" class="fixed bottom-4 right-4 z-40">
+      <div v-if="isDevelopment && !isImmersiveMode" class="fixed z-40" style="bottom: calc(4rem + env(safe-area-inset-bottom)); right: 1rem;">
         <div class="bg-black/80 text-white text-xs p-2 rounded backdrop-blur-sm max-w-xs">
           <div class="font-medium mb-1">
             WebSocket 配置

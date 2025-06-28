@@ -33,6 +33,19 @@ export function isMobileDevice(): boolean {
 export function setViewportHeight(): void {
   const vh = window.innerHeight * 0.01
   document.documentElement.style.setProperty('--vh', `${vh}px`)
+
+  // 如果支持安全区域，也设置相关变量
+  if (CSS.supports('padding: env(safe-area-inset-top)')) {
+    // 获取安全区域信息并设置CSS变量
+    const style = getComputedStyle(document.documentElement)
+    const safeAreaTop = style.getPropertyValue('env(safe-area-inset-top)') || '0px'
+    const safeAreaBottom = style.getPropertyValue('env(safe-area-inset-bottom)') || '0px'
+
+    document.documentElement.style.setProperty('--safe-area-top', safeAreaTop)
+    document.documentElement.style.setProperty('--safe-area-bottom', safeAreaBottom)
+
+    console.log('🔧 安全区域信息:', { safeAreaTop, safeAreaBottom })
+  }
 }
 
 /**
