@@ -134,7 +134,7 @@
         <!-- 右侧聊天和用户列表 -->
         <aside
           v-if="!isImmersiveMode"
-          class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden lg:flex overflow-hidden flex-col"
+          class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden md:flex overflow-hidden flex-col"
         >
           <!-- 聊天区域 -->
           <div class="flex-1 flex flex-col overflow-hidden">
@@ -541,9 +541,10 @@ function initializeMediaSession() {
   })
 }
 
-// ===== 移动端适配 =====
+// ===== 响应式布局适配 =====
 
-// ===== 移动端适配 =====
+// 响应式移动设备状态
+const isMobile = ref(isMobileDevice())
 
 // 用于存储事件监听器引用，便于清理
 let viewportResizeHandler: ((this: Window, ev: UIEvent) => any) | null = null
@@ -551,42 +552,67 @@ let viewportOrientationHandler: ((this: Window, ev: Event) => any) | null = null
 let preventScrollHandler: ((e: Event) => void) | null = null
 let preventTouchMoveHandler: ((e: TouchEvent) => void) | null = null
 
-// 修复移动端视口高度变化问题
-function setupMobileViewportFix() {
-  // 总是设置初始值
+// 处理窗口大小变化
+function handleResize() {
+  // 更新视口高度
   setViewportHeight()
 
-  // 检查是否需要移动端适配
-  if (!isMobileDevice()) {
-    return
+  // 检查设备类型是否改变
+  const newIsMobile = isMobileDevice()
+  if (isMobile.value !== newIsMobile) {
+    isMobile.value = newIsMobile
+    console.log('📱 设备类型变化:', newIsMobile ? '移动端' : '桌面端')
+
+    // 设备类型变化时更新滚动防护
+    updateScrollPrevention()
+  }
+}
+
+// 更新滚动防护设置
+function updateScrollPrevention() {
+  // 先清理现有的滚动防护
+  if (preventScrollHandler) {
+    document.removeEventListener('wheel', preventScrollHandler)
+    preventScrollHandler = null
+  }
+  if (preventTouchMoveHandler) {
+    document.removeEventListener('touchmove', preventTouchMoveHandler)
+    preventTouchMoveHandler = null
   }
 
-  // 创建事件处理器
-  const preventScroll = createPreventScrollHandler()
-  const preventTouchMove = createPreventTouchMoveHandler()
-  const preventTouchStart = createPreventTouchStartHandler()
+  // 如果是移动设备，添加滚动防护
+  if (isMobile.value) {
+    const preventScroll = createPreventScrollHandler()
+    const preventTouchMove = createPreventTouchMoveHandler()
+    const preventTouchStart = createPreventTouchStartHandler()
 
-  // 存储事件处理器引用
-  preventScrollHandler = preventScroll
-  preventTouchMoveHandler = preventTouchMove
+    preventScrollHandler = preventScroll
+    preventTouchMoveHandler = preventTouchMove
 
-  // 添加事件监听器
-  document.addEventListener('wheel', preventScrollHandler, { passive: false, capture: true })
-  document.addEventListener('touchmove', preventTouchMoveHandler, { passive: false, capture: true })
-  document.addEventListener('touchstart', preventTouchStart, { passive: false, capture: true })
+    document.addEventListener('wheel', preventScrollHandler, { passive: false, capture: true })
+    document.addEventListener('touchmove', preventTouchMoveHandler, { passive: false, capture: true })
+    document.addEventListener('touchstart', preventTouchStart, { passive: false, capture: true })
+  }
+}
 
-  // 视口变化处理
-  viewportResizeHandler = setViewportHeight
+// 修复移动端视口高度变化问题和响应式布局
+function setupResponsiveLayout() {
+  // 设置初始值
+  setViewportHeight()
+  updateScrollPrevention()
+
+  // 视口变化处理 - 始终监听，不只是移动端
+  viewportResizeHandler = handleResize
   viewportOrientationHandler = () => {
-    setTimeout(setViewportHeight, 200)
+    setTimeout(handleResize, 200)
   }
 
   window.addEventListener('resize', viewportResizeHandler, { passive: true })
   window.addEventListener('orientationchange', viewportOrientationHandler, { passive: true })
 }
 
-// 清理移动端视口适配的事件监听器
-function cleanupMobileViewportFix() {
+// 清理响应式布局适配的事件监听器
+function cleanupResponsiveLayout() {
   if (viewportResizeHandler) {
     window.removeEventListener('resize', viewportResizeHandler)
     viewportResizeHandler = null
@@ -618,8 +644,8 @@ onMounted(() => {
   // 注册歌词容器
   registerLyricsContainer(lyricsContainer)
 
-  // 移动端视口高度适配
-  setupMobileViewportFix()
+  // 响应式布局适配
+  setupResponsiveLayout()
 })
 
 onUnmounted(() => {
@@ -635,8 +661,8 @@ onUnmounted(() => {
   disconnect()
   stopProgressUpdate()
 
-  // 清理移动端适配的事件监听器
-  cleanupMobileViewportFix()
+  // 清理响应式布局适配的事件监听器
+  cleanupResponsiveLayout()
 })
 </script>
 
