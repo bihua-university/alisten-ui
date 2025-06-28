@@ -75,19 +75,61 @@
         <!-- 搜索框 -->
         <div class="relative mb-6">
           <input
-            v-model="songSearchQuery" type="text"
+            ref="searchInputRef" v-model="songSearchQuery" type="text"
             :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
-            class="w-full bg-white/10 rounded-full py-3 px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
-            @keyup.enter="handleSearch"
+            class="w-full bg-white/10 rounded-full py-3 px-4 pr-20 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
+            @keyup.enter="handleSearch" @keydown="handleKeyDown" @focus="handleInputFocus" @blur="handleInputBlur"
           >
-          <button
-            :disabled="!songSearchQuery.trim()"
-            class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all touch-target"
-            :class="[songSearchQuery.trim() ? 'text-primary hover:bg-primary/20 active:bg-primary/30' : 'text-gray-500 cursor-not-allowed']"
-            @click="handleSearch"
+
+          <!-- 搜索提示 -->
+          <div v-if="currentSearchHistory.length > 0 && !showSearchHistory" class="text-xs text-gray-500 mt-2 px-4">
+            已保存 {{ currentSearchHistory.length }} 条历史记录
+          </div>
+
+          <!-- 搜索历史下拉菜单 -->
+          <div
+            v-if="showSearchHistory"
+            class="absolute left-0 right-0 mt-1 bg-dark border border-white/20 rounded-lg shadow-2xl z-50 max-h-64 overflow-y-auto custom-scrollbar"
           >
-            <i class="fa-solid fa-search" />
-          </button>
+            <div v-if="currentSearchHistory.length === 0" class="p-4 text-sm text-gray-400 text-center">
+              <i class="fa-solid fa-clock-rotate-left text-lg mb-2 block opacity-50" />
+              暂无搜索历史
+              <div class="text-xs mt-1 opacity-75">
+                开始搜索后会显示历史记录
+              </div>
+            </div>
+            <div v-else>
+              <div class="p-2 border-b border-white/10">
+                <div class="text-xs text-gray-400 px-2 py-1">
+                  <i class="fa-solid fa-clock-rotate-left mr-1" />
+                  最近搜索 ({{ selectedMusicSource.name }} - {{ selectedSearchMode.name }})
+                </div>
+              </div>
+              <div
+                v-for="(item, index) in currentSearchHistory" :key="index"
+                class="group flex items-center justify-between p-3 text-sm text-white cursor-pointer hover:bg-white/10 transition-colors border-b border-white/5 last:border-b-0"
+                @click="selectFromHistory(item)"
+              >
+                <div class="flex items-center flex-1 min-w-0">
+                  <i class="fa-solid fa-search text-gray-400 mr-3 flex-shrink-0" />
+                  <span class="truncate">{{ item }}</span>
+                </div>
+                <i
+                  class="fa-solid fa-arrow-up-right-from-square text-gray-400 group-hover:text-white transition-colors text-xs ml-2 flex-shrink-0"
+                />
+              </div>
+            </div>
+            <div class="border-t border-white/10 bg-white/5">
+              <button
+                v-if="currentSearchHistory.length > 0"
+                class="w-full p-3 text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors flex items-center justify-center"
+                @click="clearCurrentHistory"
+              >
+                <i class="fa-solid fa-trash mr-2" />
+                清除当前历史记录
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- 搜索结果 -->
@@ -322,6 +364,23 @@ const songQuery = useStorage('song-query', '')
 const playlistQuery = useStorage('playlist-query', '')
 const userPlaylistQuery = useStorage('user-playlist-query', '')
 
+// 为每种音乐源和搜索模式创建独立的搜索历史
+const searchHistory = useStorage('search-history', {} as Record<string, string[]>)
+
+// 显示搜索历史的状态
+const showSearchHistory = ref(false)
+const searchInputRef = ref<HTMLInputElement | null>(null)
+
+// 获取当前音乐源和搜索模式对应的搜索历史key
+const currentHistoryKey = computed(() => {
+  return `${selectedMusicSource.value.id}-${selectedSearchMode.value.id}`
+})
+
+// 获取当前的搜索历史
+const currentSearchHistory = computed(() => {
+  return searchHistory.value[currentHistoryKey.value] || []
+})
+
 // 当前搜索查询的计算属性
 const songSearchQuery = computed({
   get() {
@@ -453,6 +512,9 @@ function handleSearch() {
         pageSize,
       },
     })
+
+    // 添加到搜索历史
+    addToSearchHistory(songSearchQuery.value.trim())
   }
 }
 
@@ -522,14 +584,66 @@ function viewPlaylist(playlist: any) {
   handleSearch()
 }
 
-// 监听搜索模式变化，当切换到user_playlist且有值时自动搜索
-watch(
-  () => selectedSearchMode.value.id,
-  (newMode) => {
-    if (newMode === 'user_playlist' && userPlaylistQuery.value.trim()) {
-      // 如果切换到"用户歌单"模式且已有搜索值，自动执行搜索
-      handleSearch()
-    }
-  },
-)
+// 添加搜索历史
+function addToSearchHistory(query: string) {
+  const key = currentHistoryKey.value
+  const history = searchHistory.value[key] || []
+
+  // 移除重复项并添加到最前面
+  const filtered = history.filter(item => item !== query)
+  const newHistory = [query, ...filtered].slice(0, 10) // 最多保存10条历史记录
+
+  searchHistory.value = {
+    ...searchHistory.value,
+    [key]: newHistory,
+  }
+}
+
+// 从搜索历史中选择查询
+function selectFromHistory(query: string) {
+  songSearchQuery.value = query
+  showSearchHistory.value = false
+  handleSearch()
+}
+
+// 清除当前的搜索历史
+function clearCurrentHistory() {
+  const key = currentHistoryKey.value
+  const newHistory = { ...searchHistory.value }
+  delete newHistory[key]
+  searchHistory.value = newHistory
+  showSearchHistory.value = false
+}
+
+// 处理输入框焦点
+function handleInputFocus() {
+  if (currentSearchHistory.value.length > 0) {
+    showSearchHistory.value = true
+  }
+}
+
+// 处理输入框失焦
+function handleInputBlur() {
+  // 延迟隐藏以允许点击历史记录
+  setTimeout(() => {
+    showSearchHistory.value = false
+  }, 200)
+}
+
+// 处理键盘事件
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'ArrowDown' && !showSearchHistory.value && currentSearchHistory.value.length > 0) {
+    // 按下方向键显示历史记录
+    showSearchHistory.value = true
+    event.preventDefault()
+  } else if (event.key === 'Escape') {
+    // 按ESC键隐藏历史记录
+    showSearchHistory.value = false
+  }
+}
+
+// 监听音乐源或搜索模式变化，隐藏搜索历史
+watch([selectedMusicSource, selectedSearchMode], () => {
+  showSearchHistory.value = false
+})
 </script>
