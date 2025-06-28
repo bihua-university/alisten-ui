@@ -1,4 +1,6 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
+/* 导入性能优化样式 - 必须在所有CSS规则之前 */
+@import './styles/performance.css';
 
 @tailwind base;
 @tailwind components;
