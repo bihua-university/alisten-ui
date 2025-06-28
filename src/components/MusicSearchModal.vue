@@ -77,13 +77,14 @@
           <input
             ref="searchInputRef" v-model="songSearchQuery" type="text"
             :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
-            class="w-full bg-white/10 rounded-full py-3 px-4 pr-20 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
+            class="w-full bg-white/10 rounded-full py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
             @keyup.enter="handleSearch" @keydown="handleKeyDown" @focus="handleInputFocus" @blur="handleInputBlur"
           >
 
           <!-- 搜索提示 -->
           <div v-if="currentSearchHistory.length > 0 && !showSearchHistory" class="text-xs text-gray-500 mt-2 px-4">
             已保存 {{ currentSearchHistory.length }} 条历史记录
+            <span class="text-gray-600">• 按 ↓ 键查看，↑↓ 导航，回车选择</span>
           </div>
 
           <!-- 搜索历史下拉菜单 -->
@@ -107,7 +108,12 @@
               </div>
               <div
                 v-for="(item, index) in currentSearchHistory" :key="index"
-                class="group flex items-center justify-between p-3 text-sm text-white cursor-pointer hover:bg-white/10 transition-colors border-b border-white/5 last:border-b-0"
+                class="group flex items-center justify-between p-3 text-sm cursor-pointer transition-colors border-b border-white/5 last:border-b-0"
+                :class="[
+                  selectedHistoryIndex === index
+                    ? 'bg-primary/20 text-white'
+                    : 'text-white hover:bg-white/10',
+                ]"
                 @click="selectFromHistory(item)"
               >
                 <div class="flex items-center flex-1 min-w-0">
@@ -371,6 +377,9 @@ const searchHistory = useStorage('search-history', {} as Record<string, string[]
 const showSearchHistory = ref(false)
 const searchInputRef = ref<HTMLInputElement | null>(null)
 
+// 键盘导航相关状态
+const selectedHistoryIndex = ref(-1) // 当前选中的历史记录索引，-1表示没有选中
+
 // 获取当前音乐源和搜索模式对应的搜索历史key
 const currentHistoryKey = computed(() => {
   return `${selectedMusicSource.value.id}-${selectedSearchMode.value.id}`
@@ -603,6 +612,7 @@ function addToSearchHistory(query: string) {
 function selectFromHistory(query: string) {
   songSearchQuery.value = query
   showSearchHistory.value = false
+  selectedHistoryIndex.value = -1
   handleSearch()
 }
 
@@ -613,12 +623,14 @@ function clearCurrentHistory() {
   delete newHistory[key]
   searchHistory.value = newHistory
   showSearchHistory.value = false
+  selectedHistoryIndex.value = -1
 }
 
 // 处理输入框焦点
 function handleInputFocus() {
   if (currentSearchHistory.value.length > 0) {
     showSearchHistory.value = true
+    selectedHistoryIndex.value = -1
   }
 }
 
@@ -627,23 +639,50 @@ function handleInputBlur() {
   // 延迟隐藏以允许点击历史记录
   setTimeout(() => {
     showSearchHistory.value = false
+    selectedHistoryIndex.value = -1
   }, 200)
 }
 
 // 处理键盘事件
 function handleKeyDown(event: KeyboardEvent) {
-  if (event.key === 'ArrowDown' && !showSearchHistory.value && currentSearchHistory.value.length > 0) {
+  if (!showSearchHistory.value && currentSearchHistory.value.length > 0 && event.key === 'ArrowDown') {
     // 按下方向键显示历史记录
     showSearchHistory.value = true
+    selectedHistoryIndex.value = -1
     event.preventDefault()
+  } else if (showSearchHistory.value) {
+    // 在历史记录菜单中导航
+    if (event.key === 'ArrowDown') {
+      // 向下导航
+      selectedHistoryIndex.value = Math.min(selectedHistoryIndex.value + 1, currentSearchHistory.value.length - 1)
+      event.preventDefault()
+    } else if (event.key === 'ArrowUp') {
+      // 向上导航
+      selectedHistoryIndex.value = Math.max(selectedHistoryIndex.value - 1, -1)
+      event.preventDefault()
+    } else if (event.key === 'Enter' && selectedHistoryIndex.value >= 0) {
+      // 回车选择当前高亮的历史记录
+      const selectedItem = currentSearchHistory.value[selectedHistoryIndex.value]
+      if (selectedItem) {
+        selectFromHistory(selectedItem)
+      }
+      event.preventDefault()
+    } else if (event.key === 'Escape') {
+      // 按ESC键隐藏历史记录
+      showSearchHistory.value = false
+      selectedHistoryIndex.value = -1
+      event.preventDefault()
+    }
   } else if (event.key === 'Escape') {
     // 按ESC键隐藏历史记录
     showSearchHistory.value = false
+    selectedHistoryIndex.value = -1
   }
 }
 
 // 监听音乐源或搜索模式变化，隐藏搜索历史
 watch([selectedMusicSource, selectedSearchMode], () => {
   showSearchHistory.value = false
+  selectedHistoryIndex.value = -1
 })
 </script>
