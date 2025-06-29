@@ -181,8 +181,17 @@
             <div v-if="selectedRoom.needPwd" class="mb-6">
               <div class="relative">
                 <input
+                  v-if="!showConfirmPassword"
                   v-model="confirmPassword"
-                  :type="showConfirmPassword ? 'text' : 'password'"
+                  type="password"
+                  placeholder="请输入房间密码"
+                  class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
+                  @keyup.enter="handleConfirm"
+                >
+                <input
+                  v-else
+                  v-model="confirmPassword"
+                  type="text"
                   placeholder="请输入房间密码"
                   class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
                   @keyup.enter="handleConfirm"
