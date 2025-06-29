@@ -100,18 +100,6 @@ const totalDuration = computed(() => {
 </script>
 
 <style scoped>
-/* 模态框动画 */
-.modal-enter-active,
-.modal-leave-active {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
 /* 滚动条样式 */
 .scrollbar-hide {
   scrollbar-width: none; /* Firefox */
