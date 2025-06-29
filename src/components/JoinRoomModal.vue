@@ -2,43 +2,72 @@
   <transition name="modal">
     <div v-if="show" class="fixed inset-0 z-[100] flex items-center justify-center">
       <!-- 背景层 -->
-      <div class="absolute inset-0 bg-black/80 backdrop-blur-md" />
+      <div class="absolute inset-0 bg-black/80" :class="{ 'backdrop-blur-md': isHighPerformance || isMediumPerformance }" />
 
-      <!-- 装饰性背景 -->
+      <!-- 渐变背景（所有模式下显示，动画仅高/中性能） -->
       <div class="absolute inset-0 overflow-hidden">
-        <!-- 动态渐变背景 -->
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/5 to-pink-500/10" />
+        <!-- 动态/静态渐变背景 -->
+        <div v-if="isHighPerformance || isMediumPerformance" class="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/5 to-pink-500/10 animate-gradient-move" />
+        <div v-else class="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/5 to-pink-500/10" />
 
-        <!-- 装饰性圆圈 -->
-        <div class="absolute -top-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-xl animate-pulse" />
-        <div class="absolute top-1/3 -right-32 w-64 h-64 bg-purple-500/15 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s;" />
-        <div class="absolute -bottom-16 left-1/4 w-32 h-32 bg-pink-500/20 rounded-full blur-lg animate-pulse" style="animation-delay: 2s;" />
+        <!-- 装饰性圆圈和icon（所有性能等级下显示，动画仅高/中） -->
+        <template v-if="isHighPerformance || isMediumPerformance">
+          <div class="absolute -top-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-xl animate-pulse" />
+          <div class="absolute top-1/3 -right-32 w-64 h-64 bg-purple-500/15 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s;" />
+          <div class="absolute -bottom-16 left-1/4 w-32 h-32 bg-pink-500/20 rounded-full blur-lg animate-pulse" style="animation-delay: 2s;" />
 
-        <!-- 音乐相关装饰元素 -->
-        <div class="absolute top-20 left-1/4 text-primary/10 text-6xl animate-float">
-          <i class="fa-solid fa-music" />
-        </div>
-        <div class="absolute bottom-32 right-1/4 text-purple-400/10 text-4xl animate-float" style="animation-delay: 1.5s;">
-          <i class="fa-solid fa-headphones" />
-        </div>
-        <div class="absolute top-1/2 left-10 text-pink-400/10 text-5xl animate-float" style="animation-delay: 0.8s;">
-          <i class="fa-solid fa-heart" />
-        </div>
+          <div class="absolute top-20 left-1/4 text-primary/10 text-6xl animate-float">
+            <i class="fa-solid fa-music" />
+          </div>
+          <div class="absolute bottom-32 right-1/4 text-purple-400/10 text-4xl animate-float" style="animation-delay: 1.5s;">
+            <i class="fa-solid fa-headphones" />
+          </div>
+          <div class="absolute top-1/2 left-10 text-pink-400/10 text-5xl animate-float" style="animation-delay: 0.8s;">
+            <i class="fa-solid fa-heart" />
+          </div>
+        </template>
+        <template v-else>
+          <div class="absolute -top-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-xl" />
+          <div class="absolute top-1/3 -right-32 w-64 h-64 bg-purple-500/15 rounded-full blur-2xl" />
+          <div class="absolute -bottom-16 left-1/4 w-32 h-32 bg-pink-500/20 rounded-full blur-lg" />
+
+          <div class="absolute top-20 left-1/4 text-primary/10 text-6xl">
+            <i class="fa-solid fa-music" />
+          </div>
+          <div class="absolute bottom-32 right-1/4 text-purple-400/10 text-4xl">
+            <i class="fa-solid fa-headphones" />
+          </div>
+          <div class="absolute top-1/2 left-10 text-pink-400/10 text-5xl">
+            <i class="fa-solid fa-heart" />
+          </div>
+        </template>
       </div>
 
       <div
-        class="relative bg-dark/90 border border-white/20 rounded-2xl w-full max-w-2xl mx-4 overflow-hidden shadow-2xl backdrop-blur-xl glow-effect"
+        class="relative bg-dark/90 border border-white/20 rounded-2xl w-full max-w-2xl mx-4 overflow-hidden"
+        :class=" [
+          isHighPerformance ? 'shadow-2xl backdrop-blur-xl glow-effect' : '',
+          isMediumPerformance ? 'shadow-xl backdrop-blur-md' : '',
+          isLowPerformance ? '' : '',
+          isOffPerformance ? '' : '',
+        ]"
       >
         <!-- 房间选择和信息展示 -->
         <div class="p-6 relative">
-          <!-- 内部装饰背景 -->
-          <div class="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent rounded-2xl" />
+          <!-- 内部装饰背景（高/中性能模式下显示） -->
+          <div v-if="isHighPerformance || isMediumPerformance" class="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent rounded-2xl" />
 
           <div class="relative z-10">
             <!-- 标题 -->
             <div class="text-center mb-6">
-              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg backdrop-blur-sm border border-primary/20">
-                <i class="fa-solid fa-music text-primary text-2xl animate-pulse" />
+              <div
+                class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center"
+                :class=" [
+                  isHighPerformance ? 'shadow-lg backdrop-blur-sm border border-primary/20' : '',
+                  isMediumPerformance ? 'shadow border border-primary/10' : '',
+                ]"
+              >
+                <i class="fa-solid fa-music text-primary text-2xl" :class="{ 'animate-pulse': isHighPerformance }" />
               </div>
               <h2 class="text-xl font-semibold mb-2 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
                 选择房间
@@ -71,7 +100,7 @@
                   v-for="room in filteredRooms"
                   :key="room.id"
                   class="p-4 rounded-lg border transition-all cursor-pointer"
-                  :class="[
+                  :class=" [
                     selectedRoomId === room.id
                       ? 'bg-primary/20 border-primary/50 shadow-lg'
                       : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20',
@@ -128,31 +157,48 @@
   <transition name="modal">
     <div v-if="showConfirm" class="fixed inset-0 z-[110] flex items-center justify-center">
       <!-- 背景层 -->
-      <div class="absolute inset-0 bg-black/90 backdrop-blur-md" />
+      <div class="absolute inset-0 bg-black/90" :class="{ 'backdrop-blur-md': isHighPerformance || isMediumPerformance }" />
 
-      <!-- 装饰性背景 -->
+      <!-- 渐变背景（所有模式下显示，动画仅高/中性能） -->
       <div class="absolute inset-0 overflow-hidden">
-        <!-- 动态渐变背景 -->
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-purple-500/8 to-pink-500/15" />
-
-        <!-- 装饰性圆圈 -->
-        <div class="absolute -top-10 -left-10 w-32 h-32 bg-primary/25 rounded-full blur-xl animate-pulse" />
-        <div class="absolute top-1/4 -right-16 w-48 h-48 bg-purple-500/20 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s;" />
-        <div class="absolute -bottom-8 left-1/3 w-24 h-24 bg-pink-500/25 rounded-full blur-lg animate-pulse" style="animation-delay: 2s;" />
+        <div v-if="isHighPerformance || isMediumPerformance" class="absolute inset-0 bg-gradient-to-br from-primary/15 via-purple-500/8 to-pink-500/15 animate-gradient-move" />
+        <div v-else class="absolute inset-0 bg-gradient-to-br from-primary/15 via-purple-500/8 to-pink-500/15" />
+        <!-- 装饰性圆圈（所有性能等级下显示，动画仅高/中） -->
+        <template v-if="isHighPerformance || isMediumPerformance">
+          <div class="absolute -top-10 -left-10 w-32 h-32 bg-primary/25 rounded-full blur-xl animate-pulse" />
+          <div class="absolute top-1/4 -right-16 w-48 h-48 bg-purple-500/20 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s;" />
+          <div class="absolute -bottom-8 left-1/3 w-24 h-24 bg-pink-500/25 rounded-full blur-lg animate-pulse" style="animation-delay: 2s;" />
+        </template>
+        <template v-else>
+          <div class="absolute -top-10 -left-10 w-32 h-32 bg-primary/25 rounded-full blur-xl" />
+          <div class="absolute top-1/4 -right-16 w-48 h-48 bg-purple-500/20 rounded-full blur-2xl" />
+          <div class="absolute -bottom-8 left-1/3 w-24 h-24 bg-pink-500/25 rounded-full blur-lg" />
+        </template>
       </div>
 
       <div
         v-if="selectedRoom"
-        class="relative bg-dark/95 border border-white/30 rounded-2xl w-full max-w-md mx-4 overflow-hidden shadow-2xl backdrop-blur-xl glow-effect"
+        class="relative bg-dark/95 border border-white/30 rounded-2xl w-full max-w-md mx-4 overflow-hidden"
+        :class=" [
+          isHighPerformance ? 'shadow-2xl backdrop-blur-xl glow-effect' : '',
+          isMediumPerformance ? 'shadow-xl backdrop-blur-md' : '',
+        ]"
       >
         <!-- 确认信息展示 -->
         <div class="p-6 text-center relative">
-          <!-- 内部装饰背景 -->
-          <div class="absolute inset-0 bg-gradient-to-b from-primary/8 to-transparent rounded-2xl" />
+          <!-- 内部装饰背景（高/中性能模式下显示） -->
+          <div v-if="isHighPerformance || isMediumPerformance" class="absolute inset-0 bg-gradient-to-b from-primary/8 to-transparent rounded-2xl" />
 
           <div class="relative z-10">
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/40 to-primary/15 flex items-center justify-center shadow-lg backdrop-blur-sm border border-primary/30">
-              <i class="fa-solid fa-music text-primary text-2xl animate-pulse" />
+            <div
+              class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/40 to-primary/15 flex items-center justify-center"
+              :class=" [
+                isHighPerformance ? 'shadow-lg backdrop-blur-sm border border-primary/30' : '',
+                isMediumPerformance ? 'shadow border border-primary/10' : '',
+                isLowPerformance ? 'bg-primary/20' : '',
+              ]"
+            >
+              <i class="fa-solid fa-music text-primary text-2xl" :class="{ 'animate-pulse': isHighPerformance }" />
             </div>
             <h2 class="text-xl font-semibold mb-2 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
               确认加入房间
@@ -238,6 +284,7 @@ import type { RoomInfo } from '@/types'
 
 import { computed, onMounted, ref, watch } from 'vue'
 
+import { usePerformance } from '@/composables/usePerformance'
 import { useRoom } from '@/composables/useRoom'
 import { searchRooms } from '@/utils/api'
 import { getLastJoinedRoom, getSavedRoomPassword, saveLastJoinedRoom, saveRoomPassword } from '@/utils/user'
@@ -256,6 +303,13 @@ const emit = defineEmits<Emits>()
 
 // 使用 useRoom
 const { updateRoomInfo, setCurrentPassword } = useRoom()
+
+// 使用 usePerformance 获取性能等级
+const { performanceLevel } = usePerformance()
+const isOffPerformance = computed(() => performanceLevel.value === 'off')
+const isLowPerformance = computed(() => performanceLevel.value === 'low')
+const isMediumPerformance = computed(() => performanceLevel.value === 'medium')
+const isHighPerformance = computed(() => performanceLevel.value === 'high')
 
 // 响应式数据
 const password = ref('')
@@ -501,5 +555,22 @@ onMounted(() => {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(79, 70, 229, 0.8);
+}
+
+/* 动态渐变动画（仅高/中性能） */
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.animate-gradient-move {
+  background-size: 200% 200%;
+  animation: gradient-move 8s ease-in-out infinite;
 }
 </style>
