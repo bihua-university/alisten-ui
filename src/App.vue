@@ -151,10 +151,12 @@
       </main>
 
       <!-- 点歌台模态框 -->
-      <MusicSearchModal
-        v-if="showMusicSearchModal"
-        @close="showMusicSearchModal = false"
-      />
+      <transition name="modal">
+        <MusicSearchModal
+          v-if="showMusicSearchModal"
+          @close="showMusicSearchModal = false"
+        />
+      </transition>
 
       <!-- 帮助弹窗 -->
       <HelpModal :show="showHelp" @close="showHelp = false" />
