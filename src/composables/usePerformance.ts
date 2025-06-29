@@ -86,51 +86,6 @@ function autoDetectPerformance() {
   }
 }
 
-// 性能监控
-let performanceMonitor: number | null = null
-
-function startPerformanceMonitoring() {
-  if (performanceMonitor)
-    return
-
-  let frameCount = 0
-  let lastTime = performance.now()
-
-  function checkPerformance() {
-    frameCount++
-    const currentTime = performance.now()
-
-    // 每60帧检查一次
-    if (frameCount >= 60) {
-      const fps = 60000 / (currentTime - lastTime)
-
-      // 如果FPS低于30，自动降低性能设置
-      if (fps < 30 && performanceLevel.value !== 'off') {
-        const levels: PerformanceLevel[] = ['high', 'medium', 'low', 'off']
-        const currentIndex = levels.indexOf(performanceLevel.value)
-        if (currentIndex < levels.length - 1) {
-          performanceLevel.value = levels[currentIndex + 1]
-          console.warn(`📊 性能监控：检测到低帧率(${fps.toFixed(1)} FPS)，自动降低到 ${performanceLevel.value} 模式`)
-        }
-      }
-
-      frameCount = 0
-      lastTime = currentTime
-    }
-
-    performanceMonitor = requestAnimationFrame(checkPerformance)
-  }
-
-  performanceMonitor = requestAnimationFrame(checkPerformance)
-}
-
-function stopPerformanceMonitoring() {
-  if (performanceMonitor) {
-    cancelAnimationFrame(performanceMonitor)
-    performanceMonitor = null
-  }
-}
-
 // 获取当前性能设置描述
 function getPerformanceDescription(level: PerformanceLevel): string {
   switch (level) {
@@ -189,8 +144,6 @@ export function usePerformance() {
     savePerformanceSettings,
     applyPerformanceSettings,
     autoDetectPerformance,
-    startPerformanceMonitoring,
-    stopPerformanceMonitoring,
     getPerformanceDescription,
 
     // 便捷方法
