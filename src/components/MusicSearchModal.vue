@@ -39,7 +39,8 @@
             </button>
           </div>
         </div>
-        <div class="mb-6">
+        <!-- 搜索类型选择 - 只有在有多个搜索类型时显示 -->
+        <div v-if="availableSearchModes.length > 1" class="mb-6">
           <h3 class="text-base md:text-lg font-medium mb-3">
             搜索类型
           </h3>
@@ -50,9 +51,7 @@
           </div>
           <div
             class="grid gap-3 mb-4" :class="[
-              availableSearchModes.length === 1 ? 'grid-cols-1'
-              : availableSearchModes.length === 2 ? 'grid-cols-2'
-                : 'grid-cols-3',
+              availableSearchModes.length === 2 ? 'grid-cols-2' : 'grid-cols-3',
             ]"
           >
             <button

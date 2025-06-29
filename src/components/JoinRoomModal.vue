@@ -79,19 +79,28 @@
 
             <!-- 房间搜索和选择 -->
             <div class="space-y-4">
-              <!-- 搜索框 -->
-              <div class="relative">
-                <input
-                  v-model="searchKeyword"
-                  type="text"
-                  placeholder="搜索房间名称..."
-                  class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
-                  @input="handleSearch"
-                >
-                <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <div v-if="isSearching" class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <i class="fa-solid fa-spinner animate-spin text-primary" />
+              <!-- 搜索框和创建按钮 -->
+              <div class="flex gap-3">
+                <div class="relative flex-1">
+                  <input
+                    v-model="searchKeyword"
+                    type="text"
+                    placeholder="搜索房间名称..."
+                    class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
+                    @input="handleSearch"
+                  >
+                  <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <div v-if="isSearching" class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <i class="fa-solid fa-spinner animate-spin text-primary" />
+                  </div>
                 </div>
+                <button
+                  class="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white rounded-lg px-4 py-3 transition-all shadow-lg backdrop-blur-sm flex items-center gap-2 whitespace-nowrap"
+                  @click="showCreateRoomDialog"
+                >
+                  <i class="fa-solid fa-plus" />
+                  创建房间
+                </button>
               </div>
 
               <!-- 房间列表 -->
@@ -155,7 +164,7 @@
 
   <!-- 确认加入房间弹窗 -->
   <transition name="modal">
-    <div v-if="showConfirm" class="fixed inset-0 z-[110] flex items-center justify-center">
+    <div v-if="dialogState.showConfirm" class="fixed inset-0 z-[110] flex items-center justify-center">
       <!-- 背景层 -->
       <div class="absolute inset-0 bg-black/90" :class="{ 'backdrop-blur-md': isHighPerformance || isMediumPerformance }" />
 
@@ -227,17 +236,8 @@
             <div v-if="selectedRoom.needPwd" class="mb-6">
               <div class="relative">
                 <input
-                  v-if="!showConfirmPassword"
                   v-model="confirmPassword"
-                  type="password"
-                  placeholder="请输入房间密码"
-                  class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
-                  @keyup.enter="handleConfirm"
-                >
-                <input
-                  v-else
-                  v-model="confirmPassword"
-                  type="text"
+                  :type="dialogState.showConfirmPassword ? 'text' : 'password'"
                   placeholder="请输入房间密码"
                   class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
                   @keyup.enter="handleConfirm"
@@ -245,9 +245,9 @@
                 <button
                   type="button"
                   class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                  @click="showConfirmPassword = !showConfirmPassword"
+                  @click="dialogState.showConfirmPassword = !dialogState.showConfirmPassword"
                 >
-                  <i :class="showConfirmPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'" />
+                  <i :class="dialogState.showConfirmPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'" />
                 </button>
               </div>
             </div>
@@ -277,16 +277,174 @@
       </div>
     </div>
   </transition>
+
+  <!-- 创建房间弹窗 -->
+  <transition name="modal">
+    <div v-if="dialogState.showCreate" class="fixed inset-0 z-[120] flex items-center justify-center">
+      <!-- 背景层 -->
+      <div class="absolute inset-0 bg-black/90 backdrop-blur-md" />
+
+      <!-- 装饰性背景 -->
+      <div class="absolute inset-0 overflow-hidden">
+        <!-- 动态渐变背景 -->
+        <div class="absolute inset-0 bg-gradient-to-br from-green-500/15 via-blue-500/8 to-purple-500/15" />
+
+        <!-- 装饰性圆圈 -->
+        <div class="absolute -top-10 -left-10 w-32 h-32 bg-green-500/25 rounded-full blur-xl animate-pulse" />
+        <div class="absolute top-1/4 -right-16 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl animate-pulse" style="animation-delay: 1s;" />
+        <div class="absolute -bottom-8 left-1/3 w-24 h-24 bg-purple-500/25 rounded-full blur-lg animate-pulse" style="animation-delay: 2s;" />
+      </div>
+
+      <div
+        class="relative bg-dark/95 border border-white/30 rounded-2xl w-full max-w-lg mx-4 overflow-hidden shadow-2xl backdrop-blur-xl glow-effect"
+      >
+        <!-- 创建房间表单 -->
+        <div class="p-6 relative">
+          <!-- 内部装饰背景 -->
+          <div class="absolute inset-0 bg-gradient-to-b from-green-500/8 to-transparent rounded-2xl" />
+
+          <div class="relative z-10">
+            <div class="text-center mb-6">
+              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500/40 to-green-500/15 flex items-center justify-center shadow-lg backdrop-blur-sm border border-green-500/30">
+                <i class="fa-solid fa-plus text-green-400 text-2xl animate-pulse" />
+              </div>
+              <h2 class="text-xl font-semibold mb-2 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+                创建新房间
+              </h2>
+              <p class="text-sm text-gray-400">
+                创建属于您的音乐房间，与朋友一起享受音乐
+              </p>
+            </div>
+
+            <!-- 创建房间表单 -->
+            <div class="space-y-4">
+              <!-- 房间名称 -->
+              <div>
+                <label class="block text-sm font-medium mb-2 text-gray-300">
+                  <i class="fa-solid fa-tag text-primary mr-2" />
+                  房间名称 *
+                </label>
+                <input
+                  v-model="createForm.name"
+                  type="text"
+                  placeholder="请输入房间名称"
+                  class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
+                  maxlength="50"
+                  @keyup.enter="handleCreateRoom"
+                >
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ createForm.name.length }}/50
+                </div>
+              </div>
+
+              <!-- 房间描述 -->
+              <div>
+                <label class="block text-sm font-medium mb-2 text-gray-300">
+                  <i class="fa-solid fa-info-circle text-primary mr-2" />
+                  房间描述
+                </label>
+                <textarea
+                  v-model="createForm.description"
+                  placeholder="请输入房间描述（可选）"
+                  class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all resize-none"
+                  rows="3"
+                  maxlength="200"
+                />
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ (createForm.description || '').length }}/200
+                </div>
+              </div>
+
+              <!-- 密码设置 -->
+              <div>
+                <label class="block text-sm font-medium mb-2 text-gray-300">
+                  <i class="fa-solid fa-lock text-primary mr-2" />
+                  房间密码
+                </label>
+
+                <div class="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center">
+                      <i class="fa-solid fa-lock text-primary mr-2" />
+                      <span class="text-sm font-medium text-gray-300">房间密码</span>
+                    </div>
+                    <button
+                      type="button"
+                      class="text-xs text-primary hover:text-primary/80 transition-colors"
+                      @click="createForm.enablePassword = !createForm.enablePassword"
+                    >
+                      {{ createForm.enablePassword ? '取消密码' : '设置密码' }}
+                    </button>
+                  </div>
+                  <div v-if="createForm.enablePassword" class="space-y-2">
+                    <div class="relative">
+                      <input
+                        v-model="createForm.password"
+                        :type="dialogState.showCreatePassword ? 'text' : 'password'"
+                        placeholder="请输入房间密码"
+                        class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
+                        maxlength="20"
+                        @keyup.enter="handleCreateRoom"
+                      >
+                      <button
+                        type="button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                        @click="dialogState.showCreatePassword = !dialogState.showCreatePassword"
+                      >
+                        <i :class="dialogState.showCreatePassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'" />
+                      </button>
+                    </div>
+                    <div class="text-xs text-gray-500 text-right">
+                      {{ (createForm.password || '').length }}/20
+                    </div>
+                  </div>
+                  <div v-else class="text-sm text-gray-500">
+                    <i class="fa-solid fa-info-circle text-primary mr-2" />
+                    房间将对所有人开放，无需密码即可加入
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-sm text-gray-400 text-center">
+                创建房间后您将成为房主，可以管理房间设置和播放列表
+              </p>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="flex space-x-3 mt-6">
+              <button
+                class="flex-1 bg-white/10 hover:bg-white/20 text-white rounded-full py-3 px-4 transition-all backdrop-blur-sm border border-white/10 shadow-lg"
+                @click="hideCreateRoomDialog"
+              >
+                取消
+              </button>
+              <button
+                class="flex-1 bg-gradient-to-r from-green-500 to-green-500/80 hover:from-green-500/90 hover:to-green-500/70 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-full py-3 px-4 transition-all shadow-lg backdrop-blur-sm flex items-center justify-center gap-2"
+                :disabled="!createForm.name.trim() || isCreatingRoom"
+                @click="handleCreateRoom"
+              >
+                <i v-if="isCreatingRoom" class="fa-solid fa-spinner animate-spin" />
+                <i v-else class="fa-solid fa-plus" />
+                {{ isCreatingRoom ? '创建中...' : '创建房间' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup lang="ts">
 import type { RoomInfo } from '@/types'
+import type { CreateRoomRequest } from '@/utils/api'
 
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
+import { useNotification } from '@/composables/useNotification'
 import { usePerformance } from '@/composables/usePerformance'
 import { useRoom } from '@/composables/useRoom'
-import { searchRooms } from '@/utils/api'
+import { createRoom, searchRooms } from '@/utils/api'
 import { getLastJoinedRoom, getSavedRoomPassword, saveLastJoinedRoom, saveRoomPassword } from '@/utils/user'
 
 interface Props {
@@ -301,8 +459,9 @@ interface Emits {
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 使用 useRoom
+// 使用 useRoom 和 useNotification
 const { updateRoomInfo, setCurrentPassword } = useRoom()
+const { showNotification } = useNotification()
 
 // 使用 usePerformance 获取性能等级
 const { performanceLevel } = usePerformance()
@@ -311,17 +470,61 @@ const isLowPerformance = computed(() => performanceLevel.value === 'low')
 const isMediumPerformance = computed(() => performanceLevel.value === 'medium')
 const isHighPerformance = computed(() => performanceLevel.value === 'high')
 
-// 响应式数据
-const password = ref('')
+// 响应式数据 - 合并相关状态
 const searchKeyword = ref('')
 const isSearching = ref(false)
 const allRooms = ref<RoomInfo[]>([])
 const selectedRoomId = ref<string>('')
 
-// 确认弹窗相关
-const showConfirm = ref(false)
+// 弹窗状态管理
+const dialogState = ref({
+  showConfirm: false,
+  showCreate: false,
+  showConfirmPassword: false,
+  showCreatePassword: false,
+})
+
+// 表单数据
 const confirmPassword = ref('')
-const showConfirmPassword = ref(false)
+
+const createForm = ref({
+  name: '',
+  description: '',
+  password: '',
+  enablePassword: false,
+})
+
+const isCreatingRoom = ref(false)
+
+// 辅助函数 - 统一密码设置逻辑
+function setRoomPassword(room: RoomInfo) {
+  if (room.needPwd) {
+    const savedPassword = getSavedRoomPassword(room.id)
+    confirmPassword.value = savedPassword || ''
+  } else {
+    confirmPassword.value = ''
+  }
+}
+
+// 统一表单重置
+function resetCreateForm() {
+  createForm.value = {
+    name: '',
+    description: '',
+    password: '',
+    enablePassword: false,
+  }
+}
+
+// 统一错误通知
+function showError(message: string) {
+  showNotification({
+    message,
+    type: 'error',
+    icon: 'fa-solid fa-exclamation-triangle',
+    duration: 4000,
+  })
+}
 
 // 计算属性
 const selectedRoom = computed(() =>
@@ -346,10 +549,7 @@ function handleSearch() {
   if (searchTimeout) {
     clearTimeout(searchTimeout)
   }
-
-  searchTimeout = window.setTimeout(() => {
-    loadRooms()
-  }, 300)
+  searchTimeout = window.setTimeout(() => loadRooms(), 300)
 }
 
 // 加载房间列表
@@ -368,24 +568,21 @@ async function loadRooms() {
         // 找到上次进入的房间
         const lastRoom = allRooms.value.find(room => room.id === lastRoomId)
         if (lastRoom) {
-          // 如果需要密码，尝试加载保存的密码
-          if (lastRoom.needPwd) {
-            const savedPassword = getSavedRoomPassword(lastRoom.id)
-            password.value = savedPassword || ''
-            confirmPassword.value = savedPassword || ''
-          } else {
-            password.value = ''
-            confirmPassword.value = ''
-          }
-
-          // 直接显示确认弹窗
-          showConfirm.value = true
+          // 设置密码并显示确认弹窗
+          setRoomPassword(lastRoom)
+          dialogState.value.showConfirm = true
         }
       }
     }
   } catch (error) {
     console.error('加载房间列表失败:', error)
     allRooms.value = []
+    showNotification({
+      message: '加载房间列表失败，请检查网络连接后重试',
+      type: 'error',
+      icon: 'fa-solid fa-exclamation-triangle',
+      duration: 4000,
+    })
   } finally {
     isSearching.value = false
   }
@@ -394,37 +591,16 @@ async function loadRooms() {
 // 选择房间并直接显示确认弹窗
 function selectRoom(room: RoomInfo) {
   selectedRoomId.value = room.id
-
-  // 如果需要密码，尝试加载保存的密码
-  if (room.needPwd) {
-    const savedPassword = getSavedRoomPassword(room.id)
-    password.value = savedPassword || ''
-    confirmPassword.value = savedPassword || ''
-  } else {
-    password.value = ''
-    confirmPassword.value = ''
-  }
-
-  // 直接显示确认弹窗
-  showConfirm.value = true
+  setRoomPassword(room)
+  dialogState.value.showConfirm = true
 }
 
 // 隐藏确认弹窗
 function hideConfirmDialog() {
-  showConfirm.value = false
+  dialogState.value.showConfirm = false
   confirmPassword.value = ''
-  showConfirmPassword.value = false
+  dialogState.value.showConfirmPassword = false
 }
-
-// 监听选中房间变化，自动加载保存的密码
-watch(() => selectedRoom.value, (newRoom) => {
-  if (newRoom?.needPwd) {
-    const savedPassword = getSavedRoomPassword(newRoom.id)
-    password.value = savedPassword || ''
-  } else {
-    password.value = ''
-  }
-})
 
 // 确认加入房间
 function handleConfirm() {
@@ -458,13 +634,79 @@ function handleConfirm() {
 }
 
 function handleCancel() {
-  // 如果确认弹窗正在显示，关闭确认弹窗并回到选择页面
-  if (showConfirm.value) {
+  if (dialogState.value.showConfirm) {
     hideConfirmDialog()
-    // 不关闭整个模态框，让用户可以重新选择房间
   } else {
-    // 如果在选择页面，关闭整个模态框
     emit('cancel')
+  }
+}
+
+// 创建房间相关函数
+function showCreateRoomDialog() {
+  dialogState.value.showCreate = true
+  resetCreateForm()
+  dialogState.value.showCreatePassword = false
+}
+
+function hideCreateRoomDialog() {
+  dialogState.value.showCreate = false
+  isCreatingRoom.value = false
+  dialogState.value.showCreatePassword = false
+  resetCreateForm()
+}
+
+async function handleCreateRoom() {
+  if (!createForm.value.name.trim() || isCreatingRoom.value) {
+    return
+  }
+
+  try {
+    isCreatingRoom.value = true
+
+    const roomData: CreateRoomRequest = {
+      name: createForm.value.name.trim(),
+      desc: createForm.value.description?.trim() || '',
+      needPwd: createForm.value.enablePassword,
+      password: createForm.value.enablePassword ? createForm.value.password?.trim() || '' : '',
+    }
+
+    const response = await createRoom(roomData)
+
+    if (response.code === '20000' && response.data) {
+      const newRoomId = response.data
+      const newRoom: RoomInfo = {
+        id: newRoomId,
+        name: roomData.name,
+        description: roomData.desc || '',
+        population: 1,
+        needPwd: roomData.needPwd,
+      }
+
+      // 保存密码和房间信息
+      if (roomData.needPwd && roomData.password) {
+        saveRoomPassword(newRoomId, roomData.password)
+      }
+      saveLastJoinedRoom(newRoomId)
+      updateRoomInfo(newRoom)
+      setCurrentPassword(roomData.needPwd ? roomData.password : undefined)
+
+      showNotification({
+        message: response.message || `房间 "${newRoom.name}" 创建成功，正在进入房间...`,
+        type: 'success',
+        icon: 'fa-solid fa-check-circle',
+        duration: 2000,
+      })
+
+      hideCreateRoomDialog()
+      emit('confirm', newRoomId, roomData.needPwd ? roomData.password : undefined)
+    } else {
+      showError(response.message || '创建房间失败，请重试')
+    }
+  } catch (error) {
+    console.error('创建房间失败:', error)
+    showError('创建房间失败，请检查网络连接后重试')
+  } finally {
+    isCreatingRoom.value = false
   }
 }
 
