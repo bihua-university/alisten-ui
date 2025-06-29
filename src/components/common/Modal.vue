@@ -32,29 +32,32 @@
           <!-- 内容区域 -->
           <div class="p-6 relative">
             <div class="relative z-10">
-              <!-- 头部图标和标题 -->
-              <div v-if="showHeader" class="text-center mb-6">
-                <div
-                  v-if="headerIcon"
-                  class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-                  :class="[
-                    headerIconBgClass,
-                    headerIconShadowClass,
-                  ]"
-                >
+              <!-- 弹窗头部 -->
+              <div v-if="showHeader" class="border-b border-white/10 pb-4 mb-6 flex justify-between items-center">
+                <h2 class="text-xl font-semibold flex items-center text-white">
                   <i
-                    class="text-2xl"
+                    v-if="headerIcon"
+                    class="mr-3"
                     :class="[
                       headerIcon,
                       headerIconColorClass,
                       shouldShowHeaderAnimation ? 'animate-pulse' : '',
                     ]"
                   />
-                </div>
-                <h2 v-if="title" class="text-xl font-semibold mb-2 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
                   {{ title }}
                 </h2>
-                <p v-if="subtitle" class="text-sm text-gray-400">
+                <button
+                  v-if="allowBackdropClose"
+                  class="text-gray-400 hover:text-white transition-colors touch-target p-2 -m-2"
+                  @click="$emit('close')"
+                >
+                  <i class="fa-solid fa-times text-lg" />
+                </button>
+              </div>
+
+              <!-- 副标题 -->
+              <div v-if="subtitle && showHeader" class="mb-6">
+                <p class="text-sm text-gray-400 text-center">
                   {{ subtitle }}
                 </p>
               </div>
@@ -216,14 +219,6 @@ const decorationConfig = computed(() => {
 })
 
 // 头部图标样式
-const headerIconBgClass = computed(() => {
-  return decorationConfig.value.headerBg
-})
-
-const headerIconShadowClass = computed(() => {
-  return ''
-})
-
 const headerIconColorClass = computed(() => decorationConfig.value.headerColor)
 
 // 事件处理
