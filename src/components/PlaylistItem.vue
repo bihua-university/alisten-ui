@@ -1,13 +1,16 @@
 <template>
   <div
-    class="playlist-item transition-all cursor-pointer"
+    class="playlist-item transition-all"
     :class="[
       {
         'bg-primary/20 hover:bg-primary/25 border-l-4 border-primary': isCurrent,
         'hover:bg-white/5': !isCurrent,
+        'cursor-pointer': song.webUrl,
+        'cursor-default': !song.webUrl,
       },
       isDesktop ? 'p-3 flex items-center' : 'p-4 flex items-center active:bg-white/10 border-b border-white/5',
     ]"
+    @click="handleSongClick"
   >
     <!-- 专辑封面 -->
     <div
@@ -87,7 +90,7 @@ interface Props {
   isMobile?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   isCurrent: false,
   isDesktop: false,
   isMobile: false,
@@ -98,6 +101,13 @@ defineEmits<{
   like: []
   delete: []
 }>()
+
+// 处理歌曲点击事件
+function handleSongClick() {
+  if (props.song.webUrl) {
+    window.open(props.song.webUrl, '_blank')
+  }
+}
 </script>
 
 <style scoped>
