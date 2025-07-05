@@ -220,6 +220,7 @@ registerMessageHandler('pick', (message: any) => {
     .map((item: any) => ({
       id: item.id,
       url: item.url || '',
+      webUrl: item.webUrl || '',
       title: item.name,
       artist: item.artist || '未知艺术家',
       album: item.album?.name || '未知专辑',

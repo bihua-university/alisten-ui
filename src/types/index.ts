@@ -5,6 +5,7 @@ export interface Song {
   album?: string
   cover: string
   url?: string
+  webUrl?: string
   duration: number
   requestedBy?: User
 }
