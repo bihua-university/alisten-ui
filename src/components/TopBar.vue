@@ -38,16 +38,6 @@
         <span class="sm:hidden">切歌</span>
       </button>
 
-      <!-- 点歌台 -->
-      <button
-        class="bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-        @click="$emit('showMusicSearch')"
-      >
-        <i class="fa-solid fa-music mr-1 sm:mr-2" />
-        <span class="hidden sm:inline">点歌台</span>
-        <span class="sm:hidden">点歌</span>
-      </button>
-
       <!-- 分享 -->
       <button
         class="bg-blue-500/20 hover:bg-blue-500/30 active:bg-blue-500/40 text-blue-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
@@ -100,7 +90,6 @@ const props = defineProps<Props>()
 
 // 定义 emits
 defineEmits<{
-  showMusicSearch: []
   shareRoom: []
   showHelp: []
   toggleImmersive: []
