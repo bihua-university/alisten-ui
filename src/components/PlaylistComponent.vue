@@ -5,12 +5,24 @@
     class="w-72 bg-dark/60 backdrop-blur-xl border-r border-white/10 hidden md:block overflow-y-auto scrollbar-hide"
   >
     <div class="p-4 border-b border-white/10">
-      <h2 class="text-lg font-semibold flex items-center">
-        <i class="fa-solid fa-list-ul mr-2 text-primary" />播放列表
-      </h2>
-      <p class="text-xs text-gray-400 mt-1">
-        共 {{ playlist.length }} 首歌曲 · {{ formatTime(totalDuration) }}
-      </p>
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg font-semibold flex items-center">
+            <i class="fa-solid fa-list-ul mr-2 text-primary" />播放列表
+          </h2>
+          <p class="text-xs text-gray-400 mt-1">
+            共 {{ playlist.length }} 首歌曲 · {{ formatTime(totalDuration) }}
+          </p>
+        </div>
+        <button
+          class="bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target ml-2"
+          @click="$emit('showMusicSearch')"
+        >
+          <i class="fa-solid fa-music mr-1 sm:mr-2" />
+          <span class="hidden sm:inline">点歌台</span>
+          <span class="sm:hidden">点歌</span>
+        </button>
+      </div>
     </div>
     <div class="playlist-container space-y-1">
       <PlaylistItem
@@ -91,6 +103,7 @@ defineEmits<{
   close: []
   songLike: [index: number, title: string]
   songDelete: [songName: string]
+  showMusicSearch: []
 }>()
 
 // 计算播放列表总时长

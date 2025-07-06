@@ -43,6 +43,7 @@
           :is-immersive-mode="isImmersiveMode"
           @song-like="(index, title) => sendSongLike(index, title)"
           @song-delete="(songName: string) => sendDeleteSong(songName)"
+          @show-music-search="showMusicSearchModal = true"
         />
 
         <!-- 中间歌词区域 -->
