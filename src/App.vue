@@ -56,6 +56,7 @@
             @show-music-search="showMusicSearchModal = true"
             @share-room="shareRoom"
             @show-help="showHelp = true"
+            @show-settings="showSettings = true"
             @toggle-immersive="toggleImmersiveMode"
           />
 
@@ -162,6 +163,9 @@
       <!-- 帮助弹窗 -->
       <HelpModal :show="showHelp" @close="showHelp = false" />
 
+      <!-- 设置弹窗 -->
+      <SettingsModal v-if="showSettings" @close="showSettings = false" @settings-changed="handleSettingsChanged" />
+
       <!-- 移动端播放列表模态框 -->
       <PlaylistComponent
         :playlist="processedPlaylist"
@@ -231,6 +235,7 @@ import NotificationContainer from '@/components/NotificationContainer.vue'
 import PlayerInfo from '@/components/PlayerInfo.vue'
 import PlaylistComponent from '@/components/PlaylistComponent.vue'
 import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
+import SettingsModal from '@/components/SettingsModal.vue'
 import TopBar from '@/components/TopBar.vue'
 import UserListComponent from '@/components/UserListComponent.vue'
 import { useBackButton } from '@/composables/useBackButton'
@@ -266,6 +271,7 @@ if (configErrors.length > 0) {
 const initialized = ref(false) // 应用是否已初始化
 const showMusicSearchModal = ref(false)
 const showHelp = ref(false)
+const showSettings = ref(false)
 const showMobileChat = ref(false)
 const showMobileUsers = ref(false)
 const showMobilePlaylist = ref(false)
@@ -347,6 +353,7 @@ useBackButton([
   showMobileChat,
   showMobileUsers,
   showHelp,
+  showSettings,
 ])
 
 // ===== 计算属性 =====
@@ -449,6 +456,13 @@ watch(connectionStatus, (status) => {
       break
   }
 })
+
+// 处理设置变更
+function handleSettingsChanged(settings: any) {
+  console.log('🔧 设置已更新:', settings)
+  // 这里可以根据设置变更调整应用行为
+  // 例如：应用音频设置、界面设置等
+}
 
 // ===== 分享功能 =====
 

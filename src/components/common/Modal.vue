@@ -23,47 +23,51 @@
         appear
       >
         <div
-          class="relative bg-dark border border-white/20 rounded-2xl w-full mx-4 overflow-hidden"
+          class="relative bg-dark border border-white/20 rounded-2xl w-full mx-4 overflow-hidden max-h-[75vh] flex flex-col"
           :class="[
             modalSizeClass,
             shadowClass,
           ]"
         >
-          <!-- 内容区域 -->
-          <div class="p-6 relative">
-            <div class="relative z-10">
-              <!-- 弹窗头部 -->
-              <div v-if="showHeader" class="border-b border-white/10 pb-4 mb-6 flex justify-between items-center">
-                <h2 class="text-xl font-semibold flex items-center text-white">
-                  <i
-                    v-if="headerIcon"
-                    class="mr-3"
-                    :class="[
-                      headerIcon,
-                      headerIconColorClass,
-                      shouldShowHeaderAnimation ? 'animate-pulse' : '',
-                    ]"
-                  />
-                  {{ title }}
-                </h2>
-                <button
-                  v-if="allowBackdropClose"
-                  class="text-gray-400 hover:text-white transition-colors touch-target p-2 -m-2"
-                  @click="$emit('close')"
-                >
-                  <i class="fa-solid fa-times text-lg" />
-                </button>
-              </div>
+          <!-- 固定头部 -->
+          <div v-if="showHeader" class="flex-shrink-0 p-6 pb-4 border-b border-white/10">
+            <div class="flex justify-between items-center">
+              <h2 class="text-xl font-semibold flex items-center text-white">
+                <i
+                  v-if="headerIcon"
+                  class="mr-3"
+                  :class="[
+                    headerIcon,
+                    headerIconColorClass,
+                    shouldShowHeaderAnimation ? 'animate-pulse' : '',
+                  ]"
+                />
+                {{ title }}
+              </h2>
+              <button
+                v-if="allowBackdropClose"
+                class="text-gray-400 hover:text-white transition-colors touch-target p-2 -m-2"
+                @click="$emit('close')"
+              >
+                <i class="fa-solid fa-times text-lg" />
+              </button>
+            </div>
 
-              <!-- 副标题 -->
-              <div v-if="subtitle && showHeader" class="mb-6">
-                <p class="text-sm text-gray-400 text-center">
-                  {{ subtitle }}
-                </p>
-              </div>
+            <!-- 副标题 -->
+            <div v-if="subtitle" class="mt-4">
+              <p class="text-sm text-gray-400 text-center">
+                {{ subtitle }}
+              </p>
+            </div>
+          </div>
 
-              <!-- 插槽内容 -->
-              <slot />
+          <!-- 可滚动内容区域 -->
+          <div class="flex-1 overflow-y-auto scrollable-content">
+            <div class="p-6 relative">
+              <div class="relative z-10">
+                <!-- 插槽内容 -->
+                <slot />
+              </div>
             </div>
           </div>
         </div>
@@ -321,6 +325,43 @@ function handleBackdropClick() {
 
   .modal-content-leave-to {
     transform: scale(0.98) translateY(5px);
+  }
+}
+
+/* 滚动条样式 */
+.scrollable-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.scrollable-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 移动端优化 */
+@media (max-width: 640px) {
+  .scrollable-content {
+    /* 在移动端隐藏滚动条 */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollable-content::-webkit-scrollbar {
+    display: none;
   }
 }
 </style>
