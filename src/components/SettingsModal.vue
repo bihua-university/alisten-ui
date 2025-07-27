@@ -84,6 +84,17 @@
         </div>
       </div>
 
+      <!-- 房间设置 -->
+      <div class="setting-section">
+        <h3 class="setting-section-title">
+          <i class="fa-solid fa-users text-purple-400 mr-2" />
+          房间设置
+        </h3>
+        <div class="setting-section-content">
+          <RoomSettings :show-advanced="true" />
+        </div>
+      </div>
+
       <!-- 性能设置 -->
       <div class="setting-section">
         <h3 class="setting-section-title">
@@ -101,6 +112,7 @@
 <script setup lang="ts">
 import Modal from '@/components/common/Modal.vue'
 import PerformanceSettings from '@/components/PerformanceSettings.vue'
+import RoomSettings from '@/components/RoomSettings.vue'
 import VolumeSlider from '@/components/VolumeSlider.vue'
 import { useUserSettings } from '@/composables/useUserSettings'
 

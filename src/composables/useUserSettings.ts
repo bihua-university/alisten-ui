@@ -1,4 +1,4 @@
-import type { User } from '@/types'
+import type { PlayMode, User } from '@/types'
 import { computed, ref } from 'vue'
 import { generateGravatarUrl } from '@/utils/user'
 import { useWebSocket } from './useWebSocket'
@@ -7,7 +7,22 @@ import { useWebSocket } from './useWebSocket'
 const userName = ref('')
 const userEmail = ref('')
 
-const { send } = useWebSocket()
+// 播放模式状态
+const playMode = ref<PlayMode>('sequential')
+
+const { registerMessageHandler, send } = useWebSocket()
+
+registerMessageHandler('setting/push', (message: any) => {
+  playMode.value = message.data.playmode || 'sequential'
+})
+
+// 从 localStorage 加载所有房间设置
+function pullSetting() {
+  send({
+    action: '/setting/pull',
+    data: {},
+  })
+}
 
 // 从 localStorage 加载用户设置
 function loadUserSettings() {
@@ -78,6 +93,18 @@ const emailValidation = computed(() => {
   }
 })
 
+function setPlayMode(mode: PlayMode) {
+  if (['sequential', 'random'].includes(mode)) {
+    playMode.value = mode
+  }
+  send({
+    action: '/music/playmode',
+    data: {
+      mode: playMode.value,
+    },
+  })
+}
+
 export function useUserSettings() {
   // 初始化时加载设置
   loadUserSettings()
@@ -88,11 +115,14 @@ export function useUserSettings() {
     userEmail,
     currentUser,
     emailValidation,
+    playMode,
 
     // 方法
     loadUserSettings,
     saveUserSettings,
     syncUserSettings,
     isValidEmail,
+    pullSetting,
+    setPlayMode,
   }
 }

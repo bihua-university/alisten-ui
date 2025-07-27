@@ -63,3 +63,5 @@ export interface WebSocketConfig {
 }
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error' | 'reconnecting'
+
+export type PlayMode = 'sequential' | 'random'
