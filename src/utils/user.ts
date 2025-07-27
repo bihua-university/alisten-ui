@@ -2,32 +2,6 @@ import type { User } from '@/types'
 import { MD5 } from 'crypto-js'
 
 /**
- * 解析用户名，支持 "name<email>" 格式
- * @param nameString 原始用户名字符串
- * @returns 解析后的用户名和邮箱
- */
-export function parseUserName(nameString: string): {
-  displayName: string
-  email?: string
-} {
-  // 匹配 "name<email>" 格式
-  const emailPattern = /(.+?)<([^<>][^<>@]*@[^<>][^.<>]*\.[^<>]+)>/
-  const match = nameString.match(emailPattern)
-
-  if (match) {
-    return {
-      displayName: match[1].trim(),
-      email: match[2].trim(),
-    }
-  }
-
-  // 如果不匹配模式，返回原始名称
-  return {
-    displayName: nameString.trim(),
-  }
-}
-
-/**
  * 生成 Gravatar 头像 URL
  * @param email 邮箱地址
  * @param size 头像尺寸，默认 200
@@ -53,12 +27,9 @@ export function generateGravatarUrl(
  * @returns 处理后的用户对象
  */
 export function processUser(user: User): User {
-  const { displayName, email } = parseUserName(user.name)
-
   return {
     ...user,
-    name: displayName,
-    avatar: email ? generateGravatarUrl(email) : user.avatar,
+    avatar: user.email ? generateGravatarUrl(user.email) : user.avatar,
   }
 }
 
@@ -69,29 +40,6 @@ export function processUser(user: User): User {
  */
 export function processUsers(users: User[]): User[] {
   return users.map(processUser)
-}
-
-/**
- * 保存用户昵称到本地存储
- * @param nickname 用户昵称
- */
-export function saveNickname(nickname: string): void {
-  localStorage.setItem('alisten_nickname', nickname)
-}
-
-/**
- * 从本地存储获取用户昵称
- * @returns 保存的昵称，如果没有则返回 null
- */
-export function getSavedNickname(): string | null {
-  return localStorage.getItem('alisten_nickname')
-}
-
-/**
- * 清除保存的昵称
- */
-export function clearNickname(): void {
-  localStorage.removeItem('alisten_nickname')
 }
 
 /**

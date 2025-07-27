@@ -4,7 +4,6 @@ import type {
   WebSocketMessage,
 } from '@/types'
 import { ref } from 'vue'
-import { getSavedNickname, saveNickname } from '@/utils/user'
 import { useRoom } from './useRoom'
 
 const ws = ref<WebSocket | null>(null)
@@ -122,17 +121,6 @@ function connect() {
       connectionStatus.value = 'connected'
       isConnecting.value = false
       reconnectAttempts.value = 0
-      // 连接成功后，发送保存的昵称
-      const savedNickname = getSavedNickname()
-      if (savedNickname) {
-        send({
-          action: '/setting/name',
-          data: {
-            name: savedNickname,
-            sendTime: Date.now(),
-          },
-        })
-      }
     }
 
     ws.value.onmessage = handleMessage
@@ -226,23 +214,6 @@ const commandHandlers: CommandHandler[] = [
         data: {
           name: args,
           source: 'wy', // 默认使用网易云音乐
-        },
-      })
-    },
-  },
-  {
-    prefix: '设置昵称',
-    handler: (args: string) => {
-      if (!args) {
-        return false
-      }
-      // 保存昵称到本地存储
-      saveNickname(args)
-      return send({
-        action: '/setting/name',
-        data: {
-          name: args,
-          sendTime: Date.now(),
         },
       })
     },

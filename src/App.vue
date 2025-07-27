@@ -246,6 +246,7 @@ import { useNotification } from '@/composables/useNotification'
 import { usePlayer } from '@/composables/usePlayer'
 import { usePWA } from '@/composables/usePWA'
 import { useRoom } from '@/composables/useRoom'
+import { useUserSettings } from '@/composables/useUserSettings'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { getAppConfig, logConfig, validateConfig } from '@/utils/config'
 import {
@@ -346,6 +347,8 @@ const {
 // 键盘快捷键处理
 useKeyboardShortcuts(isImmersiveMode, toggleImmersiveMode)
 
+const { syncUserSettings } = useUserSettings()
+
 // 返回键处理 - 集中管理所有模态框
 useBackButton([
   showMusicSearchModal,
@@ -441,6 +444,7 @@ watch(connectionStatus, (status) => {
     case 'connected':
       console.log('✅ 已连接到服务器')
       showConnectionSuccess()
+      syncUserSettings()
       break
     case 'disconnected':
       console.log('❌ 与服务器断开连接')

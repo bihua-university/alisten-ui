@@ -226,10 +226,7 @@ registerMessageHandler('pick', (message: any) => {
       album: item.album?.name || '未知专辑',
       duration: item.duration ? (item.duration / 1000) : 240,
       cover: item.pictureUrl || getDefaultAvatar(item.id),
-      requestedBy: {
-        name: item.nickName || '未知用户',
-        avatar: getDefaultAvatar(),
-      },
+      requestedBy: item.user,
     }))
 
   playerState.playlist = [...playlist]

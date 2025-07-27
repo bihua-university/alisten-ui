@@ -72,6 +72,17 @@
                   </div>
                 </div>
               </div>
+              <div class="flex items-start">
+                <i class="fa-solid fa-cog text-gray-400 mr-3 mt-0.5 w-4 text-center" />
+                <div>
+                  <div class="font-medium mb-1">
+                    设置选项
+                  </div>
+                  <div class="text-gray-300">
+                    点击顶部的"设置"按钮，配置用户信息、音频和性能选项
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -107,16 +118,16 @@
                   </div>
                 </div>
               </div>              <div class="flex items-start">
-                <i class="fa-solid fa-user-edit text-teal-400 mr-3 mt-0.5 w-4 text-center" />
+                <i class="fa-solid fa-cog text-teal-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
-                    设置昵称
+                    用户设置
                   </div>
                   <div class="text-gray-300">
-                    在聊天框中输入"设置昵称 [新昵称]"来更改你在房间中显示的名称
+                    点击顶部工具栏的"设置"按钮，在用户设置中配置您的用户名和邮箱
                   </div>
                   <div class="text-xs text-gray-400 mt-1">
-                    例如：设置昵称 音乐爱好者
+                    设置会在关闭设置界面时自动保存
                   </div>
                 </div>
               </div>
@@ -124,16 +135,16 @@
                 <i class="fa-solid fa-user-circle text-indigo-400 mr-3 mt-0.5 w-4 text-center" />
                 <div>
                   <div class="font-medium mb-1">
-                    设置头像
+                    头像设置
                   </div>
                   <div class="text-gray-300">
-                    使用 "昵称&lt;邮箱&gt;" 格式，系统会自动从 Gravatar 获取您的头像
-                  </div>
-                  <div class="text-xs text-gray-400 mt-1">
-                    例如：设置昵称 音乐爱好者&lt;user@example.com&gt;
+                    在设置界面输入邮箱地址，系统会自动从 Gravatar 获取您的头像
                   </div>
                   <div class="text-xs text-gray-400 mt-1">
                     💡 先在 <a href="https://gravatar.com" target="_blank" class="text-indigo-300 hover:text-indigo-200 underline">gravatar.com</a> 注册并上传头像
+                  </div>
+                  <div class="text-xs text-gray-400 mt-1">
+                    如果没有设置邮箱，将使用基于用户名的默认头像
                   </div>
                 </div>
               </div>

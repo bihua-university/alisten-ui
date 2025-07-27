@@ -1,6 +1,6 @@
 import type { ChatMessage, User } from '@/types'
 import { computed, reactive } from 'vue'
-import { getDefaultAvatar, processUser, processUsers } from '@/utils/user'
+import { processUser, processUsers } from '@/utils/user'
 import { useWebSocket } from './useWebSocket'
 
 // 全局共享的聊天状态
@@ -25,10 +25,7 @@ registerMessageHandler('chat', (message: any) => {
   const msg: ChatMessage = {
     content: message.content,
     timestamp: message.sendTime || Date.now(),
-    user: {
-      name: message.nickName || '未知用户',
-      avatar: message.userAvatar || getDefaultAvatar(),
-    },
+    user: message.user,
   }
 
   // 直接操作全局状态
@@ -43,12 +40,7 @@ registerMessageHandler('house_user', (message: any) => {
   }
 
   const users: User[] = message.data
-    .filter((item: any) => item && typeof item === 'string') // 确保是字符串类型
-    .map((item: string) => ({
-      name: item,
-      avatar: getDefaultAvatar(1),
-    }))
-
+  console.log('📧 收到在线用户列表:', users)
   // 直接操作全局状态
   chatState.onlineUsers = [...processUsers(users)]
 })

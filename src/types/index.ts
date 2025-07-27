@@ -12,6 +12,7 @@ export interface Song {
 
 export interface User {
   name: string
+  email?: string
   avatar: string
 }
 
