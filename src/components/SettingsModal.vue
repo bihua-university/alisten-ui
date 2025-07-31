@@ -250,10 +250,24 @@ function handleClose() {
   font-size: 14px;
 }
 
-/* 移动端隐藏说明文字 */
+/* 移动端样式 */
 @media (max-width: 768px) {
+  /* 在移动端隐藏说明文字，节省屏幕空间 */
   .mobile-hidden {
     display: none !important;
+  }
+
+  /* 设置项改为垂直布局，标签和控件分两行显示 */
+  .setting-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  /* 输入框占满可用宽度，提升移动端使用体验 */
+  .setting-input {
+    min-width: unset;
+    width: 100%;
   }
 }
 </style>
