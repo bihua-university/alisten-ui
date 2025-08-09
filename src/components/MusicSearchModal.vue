@@ -182,26 +182,12 @@
               v-if="selectedSearchMode.id === 'song'"
               class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
             >
-              <div v-for="result in searchResults" class="bg-white/5 rounded-lg p-3 flex items-center transition-all">
-                <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
-                  <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
-                </div>
-                <div class="flex-1 min-w-0 mr-3">
-                  <p class="text-xs text-gray-400 truncate">
-                    {{ `${result.artist} - ${result.title}` }}
-                  </p>
-                  <div class="flex items-center mt-1">
-                    <span class="text-xs text-gray-500 ml-2">{{ formatTime(result.duration
-                      / 1000) }}</span>
-                  </div>
-                </div>
-                <button
-                  class="bg-primary/20 hover:bg-primary/30 active:bg-primary/40 text-primary rounded-full w-10 h-10 flex items-center justify-center transition-all touch-target flex-shrink-0"
-                  @click.stop="pickMusic(result)"
-                >
-                  <i class="fa-solid fa-plus" />
-                </button>
-              </div>
+              <MusicItem
+                v-for="result in searchResults"
+                :key="result.id"
+                :music="result"
+                @add="pickMusic"
+              />
             </div>
 
             <!-- 歌单搜索结果 -->
@@ -209,32 +195,12 @@
               v-if="selectedSearchMode.id === 'playlist' || selectedSearchMode.id === 'user_playlist'"
               class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
             >
-              <div v-for="result in searchResults" class="bg-white/5 rounded-lg p-3 flex items-center transition-all">
-                <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
-                  <img :src="result.cover" :alt="result.title" class="w-full h-full object-cover">
-                  <div class="absolute bottom-0 right-0 bg-black/70 text-white text-xs px-1 rounded-tl">
-                    <i class="fa-solid fa-list-ul" />
-                  </div>
-                </div>
-                <div class="flex-1 min-w-0 mr-3">
-                  <p class="text-sm font-medium truncate mb-1">
-                    {{ result.title }}
-                  </p>
-                  <p class="text-xs text-gray-400 truncate">
-                    {{ (result as any).creator || '未知创建者' }}
-                  </p>
-                  <div class="flex items-center mt-1">
-                    <span class="text-xs text-gray-500">{{ (result as any).songCount || 0 }}
-                      首歌曲</span>
-                  </div>
-                </div>
-                <button
-                  class="bg-green-500/20 hover:bg-green-500/30 active:bg-green-500/40 text-green-400 rounded-full w-10 h-10 flex items-center justify-center transition-all touch-target flex-shrink-0"
-                  @click.stop="viewPlaylist(result)"
-                >
-                  <i class="fa-solid fa-eye" />
-                </button>
-              </div>
+              <PlaylistItem
+                v-for="result in searchResults"
+                :key="result.id"
+                :playlist="result"
+                @view="viewPlaylist"
+              />
             </div>
           </transition-group>
         </div>
@@ -327,11 +293,11 @@
 import type { MusicSource } from '@/types'
 import { useStorage } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
+import { MusicItem, PlaylistItem } from '@/components/common'
 import { useNotification } from '@/composables/useNotification'
 import { useSearch } from '@/composables/useSearch'
 import { useSearchHistory } from '@/composables/useSearchHistory'
 import { useWebSocket } from '@/composables/useWebSocket'
-import { formatTime } from '@/utils/time'
 
 // Props
 defineEmits(['close'])
