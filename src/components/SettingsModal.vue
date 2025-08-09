@@ -126,11 +126,11 @@ defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // 使用用户设置
-const { userName, userEmail, currentUser, emailValidation, saveUserSettings } = useUserSettings()
+const { userName, userEmail, currentUser, emailValidation, syncUserSettings } = useUserSettings()
 
 // 关闭时保存设置
 function handleClose() {
-  saveUserSettings()
+  syncUserSettings()
   emit('close')
 }
 </script>

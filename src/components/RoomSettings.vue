@@ -35,6 +35,62 @@
       </div>
     </div>
 
+    <!-- 搜索记录设置 -->
+    <div class="space-y-3 mb-4">
+      <label class="block text-sm font-medium text-gray-300">搜索记录设置</label>
+      <!-- 启用搜索记录 -->
+      <div class="flex items-center justify-between p-3 border border-white/10 rounded-lg bg-white/5">
+        <div>
+          <div class="font-medium text-white">
+            启用搜索记录
+          </div>
+          <div class="text-sm text-gray-400">
+            保存搜索历史以便快速重复搜索
+          </div>
+        </div>
+        <label class="flex items-center cursor-pointer">
+          <input
+            v-model="enableSearchHistory"
+            type="checkbox"
+            class="sr-only"
+            @change="updateSearchHistorySettings(enableSearchHistory, maxSearchHistoryCount)"
+          >
+          <div
+            class="apple-toggle"
+            :class="{ active: enableSearchHistory }"
+          >
+            <div class="apple-toggle-thumb" />
+          </div>
+        </label>
+      </div>
+
+      <!-- 搜索记录数量设置 -->
+      <div
+        v-if="enableSearchHistory"
+        class="flex items-center justify-between p-3 border border-white/10 rounded-lg bg-white/5"
+      >
+        <div>
+          <div class="font-medium text-white">
+            最大记录数量
+          </div>
+          <div class="text-sm text-gray-400">
+            保存的搜索记录最大数量 (1-50)
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input
+            v-model.number="maxSearchHistoryCount"
+            type="number"
+            min="1"
+            max="50"
+            class="w-16 px-2 py-1 text-center bg-white/10 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-purple-500"
+            @change="updateSearchHistorySettings(enableSearchHistory, maxSearchHistoryCount)"
+          >
+          <span class="text-sm text-gray-400">条</span>
+        </div>
+      </div>
+    </div>
+
     <!-- 房间信息 -->
     <div class="bg-white/5 border border-white/10 rounded-lg p-3">
       <div class="text-sm text-gray-400 space-y-1">
@@ -61,6 +117,7 @@
 import type { PlayMode } from '@/types'
 import { onMounted } from 'vue'
 import { useRoom } from '@/composables/useRoom'
+import { useSearchHistory } from '@/composables/useSearchHistory'
 import { useUserSettings } from '@/composables/useUserSettings'
 
 // 显示高级信息的prop
@@ -78,6 +135,12 @@ const {
   setPlayMode,
   pullSetting,
 } = useUserSettings()
+
+const {
+  enableSearchHistory,
+  maxSearchHistoryCount,
+  updateSearchHistorySettings,
+} = useSearchHistory()
 
 onMounted(() => {
   pullSetting()
@@ -147,52 +210,43 @@ function getCurrentModeDescription() {
   border-radius: 50%;
 }
 
-/* 自定义checkbox样式 */
-.custom-checkbox {
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid #6b7280;
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  background: transparent;
+/* Apple 风格 Toggle 开关 */
+.apple-toggle {
+  position: relative;
+  width: 3rem;
+  height: 1.75rem;
+  background: #374151;
+  border-radius: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
 }
 
-.custom-checkbox:hover {
-  border-color: #9ca3af;
+.apple-toggle:hover {
+  background: #4b5563;
 }
 
-.custom-checkbox.checked {
+.apple-toggle.active {
   background: #9333ea;
-  border-color: #9333ea;
 }
 
-.check-icon {
-  width: 0.75rem;
-  height: 0.75rem;
-  color: white;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: all 0.15s ease;
+.apple-toggle.active:hover {
+  background: #9333ea;
 }
 
-.custom-checkbox.checked .check-icon {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* 隐藏原生checkbox但保持可访问性 */
-.sr-only {
+.apple-toggle-thumb {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.apple-toggle.active .apple-toggle-thumb {
+  transform: translateX(1.25rem);
 }
 </style>

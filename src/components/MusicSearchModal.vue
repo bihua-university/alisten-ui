@@ -130,7 +130,7 @@
                 </div>
               </div>
               <div
-                v-for="(item, index) in currentSearchHistory" :key="index"
+                v-for="(item, index) in currentSearchHistory" :key="`${item.query}-${item.timestamp}`"
                 class="group flex items-center px-4 py-3 text-sm cursor-pointer transition-all duration-200 border-b border-white/5 last:border-b-0"
                 :class="[
                   selectedHistoryIndex === index
@@ -141,8 +141,21 @@
               >
                 <div class="flex items-center flex-1 min-w-0">
                   <i class="fa-solid fa-search text-gray-300 mr-3 flex-shrink-0 text-xs" />
-                  <span class="truncate font-medium">{{ item }}</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="truncate font-medium">
+                      {{ item.query }}
+                    </div>
+                    <div class="text-xs text-gray-400 truncate mt-1">
+                      {{ new Date(item.timestamp).toLocaleString() }}
+                    </div>
+                  </div>
                 </div>
+                <button
+                  class="opacity-0 group-hover:opacity-100 ml-2 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-400 transition-all"
+                  @click.stop="removeHistoryItem(item)"
+                >
+                  <i class="fa-solid fa-times text-xs" />
+                </button>
               </div>
             </div>
             <div class="border-t border-white/10 bg-white/10">
@@ -316,6 +329,7 @@ import { useStorage } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useNotification } from '@/composables/useNotification'
 import { useSearch } from '@/composables/useSearch'
+import { useSearchHistory } from '@/composables/useSearchHistory'
 import { useWebSocket } from '@/composables/useWebSocket'
 import { formatTime } from '@/utils/time'
 
@@ -325,6 +339,13 @@ defineEmits(['close'])
 const { clearSearchResults, searchResults, searchCounts } = useSearch()
 const { showSuccess } = useNotification()
 const { send } = useWebSocket()
+const {
+  isSearchHistoryEnabled,
+  addSearchHistory,
+  getSearchHistory,
+  removeSearchHistoryItem,
+  clearSearchHistory,
+} = useSearchHistory()
 
 // 搜索结果容器引用
 const searchResultsContainer = ref<HTMLElement | null>(null)
@@ -391,9 +412,6 @@ const songQuery = useStorage('song-query', '')
 const playlistQuery = useStorage('playlist-query', '')
 const userPlaylistQuery = useStorage('user-playlist-query', '')
 
-// 为每种音乐源和搜索模式创建独立的搜索历史
-const searchHistory = useStorage('search-history', {} as Record<string, string[]>)
-
 // 显示搜索历史的状态
 const showSearchHistory = ref(false)
 const searchInputRef = ref<HTMLInputElement | null>(null)
@@ -401,14 +419,12 @@ const searchInputRef = ref<HTMLInputElement | null>(null)
 // 键盘导航相关状态
 const selectedHistoryIndex = ref(-1) // 当前选中的历史记录索引，-1表示没有选中
 
-// 获取当前音乐源和搜索模式对应的搜索历史key
-const currentHistoryKey = computed(() => {
-  return `${selectedMusicSource.value.id}-${selectedSearchMode.value.id}`
-})
-
-// 获取当前的搜索历史
 const currentSearchHistory = computed(() => {
-  return searchHistory.value[currentHistoryKey.value] || []
+  if (!isSearchHistoryEnabled.value) {
+    return []
+  }
+  // 直接从 useSearchHistory 获取当前平台和搜索模式的历史记录
+  return getSearchHistory(selectedMusicSource.value.id, selectedSearchMode.value.id)
 })
 
 // 当前搜索查询的计算属性
@@ -649,21 +665,18 @@ function addToSearchHistory(query: string) {
   if (!query.trim()) {
     return // 如果查询为空字符串，直接返回
   }
-  const key = currentHistoryKey.value
-  const history = searchHistory.value[key] || []
 
-  // 移除重复项并添加到最前面
-  const filtered = history.filter(item => item !== query)
-  const newHistory = [query, ...filtered].slice(0, 10) // 最多保存10条历史记录
-
-  searchHistory.value = {
-    ...searchHistory.value,
-    [key]: newHistory,
-  }
+  // 使用新的搜索记录系统
+  addSearchHistory(
+    query.trim(),
+    selectedMusicSource.value.id,
+    selectedSearchMode.value.id,
+  )
 }
 
 // 从搜索历史中选择查询
-function selectFromHistory(query: string) {
+function selectFromHistory(item: any) {
+  const query = typeof item === 'string' ? item : item.query
   songSearchQuery.value = query
   showSearchHistory.value = false
   selectedHistoryIndex.value = -1
@@ -672,12 +685,15 @@ function selectFromHistory(query: string) {
 
 // 清除当前的搜索历史
 function clearCurrentHistory() {
-  const key = currentHistoryKey.value
-  const newHistory = { ...searchHistory.value }
-  delete newHistory[key]
-  searchHistory.value = newHistory
+  // 清空所有搜索历史记录
+  clearSearchHistory()
   showSearchHistory.value = false
   selectedHistoryIndex.value = -1
+}
+
+// 删除单个搜索记录项
+function removeHistoryItem(item: any) {
+  removeSearchHistoryItem(item.query, item.platform, item.searchMode)
 }
 
 // 处理输入框焦点

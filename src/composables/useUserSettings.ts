@@ -1,11 +1,12 @@
 import type { PlayMode, User } from '@/types'
+import { useStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { generateGravatarUrl } from '@/utils/user'
 import { useWebSocket } from './useWebSocket'
 
 // 用户设置状态
-const userName = ref('')
-const userEmail = ref('')
+const userName = useStorage('alisten_nickname', '')
+const userEmail = useStorage('alisten_email', '')
 
 // 播放模式状态
 const playMode = ref<PlayMode>('sequential')
@@ -22,28 +23,6 @@ function pullSetting() {
     action: '/setting/pull',
     data: {},
   })
-}
-
-// 从 localStorage 加载用户设置
-function loadUserSettings() {
-  const savedName = localStorage.getItem('alisten_nickname')
-  const savedEmail = localStorage.getItem('alisten_email')
-
-  if (savedName) {
-    userName.value = savedName
-  }
-
-  if (savedEmail) {
-    userEmail.value = savedEmail
-  }
-}
-
-// 保存用户设置到 localStorage
-function saveUserSettings() {
-  localStorage.setItem('alisten_nickname', userName.value)
-  localStorage.setItem('alisten_email', userEmail.value)
-
-  syncUserSettings()
 }
 
 function syncUserSettings() {
@@ -106,9 +85,6 @@ function setPlayMode(mode: PlayMode) {
 }
 
 export function useUserSettings() {
-  // 初始化时加载设置
-  loadUserSettings()
-
   return {
     // 状态
     userName,
@@ -118,8 +94,6 @@ export function useUserSettings() {
     playMode,
 
     // 方法
-    loadUserSettings,
-    saveUserSettings,
     syncUserSettings,
     isValidEmail,
     pullSetting,
