@@ -116,8 +116,8 @@
 <script setup lang="ts">
 import type { PlayMode } from '@/types'
 import { onMounted } from 'vue'
+import { useHistory } from '@/composables/useHistory'
 import { useRoom } from '@/composables/useRoom'
-import { useSearchHistory } from '@/composables/useSearchHistory'
 import { useUserSettings } from '@/composables/useUserSettings'
 
 // 显示高级信息的prop
@@ -140,7 +140,7 @@ const {
   enableSearchHistory,
   maxSearchHistoryCount,
   updateSearchHistorySettings,
-} = useSearchHistory()
+} = useHistory()
 
 onMounted(() => {
   pullSetting()

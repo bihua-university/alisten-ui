@@ -29,7 +29,7 @@
       <audio
         ref="audioPlayer" preload="auto" @canplay="true" @autoplay="true"
         @timeupdate="onAudioTimeUpdate" @error="onAudioError"
-        @play="startProgressUpdate" @pause="stopProgressUpdate" @ended="stopProgressUpdate"
+        @play="startProgressUpdate" @pause="stopProgressUpdate"
       >
         <source :src="playerState.currentSong?.url">
         您的浏览器不支持音频播放。
@@ -57,6 +57,7 @@
             @share-room="shareRoom"
             @show-help="showHelp = true"
             @show-settings="showSettings = true"
+            @show-play-history="showPlayHistory = true"
             @toggle-immersive="toggleImmersiveMode"
           />
 
@@ -166,6 +167,9 @@
       <!-- 设置弹窗 -->
       <SettingsModal v-if="showSettings" @close="showSettings = false" @settings-changed="handleSettingsChanged" />
 
+      <!-- 播放历史弹窗 -->
+      <PlayHistoryModal v-if="showPlayHistory" @close="showPlayHistory = false" />
+
       <!-- 移动端播放列表模态框 -->
       <PlaylistComponent
         :playlist="processedPlaylist"
@@ -233,12 +237,14 @@ import JoinRoomModal from '@/components/JoinRoomModal.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
 import PlayerInfo from '@/components/PlayerInfo.vue'
+import PlayHistoryModal from '@/components/PlayHistoryModal.vue'
 import PlaylistComponent from '@/components/PlaylistComponent.vue'
 import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
 import TopBar from '@/components/TopBar.vue'
 import UserListComponent from '@/components/UserListComponent.vue'
 import { useBackButton } from '@/composables/useBackButton'
+import { useHistory } from '@/composables/useHistory'
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import { useLyrics } from '@/composables/useLyrics'
 import { useMediaSession } from '@/composables/useMediaSession'
@@ -273,6 +279,7 @@ const initialized = ref(false) // 应用是否已初始化
 const showMusicSearchModal = ref(false)
 const showHelp = ref(false)
 const showSettings = ref(false)
+const showPlayHistory = ref(false)
 const showMobileChat = ref(false)
 const showMobileUsers = ref(false)
 const showMobilePlaylist = ref(false)
@@ -348,6 +355,7 @@ const {
 useKeyboardShortcuts(isImmersiveMode, toggleImmersiveMode)
 
 const { syncUserSettings } = useUserSettings()
+const { addToPlayHistory } = useHistory()
 
 // 返回键处理 - 集中管理所有模态框
 useBackButton([
@@ -357,6 +365,7 @@ useBackButton([
   showMobileUsers,
   showHelp,
   showSettings,
+  showPlayHistory,
 ])
 
 // ===== 计算属性 =====
@@ -467,6 +476,16 @@ function handleSettingsChanged(settings: any) {
   // 这里可以根据设置变更调整应用行为
   // 例如：应用音频设置、界面设置等
 }
+
+// ===== 播放历史记录功能 =====
+
+// 监听歌曲变化，记录播放历史
+watch(() => playerState.currentSong, (newSong, _) => {
+  // 记录新歌曲开始播放的时间
+  if (newSong) {
+    addToPlayHistory(newSong)
+  }
+})
 
 // ===== 分享功能 =====
 

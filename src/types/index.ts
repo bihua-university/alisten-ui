@@ -8,6 +8,7 @@ export interface Song {
   webUrl?: string
   duration: number
   requestedBy?: User
+  source?: string
 }
 
 export interface User {

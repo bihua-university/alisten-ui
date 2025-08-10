@@ -186,7 +186,7 @@
                 v-for="result in searchResults"
                 :key="result.id"
                 :music="result"
-                @add="pickMusic"
+                @add="(music) => pickMusic(music, selectedMusicSource.id)"
               />
             </div>
 
@@ -294,24 +294,24 @@ import type { MusicSource } from '@/types'
 import { useStorage } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { MusicItem, PlaylistItem } from '@/components/common'
-import { useNotification } from '@/composables/useNotification'
+import { useHistory } from '@/composables/useHistory'
+import { usePlayer } from '@/composables/usePlayer'
 import { useSearch } from '@/composables/useSearch'
-import { useSearchHistory } from '@/composables/useSearchHistory'
 import { useWebSocket } from '@/composables/useWebSocket'
 
 // Props
 defineEmits(['close'])
 
 const { clearSearchResults, searchResults, searchCounts } = useSearch()
-const { showSuccess } = useNotification()
 const { send } = useWebSocket()
 const {
   isSearchHistoryEnabled,
-  addSearchHistory,
+  addToSearchHistory: addSearchHistoryRecord,
   getSearchHistory,
-  removeSearchHistoryItem,
+  removeFromSearchHistory: removeSearchHistoryRecord,
   clearSearchHistory,
-} = useSearchHistory()
+} = useHistory()
+const { pickMusic } = usePlayer()
 
 // 搜索结果容器引用
 const searchResultsContainer = ref<HTMLElement | null>(null)
@@ -603,19 +603,6 @@ function selectSearchMode(mode: any) {
   clearSearchResults()
 }
 
-// 从搜索结果添加到播放列表
-function pickMusic(result: any) {
-  send({
-    action: '/music/pick',
-    data: {
-      id: result.id,
-      name: result.title,
-      source: selectedMusicSource.value.id,
-    },
-  })
-  showSuccess(`已发送点歌请求: ${result.title}`)
-}
-
 // 查看歌单详情
 function viewPlaylist(playlist: any) {
   selectedSearchMode.value = availableSearchModes.value[0] // 切换到第一个搜索模式（通常是歌曲搜索）
@@ -633,7 +620,7 @@ function addToSearchHistory(query: string) {
   }
 
   // 使用新的搜索记录系统
-  addSearchHistory(
+  addSearchHistoryRecord(
     query.trim(),
     selectedMusicSource.value.id,
     selectedSearchMode.value.id,
@@ -659,7 +646,7 @@ function clearCurrentHistory() {
 
 // 删除单个搜索记录项
 function removeHistoryItem(item: any) {
-  removeSearchHistoryItem(item.query, item.platform, item.searchMode)
+  removeSearchHistoryRecord(item.query, item.platform, item.searchMode)
 }
 
 // 处理输入框焦点

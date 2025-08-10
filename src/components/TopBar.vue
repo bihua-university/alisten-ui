@@ -38,6 +38,16 @@
         <span class="sm:hidden">切歌</span>
       </button>
 
+      <!-- 播放历史 -->
+      <button
+        class="bg-purple-500/20 hover:bg-purple-500/30 active:bg-purple-500/40 text-purple-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
+        @click="$emit('showPlayHistory')"
+      >
+        <i class="fa-solid fa-history mr-1 sm:mr-2" />
+        <span class="hidden sm:inline">历史</span>
+        <span class="sm:hidden">历史</span>
+      </button>
+
       <!-- 分享 -->
       <button
         class="bg-blue-500/20 hover:bg-blue-500/30 active:bg-blue-500/40 text-blue-400 rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
@@ -103,6 +113,7 @@ defineEmits<{
   shareRoom: []
   showHelp: []
   showSettings: []
+  showPlayHistory: []
   toggleImmersive: []
 }>()
 

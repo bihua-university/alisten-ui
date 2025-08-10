@@ -194,6 +194,8 @@ registerMessageHandler('music', (message: any) => {
 
   const music: Song = {
     url,
+    id: message.id,
+    source: message.source,
     title: message.name,
     artist: message.artist || '未知艺术家',
     album: message.album?.name || '未知专辑',
@@ -218,9 +220,7 @@ registerMessageHandler('pick', (message: any) => {
   const playlist: Song[] = message.data
     .filter((item: any) => item && item.name) // 过滤无效数据
     .map((item: any) => ({
-      id: item.id,
-      url: item.url || '',
-      webUrl: item.webUrl || '',
+      ...item,
       title: item.name,
       artist: item.artist || '未知艺术家',
       album: item.album?.name || '未知专辑',
@@ -319,7 +319,23 @@ const progressPercentage = computed(() => {
   return 0
 })
 
-const { showInfo } = useNotification()
+const { showInfo, showSuccess } = useNotification()
+
+// 从搜索结果添加到播放列表
+function pickMusic(result: any, source: string) {
+  if (source === 'netease') {
+    source = 'wy'
+  }
+  send({
+    action: '/music/pick',
+    data: {
+      id: result.id,
+      name: result.title,
+      source,
+    },
+  })
+  showSuccess(`已发送点歌请求: ${result.title}`)
+}
 
 // 发送切歌请求
 function skipSong() {
@@ -375,7 +391,8 @@ export function usePlayer() {
     setVolume,
     toggleMute,
 
-    // 切歌功能
+    // API
+    pickMusic,
     skipSong,
 
     // 音频同步
