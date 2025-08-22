@@ -188,7 +188,7 @@ registerMessageHandler('music', (message: any) => {
     const urls = url.split('.sycdn.')
     const headUrls = urls[0].replace('http://', '').split('.')
     const lastHeadUrl = headUrls[headUrls.length - 1]
-    url = `https://${lastHeadUrl}-sycdn.${urls[1]}&timestamp=${Date.now()}`
+    url = `https://${lastHeadUrl}-sycdn.${urls[1]}`
   }
   url = url.replace('http://', 'https://')
 

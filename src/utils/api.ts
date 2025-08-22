@@ -72,7 +72,7 @@ export async function searchRooms(keyword?: string): Promise<RoomInfo[]> {
 
     const data = await response.json()
 
-    return data.data as RoomInfo[]
+    return data as RoomInfo[]
   } catch (error) {
     console.error('搜索房间失败:', error)
     throw error
