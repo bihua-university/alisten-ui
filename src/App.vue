@@ -4,6 +4,13 @@
     class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative touch-none"
     style="scrollbar-width: none; -ms-overflow-style: none;"
   >
+    <!-- PWA 更新提示 -->
+    <PWAUpdateModal
+      :show-update-modal="showUpdateModal"
+      @update-app="handleUpdateApp"
+      @dismiss-update="handleDismissUpdate"
+    />
+
     <!-- 确认加入房间模态框 -->
     <JoinRoomModal
       :show="showJoinRoomConfirm"
@@ -203,12 +210,6 @@
 
       <!-- 通知容器 -->
       <NotificationContainer />
-      <!-- PWA 更新提示 -->
-      <PWAUpdateModal
-        :show-update-modal="showUpdateModal"
-        @update-app="handleUpdateApp"
-        @dismiss-update="handleDismissUpdate"
-      />
 
       <!-- WebSocket 连接配置显示（开发环境） -->
       <div v-if="isDevelopment && !isImmersiveMode" class="fixed bottom-4 right-4 z-40">
