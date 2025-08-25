@@ -5,7 +5,7 @@
     theme="primary"
     title="应用更新"
     header-icon="fa-solid fa-sync"
-    :z-index="50"
+    :z-index="150"
     :show-header="true"
     :allow-backdrop-close="!isUpdating"
     @close="dismissUpdate"
