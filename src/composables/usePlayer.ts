@@ -198,7 +198,7 @@ registerMessageHandler('music', (message: any) => {
     source: message.source,
     title: message.name,
     artist: message.artist || '未知艺术家',
-    album: message.album?.name || '未知专辑',
+    album: message.album || '未知专辑',
     duration: message.duration || 0,
     cover: message.pictureUrl || getDefaultAvatar(message.id),
   }
@@ -223,7 +223,7 @@ registerMessageHandler('pick', (message: any) => {
       ...item,
       title: item.name,
       artist: item.artist || '未知艺术家',
-      album: item.album?.name || '未知专辑',
+      album: item.album || '未知专辑',
       duration: item.duration ? (item.duration / 1000) : 240,
       cover: item.pictureUrl || getDefaultAvatar(item.id),
       requestedBy: item.user,

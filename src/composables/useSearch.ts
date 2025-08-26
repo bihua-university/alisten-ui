@@ -35,13 +35,15 @@ export function useSearch() {
       return
     }
 
+    console.log('📥 收到搜索结果:', message)
+
     const results: SearchResult[] = message.data
       .filter((item: any) => item && item.id && item.name) // 过滤无效数据
       .map((item: any) => ({
         id: item.id,
         title: item.name,
         artist: item.artist || '未知艺术家',
-        album: item.album?.name || '未知专辑',
+        album: item.album || '未知专辑',
         cover: item.cover || getDefaultAvatar(item.id),
         duration: item.duration || 240,
         requestedBy: {
