@@ -142,6 +142,7 @@ function syncAudioCurrentTime() {
 const { registerMessageHandler, send } = useWebSocket()
 const { loadLrcLyrics, syncLyrics } = useLyrics()
 const { updateMetadata } = useMediaSession()
+const { showInfo, showSuccess } = useNotification()
 
 // 监听当前歌曲变化，更新音频源并自动播放
 watch(() => playerState.currentSong, (newSong) => {
@@ -239,6 +240,11 @@ registerMessageHandler('delay', (message: any) => {
   }
 })
 
+// 注册在线用户处理器
+registerMessageHandler('info/push', (message: any) => {
+  showInfo(message.info)
+})
+
 // 音频事件处理函数
 function onAudioTimeUpdate(event: Event) {
   const audio = event.target as HTMLAudioElement
@@ -317,8 +323,6 @@ const progressPercentage = computed(() => {
   }
   return 0
 })
-
-const { showInfo, showSuccess } = useNotification()
 
 // 从搜索结果添加到播放列表
 function pickMusic(result: any, source: string) {
