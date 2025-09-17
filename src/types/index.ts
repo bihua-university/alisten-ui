@@ -29,6 +29,7 @@ export interface RoomInfo {
   description: string
   population: number
   needPwd: boolean
+  ultimate: boolean
 }
 
 export interface LyricLine {

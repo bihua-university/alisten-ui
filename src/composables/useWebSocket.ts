@@ -84,13 +84,14 @@ function handleMessage(event: MessageEvent) {
   }
 }
 
+const { roomInfo, getCurrentPassword } = useRoom()
+
 // 连接 WebSocket
 function connect() {
   if (isConnecting.value || connectionStatus.value === 'connected') {
     return
   }
 
-  const { roomInfo, getCurrentPassword } = useRoom()
   const password = getCurrentPassword()
 
   // 如果没有密码但房间需要密码，则不连接
@@ -205,6 +206,9 @@ const commandHandlers: CommandHandler[] = [
     prefix: '点歌',
     handler: (args: string) => {
       if (!args) {
+        return false
+      }
+      if (!roomInfo.value.ultimate) {
         return false
       }
 

@@ -19,7 +19,7 @@
           <h3 class="text-base md:text-lg font-medium mb-3">
             选择音乐平台
           </h3>
-          <div class="grid grid-cols-3 gap-3 max-h-32 overflow-y-auto custom-scrollbar">
+          <div class="grid gap-3 max-h-32 overflow-y-auto custom-scrollbar" :class="[musicSources.length === 3 ? 'grid-cols-3' : 'grid-cols-2']">
             <button
               v-for="source in musicSources" :key="source.id"
               class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedMusicSource.id === source.id
@@ -296,6 +296,7 @@ import { computed, ref, watch } from 'vue'
 import { MusicItem, PlaylistItem } from '@/components/common'
 import { useHistory } from '@/composables/useHistory'
 import { usePlayer } from '@/composables/usePlayer'
+import { useRoom } from '@/composables/useRoom'
 import { useSearch } from '@/composables/useSearch'
 import { useWebSocket } from '@/composables/useWebSocket'
 
@@ -312,12 +313,13 @@ const {
   clearSearchHistory,
 } = useHistory()
 const { pickMusic } = usePlayer()
+const { roomInfo } = useRoom()
 
 // 搜索结果容器引用
 const searchResultsContainer = ref<HTMLElement | null>(null)
 
 // 音乐来源
-const musicSources: MusicSource[] = [
+const allMusicSources: MusicSource[] = [
   {
     id: 'wy',
     name: '网易云音乐',
@@ -340,6 +342,14 @@ const musicSources: MusicSource[] = [
     description: '仅歌曲搜索',
   },
 ]
+
+const musicSources = computed(() => {
+  if (roomInfo.value.ultimate) {
+    return allMusicSources
+  } else {
+    return allMusicSources.filter(source => source.id !== 'db')
+  }
+})
 
 // 搜索模式配置 - 根据音乐平台动态显示
 const allSearchModes = [
@@ -366,7 +376,7 @@ const allSearchModes = [
   },
 ]
 
-const selectedMusicSource = useStorage<MusicSource>('selected-music-source', musicSources[0])
+const selectedMusicSource = useStorage<MusicSource>('selected-music-source', allMusicSources[0])
 const selectedSearchMode = useStorage('selected-search-mode', allSearchModes[0])
 
 // 分页状态

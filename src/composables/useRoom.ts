@@ -8,6 +8,7 @@ const roomInfo = ref<RoomInfo>({
   description: '欢迎来到听歌房！',
   population: 0,
   needPwd: true,
+  ultimate: false,
 })
 
 // 当前房间密码
@@ -37,6 +38,7 @@ export function useRoom() {
       description: '欢迎来到听歌房！',
       population: 0,
       needPwd: true,
+      ultimate: false,
     }
   }
 
