@@ -1,26 +1,28 @@
-import type { User } from '@/types'
-import { MD5 } from 'crypto-js'
-
+import type { User } from "@/types";
+import { MD5 } from "crypto-js";
 /**
  * 生成 Gravatar 头像 URL
- * @param email 邮箱地址
+ * @param emailOrHash 邮箱地址或MD5哈希值
  * @param size 头像尺寸，默认 200
  * @param defaultImage 默认头像类型，默认 'mp'
  * @returns Gravatar URL
  */
 export function generateGravatarUrl(
-  email: string,
+  emailOrHash: string,
   size: number = 200,
-  defaultImage: string = 'mp',
+  defaultImage: string = "mp"
 ): string {
-  // 将邮箱转换为小写并去除空格
-  const normalizedEmail = email.toLowerCase().trim()
-  // 计算 MD5 哈希
-  const hash = MD5(normalizedEmail).toString()
-
-  return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=${defaultImage}`
+  // 判断是否为32位MD5哈希（仅包含十六进制字符）
+  const md5Regex = /^[a-f0-9]{32}$/i;
+  let hash = "";
+  if (md5Regex.test(emailOrHash)) {
+    hash = emailOrHash;
+  } else {
+    const normalizedEmail = emailOrHash.toLowerCase().trim();
+    hash = MD5(normalizedEmail).toString();
+  }
+  return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=${defaultImage}`;
 }
-
 /**
  * 处理用户对象，解析用户名并设置 Gravatar 头像
  * @param user 用户对象
@@ -30,7 +32,7 @@ export function processUser(user: User): User {
   return {
     ...user,
     avatar: user.email ? generateGravatarUrl(user.email) : user.avatar,
-  }
+  };
 }
 
 /**
@@ -39,7 +41,7 @@ export function processUser(user: User): User {
  * @returns 处理后的用户列表
  */
 export function processUsers(users: User[]): User[] {
-  return users.map(processUser)
+  return users.map(processUser);
 }
 
 /**
@@ -48,7 +50,7 @@ export function processUsers(users: User[]): User[] {
  * @param password 房间密码
  */
 export function saveRoomPassword(roomId: string, password: string): void {
-  localStorage.setItem(`alisten_room_password_${roomId}`, password)
+  localStorage.setItem(`alisten_room_password_${roomId}`, password);
 }
 
 /**
@@ -57,7 +59,7 @@ export function saveRoomPassword(roomId: string, password: string): void {
  * @returns 保存的密码，如果没有则返回 null
  */
 export function getSavedRoomPassword(roomId: string): string | null {
-  return localStorage.getItem(`alisten_room_password_${roomId}`)
+  return localStorage.getItem(`alisten_room_password_${roomId}`);
 }
 
 /**
@@ -65,7 +67,7 @@ export function getSavedRoomPassword(roomId: string): string | null {
  * @param roomId 房间ID
  */
 export function clearRoomPassword(roomId: string): void {
-  localStorage.removeItem(`alisten_room_password_${roomId}`)
+  localStorage.removeItem(`alisten_room_password_${roomId}`);
 }
 
 /**
@@ -73,7 +75,7 @@ export function clearRoomPassword(roomId: string): void {
  * @param roomId 房间ID
  */
 export function saveLastJoinedRoom(roomId: string): void {
-  localStorage.setItem('alisten_last_joined_room', roomId)
+  localStorage.setItem("alisten_last_joined_room", roomId);
 }
 
 /**
@@ -81,18 +83,18 @@ export function saveLastJoinedRoom(roomId: string): void {
  * @returns 保存的房间ID，如果没有则返回 null
  */
 export function getLastJoinedRoom(): string | null {
-  return localStorage.getItem('alisten_last_joined_room')
+  return localStorage.getItem("alisten_last_joined_room");
 }
 
 /**
  * 清除保存的上次进入房间记录
  */
 export function clearLastJoinedRoom(): void {
-  localStorage.removeItem('alisten_last_joined_room')
+  localStorage.removeItem("alisten_last_joined_room");
 }
 
 // 获取默认头像
 export function getDefaultAvatar(seed?: string | number): string {
-  const randomSeed = seed || Date.now()
-  return `https://picsum.photos/200/200?random=${randomSeed}`
+  const randomSeed = seed || Date.now();
+  return `https://picsum.photos/200/200?random=${randomSeed}`;
 }
