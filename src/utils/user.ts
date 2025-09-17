@@ -1,20 +1,28 @@
 import type { User } from "@/types";
-
+import { MD5 } from "crypto-js";
 /**
  * 生成 Gravatar 头像 URL
- * @param emailHash 邮箱的 MD5 哈希值
+ * @param emailOrHash 邮箱地址或MD5哈希值
  * @param size 头像尺寸，默认 200
  * @param defaultImage 默认头像类型，默认 'mp'
  * @returns Gravatar URL
  */
 export function generateGravatarUrl(
-  emailHash: string,
+  emailOrHash: string,
   size: number = 200,
   defaultImage: string = "mp"
 ): string {
-  return `https://www.gravatar.com/avatar/${emailHash}?s=${size}&d=${defaultImage}`;
+  // 判断是否为32位MD5哈希（仅包含十六进制字符）
+  const md5Regex = /^[a-f0-9]{32}$/i;
+  let hash = "";
+  if (md5Regex.test(emailOrHash)) {
+    hash = emailOrHash;
+  } else {
+    const normalizedEmail = emailOrHash.toLowerCase().trim();
+    hash = MD5(normalizedEmail).toString();
+  }
+  return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=${defaultImage}`;
 }
-
 /**
  * 处理用户对象，解析用户名并设置 Gravatar 头像
  * @param user 用户对象
