@@ -537,7 +537,7 @@ function shareRoom() {
 function fallbackShare() {
   // 构建包含房间ID的分享链接
   const baseUrl = `${window.location.origin}${window.location.pathname}`
-  const url = `${baseUrl}?houseId=${roomInfo.value.id}`
+  const url = `${baseUrl}?houseId=${roomInfo.value.id}&housePwd=`
 
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(url).then(() => {
