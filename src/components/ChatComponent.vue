@@ -33,7 +33,7 @@
           :class="[isDesktop ? '' : 'space-x-3']"
         >
           <div class="w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
-            <img :src="message.user.avatar" :alt="message.user.name" class="w-full h-full object-cover">
+            <Avatar :name="message.user.name" :avatar="message.user.avatar" class="w-full h-full object-cover" />
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center space-x-2 mb-1">
@@ -77,6 +77,7 @@
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
 import { formatTimeHH_MM } from '@/utils/time'
+import Avatar from './common/Avatar.vue'
 
 interface Props {
   isDesktop?: boolean

@@ -35,7 +35,7 @@
       <!-- 桌面端显示点歌人信息 -->
       <div v-if="isDesktop && song.requestedBy" class="flex items-center mt-1 space-x-2">
         <div class="requester-info">
-          <img :src="song.requestedBy.avatar" :alt="song.requestedBy.name" class="requester-avatar">
+          <Avatar :name="song.requestedBy.name" :avatar="song.requestedBy.avatar" style="width: 1rem; height: 1rem; margin-right: 0.25rem" />
           <span>{{ song.requestedBy.name }}</span>
         </div>
         <span class="text-gray-400">·</span>
@@ -80,6 +80,7 @@
 <script setup lang="ts">
 import type { Song } from '@/types'
 import { formatTime } from '@/utils/time'
+import Avatar from './common/Avatar.vue'
 
 // 定义 props
 interface Props {

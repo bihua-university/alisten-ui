@@ -1,7 +1,14 @@
 <template>
   <!-- 桌面端用户列表 -->
-  <div v-if="isDesktop" class="mt-auto">
-    <div class="flex flex-col">
+  <div v-if="isDesktop" ref="userListContainer" class="mt-auto relative" :style="{ height: `${containerHeight}vh` }">
+    <!-- 拖动句柄 -->
+    <div
+      class="absolute -top-2 left-0 right-0 h-4 cursor-ns-resize flex items-center justify-center hover:bg-white/10 transition-colors"
+      @mousedown="startDrag"
+    >
+      <div class="w-16 h-1 bg-white/20 rounded-full" />
+    </div>
+    <div class="flex flex-col h-full">
       <div class="p-3 border-b border-white/10">
         <h2 class="text-lg font-semibold flex items-center justify-between">
           <div class="flex items-center">
@@ -19,14 +26,14 @@
           </button>
         </h2>
       </div>
-      <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 h-48">
+      <div class="users-list overflow-y-auto p-2 scrollbar-hide space-y-2 flex-1">
         <div
           v-for="user in onlineUsers"
           :key="user.name"
           class="flex items-center p-2 hover:bg-white/5 rounded-lg"
         >
           <div class="w-8 h-8 overflow-hidden relative mr-3">
-            <img :src="user.avatar" :alt="user.name" class="w-full h-full rounded-full object-cover">
+            <Avatar :name="user.name" :avatar="user.avatar" />
             <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-dark" />
           </div>
           <span class="text-sm">{{ user.name }}</span>
@@ -75,7 +82,7 @@
               class="flex items-center p-3 hover:bg-white/5 rounded-lg active:bg-white/10 transition-all cursor-pointer touch-feedback"
             >
               <div class="w-10 h-10 overflow-hidden relative mr-3 flex-shrink-0">
-                <img :src="user.avatar" :alt="user.name" class="w-full h-full rounded-full object-cover">
+                <Avatar :name="user.name" :avatar="user.avatar" />
                 <div class="absolute bottom-0 right-0 w-3 h-3 z-100 bg-green-500 rounded-full border-2 border-dark" />
               </div>
               <div class="flex-1 min-w-0">
@@ -91,7 +98,9 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useChat } from '@/composables/useChat'
+import Avatar from './common/Avatar.vue'
 
 interface Props {
   isDesktop?: boolean
@@ -109,6 +118,66 @@ defineEmits<{
 
 // 直接使用 useChat 获取在线用户数据和刷新方法
 const { onlineUsers, refreshOnlineUsers } = useChat()
+
+// 拖动调整高度相关
+const userListContainer = ref<HTMLElement | null>(null)
+const containerHeight = ref(20) // 默认高度 20vh
+const isDragging = ref(false)
+const startY = ref(0)
+const startHeight = ref(0)
+
+// 开始拖动
+function startDrag(e: MouseEvent) {
+  isDragging.value = true
+  startY.value = e.clientY
+  startHeight.value = containerHeight.value
+  document.addEventListener('mousemove', onDrag)
+  document.addEventListener('mouseup', stopDrag)
+  document.body.style.cursor = 'ns-resize'
+  document.body.style.userSelect = 'none'
+}
+
+// 拖动中
+function onDrag(e: MouseEvent) {
+  if (!isDragging.value)
+    return
+  const deltaY = startY.value - e.clientY
+  // 计算vh单位的变化量
+  const viewportHeight = window.innerHeight
+  const deltaVh = (deltaY / viewportHeight) * 100
+  const newHeight = Math.max(10, Math.min(70, startHeight.value + deltaVh))
+  containerHeight.value = newHeight
+}
+
+// 停止拖动
+function stopDrag() {
+  isDragging.value = false
+  document.removeEventListener('mousemove', onDrag)
+  document.removeEventListener('mouseup', stopDrag)
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+
+  // 保存高度到本地存储
+  localStorage.setItem('userListHeight', containerHeight.value.toString())
+}
+
+// 组件挂载时从本地存储加载高度
+onMounted(() => {
+  const savedHeight = localStorage.getItem('userListHeight')
+  if (savedHeight) {
+    const parsedHeight = Number.parseFloat(savedHeight)
+    // 确保值在有效范围内
+    containerHeight.value = Math.max(10, Math.min(70, parsedHeight))
+  }
+})
+
+// 组件卸载前清理事件监听
+onBeforeUnmount(() => {
+  if (isDragging.value) {
+    document.removeEventListener('mousemove', onDrag)
+    document.removeEventListener('mouseup', stopDrag)
+  }
+})
 </script>
 
 <style scoped>
