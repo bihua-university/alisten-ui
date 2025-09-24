@@ -715,6 +715,17 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
+.lyrics-container {
+  mask-image: linear-gradient(to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 5%,
+    white 30%,
+    white 70%,
+    rgba(255, 255, 255, 0) 95%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
 /* 歌词容器滚动条样式 */
 .lyrics-container {
   scroll-behavior: smooth;
