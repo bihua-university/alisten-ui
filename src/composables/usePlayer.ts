@@ -29,6 +29,9 @@ const audioPlayer = ref<HTMLAudioElement>()
 const volume = ref(getStoredVolume())
 const isMuted = ref(getStoredMuteState())
 
+// 手动播放状态
+const needManualStartPlay = ref(false)
+
 // 进度更新相关
 let animationFrameId: number | null = null
 
@@ -70,13 +73,25 @@ watch(isMuted, (newMuteState) => {
 
 // 音频事件处理函数 - 这些函数现在在 usePlayer 内部定义
 
+interface PlayAudioRes {
+  audioPlaySuccess: boolean | undefined
+}
+
 // 音频播放控制函数
-function playAudio() {
+async function playAudio(): Promise<PlayAudioRes> {
   if (audioPlayer.value) {
     audioPlayer.value.volume = volume.value / 100
     audioPlayer.value.muted = isMuted.value
-    audioPlayer.value.play()
+    try {
+      await audioPlayer.value.play()
+    } catch (e) {
+      console.warn('播放失败', e)
+      return { audioPlaySuccess: false }
+    }
     startProgressUpdate()
+    return { audioPlaySuccess: true }
+  } else {
+    return { audioPlaySuccess: undefined }
   }
 }
 
@@ -152,10 +167,14 @@ watch(() => playerState.currentSong, (newSong) => {
       console.log('🎵 加载新歌曲:', newSong.title)
       audioPlayer.value.load()
       // 自动播放
-      audioPlayer.value.addEventListener('canplay', function onCanPlay() {
+      audioPlayer.value.addEventListener('canplay', async function onCanPlay() {
         // 应该在播放前设置 currentTime
         syncAudioCurrentTime()
-        playAudio()
+        const autoPlayAudioSuccess = (await playAudio()).audioPlaySuccess
+        if (autoPlayAudioSuccess === false) {
+          needManualStartPlay.value = true
+        }
+
         audioPlayer.value?.removeEventListener('canplay', onCanPlay)
       })
     }
@@ -403,5 +422,8 @@ export function usePlayer() {
 
     // 播放进度百分比
     progressPercentage,
+
+    // 手动播放相关
+    needManualStartPlay,
   }
 }

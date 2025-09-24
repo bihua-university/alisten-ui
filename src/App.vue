@@ -18,6 +18,13 @@
       @cancel="cancelJoinRoom"
     />
 
+    <!-- 手动开始播放模态框 -->
+    <ManualStartPlayModal
+      :show="needManualStartPlay"
+      @close="needManualStartPlay = false"
+      @start-play="() => { playAudio(); needManualStartPlay = false; }"
+    />
+
     <!-- 动态背景 -->
     <div v-if="!isImmersiveMode && initialized" class="fixed inset-0 z-0">
       <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />
@@ -235,6 +242,7 @@ import ChatComponent from '@/components/ChatComponent.vue'
 import HelpModal from '@/components/HelpModal.vue'
 import ImmersiveMode from '@/components/ImmersiveMode.vue'
 import JoinRoomModal from '@/components/JoinRoomModal.vue'
+import ManualStartPlayModal from '@/components/ManualStartPlayModal.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
 import PlayerInfo from '@/components/PlayerInfo.vue'
@@ -293,7 +301,7 @@ const lyricsContainer = ref<HTMLElement>()
 // ===== 组合式函数初始化 =====
 
 // 房间管理
-const { roomInfo } = useRoom()
+const { roomInfo, setRoomId, setCurrentPassword } = useRoom()
 
 // 1. WebSocket 连接管理
 const websocket = useWebSocket()
@@ -332,6 +340,8 @@ const {
   onAudioTimeUpdate,
   onAudioError,
   requestMusicSync,
+  needManualStartPlay,
+  playAudio,
 } = usePlayer()
 
 // 5. 通知系统
@@ -367,6 +377,7 @@ useBackButton([
   showHelp,
   showSettings,
   showPlayHistory,
+  needManualStartPlay,
 ])
 
 // ===== 计算属性 =====
@@ -394,8 +405,17 @@ function toggleImmersiveMode() {
 // ===== 房间管理方法 =====
 
 // 确认加入房间
-function confirmJoinRoom() {
-  console.log('✅ 用户确认加入房间')
+function confirmJoinRoom(roomId?: string, password?: string) {
+  console.log('✅ 用户确认加入房间', roomId ? `房间ID: ${roomId}` : '')
+
+  // 如果提供了房间ID和密码，更新房间信息
+  if (roomId) {
+    setRoomId(roomId)
+    if (password) {
+      setCurrentPassword(password)
+    }
+  }
+
   showJoinRoomConfirm.value = false
   initializeApp()
 }
@@ -492,10 +512,14 @@ watch(() => playerState.currentSong, (newSong, _) => {
 
 // 分享房间
 function shareRoom() {
+  // 构建包含房间ID的分享链接
+  const baseUrl = `${window.location.origin}${window.location.pathname}`
+  const shareUrl = `${baseUrl}?houseId=${roomInfo.value.id}&housePwd=`
+
   const shareData = {
     title: `加入我的音乐房间 - ${roomInfo.value.name}`,
     text: `来和我一起听歌吧！`,
-    url: window.location.href,
+    url: shareUrl,
   }
 
   // 检查是否支持 Web Share API
@@ -511,7 +535,9 @@ function shareRoom() {
 
 // 降级分享方法：复制链接到剪贴板
 function fallbackShare() {
-  const url = window.location.href
+  // 构建包含房间ID的分享链接
+  const baseUrl = `${window.location.origin}${window.location.pathname}`
+  const url = `${baseUrl}?houseId=${roomInfo.value.id}&housePwd=`
 
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(url).then(() => {

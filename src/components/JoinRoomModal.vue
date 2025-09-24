@@ -111,7 +111,7 @@
 
   <!-- 确认加入房间弹窗 -->
   <Modal
-    v-if="dialogState.showConfirm && selectedRoom" :z-index="110" size="sm" title="确认加入房间"
+    v-if="dialogState.showConfirm && selectedRoom && show" :z-index="110" size="sm" title="确认加入房间"
     header-icon="fa-solid fa-music" decoration-variant="confirm" @close="handleCancel"
   >
     <!-- 房间信息卡片 -->
@@ -366,19 +366,59 @@ async function loadRooms() {
     const response = await searchRooms(searchKeyword.value.trim() || undefined)
     allRooms.value = response || []
 
-    // 如果还没有选择房间，尝试选择上次加入的房间
+    // 如果还没有选择房间，优先选择URL预设的房间，然后尝试选择上次加入的房间
     if (!selectedRoomId.value) {
-      const lastRoomId = getLastJoinedRoom()
-      if (lastRoomId && allRooms.value.some(room => room.id === lastRoomId)) {
-        selectedRoomId.value = lastRoomId
+      let targetRoomId: string | null = null
 
-        // 找到上次进入的房间
-        const lastRoom = allRooms.value.find(room => room.id === lastRoomId)
-        if (lastRoom) {
+      // 检查 URL 参数是否包含房间信息
+      const urlParams = new URLSearchParams(window.location.search)
+      const houseIdFromUrl = urlParams.get('houseId') || urlParams.get('houseid') || urlParams.get('HOUSEID')
+      const housePwdFromUrl = urlParams.get('housePwd') || urlParams.get('housepwd') || urlParams.get('HOUSEPWD')
+
+      // 优先处理从URL传入的房间ID
+      if (houseIdFromUrl) {
+        targetRoomId = houseIdFromUrl
+        console.log('🎯 使用URL预设的房间ID:', targetRoomId)
+
+        let autoPassword = housePwdFromUrl
+
+        // 如果 URL 中没有密码，尝试从 localStorage 获取
+        if (!autoPassword) {
+          const savedPassword = getSavedRoomPassword(houseIdFromUrl)
+          if (savedPassword) {
+            autoPassword = savedPassword
+            console.log('🔑 从 localStorage 中找到房间密码')
+          }
+        }
+
+        // 如果有房间 ID 和密码，直接加入房间
+        if (autoPassword) {
+          console.log('✅ 直接跳转到房间:', houseIdFromUrl)
+          // 查找房间信息，如果找到则设置并直接确认
+          selectedRoomId.value = houseIdFromUrl
+          confirmPassword.value = autoPassword
+          handleConfirm()
+          return
+        }
+      } else {
+        // 没有URL房间ID时，使用上次加入的房间
+        targetRoomId = getLastJoinedRoom()
+        console.log('🔄 使用上次加入的房间ID:', targetRoomId)
+      }
+
+      if (targetRoomId && allRooms.value.some(room => room.id === targetRoomId)) {
+        selectedRoomId.value = targetRoomId
+
+        // 找到目标房间
+        const targetRoom = allRooms.value.find(room => room.id === targetRoomId)
+        if (targetRoom) {
           // 设置密码并显示确认弹窗
-          setRoomPassword(lastRoom)
+          setRoomPassword(targetRoom)
           dialogState.value.showConfirm = true
         }
+      } else if (houseIdFromUrl) {
+        // 如果URL指定的房间ID在搜索结果中没有找到，记录警告但仍显示房间列表
+        console.warn('⚠️ URL中指定的房间在搜索结果中未找到:', houseIdFromUrl)
       }
     }
   } catch (error) {
@@ -486,6 +526,7 @@ async function handleCreateRoom() {
         description: roomData.desc || '',
         population: 1,
         needPwd: roomData.needPwd,
+        ultimate: false, // 新创建的房间默认不是高级房间
       }
 
       // 保存密码和房间信息
