@@ -23,6 +23,6 @@
 <script setup lang="ts">
 defineProps<{
   name: string
-  avatar: string
+  avatar?: string
 }>()
 </script>
