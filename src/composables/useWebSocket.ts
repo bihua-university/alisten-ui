@@ -212,12 +212,18 @@ const commandHandlers: CommandHandler[] = [
         return false
       }
 
+      const isUrl = args.startsWith('http://') || args.startsWith('https://')
+      const isBilibili = args.startsWith('BV') || args.startsWith('av')
+      const source = isUrl ? 'url_common' : isBilibili ? 'db' : 'wy'
+      const id = (isUrl || isBilibili) ? args : undefined
+
       console.log('🎵 发送点歌请求:', args)
       return send({
         action: '/music/pick',
         data: {
+          id,
           name: args,
-          source: 'wy', // 默认使用网易云音乐
+          source,
         },
       })
     },
