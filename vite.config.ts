@@ -53,13 +53,13 @@ export default defineConfig({
         categories: ['music', 'entertainment', 'multimedia'],
         icons: [
           {
-            src: 'pwa-icon-192x192.png',
+            src: 'icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable', // 同时支持普通显示和 maskable
           },
           {
-            src: 'pwa-icon-512x512.png',
+            src: 'icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable', // 同时支持普通显示和 maskable
