@@ -38,7 +38,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      includeAssets: ['icon-32x32.png', 'icon-180x180.png'],
       manifest: {
         name: '壁画音乐厅',
         short_name: '壁画音乐厅',
