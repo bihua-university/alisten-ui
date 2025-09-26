@@ -38,7 +38,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['icon-32x32.png', 'icon-180x180.png'],
+      includeAssets: ['icon-64x64.png', 'icon-180x180.png'],
       manifest: {
         name: '壁画音乐厅',
         short_name: '壁画音乐厅',
