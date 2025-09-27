@@ -14,7 +14,7 @@
       <!-- 更新内容描述 -->
       <div class="flex items-start">
         <div class="flex-shrink-0 w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-4">
-          <img src="/icon-32x32.png" alt="logo" class="w-8 h-8 rounded">
+          <img src="/icon-64x64.png" alt="logo" class="w-8 h-8 rounded">
         </div>
         <div>
           <h3 class="text-lg font-medium text-white mb-2">

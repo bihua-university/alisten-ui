@@ -38,7 +38,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['icon-32x32.png', 'icon-180x180.png'],
+      includeAssets: ['icon-64x64.png', 'icon-180x180.png'],
       manifest: {
         name: '壁画音乐厅',
         short_name: '壁画音乐厅',
@@ -53,13 +53,13 @@ export default defineConfig({
         categories: ['music', 'entertainment', 'multimedia'],
         icons: [
           {
-            src: 'pwa-icon-192x192.png',
+            src: 'icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable', // 同时支持普通显示和 maskable
           },
           {
-            src: 'pwa-icon-512x512.png',
+            src: 'icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable', // 同时支持普通显示和 maskable
