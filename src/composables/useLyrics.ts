@@ -58,7 +58,20 @@ watch(
 export function useLyrics() {
   // 歌词相关操作
   const setCurrentLyrics = (lyrics: LyricLine[]) => {
-    lyricsState.currentLyrics = [...lyrics]
+    // 创建5条空白歌词用于前方占位
+    const emptyLyricsStart: LyricLine[] = Array.from({ length: 10 }, (_, index) => ({
+      time: -666666 + index, // 使用负数时间确保在歌曲开始前
+      text: '',
+    }))
+
+    // 创建5条空白歌词用于后方占位
+    const emptyLyricsEnd: LyricLine[] = Array.from({ length: 10 }, (_, index) => ({
+      time: 666666 + index, // 使用很大的时间确保在歌曲结束后
+      text: '',
+    }))
+
+    // 合并歌词：前方空白 + 原歌词 + 后方空白
+    lyricsState.currentLyrics = [...emptyLyricsStart, ...lyrics, ...emptyLyricsEnd]
   }
 
   const setCurrentLyricIndex = (index: number) => {
