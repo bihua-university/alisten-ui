@@ -38,7 +38,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      includeAssets: ['icon-64x64.png', 'icon-180x180.png'],
       manifest: {
         name: '壁画音乐厅',
         short_name: '壁画音乐厅',
@@ -68,6 +68,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        globIgnores: ['**/icon.png'], // 排除原始大图标文件，避免缓存过大文件
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
