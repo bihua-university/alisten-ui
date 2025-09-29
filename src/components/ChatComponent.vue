@@ -1,18 +1,20 @@
 <template>
   <div class="chat-component flex flex-col h-full">
     <!-- 聊天标题 -->
-    <div class="p-4 border-b border-white/10 flex justify-between items-center">
-      <h2 class="text-lg font-semibold flex items-center">
-        <i class="fa-solid fa-comments mr-2 text-primary" />聊天
-      </h2>
-      <button
-        v-if="showCloseButton"
-        class="text-gray-400 hover:text-white transition-colors touch-target"
-        @click="$emit('close')"
-      >
-        <i class="fa-solid fa-times text-lg" />
-      </button>
-    </div>
+    <DesktopTopTitle>
+      <div class="flex justify-between items-center w-full">
+        <h2 class="text-lg font-semibold flex items-center">
+          <i class="fa-solid fa-comments mr-2 text-primary" />聊天
+        </h2>
+        <button
+          v-if="showCloseButton"
+          class="text-gray-400 hover:text-white transition-colors touch-target"
+          @click="$emit('close')"
+        >
+          <i class="fa-solid fa-times text-lg" />
+        </button>
+      </div>
+    </DesktopTopTitle>
 
     <!-- 聊天消息区域 -->
     <div
@@ -78,6 +80,7 @@ import { nextTick, onMounted, ref, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
 import { formatTimeHH_MM } from '@/utils/time'
 import Avatar from './common/Avatar.vue'
+import { DesktopTopTitle } from './common'
 
 interface Props {
   isDesktop?: boolean

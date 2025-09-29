@@ -4,8 +4,9 @@
     v-if="!isMobile && !isImmersiveMode"
     class="w-72 bg-dark/60 backdrop-blur-xl border-r border-white/10 hidden md:block overflow-y-auto flex flex-col scrollbar-hide"
   >
-    <div class="sticky top-0 z-10 p-4 border-b border-white/10">
-      <div class="flex justify-between items-center">
+    <!-- 播放列表 标题 -->
+    <DesktopTopTitle>
+      <div class="sticky top-0 z-10 flex justify-between items-center w-full">
         <div>
           <h2 class="text-lg font-semibold flex items-center">
             <i class="fa-solid fa-list-ul mr-2 text-primary" />播放列表
@@ -23,7 +24,7 @@
           <span class="sm:hidden">点歌</span>
         </button>
       </div>
-    </div>
+    </DesktopTopTitle>
     <div class="playlist-container space-y-1 overflow-y-auto scrollbar-hide flex-1">
       <PlaylistItem
         v-for="(song, index) in playlist"
@@ -83,6 +84,7 @@ import type { Song } from '@/types'
 import { computed } from 'vue'
 import { formatTime } from '@/utils/time'
 import PlaylistItem from './PlaylistItem.vue'
+import { DesktopTopTitle } from './common'
 
 // 定义 props
 interface Props {
