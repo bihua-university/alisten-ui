@@ -87,7 +87,7 @@
           <i
             class="fa-solid fa-eye mr-1 sm:mr-2 hidden md:block"
           />
-          <span class="hidden md:block">沉浸模式</span>
+          <span class="hidden md:block">沉浸</span>
         </button>
       </div>
     </div>
