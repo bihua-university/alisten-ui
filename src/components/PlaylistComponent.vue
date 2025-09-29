@@ -4,7 +4,7 @@
     v-if="!isMobile && !isImmersiveMode"
     class="w-72 bg-dark/60 backdrop-blur-xl border-r border-white/10 hidden md:block overflow-y-auto flex flex-col scrollbar-hide"
   >
-    <div class="sticky top-0 z-10 bg-dark/80 backdrop-blur-xl">
+    <div class="sticky top-0 z-10">
       <div class="p-4 border-b border-white/10">
         <div class="flex justify-between items-center">
           <div>
