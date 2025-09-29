@@ -79,8 +79,8 @@
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
 import { formatTimeHH_MM } from '@/utils/time'
-import Avatar from './common/Avatar.vue'
 import { DesktopTopTitle } from './common'
+import Avatar from './common/Avatar.vue'
 
 interface Props {
   isDesktop?: boolean

@@ -225,7 +225,7 @@
             class="absolute top-1 right-1 w-4 h-4 flex items-center justify-center rounded hover:bg-white/20 transition-colors"
             @click="showDebugInfo = false"
           >
-            <i class="fa-solid fa-times text-xs"></i>
+            <i class="fa-solid fa-times text-xs" />
           </button>
           <div class="font-medium mb-1 pr-5">
             WebSocket 配置

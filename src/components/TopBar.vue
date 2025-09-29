@@ -1,5 +1,5 @@
 <template>
-  <DesktopTopTitle 
+  <DesktopTopTitle
     additional-classes="flex flex-col sm:flex-row sm:justify-between sm:items-center glass-effect border-0 bg-dark/70 backdrop-blur-xl space-y-2 sm:space-y-0 scrollbar-hide overflow-auto"
   >
     <!-- 左侧房间信息 -->

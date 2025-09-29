@@ -83,8 +83,8 @@
 import type { Song } from '@/types'
 import { computed } from 'vue'
 import { formatTime } from '@/utils/time'
-import PlaylistItem from './PlaylistItem.vue'
 import { DesktopTopTitle } from './common'
+import PlaylistItem from './PlaylistItem.vue'
 
 // 定义 props
 interface Props {
