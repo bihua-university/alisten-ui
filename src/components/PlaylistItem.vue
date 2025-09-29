@@ -43,9 +43,15 @@
       </div>
     </div>
 
-    <!-- 移动端显示时长 -->
-    <div v-if="!isDesktop" class="text-gray-400 text-xs ml-2">
-      {{ formatTime(song.duration) }}
+    <!-- 移动端显示时长和点歌人 -->
+    <div v-if="!isDesktop" class="text-gray-400 text-xs ml-2 flex flex-col items-end">
+      <div class="mb-1">
+        {{ formatTime(song.duration) }}
+      </div>
+      <div v-if="song.requestedBy" class="flex items-center text-xs text-gray-500">
+        <Avatar :name="song.requestedBy.name" :avatar="song.requestedBy.avatar" style="width: 0.875rem; height: 0.875rem; margin-right: 0.25rem" />
+        <span>{{ song.requestedBy.name }}</span>
+      </div>
     </div>
 
     <!-- 操作按钮 - 非当前播放歌曲才显示 -->
