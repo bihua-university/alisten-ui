@@ -23,7 +23,7 @@
         appear
       >
         <div
-          class="relative bg-dark border border-white/20 rounded-2xl w-full mx-4 overflow-hidden max-h-[75vh] flex flex-col"
+          class="glass-effect relative bg-dark border border-white/20 rounded-2xl w-full mx-4 overflow-hidden max-h-[75vh] flex flex-col"
           :class="[
             modalSizeClass,
             shadowClass,
