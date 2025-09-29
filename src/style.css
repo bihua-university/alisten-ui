@@ -61,13 +61,6 @@
   }
 }
 
-/* 玻璃效果 */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
 /* 模态框动画 */
 .modal-enter-active,
 .modal-leave-active {
@@ -419,9 +412,10 @@
 
 /* 玻璃效果增强 */
 .glass-effect {
+
   backdrop-filter: blur(20px);
   background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* 音乐平台选择样式 */

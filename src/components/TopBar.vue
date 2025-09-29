@@ -1,6 +1,6 @@
 <template>
-  <div
-    class="p-3 sm:p-4 border-b border-white/10 flex flex-col sm:flex-row sm:justify-between sm:items-center glass-effect bg-dark/70 backdrop-blur-xl space-y-2 sm:space-y-0"
+  <DesktopTopTitle
+    additional-classes="flex flex-col sm:flex-row sm:justify-between sm:items-center glass-effect border-0 bg-dark/70 backdrop-blur-xl space-y-2 sm:space-y-0 scrollbar-hide overflow-auto"
   >
     <!-- 左侧房间信息 -->
     <div class="flex-1 min-w-0">
@@ -87,11 +87,11 @@
           <i
             class="fa-solid fa-eye mr-1 sm:mr-2 hidden md:block"
           />
-          <span class="hidden md:block">沉浸模式</span>
+          <span class="hidden md:block">沉浸</span>
         </button>
       </div>
     </div>
-  </div>
+  </DesktopTopTitle>
 </template>
 
 <script setup lang="ts">
@@ -99,6 +99,7 @@ import type { RoomInfo } from '@/types'
 import { ref } from 'vue'
 import { useChat } from '@/composables/useChat'
 import { usePlayer } from '@/composables/usePlayer'
+import { DesktopTopTitle } from './common'
 
 // 定义 props
 interface Props {

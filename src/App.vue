@@ -219,9 +219,15 @@
       <NotificationContainer />
 
       <!-- WebSocket 连接配置显示（开发环境） -->
-      <div v-if="isDevelopment && !isImmersiveMode" class="fixed bottom-4 right-4 z-40">
-        <div class="bg-black/80 text-white text-xs p-2 rounded backdrop-blur-sm max-w-xs">
-          <div class="font-medium mb-1">
+      <div v-if="isDevelopment && !isImmersiveMode && showDebugInfo" class="fixed bottom-4 right-4 z-40">
+        <div class="bg-black/80 text-white text-xs p-2 rounded backdrop-blur-sm max-w-xs relative">
+          <button
+            class="absolute top-1 right-1 w-4 h-4 flex items-center justify-center rounded hover:bg-white/20 transition-colors"
+            @click="showDebugInfo = false"
+          >
+            <i class="fa-solid fa-times text-xs" />
+          </button>
+          <div class="font-medium mb-1 pr-5">
             WebSocket 配置
           </div>
           <div>URL: {{ appConfig.websocket.url }}</div>
@@ -294,6 +300,7 @@ const showMobileUsers = ref(false)
 const showMobilePlaylist = ref(false)
 const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
 const isImmersiveMode = ref(false) // 沉浸模式状态
+const showDebugInfo = ref(true) // 调试信息显示状态
 
 // ===== DOM 引用 =====
 const lyricsContainer = ref<HTMLElement>()
