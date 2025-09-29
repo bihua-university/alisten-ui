@@ -22,7 +22,7 @@ def generate_icons():
     # 需要生成的图标尺寸 (覆盖各种使用场景)
     icon_sizes = [
         # 16,   # favicon 小尺寸 - 未使用
-        32,   # favicon 标准尺寸 - 项目中使用
+        # 32,   # favicon 标准尺寸 - 未使用
         # 48,   # Windows 应用图标 - 未使用
         # 64,   # 高分辨率 favicon - 未使用
         # 72,   # Android Chrome (ldpi) - 未使用
@@ -66,7 +66,6 @@ def generate_icons():
                 print(f"  - icon-{size}x{size}.png")
             
             print("\n📱 使用场景说明:")
-            print("  • 32x32: favicon - 项目中使用")
             print("  • 180x180: iOS Safari (apple-touch-icon) - 项目中使用")
             print("  • 192x192: PWA 标准尺寸 - 项目中使用")
             print("  • 512x512: PWA 大尺寸 - 项目中使用")
