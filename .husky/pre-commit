@@ -1,1 +1,1 @@
-npx lint-staged
+# lint-staged moved to pre-push hook
