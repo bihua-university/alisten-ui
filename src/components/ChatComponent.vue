@@ -1,7 +1,7 @@
 <template>
   <div class="chat-component flex flex-col h-full">
     <!-- 聊天标题 -->
-    <DesktopTopTitle>
+    <DesktopTopTitle :allow-height-increase="false">
       <div class="flex justify-between items-center w-full">
         <h2 class="text-lg font-semibold flex items-center">
           <i class="fa-solid fa-comments mr-2 text-primary" />聊天
