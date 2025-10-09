@@ -1,4 +1,4 @@
-import type { Song } from '@/types'
+import type { SearchResult, Song } from '@/types'
 import { computed, reactive, ref, watch } from 'vue'
 import { getDefaultAvatar } from '@/utils/user'
 import { useLyrics } from './useLyrics'
@@ -251,6 +251,31 @@ registerMessageHandler('pick', (message: any) => {
   playerState.playlist = [...playlist]
 })
 
+const recommendations = ref<SearchResult[]>([])
+
+registerMessageHandler('music/recommend', (message: any) => {
+  if (!message.data || !Array.isArray(message.data)) {
+    return
+  }
+
+  const results: SearchResult[] = message.data
+    .filter((item: any) => item && item.id && item.name) // 过滤无效数据
+    .map((item: any) => ({
+      id: item.id,
+      title: item.name,
+      artist: item.artist || '未知艺术家',
+      album: item.album || '未知专辑',
+      cover: item.cover || getDefaultAvatar(item.id),
+      duration: item.duration || 240,
+      requestedBy: {
+        name: item.requestedBy?.name || '未知用户',
+        avatar: item.requestedBy?.avatar || getDefaultAvatar(),
+      },
+    }))
+
+  recommendations.value = results
+})
+
 // 注册延迟消息处理器
 registerMessageHandler('delay', (message: any) => {
   if (typeof message.delay === 'number') {
@@ -381,11 +406,19 @@ function requestMusicSync() {
   console.log('🎵 请求重新同步音乐')
 }
 
+function pullRecommendations() {
+  send({
+    action: '/music/recommend',
+    data: {},
+  })
+}
+
 export function usePlayer() {
   return {
     // 播放器状态
     playerState,
     audioPlayer,
+    recommendations,
 
     // 播放器操作
     setCurrentSong,
@@ -416,6 +449,7 @@ export function usePlayer() {
     // API
     pickMusic,
     skipSong,
+    pullRecommendations,
 
     // 音频同步
     requestMusicSync,

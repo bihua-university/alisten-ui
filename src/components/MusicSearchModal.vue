@@ -5,284 +5,352 @@
       ref="searchResultsContainer"
       class="relative bg-dark border-t border-white/20 md:border md:rounded-xl w-full max-w-4xl h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden"
     >
-      <div class="p-4 border-b border-white/10 flex justify-between items-center">
-        <h2 class="text-lg md:text-xl font-semibold">
-          点歌台
-        </h2>
-        <button class="text-gray-400 hover:text-white transition-colors touch-target" @click="$emit('close')">
-          <i class="fa-solid fa-times text-lg" />
-        </button>
+      <div class="p-4 border-b border-white/10">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg md:text-xl font-semibold">
+            点歌台
+          </h2>
+
+          <div class="flex items-center space-x-3">
+            <!-- 模式切换Toggle -->
+            <div class="flex items-center space-x-2">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  class="sr-only peer"
+                  :checked="currentMode === 'ai'"
+                  @change="handleModeToggle"
+                >
+                <div class="relative w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+              </label>
+              <span class="text-sm flex items-center" :class="currentMode === 'ai' ? 'text-primary' : 'text-gray-400'">
+                <i class="fa-solid fa-robot mr-1" />
+                AI推荐
+              </span>
+            </div>
+
+            <button class="text-gray-400 hover:text-white transition-colors touch-target" @click="$emit('close')">
+              <i class="fa-solid fa-times text-lg" />
+            </button>
+          </div>
+        </div>
       </div>
       <div class="flex-1 overflow-y-auto p-4 smooth-scroll scrollbar-hide">
-        <!-- 音乐来源选择 -->
-        <div class="mb-6">
-          <h3 class="text-base md:text-lg font-medium mb-3">
-            选择音乐平台
-          </h3>
-          <div class="grid gap-3 max-h-32 overflow-y-auto custom-scrollbar" :class="[musicSources.length === 3 ? 'grid-cols-3' : 'grid-cols-2']">
-            <button
-              v-for="source in musicSources" :key="source.id"
-              class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedMusicSource.id === source.id
-                ? 'border-primary bg-primary/20 text-white'
-                : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']" @click="selectMusicSource(source)"
-            >
-              <i
-                :class="source.icon" :style="{ color: selectedMusicSource.id === source.id ? source.color : '' }"
-                class="text-lg mb-2 block"
-              />
-              <div class="text-xs font-medium truncate">
-                {{ source.name }}
-              </div>
-              <div class="text-xs text-gray-400 truncate mt-1">
-                {{ source.description }}
-              </div>
-            </button>
-          </div>
-        </div>
-        <!-- 搜索类型选择 - 只有在有多个搜索类型时显示 -->
-        <div v-if="availableSearchModes.length > 1" class="mb-6">
-          <h3 class="text-base md:text-lg font-medium mb-3">
-            搜索类型
-          </h3>
-          <div class="mb-3">
-            <p class="text-xs text-gray-400">
-              {{ platformSearchTip }}
-            </p>
-          </div>
-          <div
-            class="grid gap-3 mb-4" :class="[
-              availableSearchModes.length === 2 ? 'grid-cols-2' : 'grid-cols-3',
-            ]"
-          >
-            <button
-              v-for="mode in availableSearchModes" :key="mode.id"
-              class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedSearchMode.id === mode.id
-                ? 'border-primary bg-primary/20 text-white'
-                : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']" @click="selectSearchMode(mode)"
-            >
-              <i :class="mode.icon" class="text-lg mb-2 block" />
-              <div class="text-xs font-medium truncate">
-                {{ mode.name }}
-              </div>
-              <div class="text-xs text-gray-400 truncate mt-1">
-                {{ mode.description }}
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <!-- 搜索框 -->
-        <div class="relative mb-6">
-          <div class="relative">
-            <input
-              ref="searchInputRef" v-model="songSearchQuery" type="text"
-              :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
-              class="w-full bg-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
-              :class="[
-                currentSearchHistory.length > 0 ? 'pr-20' : 'pr-12',
-              ]"
-              @keyup.enter="handleSearch" @keydown="handleKeyDown" @focus="handleInputFocus" @blur="handleInputBlur"
-            >
-            <!-- 搜索历史按钮 - 仅在有历史记录时显示 -->
-            <button
-              v-if="currentSearchHistory.length > 0"
-              class="absolute right-11 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors touch-target w-8 h-8 flex items-center justify-center search-history-toggle"
-              :class="{ 'text-primary': showSearchHistory }"
-              @click="toggleSearchHistory"
-            >
-              <i class="fa-solid fa-clock-rotate-left text-sm" />
-            </button>
-            <!-- 搜索按钮 -->
-            <button
-              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors touch-target w-8 h-8 flex items-center justify-center"
-              @click="handleSearch"
-            >
-              <i class="fa-solid fa-search text-sm" />
-            </button>
-          </div>
-
-          <!-- 搜索提示 -->
-          <div v-if="currentSearchHistory.length > 0 && !showSearchHistory" class="text-xs text-gray-500 mt-2 px-4">
-            已保存 {{ currentSearchHistory.length }} 条历史记录
-            <span class="hidden md:inline text-gray-600">• 按 ↓ 键查看，↑↓ 导航，回车选择</span>
-            <span class="md:hidden text-gray-600">• 点击时钟图标查看历史</span>
-          </div>
-
-          <!-- 搜索历史下拉菜单 -->
-          <div
-            v-if="showSearchHistory"
-            class="absolute left-0 right-0 mt-2 bg-dark border border-white/10 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto custom-scrollbar"
-          >
-            <div v-if="currentSearchHistory.length === 0" class="p-6 text-sm text-gray-400 text-center">
-              <i class="fa-solid fa-clock-rotate-left text-2xl mb-3 block opacity-50" />
-              <div class="font-medium mb-1">
-                暂无搜索历史
-              </div>
-              <div class="text-xs opacity-75">
-                开始搜索后会显示历史记录
-              </div>
-            </div>
-            <div v-else>
-              <div class="px-4 py-3 border-b border-white/10 bg-white/10">
-                <div class="text-xs font-medium text-gray-200 flex items-center">
-                  <i class="fa-solid fa-clock-rotate-left mr-2 text-gray-300" />
-                  最近搜索 ({{ selectedMusicSource.name }} - {{ selectedSearchMode.name }})
-                </div>
-              </div>
-              <div
-                v-for="(item, index) in currentSearchHistory" :key="`${item.query}-${item.timestamp}`"
-                class="group flex items-center px-4 py-3 text-sm cursor-pointer transition-all duration-200 border-b border-white/5 last:border-b-0"
-                :class="[
-                  selectedHistoryIndex === index
-                    ? 'bg-primary/20 text-white'
-                    : 'text-white hover:bg-white/10 hover:text-white',
-                ]"
-                @click="selectFromHistory(item)"
-              >
-                <div class="flex items-center flex-1 min-w-0">
-                  <i class="fa-solid fa-search text-gray-300 mr-3 flex-shrink-0 text-xs" />
-                  <div class="flex-1 min-w-0">
-                    <div class="truncate font-medium">
-                      {{ item.query }}
-                    </div>
-                    <div class="text-xs text-gray-400 truncate mt-1">
-                      {{ new Date(item.timestamp).toLocaleString() }}
-                    </div>
-                  </div>
-                </div>
-                <button
-                  class="opacity-0 group-hover:opacity-100 ml-2 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-400 transition-all"
-                  @click.stop="removeHistoryItem(item)"
-                >
-                  <i class="fa-solid fa-times text-xs" />
-                </button>
-              </div>
-            </div>
-            <div class="border-t border-white/10 bg-white/10">
+        <!-- 搜索模式内容 -->
+        <div v-if="currentMode === 'search'" class="space-y-6">
+          <!-- 音乐来源选择 -->
+          <div>
+            <h3 class="text-base md:text-lg font-medium mb-3">
+              选择音乐平台
+            </h3>
+            <div class="grid gap-3 max-h-32 overflow-y-auto custom-scrollbar" :class="[musicSources.length === 3 ? 'grid-cols-3' : 'grid-cols-2']">
               <button
-                v-if="currentSearchHistory.length > 0"
-                class="w-full px-4 py-3 text-xs font-medium text-gray-300 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 flex items-center justify-center"
-                @click="clearCurrentHistory"
+                v-for="source in musicSources" :key="source.id"
+                class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedMusicSource.id === source.id
+                  ? 'border-primary bg-primary/20 text-white'
+                  : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']" @click="selectMusicSource(source)"
               >
-                <i class="fa-solid fa-trash mr-2" />
-                清除当前历史记录
+                <i
+                  :class="source.icon" :style="{ color: selectedMusicSource.id === source.id ? source.color : '' }"
+                  class="text-lg mb-2 block"
+                />
+                <div class="text-xs font-medium truncate">
+                  {{ source.name }}
+                </div>
+                <div class="text-xs text-gray-400 truncate mt-1">
+                  {{ source.description }}
+                </div>
               </button>
             </div>
           </div>
+          <!-- 搜索类型选择 - 只有在有多个搜索类型时显示 -->
+          <div v-if="availableSearchModes.length > 1">
+            <h3 class="text-base md:text-lg font-medium mb-3">
+              搜索类型
+            </h3>
+            <div
+              class="grid gap-3 mb-4" :class="[
+                availableSearchModes.length === 2 ? 'grid-cols-2' : 'grid-cols-3',
+              ]"
+            >
+              <button
+                v-for="mode in availableSearchModes" :key="mode.id"
+                class="p-3 rounded-lg border-2 transition-all text-center" :class="[selectedSearchMode.id === mode.id
+                  ? 'border-primary bg-primary/20 text-white'
+                  : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300']" @click="selectSearchMode(mode)"
+              >
+                <i :class="mode.icon" class="text-lg mb-2 block" />
+                <div class="text-xs font-medium truncate">
+                  {{ mode.name }}
+                </div>
+                <div class="text-xs text-gray-400 truncate mt-1">
+                  {{ mode.description }}
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 搜索框 -->
+          <div class="relative">
+            <div class="relative">
+              <input
+                ref="searchInputRef" v-model="songSearchQuery" type="text"
+                :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
+                class="w-full bg-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400"
+                :class="[
+                  currentSearchHistory.length > 0 ? 'pr-20' : 'pr-12',
+                ]"
+                @keyup.enter="handleSearch" @keydown="handleKeyDown" @focus="handleInputFocus" @blur="handleInputBlur"
+              >
+              <!-- 搜索历史按钮 - 仅在有历史记录时显示 -->
+              <button
+                v-if="currentSearchHistory.length > 0"
+                class="absolute right-11 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors touch-target w-8 h-8 flex items-center justify-center search-history-toggle"
+                :class="{ 'text-primary': showSearchHistory }"
+                @click="toggleSearchHistory"
+              >
+                <i class="fa-solid fa-clock-rotate-left text-sm" />
+              </button>
+              <!-- 搜索按钮 -->
+              <button
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors touch-target w-8 h-8 flex items-center justify-center"
+                @click="handleSearch"
+              >
+                <i class="fa-solid fa-search text-sm" />
+              </button>
+            </div>
+
+            <!-- 搜索提示 -->
+            <div v-if="currentSearchHistory.length > 0 && !showSearchHistory" class="text-xs text-gray-500 mt-2 px-4">
+              已保存 {{ currentSearchHistory.length }} 条历史记录
+              <span class="hidden md:inline text-gray-600">• 按 ↓ 键查看，↑↓ 导航，回车选择</span>
+              <span class="md:hidden text-gray-600">• 点击时钟图标查看历史</span>
+            </div>
+
+            <!-- 搜索历史下拉菜单 -->
+            <div
+              v-if="showSearchHistory"
+              class="absolute left-0 right-0 mt-2 bg-dark border border-white/10 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto custom-scrollbar"
+            >
+              <div v-if="currentSearchHistory.length === 0" class="p-6 text-sm text-gray-400 text-center">
+                <i class="fa-solid fa-clock-rotate-left text-2xl mb-3 block opacity-50" />
+                <div class="font-medium mb-1">
+                  暂无搜索历史
+                </div>
+                <div class="text-xs opacity-75">
+                  开始搜索后会显示历史记录
+                </div>
+              </div>
+              <div v-else>
+                <div class="px-4 py-3 border-b border-white/10 bg-white/10">
+                  <div class="text-xs font-medium text-gray-200 flex items-center">
+                    <i class="fa-solid fa-clock-rotate-left mr-2 text-gray-300" />
+                    最近搜索 ({{ selectedMusicSource.name }} - {{ selectedSearchMode.name }})
+                  </div>
+                </div>
+                <div
+                  v-for="(item, index) in currentSearchHistory" :key="`${item.query}-${item.timestamp}`"
+                  class="group flex items-center px-4 py-3 text-sm cursor-pointer transition-all duration-200 border-b border-white/5 last:border-b-0"
+                  :class="[
+                    selectedHistoryIndex === index
+                      ? 'bg-primary/20 text-white'
+                      : 'text-white hover:bg-white/10 hover:text-white',
+                  ]"
+                  @click="selectFromHistory(item)"
+                >
+                  <div class="flex items-center flex-1 min-w-0">
+                    <i class="fa-solid fa-search text-gray-300 mr-3 flex-shrink-0 text-xs" />
+                    <div class="flex-1 min-w-0">
+                      <div class="truncate font-medium">
+                        {{ item.query }}
+                      </div>
+                      <div class="text-xs text-gray-400 truncate mt-1">
+                        {{ new Date(item.timestamp).toLocaleString() }}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    class="opacity-0 group-hover:opacity-100 ml-2 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-400 transition-all"
+                    @click.stop="removeHistoryItem(item)"
+                  >
+                    <i class="fa-solid fa-times text-xs" />
+                  </button>
+                </div>
+              </div>
+              <div class="border-t border-white/10 bg-white/10">
+                <button
+                  v-if="currentSearchHistory.length > 0"
+                  class="w-full px-4 py-3 text-xs font-medium text-gray-300 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 flex items-center justify-center"
+                  @click="clearCurrentHistory"
+                >
+                  <i class="fa-solid fa-trash mr-2" />
+                  清除当前历史记录
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 搜索结果 -->
+          <div v-if="searchResults.length > 0">
+            <h3 class="text-base md:text-lg font-medium mb-3">
+              搜索结果 - {{ selectedSearchMode.name }}
+              <span class="text-xs text-gray-400 ml-2">(来自 {{ selectedMusicSource.name }})</span>
+            </h3>
+            <transition-group name="search-result" tag="div">
+              <!-- 歌曲搜索结果 -->
+              <div
+                v-if="selectedSearchMode.id === 'song'"
+                class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
+              >
+                <MusicItem
+                  v-for="result in searchResults"
+                  :key="result.id"
+                  :music="result"
+                  @add="(music) => pickMusic(music, selectedMusicSource.id)"
+                />
+              </div>
+
+              <!-- 歌单搜索结果 -->
+              <div
+                v-if="selectedSearchMode.id === 'playlist' || selectedSearchMode.id === 'user_playlist'"
+                class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
+              >
+                <PlaylistItem
+                  v-for="result in searchResults"
+                  :key="result.id"
+                  :playlist="result"
+                  @view="viewPlaylist"
+                />
+              </div>
+            </transition-group>
+          </div>
+
+          <!-- 分页控制 -->
+          <div v-if="searchResults.length > 0">
+            <div class="flex items-center justify-between bg-white/5 rounded-lg p-2 md:p-4">
+              <div class="text-xs text-gray-400 flex-shrink-0">
+                <span class="hidden sm:inline">第 {{ currentPage + 1 }} 页，共 {{ totalPages }} 页</span>
+                <span class="sm:hidden">第{{ currentPage + 1 }}/{{ totalPages }}页</span>
+              </div>
+              <div class="flex items-center space-x-0.5 md:space-x-2 ml-1 md:ml-2">
+                <button
+                  :disabled="currentPage === 0"
+                  class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all touch-target flex-shrink-0"
+                  :class="[
+                    currentPage === 0
+                      ? 'text-gray-500 cursor-not-allowed'
+                      : 'text-white hover:bg-white/10 active:bg-white/20',
+                  ]"
+                  @click="changePage(currentPage - 1)"
+                >
+                  <i class="fa-solid fa-chevron-left text-xs" />
+                </button>
+
+                <div class="flex items-center space-x-0.5 md:space-x-1 overflow-x-auto scrollbar-hide">
+                  <template v-for="page in visiblePages" :key="page">
+                    <button
+                      v-if="page !== -1"
+                      class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs transition-all touch-target flex-shrink-0"
+                      :class="[
+                        currentPage === page
+                          ? 'bg-primary text-white'
+                          : 'text-gray-300 hover:bg-white/10 active:bg-white/20',
+                      ]"
+                      @click="changePage(page)"
+                    >
+                      {{ page + 1 }}
+                    </button>
+                    <span v-else class="text-gray-500 px-0.5 text-xs">...</span>
+                  </template>
+                </div>
+
+                <button
+                  :disabled="!hasNextPage"
+                  class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all touch-target flex-shrink-0"
+                  :class="[
+                    !hasNextPage
+                      ? 'text-gray-500 cursor-not-allowed'
+                      : 'text-white hover:bg-white/10 active:bg-white/20',
+                  ]"
+                  @click="changePage(currentPage + 1)"
+                >
+                  <i class="fa-solid fa-chevron-right text-xs" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 搜索提示 -->
+          <div v-else-if="songSearchQuery.trim()" class="text-center py-8 text-gray-400">
+            <i class="fa-solid fa-search text-3xl mb-3 opacity-50" />
+            <p class="text-sm">
+              在 {{ selectedMusicSource.name }} 中未找到相关{{ selectedSearchMode.name }}
+            </p>
+            <p class="text-xs mt-1">
+              试试搜索其他关键词或切换音乐平台
+            </p>
+          </div>
+
+          <!-- 初始状态提示 -->
+          <div
+            v-else-if="!songSearchQuery.trim() && searchResults.length === 0"
+            class="text-center py-12 text-gray-400"
+          >
+            <i :class="selectedSearchMode.icon" class="text-4xl mb-4 opacity-50" />
+            <p class="text-base mb-2">
+              搜索你喜欢的{{ selectedSearchMode.name }}
+            </p>
+            <p class="text-sm">
+              在上方输入{{ selectedSearchMode.name === '歌曲' ? '歌曲名称、歌手或专辑' : selectedSearchMode.name === '歌单'
+                ? '歌单名称'
+                : '用户名称' }}，然后点击搜索按钮
+            </p>
+            <p class="text-xs mt-2 opacity-75">
+              当前平台：{{ selectedMusicSource.name }} | 搜索类型：{{ selectedSearchMode.name }}
+            </p>
+          </div>
         </div>
 
-        <!-- 搜索结果 -->
-        <div v-if="searchResults.length > 0" class="mb-6">
-          <h3 class="text-base md:text-lg font-medium mb-3">
-            搜索结果 - {{ selectedSearchMode.name }}
-            <span class="text-xs text-gray-400 ml-2">(来自 {{ selectedMusicSource.name }})</span>
-          </h3> <transition-group name="search-result" tag="div">
-            <!-- 歌曲搜索结果 -->
-            <div
-              v-if="selectedSearchMode.id === 'song'"
-              class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
-            >
+        <!-- AI推荐模式内容 -->
+        <div v-else-if="currentMode === 'ai'" class="space-y-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base md:text-lg font-medium flex items-center">
+              <i class="fa-solid fa-robot mr-2 text-primary" />
+              AI为您推荐
+              <span v-if="recommendations.length > 0" class="text-xs text-gray-400 ml-2">
+                ({{ recommendations.length }}首)
+              </span>
+            </h3>
+            <div class="flex items-center space-x-2">
+              <!-- 刷新按钮 -->
+              <button
+                class="text-gray-400 hover:text-white transition-colors w-6 h-6 flex items-center justify-center rounded border border-white/10 hover:border-white/20"
+                @click="pullRecommendations"
+              >
+                <i class="fa-solid fa-refresh text-xs" />
+              </button>
+            </div>
+          </div>
+
+          <!-- AI推荐内容区域 -->
+          <div class="relative">
+            <!-- 推荐歌曲列表 -->
+            <div v-if="recommendations.length > 0" class="space-y-4">
+              <!-- 推荐歌曲 -->
               <MusicItem
-                v-for="result in searchResults"
+                v-for="result in recommendations"
                 :key="result.id"
                 :music="result"
                 @add="(music) => pickMusic(music, selectedMusicSource.id)"
               />
             </div>
-
-            <!-- 歌单搜索结果 -->
-            <div
-              v-if="selectedSearchMode.id === 'playlist' || selectedSearchMode.id === 'user_playlist'"
-              class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
-            >
-              <PlaylistItem
-                v-for="result in searchResults"
-                :key="result.id"
-                :playlist="result"
-                @view="viewPlaylist"
-              />
-            </div>
-          </transition-group>
-        </div>
-
-        <!-- 分页控制 -->
-        <div v-if="searchResults.length > 0" class="mb-6">
-          <div class="flex items-center justify-between bg-white/5 rounded-lg p-2 md:p-4">
-            <div class="text-xs text-gray-400 flex-shrink-0">
-              <span class="hidden sm:inline">第 {{ currentPage + 1 }} 页，共 {{ totalPages }} 页</span>
-              <span class="sm:hidden">第{{ currentPage + 1 }}/{{ totalPages }}页</span>
-            </div>
-            <div class="flex items-center space-x-0.5 md:space-x-2 ml-1 md:ml-2">
-              <button
-                :disabled="currentPage === 0"
-                class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all touch-target flex-shrink-0" :class="[
-                  currentPage === 0
-                    ? 'text-gray-500 cursor-not-allowed'
-                    : 'text-white hover:bg-white/10 active:bg-white/20',
-                ]" @click="changePage(currentPage - 1)"
-              >
-                <i class="fa-solid fa-chevron-left text-xs" />
-              </button>
-
-              <div class="flex items-center space-x-0.5 md:space-x-1 overflow-x-auto scrollbar-hide">
-                <template v-for="page in visiblePages" :key="page">
-                  <button
-                    v-if="page !== -1"
-                    class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs transition-all touch-target flex-shrink-0"
-                    :class="[
-                      currentPage === page
-                        ? 'bg-primary text-white'
-                        : 'text-gray-300 hover:bg-white/10 active:bg-white/20',
-                    ]" @click="changePage(page)"
-                  >
-                    {{ page + 1 }}
-                  </button>
-                  <span v-else class="text-gray-500 px-0.5 text-xs">...</span>
-                </template>
-              </div>
-
-              <button
-                :disabled="!hasNextPage"
-                class="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all touch-target flex-shrink-0" :class="[
-                  !hasNextPage
-                    ? 'text-gray-500 cursor-not-allowed'
-                    : 'text-white hover:bg-white/10 active:bg-white/20',
-                ]" @click="changePage(currentPage + 1)"
-              >
-                <i class="fa-solid fa-chevron-right text-xs" />
-              </button>
+            <div v-else class="text-center py-12 text-gray-400">
+              <i class="fa-solid fa-robot text-4xl mb-4 opacity-50 animate-pulse" />
+              <p class="text-lg mb-2">
+                AI正在为您生成推荐...
+              </p>
             </div>
           </div>
-        </div>
-
-        <!-- 搜索提示 -->
-        <div v-else-if="songSearchQuery.trim()" class="mb-6 text-center py-8 text-gray-400">
-          <i class="fa-solid fa-search text-3xl mb-3 opacity-50" />
-          <p class="text-sm">
-            在 {{ selectedMusicSource.name }} 中未找到相关{{ selectedSearchMode.name }}
-          </p>
-          <p class="text-xs mt-1">
-            试试搜索其他关键词或切换音乐平台
-          </p>
-        </div>
-
-        <!-- 初始状态提示 -->
-        <div
-          v-else-if="!songSearchQuery.trim() && searchResults.length === 0"
-          class="mb-6 text-center py-12 text-gray-400"
-        >
-          <i :class="selectedSearchMode.icon" class="text-4xl mb-4 opacity-50" />
-          <p class="text-base mb-2">
-            搜索你喜欢的{{ selectedSearchMode.name }}
-          </p>
-          <p class="text-sm">
-            在上方输入{{ selectedSearchMode.name === '歌曲' ? '歌曲名称、歌手或专辑' : selectedSearchMode.name === '歌单'
-              ? '歌单名称'
-              : '用户名称' }}，然后点击搜索按钮
-          </p>
-          <p class="text-xs mt-2 opacity-75">
-            当前平台：{{ selectedMusicSource.name }} | 搜索类型：{{ selectedSearchMode.name }}
-          </p>
         </div>
       </div>
     </div>
@@ -312,8 +380,28 @@ const {
   removeFromSearchHistory: removeSearchHistoryRecord,
   clearSearchHistory,
 } = useHistory()
-const { pickMusic } = usePlayer()
+const { pickMusic, pullRecommendations, recommendations } = usePlayer()
 const { roomInfo } = useRoom()
+
+// 模式切换状态
+const currentMode = useStorage<'search' | 'ai'>('music-modal-mode', 'search')
+
+// 处理模式切换
+function handleModeToggle(event: Event) {
+  const target = event.target as HTMLInputElement
+  const mode = target.checked ? 'ai' : 'search'
+  setCurrentMode(mode)
+}
+
+// 设置当前模式
+function setCurrentMode(mode: 'search' | 'ai') {
+  currentMode.value = mode
+
+  // 切换到AI推荐模式时，如果没有推荐数据，则获取推荐
+  if (mode === 'ai' && recommendations.value.length <= 0) {
+    pullRecommendations()
+  }
+}
 
 // 搜索结果容器引用
 const searchResultsContainer = ref<HTMLElement | null>(null)
@@ -439,21 +527,6 @@ const availableSearchModes = computed(() => {
   return allSearchModes.filter(mode =>
     mode.supportedSources.includes(selectedMusicSource.value.id),
   )
-})
-
-// 获取当前平台支持的搜索类型提示
-const platformSearchTip = computed(() => {
-  const source = selectedMusicSource.value
-  switch (source.id) {
-    case 'wy':
-      return '网易云音乐支持歌曲和歌单搜索'
-    case 'qq':
-      return 'QQ音乐支持歌曲、歌单和用户搜索'
-    case 'db':
-      return 'bilibili 仅支持歌曲搜索'
-    default:
-      return ''
-  }
 })
 
 // 分页相关状态
