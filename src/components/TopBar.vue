@@ -67,17 +67,6 @@
         <span class="hidden sm:inline">帮助</span>
         <span class="sm:hidden">帮助</span>
       </button>
-
-      <!-- 设置 -->
-      <button
-        class="bg-gray-500/20 hover:bg-gray-500/30 active:bg-gray-500/40 text-gray-400 hover:text-white rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
-        @click="$emit('showSettings')"
-      >
-        <i class="fa-solid fa-cog mr-1 sm:mr-2" />
-        <span class="hidden sm:inline">设置</span>
-        <span class="sm:hidden">设置</span>
-      </button>
-
       <!-- 沉浸模式, 移动端隐藏 -->
       <div class="hidden md:block">
         <button
@@ -90,6 +79,15 @@
           <span class="hidden md:block">沉浸</span>
         </button>
       </div>
+      <!-- 设置 -->
+      <button
+        class="bg-gray-500/20 hover:bg-gray-500/30 active:bg-gray-500/40 text-gray-400 hover:text-white rounded-full py-2 px-3 sm:px-4 flex items-center text-xs sm:text-sm transition-all touch-target"
+        @click="$emit('showSettings')"
+      >
+        <i class="fa-solid fa-cog mr-1 sm:mr-2" />
+        <span class="hidden sm:inline">设置</span>
+        <span class="sm:hidden">设置</span>
+      </button>
     </div>
   </DesktopTopTitle>
 </template>

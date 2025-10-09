@@ -102,22 +102,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 快速操作按钮 -->
-    <div class="flex gap-2 mt-4">
-      <button
-        class="flex-1 px-3 py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-lg text-sm hover:bg-blue-500/30 transition-colors"
-        @click="autoDetectPerformance"
-      >
-        自动检测
-      </button>
-      <button
-        class="flex-1 px-3 py-2 bg-red-500/20 border border-red-500/50 text-red-400 rounded-lg text-sm hover:bg-red-500/30 transition-colors"
-        @click="disableAnimations"
-      >
-        最低性能
-      </button>
-    </div>
   </div>
 </template>
 
@@ -136,8 +120,6 @@ const {
   reducedMotion,
   performanceClasses,
   getPerformanceDescription,
-  autoDetectPerformance,
-  disableAnimations,
 } = usePerformance()
 
 // 性能级别选项
@@ -209,8 +191,8 @@ function getPrefersReducedMotion() {
 }
 
 .performance-option.active {
-  border-color: rgba(59, 130, 246, 0.5);
-  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(147, 51, 234, 0.5);
+  background: rgba(147, 51, 234, 0.1);
 }
 
 .radio-indicator {
@@ -225,13 +207,13 @@ function getPrefersReducedMotion() {
 }
 
 .radio-indicator.active {
-  border-color: #3b82f6;
+  border-color: #9333ea;
 }
 
 .radio-dot {
   width: 0.5rem;
   height: 0.5rem;
-  background: #3b82f6;
+  background: #9333ea;
   border-radius: 50%;
 }
 
@@ -273,8 +255,8 @@ function getPrefersReducedMotion() {
 }
 
 .custom-checkbox.checked {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: #9333ea;
+  border-color: #9333ea;
 }
 
 .check-icon {
