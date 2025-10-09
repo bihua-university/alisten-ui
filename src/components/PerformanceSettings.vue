@@ -120,8 +120,6 @@ const {
   reducedMotion,
   performanceClasses,
   getPerformanceDescription,
-  autoDetectPerformance,
-  disableAnimations,
 } = usePerformance()
 
 // 性能级别选项
