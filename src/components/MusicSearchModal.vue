@@ -415,7 +415,7 @@ const getPlatformColor = (platform: string) => {
     'qq': style.getPropertyValue('--color-platform-qq').trim(),
     'db': style.getPropertyValue('--color-platform-bilibili').trim(),
   }
-  return colorMap[platform] || '#ffffff'
+  return colorMap[platform] || style.getPropertyValue('--color-text-primary').trim()
 }
 
 const allMusicSources: MusicSource[] = [
