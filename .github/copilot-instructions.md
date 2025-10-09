@@ -3,4 +3,10 @@
 这个项目基于 Vue3 + TypeScript + Vite + TailwindCSS 构建，旨在提供一个现代化的听歌房体验。
 
 ## ui
-强调色使用紫色, 参考`.play-mode-option.active` `.radio-indicator.active`的样式
+### css颜色
+只在`src/styles/color.css`定义css颜色, 在`color.css`之外 使用颜色的地方 均通过`color.css`中的变量使用  
+
+#### css颜色的复用
+- `color.css`中的 给外部css使用的颜色的变量名, 均使用`描述功能性`的风格
+- 但在`color.css`内部, 其可用`颜色描述性`风格的变量名, 将重复的颜色只声明一次, `颜色描述性风格的变量名`的css变量只能在`color.css`内部使用  
+- 只用**真正在该文件中需要被复用的颜色** 才提取`颜色描述性风格的变量名`

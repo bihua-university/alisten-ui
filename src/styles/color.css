@@ -1,11 +1,28 @@
 /* ===============================================
    颜色变量定义 - 统一管理项目中的所有颜色
-   使用功能性命名，而非颜色描述性命名
+   使用功能性命名，并提取被复用的颜色为描述性命名
    =============================================== */
 
 :root {
+  /* ===== 基础颜色变量（描述性命名 - 仅用于被复用的颜色） ===== */
+  --base-gray-300: #9ca3af; /* 被复用5次 */
+  --base-gray-500: #6b7280; /* 被复用4次 */
+  --base-purple-500: #a855f7; /* 被复用4次 */
+  --base-blue-500: #165DFF; /* 被复用2次 */
+  --base-blue-400: #3b82f6; /* 被复用2次 */
+  
+  --base-white-5: rgba(255, 255, 255, 0.05); /* 被复用2次 */
+  --base-white-10: rgba(255, 255, 255, 0.1); /* 被复用7次 */
+  --base-white-15: rgba(255, 255, 255, 0.15); /* 被复用2次 */
+  --base-white-20: rgba(255, 255, 255, 0.2); /* 被复用8次 */
+  --base-white-30: rgba(255, 255, 255, 0.3); /* 被复用4次 */
+  
+  --base-blue-400-10: rgba(59, 130, 246, 0.1); /* 被复用2次 */
+  --base-blue-400-30: rgba(59, 130, 246, 0.3); /* 被复用2次 */
+
+  /* ===== 功能性颜色变量 ===== */
   /* ===== 主题色 ===== */
-  --color-primary: #165DFF; /* 主色 - 用于主要操作按钮、链接、高亮 */
+  --color-primary: var(--base-blue-500); /* 主色 - 用于主要操作按钮、链接、高亮 */
   --color-primary-hover: rgba(22, 93, 255, 0.3); /* 主色悬停态 */
   --color-primary-active: rgba(22, 93, 255, 0.8); /* 主色激活态 */
   --color-primary-light: rgba(22, 93, 255, 0.6); /* 主色浅色 */
@@ -23,16 +40,16 @@
   
   /* ===== 文本颜色 ===== */
   --color-text-primary: #ffffff; /* 主要文本 */
-  --color-text-secondary: #9ca3af; /* 次要文本 */
-  --color-text-tertiary: #6b7280; /* 三级文本 */
+  --color-text-secondary: var(--base-gray-300); /* 次要文本 */
+  --color-text-tertiary: var(--base-gray-500); /* 三级文本 */
   --color-text-quaternary: #4b5563; /* 四级文本 */
   --color-text-disabled: #374151; /* 禁用文本 */
-  --color-text-placeholder: #9ca3af; /* 占位符文本 */
+  --color-text-placeholder: var(--base-gray-300); /* 占位符文本 */
   
   /* ===== 边框颜色 ===== */
-  --color-border-light: rgba(255, 255, 255, 0.1); /* 浅色边框 */
-  --color-border-medium: rgba(255, 255, 255, 0.2); /* 中等边框 */
-  --color-border-strong: rgba(255, 255, 255, 0.3); /* 强边框 */
+  --color-border-light: var(--base-white-10); /* 浅色边框 */
+  --color-border-medium: var(--base-white-20); /* 中等边框 */
+  --color-border-strong: var(--base-white-30); /* 强边框 */
   
   /* ===== 遮罩颜色 ===== */
   --color-overlay-light: rgba(0, 0, 0, 0.2); /* 浅色遮罩 */
@@ -63,14 +80,14 @@
   --color-error-bg-hover: rgba(239, 68, 68, 0.3); /* 错误背景悬停 */
   --color-error-bg-active: rgba(239, 68, 68, 0.4); /* 错误背景激活 */
   
-  --color-info: #3b82f6; /* 信息色 */
+  --color-info: var(--base-blue-400); /* 信息色 */
   --color-info-light: #60a5fa; /* 信息色浅色 */
   --color-info-bg: rgba(59, 130, 246, 0.2); /* 信息背景 */
-  --color-info-bg-hover: rgba(59, 130, 246, 0.3); /* 信息背景悬停 */
+  --color-info-bg-hover: var(--base-blue-400-30); /* 信息背景悬停 */
   --color-info-bg-active: rgba(59, 130, 246, 0.4); /* 信息背景激活 */
   
   /* ===== 特殊功能色 ===== */
-  --color-accent: #a855f7; /* 强调色 */
+  --color-accent: var(--base-purple-500); /* 强调色 */
   --color-accent-light: #c084fc; /* 强调色浅色 */
   --color-accent-bg: rgba(168, 85, 247, 0.2); /* 强调背景 */
   --color-accent-bg-hover: rgba(168, 85, 247, 0.3); /* 强调背景悬停 */
@@ -78,12 +95,12 @@
   --color-accent-border: rgba(147, 51, 234, 0.5); /* 强调边框 */
   
   /* ===== 玻璃态/半透明背景 ===== */
-  --color-glass-subtle: rgba(255, 255, 255, 0.05); /* 微弱玻璃效果 */
-  --color-glass-light: rgba(255, 255, 255, 0.1); /* 浅玻璃效果 */
-  --color-glass-medium: rgba(255, 255, 255, 0.15); /* 中等玻璃效果 */
-  --color-glass-strong: rgba(255, 255, 255, 0.2); /* 强玻璃效果 */
+  --color-glass-subtle: var(--base-white-5); /* 微弱玻璃效果 */
+  --color-glass-light: var(--base-white-10); /* 浅玻璃效果 */
+  --color-glass-medium: var(--base-white-15); /* 中等玻璃效果 */
+  --color-glass-strong: var(--base-white-20); /* 强玻璃效果 */
   --color-glass-hover: rgba(255, 255, 255, 0.25); /* 玻璃效果悬停 */
-  --color-glass-active: rgba(255, 255, 255, 0.3); /* 玻璃效果激活 */
+  --color-glass-active: var(--base-white-30); /* 玻璃效果激活 */
   --color-glass-solid: rgba(255, 255, 255, 0.4); /* 实色玻璃效果 */
   --color-glass-semi-solid: rgba(255, 255, 255, 0.5); /* 半实色玻璃效果 */
   
@@ -93,20 +110,20 @@
   --color-shadow-strong: rgba(0, 0, 0, 0.6); /* 强阴影 */
   
   /* ===== 歌词相关 ===== */
-  --color-lyric-inactive: #9ca3af; /* 非激活歌词 */
+  --color-lyric-inactive: var(--base-gray-300); /* 非激活歌词 */
   --color-lyric-active: white; /* 激活歌词 */
-  --color-lyric-shadow: rgba(59, 130, 246, 0.3); /* 歌词文字阴影 */
+  --color-lyric-shadow: var(--base-blue-400-30); /* 歌词文字阴影 */
   --color-lyric-highlight-border: rgba(59, 130, 246, 0.6); /* 沉浸模式歌词高亮边框 */
   
   /* ===== 渐变色 ===== */
-  --color-gradient-start: rgba(59, 130, 246, 0.1); /* 渐变起始色 */
+  --color-gradient-start: var(--base-blue-400-10); /* 渐变起始色 */
   --color-gradient-end: rgba(147, 51, 234, 0.1); /* 渐变结束色 */
   --color-gradient-progress-start: rgba(59, 130, 246, 0.8); /* 进度条渐变起始 */
-  --color-gradient-progress-middle: #a855f7; /* 进度条渐变中间 */
+  --color-gradient-progress-middle: var(--base-purple-500); /* 进度条渐变中间 */
   --color-gradient-progress-end: rgba(147, 51, 234, 0.8); /* 进度条渐变结束 */
   
   /* 沉浸模式背景渐变 */
-  --color-immersive-bg-center: rgba(59, 130, 246, 0.1); /* 沉浸模式背景中心 */
+  --color-immersive-bg-center: var(--base-blue-400-10); /* 沉浸模式背景中心 */
   --color-immersive-bg-edge: rgba(0, 0, 0, 0.9); /* 沉浸模式背景边缘 */
   
   /* ===== 音乐平台品牌色 ===== */
@@ -115,47 +132,47 @@
   --color-platform-bilibili: #00a2d8; /* Bilibili */
   
   /* ===== 进度条 ===== */
-  --color-progress-bg: rgba(255, 255, 255, 0.2); /* 进度条背景 */
-  --color-progress-gradient-start: #165DFF; /* 进度条渐变起始 */
-  --color-progress-gradient-end: #3b82f6; /* 进度条渐变结束 */
+  --color-progress-bg: var(--base-white-20); /* 进度条背景 */
+  --color-progress-gradient-start: var(--base-blue-500); /* 进度条渐变起始 */
+  --color-progress-gradient-end: var(--base-blue-400); /* 进度条渐变结束 */
   --color-progress-shadow: rgba(79, 70, 229, 0.5); /* 进度条阴影 */
   --color-progress-glow: rgba(79, 70, 229, 0.3); /* 进度条发光效果 */
   
   /* ===== 滚动条 ===== */
-  --color-scrollbar-track: rgba(255, 255, 255, 0.1); /* 滚动条轨道 */
-  --color-scrollbar-thumb: rgba(255, 255, 255, 0.2); /* 滚动条滑块 */
-  --color-scrollbar-thumb-hover: rgba(255, 255, 255, 0.3); /* 滚动条滑块悬停 */
+  --color-scrollbar-track: var(--base-white-10); /* 滚动条轨道 */
+  --color-scrollbar-thumb: var(--base-white-20); /* 滚动条滑块 */
+  --color-scrollbar-thumb-hover: var(--base-white-30); /* 滚动条滑块悬停 */
   --color-scrollbar-thumb-primary: rgba(79, 70, 229, 0.6); /* 主题色滚动条滑块 */
   --color-scrollbar-thumb-primary-hover: rgba(79, 70, 229, 0.8); /* 主题色滚动条滑块悬停 */
   
   /* ===== 按钮相关 ===== */
-  --color-button-bg: rgba(255, 255, 255, 0.1); /* 按钮背景 */
-  --color-button-bg-hover: rgba(255, 255, 255, 0.2); /* 按钮背景悬停 */
-  --color-button-bg-active: rgba(255, 255, 255, 0.3); /* 按钮背景激活 */
+  --color-button-bg: var(--base-white-10); /* 按钮背景 */
+  --color-button-bg-hover: var(--base-white-20); /* 按钮背景悬停 */
+  --color-button-bg-active: var(--base-white-30); /* 按钮背景激活 */
   
   /* ===== 输入框相关 ===== */
-  --color-input-bg: rgba(255, 255, 255, 0.1); /* 输入框背景 */
-  --color-input-border: rgba(255, 255, 255, 0.2); /* 输入框边框 */
-  --color-input-focus-bg: rgba(255, 255, 255, 0.15); /* 输入框聚焦背景 */
+  --color-input-bg: var(--base-white-10); /* 输入框背景 */
+  --color-input-border: var(--base-white-20); /* 输入框边框 */
+  --color-input-focus-bg: var(--base-white-15); /* 输入框聚焦背景 */
   
   /* ===== UI组件 ===== */
-  --color-drag-indicator: #6b7280; /* 拖拽指示器 */
-  --color-separator: rgba(255, 255, 255, 0.1); /* 分隔线 */
+  --color-drag-indicator: var(--base-gray-500); /* 拖拽指示器 */
+  --color-separator: var(--base-white-10); /* 分隔线 */
   
   /* ===== 点歌人信息 ===== */
-  --color-requester-text: #6b7280; /* 点歌人文字 */
-  --color-requester-avatar-border: rgba(255, 255, 255, 0.2); /* 点歌人头像边框 */
+  --color-requester-text: var(--base-gray-500); /* 点歌人文字 */
+  --color-requester-avatar-border: var(--base-white-20); /* 点歌人头像边框 */
   
   /* ===== 性能设置相关 ===== */
-  --color-performance-option-border: rgba(255, 255, 255, 0.1); /* 性能选项边框 */
-  --color-performance-option-border-hover: rgba(255, 255, 255, 0.2); /* 性能选项边框悬停 */
-  --color-performance-option-bg-hover: rgba(255, 255, 255, 0.05); /* 性能选项背景悬停 */
+  --color-performance-option-border: var(--base-white-10); /* 性能选项边框 */
+  --color-performance-option-border-hover: var(--base-white-20); /* 性能选项边框悬停 */
+  --color-performance-option-bg-hover: var(--base-white-5); /* 性能选项背景悬停 */
   --color-performance-impact-bar: #374151; /* 性能影响条背景 */
   
   /* 单选/复选框 */
-  --color-radio-border: #9ca3af; /* 单选框边框 */
-  --color-radio-checked: #a855f7; /* 单选框选中 */
-  --color-checkbox-border: #6b7280; /* 复选框边框 */
-  --color-checkbox-border-hover: #9ca3af; /* 复选框边框悬停 */
-  --color-checkbox-checked: #a855f7; /* 复选框选中 */
+  --color-radio-border: var(--base-gray-300); /* 单选框边框 */
+  --color-radio-checked: var(--base-purple-500); /* 单选框选中 */
+  --color-checkbox-border: var(--base-gray-500); /* 复选框边框 */
+  --color-checkbox-border-hover: var(--base-gray-300); /* 复选框边框悬停 */
+  --color-checkbox-checked: var(--base-purple-500); /* 复选框选中 */
 }
