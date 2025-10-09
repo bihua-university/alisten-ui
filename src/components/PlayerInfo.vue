@@ -62,11 +62,11 @@ const { playerState, progressPercentage } = usePlayer()
 /* 进度条样式增强 */
 .immersive-progress {
   background: linear-gradient(90deg,
-    theme('colors.primary'),
-    theme('colors.purple.500'),
-    theme('colors.blue.500')
+    var(--color-progress-gradient-start),
+    var(--color-gradient-progress-middle),
+    var(--color-progress-gradient-end)
   );
-  box-shadow: 0 0 8px rgba(79, 70, 229, 0.5);
+  box-shadow: 0 0 8px var(--color-progress-shadow);
   will-change: transform;
 }
 </style>

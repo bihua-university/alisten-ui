@@ -172,7 +172,7 @@ onUnmounted(() => {
 
 /* 沉浸模式下的歌词特殊效果 */
 .lyric-line.active {
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 20px var(--color-glass-active);
 }
 
 /* 沉浸模式歌词容器样式 */

@@ -769,17 +769,17 @@ onUnmounted(() => {
 }
 
 .lyrics-container::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-glass-light);
   border-radius: 2px;
 }
 
 .lyrics-container::-webkit-scrollbar-thumb {
-  background: rgba(79, 70, 229, 0.6);
+  background: var(--color-scrollbar-thumb-primary);
   border-radius: 2px;
 }
 
 .lyrics-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 70, 229, 0.8);
+  background: var(--color-scrollbar-thumb-primary-hover);
 }
 
 /* 淡入淡出动画 */

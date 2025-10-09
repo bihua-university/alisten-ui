@@ -123,7 +123,7 @@ function handleSongClick() {
   display: flex;
   align-items: center;
   font-size: 0.75rem;
-  color: rgb(156 163 175);
+  color: var(--color-text-secondary);
 }
 
 .requester-avatar {
@@ -159,8 +159,8 @@ function handleSongClick() {
 /* 移动端触摸优化 */
 @media (max-width: 768px) {
   .delete-button:active {
-    background-color: rgba(239, 68, 68, 0.4) !important;
-    color: rgb(248, 113, 113) !important;
+    background-color: var(--color-error-bg-active) !important;
+    color: var(--color-error-light) !important;
   }
 }
 </style>

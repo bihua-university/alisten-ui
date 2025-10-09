@@ -179,26 +179,26 @@ function getPrefersReducedMotion() {
 <style scoped>
 .performance-option {
   padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-performance-option-border);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .performance-option:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-performance-option-border-hover);
+  background: var(--color-performance-option-bg-hover);
 }
 
 .performance-option.active {
-  border-color: rgba(147, 51, 234, 0.5);
-  background: rgba(147, 51, 234, 0.1);
+  border-color: var(--color-accent-border);
+  background: var(--color-gradient-end);
 }
 
 .radio-indicator {
   width: 1rem;
   height: 1rem;
-  border: 2px solid #9ca3af;
+  border: 2px solid var(--color-radio-border);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -207,13 +207,13 @@ function getPrefersReducedMotion() {
 }
 
 .radio-indicator.active {
-  border-color: #9333ea;
+  border-color: var(--color-radio-checked);
 }
 
 .radio-dot {
   width: 0.5rem;
   height: 0.5rem;
-  background: #9333ea;
+  background: var(--color-radio-checked);
   border-radius: 50%;
 }
 
@@ -227,7 +227,7 @@ function getPrefersReducedMotion() {
 .impact-bar {
   width: 100%;
   height: 0.25rem;
-  background: #374151;
+  background: var(--color-performance-impact-bar);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -241,7 +241,7 @@ function getPrefersReducedMotion() {
 .custom-checkbox {
   width: 1rem;
   height: 1rem;
-  border: 2px solid #6b7280;
+  border: 2px solid var(--color-checkbox-border);
   border-radius: 0.25rem;
   display: flex;
   align-items: center;
@@ -251,12 +251,12 @@ function getPrefersReducedMotion() {
 }
 
 .custom-checkbox:hover {
-  border-color: #9ca3af;
+  border-color: var(--color-checkbox-border-hover);
 }
 
 .custom-checkbox.checked {
-  background: #9333ea;
-  border-color: #9333ea;
+  background: var(--color-checkbox-checked);
+  border-color: var(--color-checkbox-checked);
 }
 
 .check-icon {
