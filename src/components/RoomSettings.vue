@@ -172,26 +172,26 @@ function getCurrentModeDescription() {
 <style scoped>
 .play-mode-option {
   padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-play-mode-border);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .play-mode-option:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-play-mode-border-hover);
+  background: var(--color-play-mode-bg-hover);
 }
 
 .play-mode-option.active {
-  border-color: rgba(147, 51, 234, 0.5);
-  background: rgba(147, 51, 234, 0.1);
+  border-color: var(--color-play-mode-border-active);
+  background: var(--color-play-mode-bg-active);
 }
 
 .radio-indicator {
   width: 1rem;
   height: 1rem;
-  border: 2px solid #9ca3af;
+  border: 2px solid var(--color-radio-border);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -200,13 +200,13 @@ function getCurrentModeDescription() {
 }
 
 .radio-indicator.active {
-  border-color: #9333ea;
+  border-color: var(--color-radio-active);
 }
 
 .radio-dot {
   width: 0.5rem;
   height: 0.5rem;
-  background: #9333ea;
+  background: var(--color-radio-active);
   border-radius: 50%;
 }
 
@@ -215,7 +215,7 @@ function getCurrentModeDescription() {
   position: relative;
   width: 3rem;
   height: 1.75rem;
-  background: #374151;
+  background: var(--color-toggle-bg);
   border-radius: 0.875rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -223,15 +223,15 @@ function getCurrentModeDescription() {
 }
 
 .apple-toggle:hover {
-  background: #4b5563;
+  background: var(--color-toggle-bg-hover);
 }
 
 .apple-toggle.active {
-  background: #9333ea;
+  background: var(--color-toggle-bg-active);
 }
 
 .apple-toggle.active:hover {
-  background: #9333ea;
+  background: var(--color-toggle-bg-active);
 }
 
 .apple-toggle-thumb {
@@ -240,10 +240,10 @@ function getCurrentModeDescription() {
   left: 0.125rem;
   width: 1.25rem;
   height: 1.25rem;
-  background: white;
+  background: var(--color-toggle-thumb);
   border-radius: 50%;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px var(--color-toggle-shadow);
 }
 
 .apple-toggle.active .apple-toggle-thumb {

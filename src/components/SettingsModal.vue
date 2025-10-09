@@ -105,6 +105,63 @@
           <PerformanceSettings :show-advanced="true" />
         </div>
       </div>
+
+      <!-- 主题设置 -->
+      <div class="setting-section">
+        <h3 class="setting-section-title">
+          <i class="fa-solid fa-palette text-pink-400 mr-2" />
+          主题设置
+        </h3>
+        <div class="setting-section-content">
+          <div class="theme-selector">
+            <div
+              class="theme-option"
+              :class="{ active: userTheme === 'default' }"
+              @click="handleThemeChange('default')"
+            >
+              <div class="theme-preview theme-preview-default">
+                <div class="theme-preview-color" style="background: #1E293B" />
+                <div class="theme-preview-color" style="background: #165DFF" />
+                <div class="theme-preview-color" style="background: #a855f7" />
+              </div>
+              <div class="theme-info">
+                <div class="theme-name">
+                  默认深色
+                </div>
+                <div class="theme-description">
+                  经典深色主题
+                </div>
+              </div>
+              <div v-if="userTheme === 'default'" class="theme-check">
+                <i class="fa-solid fa-check" />
+              </div>
+            </div>
+
+            <div
+              class="theme-option"
+              :class="{ active: userTheme === 'light-pastels' }"
+              @click="handleThemeChange('light-pastels')"
+            >
+              <div class="theme-preview theme-preview-light">
+                <div class="theme-preview-color" style="background: #fce4ec" />
+                <div class="theme-preview-color" style="background: #90caf9" />
+                <div class="theme-preview-color" style="background: #ce93d8" />
+              </div>
+              <div class="theme-info">
+                <div class="theme-name">
+                  [实验] 浅色马卡龙
+                </div>
+                <div class="theme-description">
+                  柔和的粉红与粉蓝
+                </div>
+              </div>
+              <div v-if="userTheme === 'light-pastels'" class="theme-check">
+                <i class="fa-solid fa-check" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </Modal>
 </template>
@@ -126,18 +183,23 @@ defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // 使用用户设置
-const { userName, userEmail, currentUser, emailValidation, syncUserSettings } = useUserSettings()
+const { userName, userEmail, currentUser, emailValidation, syncUserSettings, userTheme, applyTheme } = useUserSettings()
 
 // 关闭时保存设置
 function handleClose() {
   syncUserSettings()
   emit('close')
 }
+
+// 主题切换处理
+function handleThemeChange(theme: 'default' | 'light-pastels') {
+  applyTheme(theme)
+}
 </script>
 
 <style scoped>
 .setting-section {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-setting-section-bg);
   border-radius: 12px;
   padding: 16px;
   backdrop-filter: blur(4px);
@@ -169,7 +231,7 @@ function handleClose() {
 }
 
 .setting-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-setting-item-hover);
 }
 
 .setting-label {
@@ -188,8 +250,8 @@ function handleClose() {
 }
 
 .setting-input {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-setting-input-bg);
+  border: 1px solid var(--color-setting-input-border);
   border-radius: 8px;
   padding: 8px 12px;
   color: white;
@@ -201,29 +263,29 @@ function handleClose() {
 .setting-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--color-setting-input-focus-bg);
 }
 
 .setting-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-placeholder-light);
 }
 
 .setting-input-error {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--color-error);
+  background: var(--color-error-bg);
 }
 
 .setting-label-description {
   display: block;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-description);
   font-weight: 400;
   margin-top: 2px;
 }
 
 .setting-error-message {
   font-size: 12px;
-  color: #ef4444;
+  color: var(--color-error);
   margin-top: 4px;
 }
 
@@ -232,9 +294,9 @@ function handleClose() {
   align-items: center;
   gap: 8px;
   padding: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-setting-section-bg);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border-light);
 }
 
 .user-preview-avatar {
@@ -247,6 +309,77 @@ function handleClose() {
 .user-preview-name {
   color: white;
   font-weight: 500;
+  font-size: 14px;
+}
+
+/* 主题选择器 */
+.theme-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid var(--color-border-light);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.theme-option:hover {
+  border-color: var(--color-border-medium);
+  background: var(--color-setting-item-hover);
+}
+
+.theme-option.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg-light);
+}
+
+.theme-preview {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.theme-preview-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border-light);
+}
+
+.theme-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.theme-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.theme-description {
+  font-size: 12px;
+  color: var(--color-text-description);
+}
+
+.theme-check {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
   font-size: 14px;
 }
 
@@ -268,6 +401,24 @@ function handleClose() {
   .setting-input {
     min-width: unset;
     width: 100%;
+  }
+
+  /* 主题选择器移动端优化 */
+  .theme-option {
+    padding: 10px;
+  }
+
+  .theme-preview-color {
+    width: 20px;
+    height: 20px;
+  }
+
+  .theme-name {
+    font-size: 13px;
+  }
+
+  .theme-description {
+    font-size: 11px;
   }
 }
 </style>

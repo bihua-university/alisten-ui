@@ -5,6 +5,12 @@ declare module '*.vue' {
   export default component
 }
 
+// CSS内联导入类型声明
+declare module '*.css?inline' {
+  const content: string
+  export default content
+}
+
 // 版本信息类型声明
 declare const __APP_VERSION__: {
   commitHash: string

@@ -7,6 +7,7 @@ import { useWebSocket } from './useWebSocket'
 // 用户设置状态
 const userName = useStorage('alisten_nickname', '')
 const userEmail = useStorage('alisten_email', '')
+const userTheme = useStorage<'default' | 'light-pastels'>('alisten_theme', 'default')
 
 // 播放模式状态
 const playMode = ref<PlayMode>('sequential')
@@ -84,6 +85,64 @@ function setPlayMode(mode: PlayMode) {
   })
 }
 
+// 主题CSS路径映射
+const themePathMap: Record<string, () => Promise<any>> = {
+  'light-pastels': () => import('@/styles/themes/light-pastels.css?inline'),
+}
+
+// 动态加载主题CSS
+async function loadThemeCSS(theme: 'default' | 'light-pastels') {
+  // 先移除之前的主题样式
+  const existingThemeStyle = document.querySelector('style[data-theme-style]')
+  if (existingThemeStyle) {
+    existingThemeStyle.remove()
+  }
+
+  // 如果是默认主题，不需要加载额外的CSS
+  if (theme === 'default') {
+    return
+  }
+
+  // 动态导入并加载主题CSS
+  try {
+    const loader = themePathMap[theme]
+    if (loader) {
+      const cssModule = await loader()
+      const cssContent = cssModule.default
+
+      // 创建style标签并插入CSS内容
+      const style = document.createElement('style')
+      style.setAttribute('data-theme-style', theme)
+      style.textContent = cssContent
+      document.head.appendChild(style)
+    }
+  } catch (error) {
+    console.error('Failed to load theme CSS:', error)
+  }
+}
+
+// 应用主题
+async function applyTheme(theme: 'default' | 'light-pastels') {
+  const htmlElement = document.documentElement
+
+  // 动态加载主题CSS
+  await loadThemeCSS(theme)
+
+  // 设置data-theme属性
+  if (theme === 'default') {
+    htmlElement.removeAttribute('data-theme')
+  } else {
+    htmlElement.setAttribute('data-theme', theme)
+  }
+
+  userTheme.value = theme
+}
+
+// 初始化主题
+function initTheme() {
+  applyTheme(userTheme.value)
+}
+
 export function useUserSettings() {
   return {
     // 状态
@@ -92,11 +151,17 @@ export function useUserSettings() {
     currentUser,
     emailValidation,
     playMode,
+    userTheme,
+    userTheme,
 
     // 方法
     syncUserSettings,
     isValidEmail,
     pullSetting,
     setPlayMode,
+    applyTheme,
+    initTheme,
+    applyTheme,
+    initTheme,
   }
 }

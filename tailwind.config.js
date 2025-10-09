@@ -4,10 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#165DFF',
-        secondary: '#722ED1',
-        dark: '#1E293B',
-        light: '#F8FAFC',
+        // 使用 CSS 变量引用 color.css 中定义的颜色
+        primary: 'var(--color-primary)',
+        secondary: 'var(--color-secondary)',
+        dark: 'var(--color-bg-main)',
+        light: 'var(--color-bg-light)',
       },
       fontFamily: {
         inter: ['Inter', 'system-ui', 'sans-serif'],

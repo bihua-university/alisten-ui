@@ -567,7 +567,7 @@ onMounted(() => {
 /* 自定义滚动条样式 */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(79, 70, 229, 0.6) transparent;
+  scrollbar-color: var(--color-scrollbar-thumb-primary) transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -579,11 +579,11 @@ onMounted(() => {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(79, 70, 229, 0.6);
+  background: var(--color-scrollbar-thumb-primary);
   border-radius: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 70, 229, 0.8);
+  background: var(--color-scrollbar-thumb-primary-hover);
 }
 </style>

@@ -331,7 +331,7 @@ function handleBackdropClick() {
 /* 滚动条样式 */
 .scrollable-content {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-color: var(--color-glass-active) transparent;
 }
 
 .scrollable-content::-webkit-scrollbar {
@@ -343,13 +343,13 @@ function handleBackdropClick() {
 }
 
 .scrollable-content::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--color-glass-active);
   border-radius: 3px;
   transition: background-color 0.2s ease;
 }
 
 .scrollable-content::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: var(--color-glass-semi-solid);
 }
 
 /* 移动端优化 */
