@@ -407,26 +407,37 @@ function setCurrentMode(mode: 'search' | 'ai') {
 const searchResultsContainer = ref<HTMLElement | null>(null)
 
 // 音乐来源
+// 从 CSS 变量中获取音乐平台品牌色
+const getPlatformColor = (platform: string) => {
+  const style = getComputedStyle(document.documentElement)
+  const colorMap: Record<string, string> = {
+    'wy': style.getPropertyValue('--color-platform-netease').trim(),
+    'qq': style.getPropertyValue('--color-platform-qq').trim(),
+    'db': style.getPropertyValue('--color-platform-bilibili').trim(),
+  }
+  return colorMap[platform] || '#ffffff'
+}
+
 const allMusicSources: MusicSource[] = [
   {
     id: 'wy',
     name: '网易云音乐',
     icon: 'fa-solid fa-music',
-    color: '#d33a31',
+    color: getPlatformColor('wy'),
     description: '歌曲 · 歌单 · 用户',
   },
   {
     id: 'qq',
     name: 'QQ音乐',
     icon: 'fa-brands fa-qq',
-    color: '#31c27c',
+    color: getPlatformColor('qq'),
     description: '歌曲 · 歌单 · 用户',
   },
   {
     id: 'db',
     name: 'bilibili',
     icon: 'fa-solid fa-tv',
-    color: '#00a2d8',
+    color: getPlatformColor('db'),
     description: '仅歌曲搜索',
   },
 ]

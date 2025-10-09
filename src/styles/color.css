@@ -5,20 +5,32 @@
 
 :root {
   /* ===== 基础颜色变量（描述性命名 - 仅用于被复用的颜色） ===== */
-  --base-gray-300: #9ca3af; /* 被复用5次 */
-  --base-gray-500: #6b7280; /* 被复用4次 */
-  --base-purple-500: #a855f7; /* 被复用4次 */
-  --base-blue-500: #165DFF; /* 被复用2次 */
-  --base-blue-400: #3b82f6; /* 被复用2次 */
+  --base-gray-300: #9ca3af; /* 被复用多次 */
+  --base-gray-400: #6b7280; /* 被复用多次 */
+  --base-gray-500: #4b5563; /* 被复用多次 */
+  --base-gray-600: #374151; /* 被复用多次 */
+  --base-purple-400: #9333ea; /* 被复用多次 */
+  --base-purple-500: #a855f7; /* 被复用多次 */
+  --base-purple-600: #7c3aed; /* 被复用多次 */
+  --base-purple-900: rgba(147, 51, 234, 0.5); /* 被复用多次 */
+  --base-blue-500: #165DFF; /* 被复用多次 */
+  --base-blue-400: #3b82f6; /* 被复用多次 */
+  --base-indigo-500: #4f46e5; /* 被复用多次 */
   
-  --base-white-5: rgba(255, 255, 255, 0.05); /* 被复用2次 */
-  --base-white-10: rgba(255, 255, 255, 0.1); /* 被复用7次 */
-  --base-white-15: rgba(255, 255, 255, 0.15); /* 被复用2次 */
-  --base-white-20: rgba(255, 255, 255, 0.2); /* 被复用8次 */
-  --base-white-30: rgba(255, 255, 255, 0.3); /* 被复用4次 */
+  --base-white-5: rgba(255, 255, 255, 0.05); /* 被复用多次 */
+  --base-white-10: rgba(255, 255, 255, 0.1); /* 被复用多次 */
+  --base-white-15: rgba(255, 255, 255, 0.15); /* 被复用多次 */
+  --base-white-20: rgba(255, 255, 255, 0.2); /* 被复用多次 */
+  --base-white-30: rgba(255, 255, 255, 0.3); /* 被复用多次 */
+  --base-white-50: rgba(255, 255, 255, 0.5); /* 被复用多次 */
+  --base-white-60: rgba(255, 255, 255, 0.6); /* 被复用多次 */
   
-  --base-blue-400-10: rgba(59, 130, 246, 0.1); /* 被复用2次 */
-  --base-blue-400-30: rgba(59, 130, 246, 0.3); /* 被复用2次 */
+  --base-blue-400-10: rgba(59, 130, 246, 0.1); /* 被复用多次 */
+  --base-blue-400-30: rgba(59, 130, 246, 0.3); /* 被复用多次 */
+  --base-purple-400-10: rgba(147, 51, 234, 0.1); /* 被复用多次 */
+  --base-indigo-500-60: rgba(79, 70, 229, 0.6); /* 被复用多次 */
+  --base-indigo-500-80: rgba(79, 70, 229, 0.8); /* 被复用多次 */
+  --base-black-20: rgba(0, 0, 0, 0.2); /* 被复用多次 */
 
   /* ===== 功能性颜色变量 ===== */
   /* ===== 主题色 ===== */
@@ -41,10 +53,12 @@
   /* ===== 文本颜色 ===== */
   --color-text-primary: #ffffff; /* 主要文本 */
   --color-text-secondary: var(--base-gray-300); /* 次要文本 */
-  --color-text-tertiary: var(--base-gray-500); /* 三级文本 */
-  --color-text-quaternary: #4b5563; /* 四级文本 */
-  --color-text-disabled: #374151; /* 禁用文本 */
+  --color-text-tertiary: var(--base-gray-400); /* 三级文本 */
+  --color-text-quaternary: var(--base-gray-500); /* 四级文本 */
+  --color-text-disabled: var(--base-gray-600); /* 禁用文本 */
   --color-text-placeholder: var(--base-gray-300); /* 占位符文本 */
+  --color-text-placeholder-light: var(--base-white-50); /* 浅色占位符文本 */
+  --color-text-description: var(--base-white-60); /* 描述性文本 */
   
   /* ===== 边框颜色 ===== */
   --color-border-light: var(--base-white-10); /* 浅色边框 */
@@ -167,12 +181,45 @@
   --color-performance-option-border: var(--base-white-10); /* 性能选项边框 */
   --color-performance-option-border-hover: var(--base-white-20); /* 性能选项边框悬停 */
   --color-performance-option-bg-hover: var(--base-white-5); /* 性能选项背景悬停 */
-  --color-performance-impact-bar: #374151; /* 性能影响条背景 */
+  --color-performance-impact-bar: var(--base-gray-600); /* 性能影响条背景 */
   
   /* 单选/复选框 */
   --color-radio-border: var(--base-gray-300); /* 单选框边框 */
   --color-radio-checked: var(--base-purple-500); /* 单选框选中 */
-  --color-checkbox-border: var(--base-gray-500); /* 复选框边框 */
+  --color-radio-active: var(--base-purple-400); /* 单选框激活 */
+  --color-checkbox-border: var(--base-gray-400); /* 复选框边框 */
   --color-checkbox-border-hover: var(--base-gray-300); /* 复选框边框悬停 */
   --color-checkbox-checked: var(--base-purple-500); /* 复选框选中 */
+  
+  /* ===== Toggle 开关 ===== */
+  --color-toggle-bg: var(--base-gray-600); /* Toggle 背景 */
+  --color-toggle-bg-hover: var(--base-gray-500); /* Toggle 背景悬停 */
+  --color-toggle-bg-active: var(--base-purple-400); /* Toggle 激活背景 */
+  --color-toggle-thumb: #ffffff; /* Toggle 滑块 */
+  --color-toggle-shadow: var(--base-black-20); /* Toggle 滑块阴影 */
+  
+  /* ===== 沉浸模式 ===== */
+  --color-immersive-bg-start: var(--base-blue-400-10); /* 沉浸模式背景起始 */
+  --color-immersive-bg-end: rgba(0, 0, 0, 0.9); /* 沉浸模式背景结束 */
+  --color-immersive-lyric-border: rgba(59, 130, 246, 0.6); /* 沉浸模式歌词边框 */
+  --color-immersive-progress-shadow: var(--base-indigo-500-60); /* 沉浸模式进度条阴影 */
+  
+  /* ===== 玻璃效果 ===== */
+  --color-glass-bg-light: rgba(30, 41, 59, 0.3); /* 浅色玻璃背景 */
+  --color-glass-bg-medium: rgba(30, 41, 59, 0.6); /* 中等玻璃背景 */
+  --color-glass-bg-strong: rgba(30, 41, 59, 0.8); /* 深色玻璃背景 */
+  
+  /* ===== 设置相关 ===== */
+  --color-setting-section-bg: var(--base-white-5); /* 设置区域背景 */
+  --color-setting-item-hover: var(--base-white-5); /* 设置项悬停背景 */
+  --color-setting-input-bg: var(--base-white-10); /* 设置输入框背景 */
+  --color-setting-input-border: var(--base-white-20); /* 设置输入框边框 */
+  --color-setting-input-focus-bg: var(--base-white-15); /* 设置输入框聚焦背景 */
+  
+  /* ===== 播放模式选项 ===== */
+  --color-play-mode-border: var(--base-white-10); /* 播放模式边框 */
+  --color-play-mode-border-hover: var(--base-white-20); /* 播放模式边框悬停 */
+  --color-play-mode-bg-hover: var(--base-white-5); /* 播放模式背景悬停 */
+  --color-play-mode-border-active: var(--base-purple-900); /* 播放模式边框激活 */
+  --color-play-mode-bg-active: var(--base-purple-400-10); /* 播放模式背景激活 */
 }

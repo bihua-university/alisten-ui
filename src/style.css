@@ -199,7 +199,7 @@
 
 /* 沉浸模式样式 */
 .immersive-mode {
-  background: radial-gradient(ellipse at center, var(--color-bg-gradient-center) 0%, var(--color-bg-gradient-edge) 70%);
+  background: radial-gradient(ellipse at center, var(--color-immersive-bg-start) 0%, var(--color-immersive-bg-end) 70%);
 }
 
 /* 沉浸模式歌词滚动容器 */
@@ -252,7 +252,7 @@
   background: linear-gradient(90deg, 
     var(--color-gradient-progress-start) 0%, 
     var(--color-gradient-progress-end) 100%);
-  box-shadow: 0 0 20px var(--color-progress-shadow-bright);
+  box-shadow: 0 0 20px var(--color-immersive-progress-shadow);
 }
 
 /* 沉浸模式歌词高亮动画 */
@@ -260,7 +260,7 @@
   background: linear-gradient(45deg, 
     var(--color-gradient-start) 0%, 
     var(--color-gradient-end) 100%);
-  border-left: 4px solid var(--color-lyric-highlight);
+  border-left: 4px solid var(--color-immersive-lyric-border);
   padding-left: 1rem;
   margin-left: -1rem;
   border-radius: 0.5rem;
@@ -362,7 +362,7 @@
   height: 0.75rem;
   border-radius: 50%;
   margin-right: 0.25rem;
-  border: 1px solid var(--color-requester-border);
+  border: 1px solid var(--color-requester-avatar-border);
 }
 
 /* 响应式播放列表 */
@@ -416,7 +416,7 @@
 .glass-effect {
 
   backdrop-filter: blur(20px);
-  background: rgba(30, 41, 59, 0.3);
+  background: var(--color-glass-bg-light);
   border-color: var(--color-border-light);
 }
 
@@ -443,7 +443,7 @@
 }
 
 .music-source-button.active {
-  box-shadow: 0 0 20px var(--color-progress-shadow-bright);
+  box-shadow: 0 0 20px var(--color-immersive-progress-shadow);
 }
 
 /* 搜索结果动画 */
@@ -537,7 +537,7 @@
   position: absolute;
   right: 0;
   width: 2px;
-  background: var(--color-lyric-highlight);
+  background: var(--color-immersive-lyric-border);
   border-radius: 1px;
   transition: all 0.2s ease;
 }
@@ -682,7 +682,7 @@
     max-height: calc(var(--vh, 1vh) * 100) !important;
     margin: 0 !important;
     padding: 0 !important;
-    background: var(--color-dark) !important;
+    background: var(--color-bg-main) !important;
     overflow: hidden !important;
     position: fixed !important;
     width: 100% !important;

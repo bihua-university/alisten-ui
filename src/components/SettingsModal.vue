@@ -137,7 +137,7 @@ function handleClose() {
 
 <style scoped>
 .setting-section {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-setting-section-bg);
   border-radius: 12px;
   padding: 16px;
   backdrop-filter: blur(4px);
@@ -169,7 +169,7 @@ function handleClose() {
 }
 
 .setting-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-setting-item-hover);
 }
 
 .setting-label {
@@ -188,8 +188,8 @@ function handleClose() {
 }
 
 .setting-input {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-setting-input-bg);
+  border: 1px solid var(--color-setting-input-border);
   border-radius: 8px;
   padding: 8px 12px;
   color: white;
@@ -201,29 +201,29 @@ function handleClose() {
 .setting-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--color-setting-input-focus-bg);
 }
 
 .setting-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-placeholder-light);
 }
 
 .setting-input-error {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--color-error);
+  background: var(--color-error-bg);
 }
 
 .setting-label-description {
   display: block;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-description);
   font-weight: 400;
   margin-top: 2px;
 }
 
 .setting-error-message {
   font-size: 12px;
-  color: #ef4444;
+  color: var(--color-error);
   margin-top: 4px;
 }
 
@@ -232,9 +232,9 @@ function handleClose() {
   align-items: center;
   gap: 8px;
   padding: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-setting-section-bg);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border-light);
 }
 
 .user-preview-avatar {
