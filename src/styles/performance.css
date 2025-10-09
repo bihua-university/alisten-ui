@@ -306,7 +306,7 @@
   }
   
   .glass-effect {
-    backdrop-filter: blur(4px) !important;
+    backdrop-filter: none !important;
   }
 }
 
