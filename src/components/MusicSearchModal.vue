@@ -408,12 +408,12 @@ const searchResultsContainer = ref<HTMLElement | null>(null)
 
 // 音乐来源
 // 从 CSS 变量中获取音乐平台品牌色
-const getPlatformColor = (platform: string) => {
+function getPlatformColor(platform: string) {
   const style = getComputedStyle(document.documentElement)
   const colorMap: Record<string, string> = {
-    'wy': style.getPropertyValue('--color-platform-netease').trim(),
-    'qq': style.getPropertyValue('--color-platform-qq').trim(),
-    'db': style.getPropertyValue('--color-platform-bilibili').trim(),
+    wy: style.getPropertyValue('--color-platform-netease').trim(),
+    qq: style.getPropertyValue('--color-platform-qq').trim(),
+    db: style.getPropertyValue('--color-platform-bilibili').trim(),
   }
   return colorMap[platform] || style.getPropertyValue('--color-text-primary').trim()
 }

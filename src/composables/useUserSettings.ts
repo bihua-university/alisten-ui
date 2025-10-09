@@ -109,7 +109,7 @@ async function loadThemeCSS(theme: 'default' | 'light-pastels') {
     if (loader) {
       const cssModule = await loader()
       const cssContent = cssModule.default
-      
+
       // 创建style标签并插入CSS内容
       const style = document.createElement('style')
       style.setAttribute('data-theme-style', theme)
@@ -124,17 +124,17 @@ async function loadThemeCSS(theme: 'default' | 'light-pastels') {
 // 应用主题
 async function applyTheme(theme: 'default' | 'light-pastels') {
   const htmlElement = document.documentElement
-  
+
   // 动态加载主题CSS
   await loadThemeCSS(theme)
-  
+
   // 设置data-theme属性
   if (theme === 'default') {
     htmlElement.removeAttribute('data-theme')
   } else {
     htmlElement.setAttribute('data-theme', theme)
   }
-  
+
   userTheme.value = theme
 }
 
@@ -152,12 +152,15 @@ export function useUserSettings() {
     emailValidation,
     playMode,
     userTheme,
+    userTheme,
 
     // 方法
     syncUserSettings,
     isValidEmail,
     pullSetting,
     setPlayMode,
+    applyTheme,
+    initTheme,
     applyTheme,
     initTheme,
   }

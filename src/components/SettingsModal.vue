@@ -125,8 +125,12 @@
                 <div class="theme-preview-color" style="background: #a855f7" />
               </div>
               <div class="theme-info">
-                <div class="theme-name">默认深色</div>
-                <div class="theme-description">经典深色主题</div>
+                <div class="theme-name">
+                  默认深色
+                </div>
+                <div class="theme-description">
+                  经典深色主题
+                </div>
               </div>
               <div v-if="userTheme === 'default'" class="theme-check">
                 <i class="fa-solid fa-check" />
@@ -144,8 +148,12 @@
                 <div class="theme-preview-color" style="background: #ce93d8" />
               </div>
               <div class="theme-info">
-                <div class="theme-name">[实验] 浅色马卡龙</div>
-                <div class="theme-description">柔和的粉红与粉蓝</div>
+                <div class="theme-name">
+                  [实验] 浅色马卡龙
+                </div>
+                <div class="theme-description">
+                  柔和的粉红与粉蓝
+                </div>
               </div>
               <div v-if="userTheme === 'light-pastels'" class="theme-check">
                 <i class="fa-solid fa-check" />
