@@ -91,17 +91,30 @@ export function useLyrics() {
       isComing: index > lyricsState.currentLyricIndex,
     }))
   })
-  // 模拟歌词同步
+  // 歌词同步 - 使用二分查找优化性能
   const syncLyrics = (currentTime: number) => {
-    if (lyricsState.currentLyrics.length > 0) {
-      const currentLyric = lyricsState.currentLyrics.findIndex((lyric: LyricLine) =>
-        lyric.time <= currentTime
-        && (lyricsState.currentLyrics[lyricsState.currentLyrics.indexOf(lyric) + 1]?.time > currentTime
-          || lyricsState.currentLyrics.indexOf(lyric) === lyricsState.currentLyrics.length - 1),
-      )
-      if (currentLyric !== -1) {
-        setCurrentLyricIndex(currentLyric)
+    const lyrics = lyricsState.currentLyrics
+    if (lyrics.length === 0) {
+      return
+    }
+
+    // 使用二分查找找到当前歌词行
+    let left = 0
+    let right = lyrics.length - 1
+    let result = 0
+
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2)
+      if (lyrics[mid].time <= currentTime) {
+        result = mid
+        left = mid + 1
+      } else {
+        right = mid - 1
       }
+    }
+
+    if (result !== lyricsState.currentLyricIndex) {
+      setCurrentLyricIndex(result)
     }
   }
 

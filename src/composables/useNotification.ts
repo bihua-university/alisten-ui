@@ -41,12 +41,15 @@ export function useNotification() {
 
   // 隐藏通知
   function hideNotification(id: string) {
-    const index = notifications.value.findIndex(n => n.id === id)
-    if (index > -1) {
-      notifications.value[index].show = false
+    const notification = notifications.value.find(n => n.id === id)
+    if (notification) {
+      notification.show = false
       // 延迟移除，等待动画完成
       setTimeout(() => {
-        notifications.value.splice(index, 1)
+        const index = notifications.value.findIndex(n => n.id === id)
+        if (index > -1) {
+          notifications.value.splice(index, 1)
+        }
       }, 300)
     }
   }

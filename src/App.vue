@@ -1,8 +1,7 @@
 <template>
   <div
     id="app"
-    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative touch-none"
-    style="scrollbar-width: none; -ms-overflow-style: none;"
+    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative touch-none scrollbar-hide"
   >
     <!-- PWA 更新提示 -->
     <PWAUpdateModal
@@ -38,7 +37,7 @@
     </div>
 
     <!-- 主要内容 -->
-    <div v-if="initialized" class="relative z-10 h-full overflow-hidden" style="scrollbar-width: none; -ms-overflow-style: none;">
+    <div v-if="initialized" class="relative z-10 h-full overflow-hidden scrollbar-hide">
       <!-- 音频播放器 - 隐藏但可控制 -->
       <audio
         ref="audioPlayer" preload="auto" @canplay="true" @autoplay="true"
@@ -50,7 +49,7 @@
       </audio>
 
       <!-- 主内容区 -->
-      <main class="flex h-screen-mobile" style="scrollbar-width: none; -ms-overflow-style: none;">
+      <main class="flex h-screen-mobile scrollbar-hide">
         <!-- 左侧播放列表 -->
         <PlaylistComponent
           :playlist="processedPlaylist"
@@ -508,7 +507,7 @@ function handleSettingsChanged(settings: any) {
 // ===== 播放历史记录功能 =====
 
 // 监听歌曲变化，记录播放历史
-watch(() => playerState.currentSong, (newSong, _) => {
+watch(() => playerState.currentSong, (newSong) => {
   // 记录新歌曲开始播放的时间
   if (newSong) {
     addToPlayHistory(newSong)
@@ -625,6 +624,7 @@ let viewportResizeHandler: ((this: Window, ev: UIEvent) => any) | null = null
 let viewportOrientationHandler: ((this: Window, ev: Event) => any) | null = null
 let preventScrollHandler: ((e: Event) => void) | null = null
 let preventTouchMoveHandler: ((e: TouchEvent) => void) | null = null
+let preventTouchStartHandler: ((e: TouchEvent) => void) | null = null
 
 // 处理窗口大小变化
 function handleResize() {
@@ -653,19 +653,20 @@ function updateScrollPrevention() {
     document.removeEventListener('touchmove', preventTouchMoveHandler)
     preventTouchMoveHandler = null
   }
+  if (preventTouchStartHandler) {
+    document.removeEventListener('touchstart', preventTouchStartHandler)
+    preventTouchStartHandler = null
+  }
 
   // 如果是移动设备，添加滚动防护
   if (isMobile.value) {
-    const preventScroll = createPreventScrollHandler()
-    const preventTouchMove = createPreventTouchMoveHandler()
-    const preventTouchStart = createPreventTouchStartHandler()
-
-    preventScrollHandler = preventScroll
-    preventTouchMoveHandler = preventTouchMove
+    preventScrollHandler = createPreventScrollHandler()
+    preventTouchMoveHandler = createPreventTouchMoveHandler()
+    preventTouchStartHandler = createPreventTouchStartHandler()
 
     document.addEventListener('wheel', preventScrollHandler, { passive: false, capture: true })
     document.addEventListener('touchmove', preventTouchMoveHandler, { passive: false, capture: true })
-    document.addEventListener('touchstart', preventTouchStart, { passive: false, capture: true })
+    document.addEventListener('touchstart', preventTouchStartHandler, { passive: false, capture: true })
   }
 }
 
@@ -705,6 +706,11 @@ function cleanupResponsiveLayout() {
   if (preventTouchMoveHandler) {
     document.removeEventListener('touchmove', preventTouchMoveHandler)
     preventTouchMoveHandler = null
+  }
+
+  if (preventTouchStartHandler) {
+    document.removeEventListener('touchstart', preventTouchStartHandler)
+    preventTouchStartHandler = null
   }
 }
 
