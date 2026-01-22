@@ -200,7 +200,7 @@
               <!-- 歌曲搜索结果 -->
               <div
                 v-if="selectedSearchMode.id === 'song'"
-                class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
+                class="space-y-2 pr-2 relative"
               >
                 <MusicItem
                   v-for="result in searchResults"
@@ -213,7 +213,7 @@
               <!-- 歌单搜索结果 -->
               <div
                 v-if="selectedSearchMode.id === 'playlist' || selectedSearchMode.id === 'user_playlist'"
-                class="space-y-2 overflow-y-auto custom-scrollbar pr-2 relative"
+                class="space-y-2 pr-2 relative"
               >
                 <PlaylistItem
                   v-for="result in searchResults"
