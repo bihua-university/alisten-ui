@@ -32,12 +32,12 @@
               </div>
 
               <!-- Lyrics Content -->
-              <div ref="lyricsContainer" class="z-10 w-full max-w-2xl md:max-w-4xl overflow-y-auto max-h-full py-8 px-4 lyrics-scroll flex flex-col items-center">
+              <div ref="lyricsContainerDesktop" class="z-10 w-full max-w-2xl md:max-w-4xl overflow-y-auto max-h-full py-8 px-4 lyrics-scroll flex flex-col items-center">
                 <template v-if="currentLyrics.length > 0">
                   <p
                     v-for="(line, index) in currentLyrics"
                     :key="index"
-                    class="lyric-line w-full text-center transition-all duration-500 ease-out cursor-default"
+                    class="lyric-line text-center transition-all duration-500 ease-out cursor-default"
                     :class="[
                       index === currentLyricIndex
                         ? 'active-lyric text-white text-2xl md:text-4xl font-bold tracking-wide scale-105'
@@ -194,7 +194,7 @@
                       </h3>
                     </div>
                   </div>
-                  
+
                   <!-- Action Buttons -->
                   <div class="flex items-center gap-1 flex-wrap">
                     <button class="flex-1 py-2 px-3 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1.5" @click="openOnlineUsers">
@@ -308,12 +308,12 @@
               </div>
 
               <!-- Lyrics Content -->
-              <div ref="lyricsContainer" class="z-10 w-full max-w-2xl overflow-y-auto max-h-full py-8 px-4 lyrics-scroll flex flex-col items-center">
+              <div ref="lyricsContainerMobile" class="z-10 w-full max-w-2xl overflow-y-auto max-h-full py-8 px-4 lyrics-scroll flex flex-col items-center">
                 <template v-if="currentLyrics.length > 0">
                   <p
                     v-for="(line, index) in currentLyrics"
                     :key="index"
-                    class="lyric-line w-full text-center transition-all duration-500 ease-out cursor-default"
+                    class="lyric-line text-center transition-all duration-500 ease-out cursor-default"
                     :class="[
                       index === currentLyricIndex
                         ? 'active-lyric text-white text-2xl font-bold tracking-wide scale-105'
@@ -425,7 +425,7 @@
                   </h3>
                 </div>
               </div>
-              
+
               <!-- Action Buttons -->
               <div class="grid grid-cols-3 gap-1.5">
                 <button class="py-2 px-2 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1.5" @click="openOnlineUsers">
@@ -554,7 +554,7 @@
 
 <script setup lang="ts">
 import type { Song } from '@/types'
-import { CircleHelp, Eye, History, ListMusic, MessageSquare, Mic2, Music2, Settings, Share2, SkipForward, Users, Volume2, X } from 'lucide-vue-next'
+import { CircleHelp, History, ListMusic, MessageSquare, Mic2, Music2, Settings, Share2, SkipForward, Users, Volume2, X } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
 import { useLyrics } from '@/composables/useLyrics'
@@ -599,7 +599,8 @@ const showOnlineUsers = ref(false)
 const showVolumePopup = ref(false)
 const newMessage = ref('')
 const isSkipping = ref(false)
-const lyricsContainer = ref<HTMLElement>()
+const lyricsContainerDesktop = ref<HTMLElement>()
+const lyricsContainerMobile = ref<HTMLElement>()
 
 // Computed
 const currentSong = computed(() => playerState.currentSong)
@@ -643,8 +644,16 @@ async function handleSkipSong() {
   }
 }
 
-// 注册歌词容器
-watch(lyricsContainer, (newVal, oldVal) => {
+// 注册桌面端歌词容器
+watch(lyricsContainerDesktop, (newVal, oldVal) => {
+  if (oldVal)
+    unregisterLyricsContainer(ref(oldVal))
+  if (newVal)
+    registerLyricsContainer(ref(newVal))
+})
+
+// 注册移动端歌词容器
+watch(lyricsContainerMobile, (newVal, oldVal) => {
   if (oldVal)
     unregisterLyricsContainer(ref(oldVal))
   if (newVal)
