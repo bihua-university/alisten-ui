@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    class="bg-gradient-to-br from-dark to-gray-900 text-light h-screen-mobile font-inter overflow-hidden relative touch-none scrollbar-hide"
+    class="text-white h-screen-mobile font-inter overflow-hidden relative touch-none scrollbar-hide"
   >
     <!-- PWA 更新提示 -->
     <PWAUpdateModal
@@ -24,18 +24,6 @@
       @start-play="() => { playAudio(); needManualStartPlay = false; }"
     />
 
-    <!-- 动态背景 -->
-    <div v-if="!isImmersiveMode && initialized" class="fixed inset-0 z-0">
-      <div class="absolute inset-0 bg-gradient-to-br from-dark to-gray-900" />
-      <div v-if="playerState.currentSong" class="absolute inset-0 opacity-50">
-        <img
-          :key="playerState.currentSong.id" :src="playerState.currentSong.cover" :alt="playerState.currentSong.title"
-          class="w-full h-full object-cover blur-3xl scale-110 transition-all duration-1000"
-        >
-        <div class="absolute inset-0 bg-overlay" />
-      </div>
-    </div>
-
     <!-- 主要内容 -->
     <div v-if="initialized" class="relative z-10 h-full overflow-hidden scrollbar-hide">
       <!-- 音频播放器 - 隐藏但可控制 -->
@@ -48,123 +36,26 @@
         您的浏览器不支持音频播放。
       </audio>
 
-      <!-- 主内容区 -->
-      <main class="flex h-screen-mobile scrollbar-hide">
-        <!-- 左侧播放列表 -->
-        <PlaylistComponent
-          :playlist="processedPlaylist"
-          :is-immersive-mode="isImmersiveMode"
-          @song-like="(index, title) => sendSongLike(index, title)"
-          @song-delete="(songName: string) => sendDeleteSong(songName)"
-          @show-music-search="showMusicSearchModal = true"
-        />
+      <!-- 沉浸模式组件 -->
+      <ImmersiveMode
+        v-if="isImmersiveMode"
+        @toggle-immersive="toggleImmersiveMode"
+        @show-help="showHelp = true"
+      />
 
-        <!-- 中间歌词区域 -->
-        <section class="flex-1 flex flex-col overflow-hidden relative">
-          <!-- 顶部栏 -->
-          <TopBar
-            v-if="!isImmersiveMode"
-            :room-info="roomInfo"
-            :connection-status="connectionStatus"
-            @show-music-search="showMusicSearchModal = true"
-            @share-room="shareRoom"
-            @show-help="showHelp = true"
-            @show-settings="showSettings = true"
-            @show-play-history="showPlayHistory = true"
-            @toggle-immersive="toggleImmersiveMode"
-          />
-
-          <!-- 歌词显示区域 -->
-          <div
-            v-if="!isImmersiveMode" ref="lyricsContainer"
-            class="lyrics-container overflow-y-auto p-2 sm:p-4 md:p-8 relative smooth-scroll scrollbar-hide flex-1"
-          >
-            <div
-              class="lyrics-content mx-auto text-center space-y-1 transition-all duration-500 px-2 sm:px-4 max-w-2xl"
-            >
-              <div
-                v-for="(line, index) in currentLyrics" :key="index"
-                class="lyric-line transition-all duration-300" :class="[{
-                  'active text-white font-medium mb-3 mt-3': index === currentLyricIndex,
-                  'text-gray-400 mb-1': index !== currentLyricIndex,
-                  'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl': index === currentLyricIndex,
-                  'text-sm sm:text-base md:text-lg': index !== currentLyricIndex,
-                }]"
-              >
-                {{ line.text }}
-              </div>
-
-              <!-- 当没有歌词时的占位符 -->
-              <div v-if="currentLyrics.length === 0" class="text-gray-400 py-8">
-                <i class="fa-solid fa-music text-4xl mb-4 opacity-50" />
-                <p class="text-sm">
-                  暂无歌词
-                </p>
-              </div>
-            </div>
-          </div>
-          <!-- 沉浸模式组件 -->
-          <ImmersiveMode
-            v-if="isImmersiveMode"
-            @toggle-immersive="toggleImmersiveMode"
-            @show-help="showHelp = true"
-          />
-
-          <!-- 播放信息组件 - 仅非沉浸模式 -->
-          <PlayerInfo v-if="!isImmersiveMode" />
-
-          <!-- 移动端底部导航 -->
-          <div v-if="!isImmersiveMode" class="left-0 right-0 bg-dark/50 backdrop-blur-md z-30 md:hidden">
-            <div class="flex justify-around items-center py-2 px-2">
-              <button
-                class="flex flex-col items-center text-gray-400 hover:text-white hover:bg-white/5 active:bg-white/10 transition-all min-w-0 flex-1 py-2 px-1 rounded-lg touch-target"
-                @click="showMusicSearchModal = true"
-              >
-                <i class="fa-solid fa-music text-lg" />
-                <span class="text-xs mt-1 truncate">点歌</span>
-              </button>
-              <button
-                class="flex flex-col items-center text-gray-400 hover:text-white hover:bg-white/5 active:bg-white/10 transition-all min-w-0 flex-1 py-2 px-1 rounded-lg touch-target"
-                @click="showMobilePlaylist = true"
-              >
-                <i class="fa-solid fa-list-ul text-lg" />
-                <span class="text-xs mt-1 truncate">列表</span>
-              </button>
-              <button
-                class="flex flex-col items-center text-gray-400 hover:text-white hover:bg-white/5 active:bg-white/10 transition-all min-w-0 flex-1 py-2 px-1 rounded-lg touch-target"
-                @click="showMobileChat = true"
-              >
-                <i class="fa-solid fa-comments text-lg" />
-                <span class="text-xs mt-1 truncate">聊天</span>
-              </button>
-              <button
-                class="flex flex-col items-center text-gray-400 hover:text-white hover:bg-white/5 active:bg-white/10 transition-all min-w-0 flex-1 py-2 px-1 rounded-lg touch-target"
-                @click="showMobileUsers = true"
-              >
-                <i class="fa-solid fa-users text-lg" />
-                <span class="text-xs mt-1 truncate">用户</span>
-              </button>
-            </div>
-          </div>
-        </section>
-        <!-- 右侧聊天和用户列表 -->
-        <aside
-          v-if="!isImmersiveMode"
-          class="w-72 glass-effect bg-dark/60 backdrop-blur-xl border-l border-white/10 hidden md:flex overflow-hidden flex-col"
-        >
-          <!-- 聊天区域 -->
-          <div class="flex-1 flex flex-col overflow-hidden">
-            <ChatComponent
-              is-desktop
-            />
-          </div>
-
-          <!-- 在线用户列表 - 固定在底部 -->
-          <UserListComponent
-            is-desktop
-          />
-        </aside>
-      </main>
+      <!-- 主布局组件 - 新 UI -->
+      <MainLayout
+        v-else
+        :is-immersive-mode="isImmersiveMode"
+        @show-music-search="showMusicSearchModal = true"
+        @show-help="showHelp = true"
+        @show-settings="showSettings = true"
+        @show-play-history="showPlayHistory = true"
+        @toggle-immersive="toggleImmersiveMode"
+        @share-room="shareRoom"
+        @song-like="(index, title) => sendSongLike(index, title)"
+        @song-delete="(songName: string) => sendDeleteSong(songName)"
+      />
 
       <!-- 点歌台模态框 -->
       <transition name="modal">
@@ -182,37 +73,6 @@
 
       <!-- 播放历史弹窗 -->
       <PlayHistoryModal v-if="showPlayHistory" @close="showPlayHistory = false" />
-
-      <!-- 移动端播放列表模态框 -->
-      <PlaylistComponent
-        :playlist="processedPlaylist"
-        :show="showMobilePlaylist"
-        :is-mobile="true"
-        @close="showMobilePlaylist = false"
-        @song-like="(index, title) => sendSongLike(index, title)"
-        @song-delete="(songName: string) => sendDeleteSong(songName)"
-      />
-
-      <!-- 移动端聊天模态框 -->
-      <transition name="modal">
-        <div v-if="showMobileChat" class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
-          <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showMobileChat = false" />
-          <div
-            class="relative bg-dark border-t border-white/20 md:rounded-xl w-full max-w-4xl h-[calc(var(--vh,1vh)*85)] md:max-h-[calc(var(--vh,1vh)*90)] flex flex-col overflow-hidden"
-          >
-            <ChatComponent
-              show-close-button
-              @close="showMobileChat = false"
-            />
-          </div>
-        </div>
-      </transition>
-
-      <!-- 移动端用户列表模态框 -->
-      <UserListComponent
-        :show="showMobileUsers"
-        @close="showMobileUsers = false"
-      />
 
       <!-- 通知容器 -->
       <NotificationContainer />
@@ -241,22 +101,17 @@
 </template>
 
 <script setup lang="ts">
-import type { Song } from '@/types'
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import ChatComponent from '@/components/ChatComponent.vue'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import HelpModal from '@/components/HelpModal.vue'
 import ImmersiveMode from '@/components/ImmersiveMode.vue'
 import JoinRoomModal from '@/components/JoinRoomModal.vue'
+import MainLayout from '@/components/layout/MainLayout.vue'
 import ManualStartPlayModal from '@/components/ManualStartPlayModal.vue'
 import MusicSearchModal from '@/components/MusicSearchModal.vue'
 import NotificationContainer from '@/components/NotificationContainer.vue'
-import PlayerInfo from '@/components/PlayerInfo.vue'
 import PlayHistoryModal from '@/components/PlayHistoryModal.vue'
-import PlaylistComponent from '@/components/PlaylistComponent.vue'
 import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
-import TopBar from '@/components/TopBar.vue'
-import UserListComponent from '@/components/UserListComponent.vue'
 import { useBackButton } from '@/composables/useBackButton'
 import { useHistory } from '@/composables/useHistory'
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
@@ -276,7 +131,6 @@ import {
   isMobileDevice,
   setViewportHeight,
 } from '@/utils/mobile'
-import { processUser } from '@/utils/user'
 
 // ===== 应用配置 =====
 const appConfig = getAppConfig()
@@ -294,9 +148,6 @@ const showMusicSearchModal = ref(false)
 const showHelp = ref(false)
 const showSettings = ref(false)
 const showPlayHistory = ref(false)
-const showMobileChat = ref(false)
-const showMobileUsers = ref(false)
-const showMobilePlaylist = ref(false)
 const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
 const isImmersiveMode = ref(false) // 沉浸模式状态
 const showDebugInfo = ref(true) // 调试信息显示状态
@@ -322,8 +173,6 @@ const {
 
 // 2. 歌词功能
 const {
-  currentLyrics,
-  currentLyricIndex,
   registerLyricsContainer,
   unregisterLyricsContainer,
   syncScrollAllContainers,
@@ -377,24 +226,11 @@ const { addToPlayHistory } = useHistory()
 // 返回键处理 - 集中管理所有模态框
 useBackButton([
   showMusicSearchModal,
-  showMobilePlaylist,
-  showMobileChat,
-  showMobileUsers,
   showHelp,
   showSettings,
   showPlayHistory,
   needManualStartPlay,
 ])
-
-// ===== 计算属性 =====
-
-// 处理后的播放列表数据
-const processedPlaylist = computed(() =>
-  playerState.playlist.map((song: Song) => ({
-    ...song,
-    requestedBy: song.requestedBy ? processUser(song.requestedBy) : undefined,
-  })),
-)
 
 // ===== UI 交互方法 =====
 

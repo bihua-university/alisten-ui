@@ -50,7 +50,7 @@
           >
             <!-- 顶部占位，确保第一行歌词可以滚动到中间 -->
             <div class="lyrics-spacer" />
-            
+
             <div
               v-for="(line, index) in currentLyrics"
               :key="index"
