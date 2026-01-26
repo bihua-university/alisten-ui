@@ -1,6 +1,6 @@
 <template>
   <div class="root-container overflow-x-hidden">
-    <div class="h-screen flex flex-col items-center relative bg-gradient-to-br from-gray-900 to-black overflow-hidden font-sans text-white">
+    <div class="app-viewport flex flex-col items-center relative bg-gradient-to-br from-gray-900 to-black overflow-hidden font-sans text-white">
       <!-- Background Abstract Shapes -->
       <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
       <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none" />
@@ -17,11 +17,11 @@
       </div>
 
       <!-- Main Layout Container -->
-      <div class="z-10 w-full md:max-w-[95%] h-full flex flex-col gap-6 pt-4 pb-[80px] px-0 md:p-6 md:mt-0 md:pb-6 md:h-full overflow-hidden">
+      <div class="z-10 w-full md:max-w-[95%] h-full flex flex-col gap-6 pt-4 px-0 md:p-6 md:mt-0 md:pb-6 overflow-hidden" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));">
         <!-- Desktop Layout -->
         <div class="hidden md:flex md:flex-row gap-6 h-full">
           <!-- Left Panel: Player & Lyrics (Desktop) -->
-          <div class="flex-1 flex flex-col min-h-0 relative">
+          <div class="flex-[3] flex flex-col min-h-0 min-w-0 relative">
             <!-- Lyrics Main View -->
             <div class="glass flex-1 rounded-3xl p-4 md:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden group mb-4">
               <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 z-0 pointer-events-none" />
@@ -119,7 +119,7 @@
           </div>
 
           <!-- Right Panel: Tabbed Interface (Desktop) -->
-          <div class="w-full md:w-[560px] flex flex-col gap-4 md:gap-6 min-h-0 md:h-auto overflow-hidden relative">
+          <div class="flex-[1] flex flex-col gap-4 md:gap-6 min-h-0 md:h-auto overflow-hidden min-w-[280px] relative">
             <!-- Tab Navigation -->
             <div class="glass rounded-2xl p-1.5 flex gap-1 shrink-0">
               <button
@@ -293,11 +293,13 @@
 
         <!-- Mobile Swipe Container (Player / Playlist / Chat) -->
         <div
-          class="mobile-panels mobile-panels-safe flex w-[300vw] flex-1 min-h-0 transition-transform duration-300 ease-out md:hidden"
+          class="mobile-panels flex w-[300vw] flex-1 min-h-0 transition-transform duration-300 ease-out md:hidden"
           :class="activeTab === 'lyrics' ? 'translate-x-0' : activeTab === 'playlist' ? '-translate-x-[100vw]' : '-translate-x-[200vw]'"
+          @touchstart="handleTouchStart"
+          @touchend="handleTouchEnd"
         >
           <!-- Mobile Panel: Player & Lyrics -->
-          <div class="w-screen shrink-0 flex flex-col min-h-0 h-full relative px-4 pb-4">
+          <div class="w-screen shrink-0 flex flex-col min-h-0 h-full relative px-4 pb-2">
             <!-- Lyrics Main View -->
             <div class="glass flex-1 rounded-3xl p-4 flex flex-col items-center justify-center text-center relative overflow-hidden group mb-4">
               <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 z-0 pointer-events-none" />
@@ -381,7 +383,7 @@
           </div>
 
           <!-- Mobile Panel: Playlist -->
-          <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4 pb-4">
+          <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4 pb-2">
             <!-- Playlist -->
             <div class="glass rounded-3xl flex-1 flex flex-col overflow-hidden min-h-[200px]">
               <div class="p-4 border-b border-white/5 flex items-center justify-between shrink-0">
@@ -412,7 +414,7 @@
           </div>
 
           <!-- Mobile Panel: Chat -->
-          <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4 pb-4 relative">
+          <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4 pb-2 relative">
             <!-- Room Info Card -->
             <div class="glass rounded-2xl p-3 shrink-0">
               <div class="flex items-center gap-3 mb-3">
@@ -513,49 +515,13 @@
         </div>
       </div>
     </div>
-
-    <!-- Mobile Bottom Navigation (Enhanced) - Outside overflow-hidden container -->
-    <div class="mobile-nav fixed bottom-2 left-1/2 -translate-x-1/2 w-[90%] max-w-sm h-16 rounded-full flex items-center justify-between border border-white/10 shadow-2xl bg-black/80 backdrop-blur-2xl px-2 pointer-events-auto">
-      <!-- Animated Background Indicator -->
-      <div
-        class="absolute top-1 bottom-1 w-[31%] bg-white/15 rounded-full transition-all duration-300 ease-out z-0"
-        :class="activeTab === 'lyrics' ? 'left-1' : activeTab === 'playlist' ? 'left-[34.5%]' : 'left-[68%]'"
-      />
-
-      <button
-        class="flex-1 flex flex-col items-center justify-center gap-0.5 h-full relative z-10 transition-all active:scale-95"
-        :class="activeTab === 'lyrics' ? 'text-white' : 'text-white/40 hover:text-white/60'"
-        @click="activeTab = 'lyrics'"
-      >
-        <Music2 :size="activeTab === 'lyrics' ? 22 : 20" class="transition-all duration-300" />
-        <span class="text-[10px] font-bold tracking-wide">播放</span>
-      </button>
-
-      <button
-        class="flex-1 flex flex-col items-center justify-center gap-0.5 h-full relative z-10 transition-all active:scale-95"
-        :class="activeTab === 'playlist' ? 'text-white' : 'text-white/40 hover:text-white/60'"
-        @click="activeTab = 'playlist'"
-      >
-        <ListMusic :size="activeTab === 'playlist' ? 22 : 20" class="transition-all duration-300" />
-        <span class="text-[10px] font-bold tracking-wide">列表</span>
-      </button>
-
-      <button
-        class="flex-1 flex flex-col items-center justify-center gap-0.5 h-full relative z-10 transition-all active:scale-95"
-        :class="activeTab === 'room' ? 'text-white' : 'text-white/40 hover:text-white/60'"
-        @click="activeTab = 'room'"
-      >
-        <MessageSquare :size="activeTab === 'room' ? 22 : 20" class="transition-all duration-300" />
-        <span class="text-[10px] font-bold tracking-wide">聊天</span>
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Song } from '@/types'
-import { CircleHelp, History, ListMusic, MessageSquare, Mic2, Music2, Settings, Share2, SkipForward, Users, Volume2, X } from 'lucide-vue-next'
-import { computed, ref, watch } from 'vue'
+import { CircleHelp, History, ListMusic, MessageSquare, Mic2, Settings, Share2, SkipForward, Users, Volume2, X } from 'lucide-vue-next'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
 import { useLyrics } from '@/composables/useLyrics'
 import { usePlayer } from '@/composables/usePlayer'
@@ -602,6 +568,9 @@ const isSkipping = ref(false)
 const lyricsContainerDesktop = ref<HTMLElement>()
 const lyricsContainerMobile = ref<HTMLElement>()
 
+// Touch swipe state
+const touchStartX = ref(0)
+
 // Computed
 const currentSong = computed(() => playerState.currentSong)
 const playlist = computed(() => playerState.playlist.map((song: Song) => ({
@@ -644,6 +613,45 @@ async function handleSkipSong() {
   }
 }
 
+// 统一的tab切换函数
+function switchTab(direction: 'next' | 'prev') {
+  const tabs: Array<'lyrics' | 'playlist' | 'room'> = ['lyrics', 'playlist', 'room']
+  const currentIndex = tabs.indexOf(activeTab.value)
+  
+  if (direction === 'next' && currentIndex < tabs.length - 1) {
+    activeTab.value = tabs[currentIndex + 1]
+  } else if (direction === 'prev' && currentIndex > 0) {
+    activeTab.value = tabs[currentIndex - 1]
+  }
+}
+
+// 触摸滑动处理
+function handleTouchStart(e: TouchEvent) {
+  touchStartX.value = e.touches[0].clientX
+}
+
+function handleTouchEnd(e: TouchEvent) {
+  const touchEndX = e.changedTouches[0].clientX
+  const swipeDistance = touchStartX.value - touchEndX
+  const minSwipeDistance = 50
+  
+  if (Math.abs(swipeDistance) > minSwipeDistance) {
+    switchTab(swipeDistance > 0 ? 'next' : 'prev')
+  }
+}
+
+// 键盘方向键处理
+function handleKeydown(e: KeyboardEvent) {
+  if (window.innerWidth >= 768)
+    return
+    
+  if (e.key === 'ArrowLeft') {
+    switchTab('prev')
+  } else if (e.key === 'ArrowRight') {
+    switchTab('next')
+  }
+}
+
 // 注册桌面端歌词容器
 watch(lyricsContainerDesktop, (newVal, oldVal) => {
   if (oldVal)
@@ -659,6 +667,15 @@ watch(lyricsContainerMobile, (newVal, oldVal) => {
   if (newVal)
     registerLyricsContainer(ref(newVal))
 })
+
+// 注册键盘事件
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <style scoped>
@@ -669,29 +686,15 @@ watch(lyricsContainerMobile, (newVal, oldVal) => {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
 }
 
-/* Mobile Navigation - show only on mobile */
-.mobile-nav {
-  display: flex !important;
-  position: fixed !important;
-  z-index: 99999 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-@media (min-width: 768px) {
-  .mobile-nav {
-    display: none !important;
-    visibility: hidden !important;
-  }
+.app-viewport {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100svh;
 }
 
 /* Mobile Panel Swipe */
 .mobile-panels {
   will-change: transform;
-}
-
-.mobile-panels-safe {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 95px);
 }
 
 @media (min-width: 768px) {
