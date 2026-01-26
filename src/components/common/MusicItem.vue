@@ -1,9 +1,9 @@
 <template>
   <div
-    class="bg-white/5 rounded-lg p-3 flex items-center transition-all hover:bg-white/10"
+    class="bg-white/5 rounded-lg p-1 md:p-2 flex items-center transition-all hover:bg-white/10"
   >
     <!-- 封面图片 -->
-    <div class="w-12 h-12 rounded overflow-hidden mr-3 flex-shrink-0 relative">
+    <div class="w-16 h-16 md:w-24 md:h-24 rounded-lg overflow-hidden mr-3 md:mr-4 flex-shrink-0 relative shadow-lg">
       <img
         :src="music.cover"
         :alt="music.title"
@@ -15,16 +15,22 @@
     <!-- 歌曲信息 -->
     <div class="flex-1 min-w-0 mr-3">
       <p
-        class="text-xs font-medium truncate mb-1 text-gray-400"
+        class="text-sm md:text-2xl md:pb-2 font-medium truncate mb-1 text-white"
       >
-        {{ `${music.artist} - ${music.title}` }}
+        {{ music.title }}
+      </p>
+      <p
+        class="text-xs md:text-base text-gray-400 truncate mb-1"
+      >
+        {{ music.artist }}
       </p>
       <div class="flex items-center">
         <!-- 专辑信息 -->
         <span
           v-if="music.album"
-          class="text-xs text-gray-500 truncate mr-2"
+          class="text-xs md:text-base text-gray-500 truncate mr-2"
         >
+          <i class="fa-solid fa-compact-disc mr-1 opacity-70" />
           {{ music.album }}
         </span>
         <!-- 时长 -->
