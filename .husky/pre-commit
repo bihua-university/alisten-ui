@@ -1,1 +1,1 @@
-# lint-staged moved to pre-push hook
+npm run lint:fix
