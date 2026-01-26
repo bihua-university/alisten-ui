@@ -148,7 +148,6 @@ const emit = defineEmits<{
   showHelp: []
   showSettings: []
   showPlayHistory: []
-  toggleImmersive: []
   shareRoom: []
   songLike: [index: number, title: string]
   songDelete: [songName: string]

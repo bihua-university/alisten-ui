@@ -36,22 +36,12 @@
         您的浏览器不支持音频播放。
       </audio>
 
-      <!-- 沉浸模式组件 -->
-      <ImmersiveMode
-        v-if="isImmersiveMode"
-        @toggle-immersive="toggleImmersiveMode"
-        @show-help="showHelp = true"
-      />
-
       <!-- 主布局组件 - 新 UI -->
       <MainLayout
-        v-else
-        :is-immersive-mode="isImmersiveMode"
         @show-music-search="showMusicSearchModal = true"
         @show-help="showHelp = true"
         @show-settings="showSettings = true"
         @show-play-history="showPlayHistory = true"
-        @toggle-immersive="toggleImmersiveMode"
         @share-room="shareRoom"
         @song-like="(index, title) => sendSongLike(index, title)"
         @song-delete="(songName: string) => sendDeleteSong(songName)"
@@ -78,7 +68,7 @@
       <NotificationContainer />
 
       <!-- WebSocket 连接配置显示（开发环境） -->
-      <div v-if="isDevelopment && !isImmersiveMode && showDebugInfo" class="fixed bottom-4 right-4 z-40">
+      <div v-if="isDevelopment && showDebugInfo" class="fixed bottom-4 right-4 z-40">
         <div class="bg-black/80 text-white text-xs p-2 rounded backdrop-blur-sm max-w-xs relative">
           <button
             class="absolute top-1 right-1 w-4 h-4 flex items-center justify-center rounded hover:bg-white/20 transition-colors"
@@ -103,7 +93,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import HelpModal from '@/components/HelpModal.vue'
-import ImmersiveMode from '@/components/ImmersiveMode.vue'
 import JoinRoomModal from '@/components/JoinRoomModal.vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ManualStartPlayModal from '@/components/ManualStartPlayModal.vue'
@@ -114,7 +103,6 @@ import PWAUpdateModal from '@/components/PWAUpdateModal.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
 import { useBackButton } from '@/composables/useBackButton'
 import { useHistory } from '@/composables/useHistory'
-import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import { useLyrics } from '@/composables/useLyrics'
 import { useMediaSession } from '@/composables/useMediaSession'
 import { useNotification } from '@/composables/useNotification'
@@ -149,7 +137,6 @@ const showHelp = ref(false)
 const showSettings = ref(false)
 const showPlayHistory = ref(false)
 const showJoinRoomConfirm = ref(true) // 初始显示确认窗口
-const isImmersiveMode = ref(false) // 沉浸模式状态
 const showDebugInfo = ref(true) // 调试信息显示状态
 
 // ===== DOM 引用 =====
@@ -175,7 +162,6 @@ const {
 const {
   registerLyricsContainer,
   unregisterLyricsContainer,
-  syncScrollAllContainers,
 } = useLyrics()
 
 // 3. 媒体会话控制
@@ -216,10 +202,6 @@ const {
   handleDismissUpdate,
 } = usePWA()
 
-// 7. UI 交互功能
-// 键盘快捷键处理
-useKeyboardShortcuts(isImmersiveMode, toggleImmersiveMode)
-
 const { syncUserSettings } = useUserSettings()
 const { addToPlayHistory } = useHistory()
 
@@ -231,18 +213,6 @@ useBackButton([
   showPlayHistory,
   needManualStartPlay,
 ])
-
-// ===== UI 交互方法 =====
-
-// 切换沉浸模式
-function toggleImmersiveMode() {
-  isImmersiveMode.value = !isImmersiveMode.value
-
-  // 切换模式后立即同步歌词位置（使用瞬间跳转，不使用平滑滚动）
-  nextTick(() => {
-    syncScrollAllContainers(false)
-  })
-}
 
 // ===== 房间管理方法 =====
 
