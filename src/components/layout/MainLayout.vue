@@ -293,11 +293,11 @@
 
         <!-- Mobile Swipe Container (Player / Playlist / Chat) -->
         <div
-          class="mobile-panels flex w-[300vw] flex-1 min-h-0 transition-transform duration-300 ease-out md:hidden"
+          class="mobile-panels mobile-panels-safe flex w-[300vw] flex-1 min-h-0 transition-transform duration-300 ease-out md:hidden"
           :class="activeTab === 'lyrics' ? 'translate-x-0' : activeTab === 'playlist' ? '-translate-x-[100vw]' : '-translate-x-[200vw]'"
         >
           <!-- Mobile Panel: Player & Lyrics -->
-          <div class="w-screen shrink-0 flex flex-col min-h-0 h-full relative px-4">
+          <div class="w-screen shrink-0 flex flex-col min-h-0 h-full relative px-4 pb-4">
             <!-- Lyrics Main View -->
             <div class="glass flex-1 rounded-3xl p-4 flex flex-col items-center justify-center text-center relative overflow-hidden group mb-4">
               <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 z-0 pointer-events-none" />
@@ -381,7 +381,7 @@
           </div>
 
           <!-- Mobile Panel: Playlist -->
-          <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4">
+          <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4 pb-4">
             <!-- Playlist -->
             <div class="glass rounded-3xl flex-1 flex flex-col overflow-hidden min-h-[200px]">
               <div class="p-4 border-b border-white/5 flex items-center justify-between shrink-0">
@@ -412,7 +412,7 @@
           </div>
 
           <!-- Mobile Panel: Chat -->
-          <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4 relative">
+          <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4 pb-4 relative">
             <!-- Room Info Card -->
             <div class="glass rounded-2xl p-3 shrink-0">
               <div class="flex items-center gap-3 mb-3">
@@ -688,6 +688,10 @@ watch(lyricsContainerMobile, (newVal, oldVal) => {
 /* Mobile Panel Swipe */
 .mobile-panels {
   will-change: transform;
+}
+
+.mobile-panels-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 95px);
 }
 
 @media (min-width: 768px) {
