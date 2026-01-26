@@ -1,221 +1,178 @@
 <template>
   <transition name="modal">
-    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="$emit('close')" />
-      <div
-        class="relative bg-dark border border-white/20 rounded-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden shadow-2xl"
-      >
-        <!-- 弹窗头部 -->
-        <div class="p-4 border-b border-white/10 flex justify-between items-center">
-          <h2 class="text-xl font-semibold flex items-center">
-            <i class="fa-solid fa-question-circle text-green-400 mr-2" />
-            使用帮助
-          </h2>
-          <button
-            class="text-gray-400 hover:text-white transition-colors touch-target"
-            @click="$emit('close')"
-          >
-            <i class="fa-solid fa-times text-lg" />
-          </button>
+    <div v-if="show" class="fixed inset-0 z-[60] bg-gray-900/95 backdrop-blur-md flex flex-col">
+      <!-- 顶部导航栏 -->
+      <div class="flex-none px-6 py-6 md:px-12 md:py-8 flex justify-between items-start md:items-center max-w-7xl w-full mx-auto">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400 flex items-center gap-3">
+            <i class="fa-solid fa-book-open text-purple-400"></i>
+            使用指南
+          </h1>
+          <p class="text-gray-400 mt-2 text-sm md:text-base">探索听歌房的所有功能，享受最佳音乐体验</p>
         </div>
-
-        <!-- 弹窗内容 -->
-        <div class="p-6 overflow-y-auto max-h-[70vh] smooth-scroll scrollbar-hide">
-          <!-- 基本操作 -->
-          <div class="mb-6">
-            <h3 class="text-lg font-medium mb-3 text-primary flex items-center">
-              <i class="fa-solid fa-play-circle mr-2" />
-              基本操作
-            </h3>
-            <div class="space-y-3 text-sm">
-              <div class="flex items-start">
-                <i class="fa-solid fa-music text-blue-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    点歌
-                  </div>
-                  <div class="text-gray-300">
-                    点击右下角的"点歌台"按钮，选择音乐平台搜索你喜欢的歌曲
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <i class="fa-solid fa-forward text-orange-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    切歌
-                  </div>
-                  <div class="text-gray-300">
-                    点击播放控制栏的"切歌"按钮，跳过当前歌曲
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <i class="fa-solid fa-heart text-red-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    点赞
-                  </div>
-                  <div class="text-gray-300">
-                    点击歌曲右侧的爱心按钮，为喜欢的歌曲点赞
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <i class="fa-solid fa-share text-blue-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    分享房间
-                  </div>
-                  <div class="text-gray-300">
-                    点击"分享"按钮，将房间链接分享给朋友
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <i class="fa-solid fa-cog text-gray-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    设置选项
-                  </div>
-                  <div class="text-gray-300">
-                    点击顶部的"设置"按钮，配置用户信息、音频和性能选项
-                  </div>
-                </div>
-              </div>
-            </div>
+        <button
+          class="group p-2 -mr-2 rounded-full hover:bg-white/10 transition-colors"
+          @click="$emit('close')"
+          title="关闭"
+        >
+          <div class="relative w-8 h-8 flex items-center justify-center">
+            <span class="absolute w-full h-0.5 bg-gray-400 rotate-45 group-hover:bg-white transition-colors"></span>
+            <span class="absolute w-full h-0.5 bg-gray-400 -rotate-45 group-hover:bg-white transition-colors"></span>
           </div>
+        </button>
+      </div>
 
-          <!-- 聊天功能 -->
-          <div class="mb-6">
-            <h3 class="text-lg font-medium mb-3 text-primary flex items-center">
-              <i class="fa-solid fa-comments mr-2" />
-              聊天功能
-            </h3>
-            <div class="space-y-3 text-sm">
-              <div class="flex items-start">
-                <i class="fa-solid fa-comment-dots text-green-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    发送消息
-                  </div>
-                  <div class="text-gray-300">
-                    在右侧聊天框输入消息，与其他用户实时交流
-                  </div>
-                </div>
+      <!-- 内容滚动区 -->
+      <div class="flex-1 overflow-y-auto w-full custom-scrollbar">
+        <div class="max-w-7xl mx-auto px-6 pb-12 md:px-12">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- 1. 核心体验 -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors duration-300">
+              <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4 text-purple-400 text-xl">
+                <i class="fa-solid fa-music"></i>
               </div>
-              <div class="flex items-start">
-                <i class="fa-solid fa-search text-purple-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    点歌指令
+              <h3 class="text-xl font-semibold mb-4 text-white">核心体验</h3>
+              <ul class="space-y-4">
+                <li class="flex items-start gap-3">
+                  <i class="fa-solid fa-search text-purple-400 mt-1"></i>
+                  <div>
+                    <strong class="block text-gray-200 text-sm">点歌</strong>
+                    <span class="text-gray-400 text-sm">点击右下角"点歌台"，支持搜索多平台音乐。或在聊天栏输入"点歌 歌曲名"。</span>
                   </div>
-                  <div class="text-gray-300">
-                    在聊天中输入"点歌 [歌曲名]"，快速搜索并点歌
+                </li>
+                <li class="flex items-start gap-3">
+                  <i class="fa-solid fa-sync text-indigo-400 mt-1"></i>
+                  <div>
+                    <strong class="block text-gray-200 text-sm">实时同步</strong>
+                    <span class="text-gray-400 text-sm">全员听歌进度同步，歌词逐行高亮显示，带来沉浸式听歌体验。</span>
                   </div>
-                  <div class="text-xs text-gray-400 mt-1">
-                    例如：点歌 青花瓷
-                  </div>
-                </div>
-              </div>              <div class="flex items-start">
-                <i class="fa-solid fa-cog text-teal-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    用户设置
-                  </div>
-                  <div class="text-gray-300">
-                    点击顶部工具栏的"设置"按钮，在用户设置中配置您的用户名和邮箱
-                  </div>
-                  <div class="text-xs text-gray-400 mt-1">
-                    设置会在关闭设置界面时自动保存
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <i class="fa-solid fa-user-circle text-indigo-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    头像设置
-                  </div>
-                  <div class="text-gray-300">
-                    在设置界面输入邮箱地址，系统会自动从 Gravatar 获取您的头像
-                  </div>
-                  <div class="text-xs text-gray-400 mt-1">
-                    💡 先在 <a href="https://gravatar.com" target="_blank" class="text-indigo-300 hover:text-indigo-200 underline">gravatar.com</a> 注册并上传头像
-                  </div>
-                  <div class="text-xs text-gray-400 mt-1">
-                    如果没有设置邮箱，将使用基于用户名的默认头像
-                  </div>
-                </div>
-              </div>
+                </li>
+              </ul>
             </div>
-          </div><!-- 快捷键 -->
-          <div class="mb-6">
-            <h3 class="text-lg font-medium mb-3 text-primary flex items-center">
-              <i class="fa-solid fa-keyboard mr-2" />
-              快捷操作
-            </h3>
-            <div class="space-y-3 text-sm">
-              <div class="flex items-start">
-                <i class="fa-solid fa-eye text-purple-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    沉浸模式
-                  </div>
-                  <div class="text-gray-300">
-                    点击"沉浸模式"按钮或按 F 键，专注欣赏歌词和音乐
-                  </div>
-                  <div class="text-xs text-gray-400 mt-1">
-                    按 ESC 键或点击浮动按钮退出沉浸模式
-                  </div>
-                </div>
+
+            <!-- 2. 播放控制 -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors duration-300">
+              <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4 text-blue-400 text-xl">
+                <i class="fa-solid fa-sliders"></i>
               </div>
-              <div class="flex items-start">
-                <i class="fa-solid fa-mobile-screen text-blue-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    移动端
+              <h3 class="text-xl font-semibold mb-4 text-white">播放控制</h3>
+              <ul class="space-y-4">
+                <li class="flex items-start gap-3">
+                  <i class="fa-solid fa-forward text-blue-400 mt-1"></i>
+                  <div>
+                    <strong class="block text-gray-200 text-sm">切歌</strong>
+                    <span class="text-gray-400 text-sm">不想听当前歌曲？点击控制栏"切歌"按钮直接跳过。</span>
                   </div>
-                  <div class="text-gray-300">
-                    点击底部菜单按钮，访问聊天、用户列表等功能
+                </li>
+                 <li class="flex items-start gap-3">
+                  <i class="fa-solid fa-list text-sky-400 mt-1"></i>
+                  <div>
+                    <strong class="block text-gray-200 text-sm">播放列表</strong>
+                    <span class="text-gray-400 text-sm">查看待播清单，支持移除自己点的歌曲。</span>
                   </div>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <i class="fa-solid fa-desktop text-gray-400 mr-3 mt-0.5 w-4 text-center" />
-                <div>
-                  <div class="font-medium mb-1">
-                    桌面端
-                  </div>
-                  <div class="text-gray-300">
-                    使用左右侧边栏，享受更完整的音乐房体验
-                  </div>
-                </div>
-              </div>
+                </li>
+              </ul>
             </div>
-          </div>
 
-          <!-- 注意事项 -->
-          <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mb-6">
-            <h4 class="text-yellow-400 font-medium mb-2 flex items-center">
-              <i class="fa-solid fa-exclamation-triangle mr-2" />
-              注意事项
-            </h4>
-            <ul class="text-sm text-gray-300 space-y-1">
-              <li>• 请保持良好的聊天环境，友善交流</li>
-              <li>• 由于版权限制，部分歌曲可能无法播放</li>
-              <li>• 建议在WiFi环境下使用，避免消耗过多流量</li>
-              <li>• 房间内的所有用户会同步听到相同的音乐</li>
-            </ul>
-          </div>
+            <!-- 3. 社交互动 -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors duration-300">
+              <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-4 text-green-400 text-xl">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <h3 class="text-xl font-semibold mb-4 text-white">社交互动</h3>
+              <ul class="space-y-4">
+                <li class="flex items-start gap-3">
+                  <i class="fa-solid fa-paper-plane text-green-400 mt-1"></i>
+                  <div>
+                    <strong class="block text-gray-200 text-sm">即时聊天</strong>
+                    <span class="text-gray-400 text-sm">与房间内的小伙伴畅聊，分享听歌心情。</span>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <i class="fa-solid fa-heart text-red-400 mt-1"></i>
+                  <div>
+                    <strong class="block text-gray-200 text-sm">点赞收藏</strong>
+                    <span class="text-gray-400 text-sm">遇到喜欢的歌，点击爱心收藏，表达你的喜爱。</span>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <i class="fa-solid fa-user-plus text-emerald-400 mt-1"></i>
+                  <div>
+                    <strong class="block text-gray-200 text-sm">分享邀请</strong>
+                    <span class="text-gray-400 text-sm">复制房间链接，邀请好友一起加入听歌房。</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
 
-          <!-- 版本信息 -->
-          <div class="bg-white/5 border border-white/10 rounded-lg p-4">
-            <h4 class="text-gray-300 font-medium mb-3 flex items-center">
-              <i class="fa-solid fa-info-circle mr-2" />
-              版本信息
-            </h4>
-            <VersionInfo />
+            <!-- 4. 个性化设置 -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors duration-300">
+              <div class="w-12 h-12 rounded-xl bg-pink-500/20 flex items-center justify-center mb-4 text-pink-400 text-xl">
+                <i class="fa-solid fa-user-cog"></i>
+              </div>
+              <h3 class="text-xl font-semibold mb-4 text-white">个性化设置</h3>
+              <ul class="space-y-4">
+                 <li class="flex items-start gap-3">
+                  <i class="fa-solid fa-id-card text-pink-400 mt-1"></i>
+                  <div>
+                    <strong class="block text-gray-200 text-sm">个人资料</strong>
+                    <span class="text-gray-400 text-sm">设置昵称，绑定邮箱以通过 Gravatar 显示个性头像。</span>
+                  </div>
+                </li>
+                 <li class="flex items-start gap-3">
+                  <i class="fa-solid fa-volume-high text-rose-400 mt-1"></i>
+                  <div>
+                    <strong class="block text-gray-200 text-sm">音效设置</strong>
+                    <span class="text-gray-400 text-sm">调整音量，开启性能模式以适配不同设备。</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 5. 常见问题/注意事项 -->
+            <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-2xl p-6 hover:bg-yellow-500/10 transition-colors duration-300 md:col-span-2 lg:col-span-1">
+              <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center mb-4 text-yellow-400 text-xl">
+                <i class="fa-solid fa-lightbulb"></i>
+              </div>
+              <h3 class="text-xl font-semibold mb-4 text-white">注意事项</h3>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-3 text-sm text-gray-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-2 flex-shrink-0"></span>
+                  请保持友善交流，共同维护良好的社区氛围。
+                </li>
+                <li class="flex items-start gap-3 text-sm text-gray-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-2 flex-shrink-0"></span>
+                  部分歌曲因版权限制可能无法播放，系统会自动跳过。
+                </li>
+                <li class="flex items-start gap-3 text-sm text-gray-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-2 flex-shrink-0"></span>
+                  推荐使用 Chrome、Edge 等现代浏览器以获得最佳体验。
+                </li>
+                <li class="flex items-start gap-3 text-sm text-gray-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-2 flex-shrink-0"></span>
+                  移动端建议使用 WiFi 环境。
+                </li>
+              </ul>
+            </div>
+
+            <!-- 6. 关于项目 -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors duration-300 md:col-span-2 lg:col-span-1">
+               <div class="w-12 h-12 rounded-xl bg-gray-500/20 flex items-center justify-center mb-4 text-gray-400 text-xl">
+                <i class="fa-solid fa-code-branch"></i>
+              </div>
+              <h3 class="text-xl font-semibold mb-4 text-white">关于项目</h3>
+              <div class="text-sm text-gray-300 mb-4">
+                Alisten 听歌房是一个开源的实时在线音乐共享平台。
+              </div>
+              <VersionInfo />
+            </div>
+
+          </div>
+          
+          <!-- 底部 Slogan -->
+          <div class="mt-12 text-center">
+            <p class="text-white/20 text-sm font-medium tracking-widest uppercase">Designed for Music Lovers</p>
           </div>
         </div>
       </div>
@@ -244,33 +201,22 @@ defineEmits<{
   transition: all 0.3s ease;
 }
 
-.modal-enter-from,
-.modal-leave-to {
+.modal-enter-from, .modal-leave-to {
   opacity: 0;
-  transform: scale(0.9);
+  transform: translateY(20px) scale(0.98);
 }
 
-/* 滚动条样式 */
-.scrollbar-hide {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
 }
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
-
-/* 触摸目标 */
-.touch-target {
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
 }
-
-/* 平滑滚动 */
-.smooth-scroll {
-  scroll-behavior: smooth;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 </style>

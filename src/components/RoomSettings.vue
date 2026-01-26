@@ -1,11 +1,5 @@
 <template>
   <div class="room-settings">
-    <div class="mb-4">
-      <h3 class="text-lg font-semibold text-white mb-2">
-        房间播放设置
-      </h3>
-    </div>
-
     <!-- 播放模式选择 -->
     <div class="space-y-3 mb-4">
       <label class="block text-sm font-medium text-gray-300">播放模式</label>
