@@ -15,7 +15,7 @@
             记录您的每一个心动时刻
           </p>
         </div>
-        
+
         <button
           class="group p-2 -mr-2 rounded-full hover:bg-white/10 transition-colors z-10"
           title="关闭"
@@ -31,22 +31,25 @@
       <!-- 内容滚动区 -->
       <div class="flex-1 overflow-y-auto w-full custom-scrollbar">
         <div class="max-w-7xl mx-auto px-6 pb-12 md:px-12">
-          
           <!-- 统计与操作栏 -->
           <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
             <!-- 统计数据 -->
             <div class="col-span-1 md:col-span-3 bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-center">
-               <div class="text-gray-400 text-sm mb-1 flex items-center gap-2">
-                 <i class="fa-solid fa-music text-purple-400"></i> 总播放
-               </div>
-               <div class="text-2xl font-bold text-white">{{ playStats.totalPlays }} <span class="text-xs text-gray-500 font-normal">首</span></div>
+              <div class="text-gray-400 text-sm mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-music text-purple-400" /> 总播放
+              </div>
+              <div class="text-2xl font-bold text-white">
+                {{ playStats.totalPlays }} <span class="text-xs text-gray-500 font-normal">首</span>
+              </div>
             </div>
-            
+
             <div class="col-span-1 md:col-span-3 bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-center">
-               <div class="text-gray-400 text-sm mb-1 flex items-center gap-2">
-                 <i class="fa-solid fa-clock text-blue-400"></i> 总时长
-               </div>
-               <div class="text-2xl font-bold text-white">{{ formatDuration(playStats.totalDuration) }}</div>
+              <div class="text-gray-400 text-sm mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-clock text-blue-400" /> 总时长
+              </div>
+              <div class="text-2xl font-bold text-white">
+                {{ formatDuration(playStats.totalDuration) }}
+              </div>
             </div>
 
             <!-- 搜索与操作 -->
@@ -60,7 +63,7 @@
                   placeholder="搜索历史记录..."
                 >
               </div>
-              
+
               <button
                 class="aspect-square h-full bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 text-green-400 transition-colors flex items-center justify-center"
                 title="导出记录"
@@ -68,7 +71,7 @@
               >
                 <i class="fa-solid fa-download text-lg" />
               </button>
-              
+
               <button
                 class="aspect-square h-full bg-white/5 border border-white/10 rounded-2xl hover:bg-red-500/20 text-red-400 border-red-500/20 hover:border-red-500/50 transition-colors flex items-center justify-center"
                 title="清空历史"
@@ -81,26 +84,30 @@
 
           <!-- 历史记录列表 -->
           <transition-group name="list" tag="div" class="space-y-8">
-             <div v-if="filteredHistoryByDate.length === 0" class="text-center text-gray-400 py-16 bg-white/5 border border-white/10 rounded-3xl" key="empty">
+            <div v-if="filteredHistoryByDate.length === 0" key="empty" class="text-center text-gray-400 py-16 bg-white/5 border border-white/10 rounded-3xl">
               <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                 <i class="fa-solid fa-history text-3xl opacity-30" />
+                <i class="fa-solid fa-history text-3xl opacity-30" />
               </div>
-              <p class="text-lg">{{ searchQuery ? '没有找到匹配的歌曲' : '暂无播放历史' }}</p>
-              <p class="text-sm text-gray-500 mt-2">快去听首歌吧 ~</p>
+              <p class="text-lg">
+                {{ searchQuery ? '没有找到匹配的歌曲' : '暂无播放历史' }}
+              </p>
+              <p class="text-sm text-gray-500 mt-2">
+                快去听首歌吧 ~
+              </p>
             </div>
 
             <div v-for="group in filteredHistoryByDate" :key="group.date" class="relative">
-               <!-- 日期标记 -->
+              <!-- 日期标记 -->
               <div class="sticky top-0 z-10 py-3 mb-2">
-                 <div class="inline-flex items-center gap-2 bg-purple-500/20 backdrop-blur-md border border-purple-500/30 text-purple-200 px-4 py-1.5 rounded-full text-sm font-medium shadow-lg shadow-purple-900/20">
-                    <i class="fa-regular fa-calendar" />
-                    {{ group.date }}
-                 </div>
+                <div class="inline-flex items-center gap-2 bg-purple-500/20 backdrop-blur-md border border-purple-500/30 text-purple-200 px-4 py-1.5 rounded-full text-sm font-medium shadow-lg shadow-purple-900/20">
+                  <i class="fa-regular fa-calendar" />
+                  {{ group.date }}
+                </div>
               </div>
 
               <!-- 歌曲卡片列表 -->
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                 <div
+                <div
                   v-for="(item, index) in group.items"
                   :key="`${item.playedAt}-${index}`"
                   class="group bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 rounded-xl p-3 transition-all duration-300"
@@ -109,29 +116,29 @@
                     :music="item.song"
                     @add="pickMusic(item.song, item.song.source || 'netease')"
                   >
-                     <template #actions="{ music }">
-                        <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="text-xs text-gray-500 mr-2 font-mono">
-                               {{ formatTime(new Date(item.playedAt)) }}
-                            </span>
-                            <button
-                              class="w-8 h-8 rounded-lg bg-white/10 hover:bg-purple-500 hover:text-white text-gray-300 flex items-center justify-center transition-colors"
-                              title="添加到列表"
-                              @click.stop="pickMusic(music, music.source || 'netease')"
-                            >
-                              <i class="fa-solid fa-plus text-xs" />
-                            </button>
-                            <button
-                              class="w-8 h-8 rounded-lg bg-white/10 hover:bg-red-500 hover:text-white text-gray-300 flex items-center justify-center transition-colors"
-                              title="删除记录"
-                              @click.stop="removeFromPlayHistory(getHistoryIndex(item))"
-                            >
-                              <i class="fa-solid fa-trash text-xs" />
-                            </button>
-                        </div>
-                     </template>
+                    <template #actions="{ music }">
+                      <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span class="text-xs text-gray-500 mr-2 font-mono">
+                          {{ formatTime(new Date(item.playedAt)) }}
+                        </span>
+                        <button
+                          class="w-8 h-8 rounded-lg bg-white/10 hover:bg-purple-500 hover:text-white text-gray-300 flex items-center justify-center transition-colors"
+                          title="添加到列表"
+                          @click.stop="pickMusic(music, music.source || 'netease')"
+                        >
+                          <i class="fa-solid fa-plus text-xs" />
+                        </button>
+                        <button
+                          class="w-8 h-8 rounded-lg bg-white/10 hover:bg-red-500 hover:text-white text-gray-300 flex items-center justify-center transition-colors"
+                          title="删除记录"
+                          @click.stop="removeFromPlayHistory(getHistoryIndex(item))"
+                        >
+                          <i class="fa-solid fa-trash text-xs" />
+                        </button>
+                      </div>
+                    </template>
                   </MusicItem>
-                 </div>
+                </div>
               </div>
             </div>
           </transition-group>
@@ -146,7 +153,7 @@
       <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="showClearConfirm = false" />
       <div class="relative bg-gray-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl transform transition-all">
         <div class="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4 text-red-500 text-xl">
-           <i class="fa-solid fa-triangle-exclamation"></i>
+          <i class="fa-solid fa-triangle-exclamation" />
         </div>
         <h3 class="text-xl font-bold text-white mb-2">
           清空确认
@@ -241,7 +248,7 @@ function formatDuration(seconds: number): string {
 function formatTime(date: Date): string {
   return date.toLocaleTimeString('zh-CN', {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
