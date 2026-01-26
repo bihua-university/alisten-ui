@@ -204,8 +204,7 @@ import { useUserSettings } from '@/composables/useUserSettings'
 interface Props {}
 
 interface Emits {
-  'close': []
-  'settings-changed': []
+  close: []
 }
 
 defineProps<Props>()
@@ -225,7 +224,6 @@ const { userName, userEmail, currentUser, emailValidation, syncUserSettings } = 
 // 关闭时保存设置
 function handleClose() {
   syncUserSettings()
-  emit('settings-changed') // 通知父组件可能有变动
 
   // 触发离场动画
   isVisible.value = false
