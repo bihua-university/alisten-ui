@@ -1,190 +1,176 @@
 <template>
-  <div class="fixed inset-0 z-50 flex items-end md:items-center justify-center">
-    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="$emit('close')" />
+  <transition name="modal">
     <div
-      class="relative bg-dark border-t border-white/20 md:border md:rounded-xl w-full max-w-4xl h-[85vh] md:h-[90vh] flex flex-col overflow-hidden"
+      v-if="true"
+      class="fixed inset-0 z-[60] bg-gray-900/95 backdrop-blur-md flex flex-col"
     >
-      <!-- 头部 -->
-      <div class="p-3 md:p-4 border-b border-white/10 flex justify-between items-center">
-        <div class="flex items-center space-x-4">
-          <h2 class="text-lg md:text-xl font-semibold flex items-center">
-            <i class="fa-solid fa-history mr-2 text-purple-400" />
+      <!-- 顶部导航栏 -->
+      <div class="flex-none px-6 py-6 md:px-12 md:py-8 flex justify-between items-start md:items-center max-w-7xl w-full mx-auto relative">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400 flex items-center gap-3">
+            <i class="fa-solid fa-history text-purple-400" />
             播放历史
-          </h2>
+          </h1>
+          <p class="text-gray-400 mt-2 text-sm md:text-base">
+            记录您的每一个心动时刻
+          </p>
         </div>
-        <div class="flex items-center space-x-1 md:space-x-2">
-          <!-- 搜索框 -->
-          <div class="relative hidden sm:block">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="搜索歌曲..."
-              class="bg-white/10 text-white placeholder-gray-400 rounded-lg px-3 py-2 text-sm w-32 md:w-48 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-            <i class="fa-solid fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        
+        <button
+          class="group p-2 -mr-2 rounded-full hover:bg-white/10 transition-colors z-10"
+          title="关闭"
+          @click="$emit('close')"
+        >
+          <div class="relative w-8 h-8 flex items-center justify-center">
+            <span class="absolute w-full h-0.5 bg-gray-400 rotate-45 group-hover:bg-white transition-colors" />
+            <span class="absolute w-full h-0.5 bg-gray-400 -rotate-45 group-hover:bg-white transition-colors" />
           </div>
-
-          <!-- 移动端搜索按钮 -->
-          <button
-            class="sm:hidden bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg p-2 transition-all touch-target"
-            @click="showMobileSearch = !showMobileSearch"
-          >
-            <i class="fa-solid fa-search" />
-          </button>
-
-          <!-- 功能按钮 -->
-          <button
-            class="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg px-2 py-2 md:px-3 text-xs md:text-sm transition-all touch-target"
-            @click="showStats = !showStats"
-          >
-            <i class="fa-solid fa-chart-bar mr-0 md:mr-1" />
-            <span class="hidden md:inline">统计</span>
-          </button>
-
-          <div class="hidden md:inline">
-            <button
-              class="bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg px-2 py-2 md:px-3 text-xs md:text-sm transition-all touch-target"
-              @click="exportHistory"
-            >
-              <i class="fa-solid fa-download mr-0 md:mr-1" />
-              <span>导出</span>
-            </button>
-          </div>
-
-          <button
-            class="bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg px-2 py-2 md:px-3 text-xs md:text-sm transition-all touch-target"
-            @click="showClearConfirm = true"
-          >
-            <i class="fa-solid fa-trash mr-0 md:mr-1" />
-            <span class="hidden md:inline">清空</span>
-          </button>
-
-          <button
-            class="text-gray-400 hover:text-white transition-colors rounded-lg p-2 touch-target"
-            @click="$emit('close')"
-          >
-            <i class="fa-solid fa-times text-lg" />
-          </button>
-        </div>
+        </button>
       </div>
 
-      <!-- 移动端搜索框 -->
-      <div v-if="showMobileSearch" class="sm:hidden p-3 border-b border-white/10">
-        <div class="relative">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="搜索歌曲..."
-            class="bg-white/10 text-white placeholder-gray-400 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-          <i class="fa-solid fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        </div>
-      </div>
-
-      <!-- 统计面板 -->
-      <div v-if="showStats" class="p-4 bg-white/5 border-b border-white/10">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="text-center">
-            <div class="text-2xl font-bold text-purple-400">
-              {{ playStats.totalPlays }}
+      <!-- 内容滚动区 -->
+      <div class="flex-1 overflow-y-auto w-full custom-scrollbar">
+        <div class="max-w-7xl mx-auto px-6 pb-12 md:px-12">
+          
+          <!-- 统计与操作栏 -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
+            <!-- 统计数据 -->
+            <div class="col-span-1 md:col-span-3 bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-center">
+               <div class="text-gray-400 text-sm mb-1 flex items-center gap-2">
+                 <i class="fa-solid fa-music text-purple-400"></i> 总播放
+               </div>
+               <div class="text-2xl font-bold text-white">{{ playStats.totalPlays }} <span class="text-xs text-gray-500 font-normal">首</span></div>
             </div>
-            <div class="text-sm text-gray-400">
-              总播放
+            
+            <div class="col-span-1 md:col-span-3 bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-center">
+               <div class="text-gray-400 text-sm mb-1 flex items-center gap-2">
+                 <i class="fa-solid fa-clock text-blue-400"></i> 总时长
+               </div>
+               <div class="text-2xl font-bold text-white">{{ formatDuration(playStats.totalDuration) }}</div>
+            </div>
+
+            <!-- 搜索与操作 -->
+            <div class="col-span-1 md:col-span-6 flex gap-3">
+              <div class="flex-1 relative group">
+                <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  class="w-full h-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
+                  placeholder="搜索历史记录..."
+                >
+              </div>
+              
+              <button
+                class="aspect-square h-full bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 text-green-400 transition-colors flex items-center justify-center"
+                title="导出记录"
+                @click="exportHistory"
+              >
+                <i class="fa-solid fa-download text-lg" />
+              </button>
+              
+              <button
+                class="aspect-square h-full bg-white/5 border border-white/10 rounded-2xl hover:bg-red-500/20 text-red-400 border-red-500/20 hover:border-red-500/50 transition-colors flex items-center justify-center"
+                title="清空历史"
+                @click="showClearConfirm = true"
+              >
+                <i class="fa-solid fa-trash text-lg" />
+              </button>
             </div>
           </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-orange-400">
-              {{ formatDuration(playStats.totalDuration) }}
-            </div>
-            <div class="text-sm text-gray-400">
-              总时长
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- 内容区域 -->
-      <div class="flex-1 flex flex-col overflow-hidden">
-        <!-- 时间线视图 -->
-        <div class="flex-1 overflow-y-auto smooth-scroll scrollbar-hide">
-          <div class="px-3">
-            <div v-if="filteredHistoryByDate.length === 0" class="text-center text-gray-400 py-8">
-              <i class="fa-solid fa-music text-4xl mb-4 opacity-50" />
-              <p>{{ searchQuery ? '没有找到匹配的歌曲' : '暂无播放历史' }}</p>
+          <!-- 历史记录列表 -->
+          <transition-group name="list" tag="div" class="space-y-8">
+             <div v-if="filteredHistoryByDate.length === 0" class="text-center text-gray-400 py-16 bg-white/5 border border-white/10 rounded-3xl" key="empty">
+              <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                 <i class="fa-solid fa-history text-3xl opacity-30" />
+              </div>
+              <p class="text-lg">{{ searchQuery ? '没有找到匹配的歌曲' : '暂无播放历史' }}</p>
+              <p class="text-sm text-gray-500 mt-2">快去听首歌吧 ~</p>
             </div>
 
-            <div v-for="group in filteredHistoryByDate" :key="group.date" class="space-y-3">
-              <!-- 日期标题 -->
-              <div class="sticky top-0 z-10 bg-dark/90 backdrop-blur-sm border-b border-white/10 -mx-3 md:-mx-4 px-3 md:px-4 py-2">
-                <h3 class="text-sm font-medium text-gray-300">
-                  {{ group.date }}
-                </h3>
+            <div v-for="group in filteredHistoryByDate" :key="group.date" class="relative">
+               <!-- 日期标记 -->
+              <div class="sticky top-0 z-10 py-3 mb-2">
+                 <div class="inline-flex items-center gap-2 bg-purple-500/20 backdrop-blur-md border border-purple-500/30 text-purple-200 px-4 py-1.5 rounded-full text-sm font-medium shadow-lg shadow-purple-900/20">
+                    <i class="fa-regular fa-calendar" />
+                    {{ group.date }}
+                 </div>
               </div>
 
-              <!-- 歌曲列表 -->
-              <div class="space-y-2">
-                <div
+              <!-- 歌曲卡片列表 -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                 <div
                   v-for="(item, index) in group.items"
                   :key="`${item.playedAt}-${index}`"
-                  class="relative"
+                  class="group bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/10 rounded-xl p-3 transition-all duration-300"
                 >
                   <MusicItem
                     :music="item.song"
                     @add="pickMusic(item.song, item.song.source || 'netease')"
                   >
-                    <template #actions="{ music }">
-                      <!-- 操作按钮 -->
-                      <div class="flex items-center space-x-1">
-                        <button
-                          class="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-full w-8 h-8 md:w-10 md:h-10 flex items-center justify-center transition-all touch-target"
-                          @click="pickMusic(music, music.source || 'netease')"
-                        >
-                          <i class="fa-solid fa-plus text-xs" />
-                        </button>
-                        <button
-                          class="bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-full w-8 h-8 md:w-10 md:h-10 flex items-center justify-center transition-all touch-target"
-                          @click="removeFromPlayHistory(getHistoryIndex(item))"
-                        >
-                          <i class="fa-solid fa-trash text-xs" />
-                        </button>
-                      </div>
-                    </template>
+                     <template #actions="{ music }">
+                        <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="text-xs text-gray-500 mr-2 font-mono">
+                               {{ formatTime(new Date(item.playedAt)) }}
+                            </span>
+                            <button
+                              class="w-8 h-8 rounded-lg bg-white/10 hover:bg-purple-500 hover:text-white text-gray-300 flex items-center justify-center transition-colors"
+                              title="添加到列表"
+                              @click.stop="pickMusic(music, music.source || 'netease')"
+                            >
+                              <i class="fa-solid fa-plus text-xs" />
+                            </button>
+                            <button
+                              class="w-8 h-8 rounded-lg bg-white/10 hover:bg-red-500 hover:text-white text-gray-300 flex items-center justify-center transition-colors"
+                              title="删除记录"
+                              @click.stop="removeFromPlayHistory(getHistoryIndex(item))"
+                            >
+                              <i class="fa-solid fa-trash text-xs" />
+                            </button>
+                        </div>
+                     </template>
                   </MusicItem>
-                </div>
+                 </div>
               </div>
             </div>
-          </div>
+          </transition-group>
         </div>
       </div>
     </div>
+  </transition>
 
-    <!-- 清空确认对话框 -->
-    <div v-if="showClearConfirm" class="fixed inset-0 z-60 flex items-center justify-center">
-      <div class="absolute inset-0 bg-black/50" @click="showClearConfirm = false" />
-      <div class="relative bg-dark border border-white/20 rounded-xl p-6 max-w-md mx-4">
-        <h3 class="text-lg font-semibold mb-4">
-          清空播放历史
+  <!-- 清空确认对话框 -->
+  <transition name="modal">
+    <div v-if="showClearConfirm" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="showClearConfirm = false" />
+      <div class="relative bg-gray-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl transform transition-all">
+        <div class="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4 text-red-500 text-xl">
+           <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">
+          清空确认
         </h3>
-        <p class="text-gray-400 mb-6">
-          确定要清空所有播放历史吗？此操作不可撤销。
+        <p class="text-gray-400 mb-6 leading-relaxed">
+          确定要清空所有播放历史吗？<br>此操作<span class="text-red-400">不可撤销</span>，所有记录将永久丢失。
         </p>
-        <div class="flex justify-end space-x-3">
+        <div class="flex gap-3">
           <button
-            class="bg-gray-500/20 hover:bg-gray-500/30 text-gray-400 rounded-lg px-4 py-2 transition-all touch-target"
+            class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white transition-colors font-medium border border-white/5"
             @click="showClearConfirm = false"
           >
             取消
           </button>
           <button
-            class="bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg px-4 py-2 transition-all touch-target"
+            class="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors font-medium shadow-lg shadow-red-500/20"
             @click="handleClearHistory"
           >
-            清空
+            确认清空
           </button>
         </div>
       </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script setup lang="ts">
@@ -209,9 +195,7 @@ const {
 const { pickMusic } = usePlayer()
 
 const searchQuery = ref('')
-const showStats = ref(false)
 const showClearConfirm = ref(false)
-const showMobileSearch = ref(false)
 
 // 过滤后的历史记录
 const filteredHistoryByDate = computed(() => {
@@ -254,6 +238,13 @@ function formatDuration(seconds: number): string {
   return `${minutes}:${secs.toString().padStart(2, '0')}`
 }
 
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 // 获取历史记录索引（用于删除）
 function getHistoryIndex(item: any): number {
   return playHistoryByDate.value.findIndex((group) => {
@@ -274,3 +265,39 @@ function exportHistory() {
   exportHistoryData()
 }
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 列表过渡动画 */
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.list-leave-active {
+  position: absolute;
+}
+</style>
