@@ -131,6 +131,7 @@
 <script setup lang="ts">
 import { ListMusic, MessageSquare } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { usePerformance } from '@/composables/usePerformance'
 import { usePlayer } from '@/composables/usePlayer'
 import { isScrollableElement } from '@/utils/mobile'
 import ChatPanel from '../ChatPanel.vue'
@@ -159,6 +160,7 @@ const emit = defineEmits<{
 
 // Composables
 const { playerState } = usePlayer()
+const { performanceLevel } = usePerformance()
 
 // Local state
 const activeTab = ref<'lyrics' | 'playlist' | 'room'>('lyrics')
@@ -216,6 +218,8 @@ function isTouchOnScrollable(e: TouchEvent): boolean {
   return !!isScrollableElement(target)
 }
 
+const isMinimalMode = computed(() => performanceLevel.value === 'off')
+
 // 触摸滑动处理 - 支持跟随手势
 function handleTouchStart(e: TouchEvent) {
   const touch = e.touches[0]
@@ -224,6 +228,11 @@ function handleTouchStart(e: TouchEvent) {
   touchCurrentX.value = touch.clientX
   startTime.value = Date.now()
   isScrolling.value = false
+
+  // 极简模式：仅记录位置用于基础切换，不启用拖拽跟随
+  if (isMinimalMode.value) {
+    return
+  }
 
   // 检查是否在可滚动区域
   if (isTouchOnScrollable(e)) {
@@ -237,6 +246,11 @@ function handleTouchStart(e: TouchEvent) {
 }
 
 function handleTouchMove(e: TouchEvent) {
+  // 极简模式：禁用拖拽跟随
+  if (isMinimalMode.value) {
+    return
+  }
+
   if (!isDragging.value && !isScrolling.value) {
     const touch = e.touches[0]
     const deltaX = touch.clientX - touchStartX.value
@@ -290,11 +304,6 @@ function handleTouchMove(e: TouchEvent) {
 }
 
 function handleTouchEnd(e: TouchEvent) {
-  if (!isDragging.value) {
-    isScrolling.value = false
-    return
-  }
-
   const touch = e.changedTouches[0]
   const endX = touch.clientX
   const endTime = Date.now()
@@ -311,6 +320,15 @@ function handleTouchEnd(e: TouchEvent) {
   const isQuickSwipe = velocity > velocityThreshold && Math.abs(deltaX) > 30
   const isLongSwipe = Math.abs(deltaX) > distanceThreshold
 
+  // 极简模式：仅基础切换，无拖拽跟随
+  if (isMinimalMode.value) {
+    if (isQuickSwipe || isLongSwipe) {
+      const direction = deltaX < 0 ? 'next' : 'prev'
+      switchTab(direction)
+    }
+    return
+  }
+
   // 开启过渡动画
   isTransitioning.value = true
   isDragging.value = false
@@ -326,6 +344,11 @@ function handleTouchEnd(e: TouchEvent) {
 }
 
 function handleTouchCancel() {
+  // 极简模式：无需处理
+  if (isMinimalMode.value) {
+    return
+  }
+
   // 取消触摸，回弹到当前位置
   isTransitioning.value = true
   isDragging.value = false

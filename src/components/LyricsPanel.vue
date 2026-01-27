@@ -16,7 +16,7 @@
         <p
           v-for="(line, index) in currentLyrics"
           :key="index"
-          class="lyric-line text-center transition-all duration-500 ease-out cursor-default lyric-enter"
+          class="lyric-line text-center transition-all duration-500 cursor-default"
           :class="[
             index === currentLyricIndex
               ? 'active-lyric text-white text-2xl md:text-4xl font-bold tracking-wide scale-105 glow-text'
@@ -24,7 +24,6 @@
                 ? 'near-lyric text-white/50 text-xl md:text-2xl font-medium scale-100'
                 : 'far-lyric text-white/25 text-lg md:text-xl font-normal scale-95 blur-[0.5px]',
           ]"
-          :style="{ animationDelay: `${index * 50}ms` }"
         >
           {{ line.text || ' ' }}
         </p>
@@ -113,22 +112,6 @@ onBeforeUnmount(() => {
     0 0 10px rgba(255, 255, 255, 0.5),
     0 0 20px rgba(255, 255, 255, 0.3),
     0 0 40px rgba(255, 255, 255, 0.2);
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-@keyframes glow-pulse {
-  0%, 100% {
-    text-shadow:
-      0 0 10px rgba(255, 255, 255, 0.5),
-      0 0 20px rgba(255, 255, 255, 0.3),
-      0 0 40px rgba(255, 255, 255, 0.2);
-  }
-  50% {
-    text-shadow:
-      0 0 20px rgba(255, 255, 255, 0.7),
-      0 0 40px rgba(255, 255, 255, 0.5),
-      0 0 60px rgba(255, 255, 255, 0.3);
-  }
 }
 
 /* Floating Mic Animation */
@@ -149,21 +132,5 @@ onBeforeUnmount(() => {
 
 .animate-float-mic {
   animation: float-mic 4s ease-in-out infinite;
-}
-
-/* Lyric Enter Animation */
-.lyric-enter {
-  animation: lyric-fade-in 0.5s ease-out forwards;
-}
-
-@keyframes lyric-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 </style>
