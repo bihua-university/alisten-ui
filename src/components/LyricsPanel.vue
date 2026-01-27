@@ -154,7 +154,6 @@ onBeforeUnmount(() => {
 /* Lyric Enter Animation */
 .lyric-enter {
   animation: lyric-fade-in 0.5s ease-out forwards;
-  opacity: 0;
 }
 
 @keyframes lyric-fade-in {
