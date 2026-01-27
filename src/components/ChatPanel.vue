@@ -80,13 +80,15 @@
           聊天
         </div>
       </div>
-      <div class="flex-1 overflow-y-auto space-y-3 relative px-3 pt-3 chat-messages-container">
+      <div ref="chatContainer" class="flex-1 overflow-y-auto space-y-5 relative px-3 pt-3 chat-messages-container">
         <TransitionGroup name="chat-message">
           <div
             v-for="msg in chatMessages"
             :key="msg.timestamp"
-            class="flex gap-3 items-start"
-            :class="isCurrentUser(msg.user.name) ? 'flex-row-reverse' : ''"
+            class="flex gap-3 items-start chat-message-item"
+            :class="[
+              isCurrentUser(msg.user.name) ? 'flex-row-reverse chat-message-self' : 'chat-message-other',
+            ]"
           >
             <Avatar :name="msg.user.name" :avatar="msg.user.avatar" class="w-10 h-12 pt-2 rounded-full shrink-0" />
             <div class="flex-1 min-w-0" :class="isCurrentUser(msg.user.name) ? 'text-right' : ''">
@@ -145,7 +147,7 @@
 
 <script setup lang="ts">
 import { CircleHelp, History, MessageSquare, Settings, Share2, Users, X } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
 import { useRoom } from '@/composables/useRoom'
 import { useUserSettings } from '@/composables/useUserSettings'
@@ -178,6 +180,21 @@ const isCurrentUser = computed(() => {
 
 const showOnlineUsers = ref(false)
 const newMessage = ref('')
+const chatContainer = ref<HTMLDivElement | null>(null)
+
+// 滚动到底部
+function scrollToBottom() {
+  nextTick(() => {
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+    }
+  })
+}
+
+// 监听消息变化，自动滚动到底部
+watch(() => chatMessages.value.length, () => {
+  scrollToBottom()
+})
 
 function handleSendMessage() {
   if (newMessage.value.trim()) {
@@ -248,9 +265,16 @@ function closeOnlineUsers() {
   transition: all 0.2s ease-in;
 }
 
-.chat-message-enter-from {
+/* 左侧消息从左滑入 */
+.chat-message-other.chat-message-enter-from {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateX(-30px);
+}
+
+/* 右侧消息从右滑入 */
+.chat-message-self.chat-message-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
 }
 
 .chat-message-leave-to {
