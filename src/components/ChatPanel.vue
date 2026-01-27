@@ -297,4 +297,20 @@ function closeOnlineUsers() {
 .chat-messages-container::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* Low and off performance mode - consistent with other components */
+.performance-low .glass,
+.performance-off .glass {
+  background: #15171B !important;
+  backdrop-filter: none !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+}
+
+/* Online users popup in low/off performance mode */
+.performance-low .bg-\[\#121214\]\/95,
+.performance-off .bg-\[\#121214\]\/95 {
+  background: #15171B !important;
+  backdrop-filter: none !important;
+}
 </style>

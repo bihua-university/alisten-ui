@@ -114,6 +114,12 @@ onBeforeUnmount(() => {
     0 0 40px rgba(255, 255, 255, 0.2);
 }
 
+/* Disable glow in low and off performance modes */
+.performance-low .glow-text,
+.performance-off .glow-text {
+  text-shadow: none !important;
+}
+
 /* Floating Mic Animation */
 @keyframes float-mic {
   0%, 100% {
@@ -132,5 +138,19 @@ onBeforeUnmount(() => {
 
 .animate-float-mic {
   animation: float-mic 4s ease-in-out infinite;
+}
+
+/* Disable mic animation in low and off performance modes */
+.performance-low .animate-float-mic,
+.performance-off .animate-float-mic {
+  animation: none !important;
+}
+
+/* Low and off performance mode backgrounds */
+.performance-low .glass,
+.performance-off .glass {
+  background: #15171B !important;
+  backdrop-filter: none !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 space-y-2 pointer-events-none">
+  <div class="notification-container fixed top-6 left-1/2 -translate-x-1/2 z-[70] space-y-3 pointer-events-none">
     <NotificationToast
       v-for="notification in notifications"
       :key="notification.id"
@@ -18,3 +18,10 @@ import NotificationToast from './NotificationToast.vue'
 // 使用通知系统
 const { notifications } = useNotification()
 </script>
+
+<style scoped>
+.notification-container {
+  width: calc(100% - 2rem);
+  max-width: 480px;
+}
+</style>

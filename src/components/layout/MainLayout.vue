@@ -2,11 +2,11 @@
   <div class="root-container overflow-x-hidden">
     <div class="app-viewport flex flex-col items-center relative bg-gradient-to-br from-gray-900 to-black overflow-hidden font-sans text-white">
       <!-- Background Abstract Shapes -->
-      <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
-      <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none" />
+      <div class="bg-shapes absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
+      <div class="bg-shapes absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none" />
 
       <!-- Dynamic Song Background -->
-      <div v-if="currentSong?.cover && !isImmersiveMode" class="absolute inset-0 z-0">
+      <div v-if="currentSong?.cover && !isImmersiveMode" class="song-bg absolute inset-0 z-0">
         <img
           :key="currentSong.id"
           :src="currentSong.cover"
@@ -407,5 +407,30 @@ onBeforeUnmount(() => {
     transform: none !important;
     transition: none !important;
   }
+}
+
+/* Low and off performance mode backgrounds */
+.performance-low .app-viewport,
+.performance-off .app-viewport {
+  background: #0D1016 !important;
+}
+
+.performance-low .glass,
+.performance-off .glass {
+  background: #15171B !important;
+  backdrop-filter: none !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Hide dynamic song cover background in low and off performance modes */
+.performance-low .song-bg,
+.performance-off .song-bg {
+  display: none !important;
+}
+
+/* Also hide the abstract blur shapes */
+.performance-low .bg-shapes,
+.performance-off .bg-shapes {
+  display: none !important;
 }
 </style>
