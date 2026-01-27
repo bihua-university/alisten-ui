@@ -79,8 +79,14 @@
 }
 
 /* 极简模式玻璃效果替代背景 */
-.performance-off .glass-effect {
-  background: rgba(30, 41, 59, 0.8) !important;
+.performance-off .glass-effect,
+.performance-off .glass {
+  background: rgba(30, 41, 59, 0.95) !important;
+}
+
+/* Fix for lyrics not showing in performance-off mode */
+.performance-off .lyric-enter {
+  opacity: 1 !important;
 }
 
 .performance-off .blur-3xl,
@@ -290,6 +296,11 @@
 .no-animations *::after {
   transition: none !important;
   animation: none !important;
+}
+
+/* Fix for lyrics not showing in no-animations mode */
+.no-animations .lyric-enter {
+  opacity: 1 !important;
 }
 
 /* 系统偏好设置支持 */
