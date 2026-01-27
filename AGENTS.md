@@ -1,290 +1,102 @@
-# 🎵 Alisten 听歌房
+docs: 文档更新
+# AGENTS.md
 
-> 一个现代化的在线听歌房应用，基于 Vue3 + TypeScript + Vite + TailwindCSS 构建。
-
----
-
-## 📋 项目概述
-
-Alisten 听歌房是一个实时在线音乐共享平台，允许多人同时在一个虚拟房间中共同听歌、点歌和聊天。项目采用现代化的 Glass UI 设计风格，支持桌面端和移动端的响应式布局。
-
-### 核心功能
-
-- 🎵 **实时音乐同步** - 房间内所有用户同步播放相同的音乐
-- 📝 **歌词同步显示** - 逐行高亮显示当前播放歌词
-- 💬 **实时聊天** - 房间内用户可以实时交流
-- 🎤 **点歌功能** - 支持搜索和点播歌曲
-- 👥 **在线用户** - 查看当前房间在线用户列表
-- 📱 **跨平台支持** - 桌面端和移动端完整体验
-- 🔔 **PWA 支持** - 可安装为本地应用
+本文件用于指导「人类贡献者」与「AI 编程代理」在本仓库内协作时的默认行为、工程约束与常用入口。
 
 ---
 
-## 🏗️ 技术架构
+# 仓库协作指南
 
-### 技术栈
+## 项目定位
 
-| 类别 | 技术 |
-|------|------|
-| 前端框架 | Vue 3.4+ (Composition API) |
-| 开发语言 | TypeScript 5.3+ |
-| 构建工具 | Vite 5.0+ |
-| CSS 框架 | TailwindCSS 3.4+ |
-| 图标库 | Lucide Vue Next |
-| 状态管理 | Pinia |
-| 工具库 | VueUse |
-| PWA | Vite Plugin PWA + Workbox |
+Alisten 听歌房是一个实时在线听歌房应用：多人在同一房间同步播放、点歌、聊天，并支持歌词同步与 PWA 安装。
 
-### 项目结构
+## 技术基线
 
-```
-src/
-├── components/           # 组件目录
-│   ├── layout/          # 布局组件
-│   │   └── MainLayout.vue    # 主布局（桌面端+移动端）
-│   ├── common/          # 通用组件
-│   │   ├── Avatar.vue        # 用户头像
-│   │   ├── Modal.vue         # 模态框基础组件
-│   │   ├── MusicItem.vue     # 音乐项组件
-│   │   └── ...
-│   ├── MusicSearchModal.vue  # 点歌台模态框
-│   ├── SettingsModal.vue     # 设置模态框
-│   ├── HelpModal.vue         # 帮助模态框
-│   ├── PlayHistoryModal.vue  # 播放历史模态框
-│   ├── PlaylistItem.vue      # 播放列表项
-│   ├── VolumeSlider.vue      # 音量控制滑块
-│   ├── ImmersiveMode.vue     # 沉浸模式
-│   └── ...
-├── composables/         # 组合式函数
-│   ├── useWebSocket.ts      # WebSocket 连接管理
-│   ├── usePlayer.ts         # 播放器控制
-│   ├── useLyrics.ts         # 歌词同步
-│   ├── useChat.ts           # 聊天功能
-│   ├── useRoom.ts           # 房间管理
-│   ├── useSearch.ts         # 搜索功能
-│   ├── useHistory.ts        # 播放历史
-│   ├── useUserSettings.ts   # 用户设置
-│   ├── useNotification.ts   # 通知系统
-│   ├── useMediaSession.ts   # 媒体会话控制
-│   ├── usePWA.ts            # PWA 功能
-│   ├── useKeyboardShortcuts.ts  # 键盘快捷键
-│   ├── useBackButton.ts     # 返回键处理
-│   └── usePerformance.ts    # 性能优化
-├── types/               # TypeScript 类型定义
-│   └── index.ts
-├── utils/               # 工具函数
-│   ├── api.ts               # API 请求封装
-│   ├── config.ts            # 配置管理
-│   ├── lrcParser.ts         # 歌词解析
-│   ├── mobile.ts            # 移动端工具
-│   ├── time.ts              # 时间格式化
-│   └── user.ts              # 用户处理
-├── styles/              # 样式文件
-├── App.vue              # 根组件
-├── main.ts              # 入口文件
-└── style.css            # 全局样式
-```
+- Vue 3 + TypeScript + Vite + TailwindCSS
+- 状态管理：Pinia
+- 图标：Lucide Vue Next
+- Node.js：建议 >= 18
 
 ---
 
-## 🎨 UI 设计规范
+## 项目结构（重要入口）
 
-### 设计风格
+- 主要应用：`src/`
+- 入口：`src/main.ts`、`src/App.vue`
+- 主布局（桌面端 + 移动端）：`src/components/layout/MainLayout.vue`
+- 组合式能力（优先扩展的位置）：`src/composables/`
 
-- **Glass UI** - 毛玻璃效果和半透明背景
-- **圆角设计** - 大圆角卡片和按钮
-- **渐变色彩** - 紫色/靛蓝色渐变作为强调色
-- **深色主题** - 深灰到黑色的背景渐变
-
-### 配色方案
-
-| 用途 | 颜色 |
-|------|------|
-| 主强调色 | Purple (`purple-500`, `purple-600`) |
-| 次强调色 | Indigo (`indigo-400`, `indigo-500`) |
-| 背景色 | Gray-900 → Black 渐变 |
-| 玻璃效果 | 5% 白色背景 + 20px 模糊 |
-| 文字主色 | White |
-| 文字次色 | White/60, White/40 |
-
-### 响应式布局
-
-**桌面端 (md+)**
-- 双栏布局：左侧歌词 + 右侧可切换面板
-- 右侧面板宽度：560px
-- 播放控制栏在歌词区下方
-
-**移动端**
-- 三面板滑动布局（播放/列表/聊天）
-- 底部浮动导航栏（圆角胶囊设计）
-- 触摸优化的交互元素
+  - WebSocket：`useWebSocket.ts`
+  - 房间：`useRoom.ts`
+  - 播放：`usePlayer.ts`
+  - 歌词：`useLyrics.ts`
+  - 聊天：`useChat.ts`
+- 通用组件：`src/components/common/`
+- 工具与配置：`src/utils/`、`src/styles/`
 
 ---
 
-## 📦 核心模块说明
+## 开发 / 构建 / 检查命令
 
-### 1. WebSocket 通信 (`useWebSocket`)
-处理与服务器的实时通信，包括：
-- 连接建立和断线重连
-- 消息收发
-- 心跳保活
+- 安装依赖：`npm install`
+- 启动开发：`npm run dev`（Vite 默认 5173；可 `npm run dev -- --port 5174`）
+- 类型检查：`npm run type-check`
+- 代码检查：`npm run lint`
+- 自动修复：`npm run lint:fix`
+- 构建：`npm run build`
+- 预览构建产物：`npm run preview`
 
-### 2. 播放器控制 (`usePlayer`)
-管理音频播放状态：
-- 播放/暂停控制
-- 进度管理
-- 播放列表管理
-- 切歌功能
-
-### 3. 歌词同步 (`useLyrics`)
-实现歌词与音乐的同步：
-- LRC 歌词解析
-- 当前行高亮
-- 自动滚动定位
-
-### 4. 聊天功能 (`useChat`)
-房间内实时聊天：
-- 消息收发
-- 在线用户列表
-- 消息时间显示
-
-### 5. 搜索功能 (`useSearch`)
-歌曲搜索和点歌：
-- 关键词搜索
-- 歌单搜索
-- 添加到播放列表
+如果在 VS Code 中工作，优先使用任务面板里的“开发服务器”。
 
 ---
 
-## ✅ TODO 列表
+## UI / 样式规范（紫色强调 + Glass UI）
 
-### 高优先级
-- [ ] 主题切换（明/暗主题）
-- [ ] UI 一致性
-
-### 中优先级
-- [ ] 移动端手势优化（滑动惯性效果）
-- [ ] 音频可视化效果
-
-### 低优先级
-- [ ] 多语言国际化支持
-- [ ] 自定义主题色彩
-- [ ] 歌词字体大小调整
-- [ ] 播放历史导出
-
-### 已完成 ✓
-- [x] Glass UI 风格重构
-- [x] 桌面端双栏布局
-- [x] 移动端滑动面板
-- [x] 底部浮动导航栏
-- [x] 在线用户弹窗
-- [x] 音量控制弹窗
-- [x] 操作按钮统一布局
-- [x] 移动端切歌按钮
-- [x] 房间创建和管理
+- 统一强调色：紫色系（优先 `purple-500` / `purple-600`），避免引入一套新的主题色体系
+- 交互态（active/选中）风格参考现有 `.play-mode-option.active`、`.radio-indicator.active`
+- 样式优先级：Tailwind 类名优先；只有在复杂动画/性能敏感/需要复用的场景才落到 scoped CSS 或 `src/styles/`
+- 保持 Glass UI 一致性：半透明、模糊、圆角、层级阴影不要“各写各的”，尽量复用现有组件与写法
 
 ---
 
-## 🚀 快速开始
+## 代码与模块约定
 
-### 安装依赖
-```bash
-npm install
-```
+- Vue：使用 Composition API；业务逻辑优先下沉到 `src/composables/`，组件尽量保持“渲染 + 触发动作”
+- TypeScript：尽量写清类型，避免 `any`；不要为了赶进度牺牲类型边界
+- 命名约定：
 
-### 启动开发服务器
-```bash
-npm run dev
-```
-
-### 构建生产版本
-```bash
-npm run build
-```
-
-### 代码检查
-```bash
-npm run lint
-npm run lint:fix
-```
-
-### 类型检查
-```bash
-npm run type-check
-```
+  - 组件文件：PascalCase
+  - 组合式函数：`useXxx`
+- 改动策略：优先小步、可验证的提交；不要在同一 PR 混入无关重构/大面积格式化
 
 ---
 
-## 🧑‍💻 开发指南
+## 质量门槛（建议）
 
-### 0. 环境要求
+只要改动涉及逻辑/类型/样式，合并前至少跑：
 
-- Node.js：建议 `>= 18`（Vite 5 + 现代 ESM）
-- 包管理器：`npm`（仓库脚本以 npm 为准）
-- 推荐 IDE：VS Code（建议启用 ESLint、TailwindCSS IntelliSense）
+- `npm run type-check`
+- `npm run lint`
 
-### 1. 安装与启动
+如果改动影响构建路径（PWA、Vite 配置、路由、产物相关），再补一次：
 
-```bash
-npm install
-npm run dev
-```
-
-常见入口文件：
-
-- `src/main.ts`：应用启动、挂载
-- `src/App.vue`：根组件
-- `src/components/layout/MainLayout.vue`：主布局（桌面端 + 移动端）
-
-### 2. 常用命令说明
-
-- `npm run dev`：启动开发服务器
-- `npm run build`：生产构建
-- `npm run preview`：本地预览构建产物
-- `npm run type-check`：类型检查（`vue-tsc --noEmit`）
-- `npm run lint` / `npm run lint:fix`：代码检查 / 自动修复
-
-### 3. 开发流程建议
-
-1. 新功能优先放在 `src/components/` 与 `src/composables/`，避免把业务逻辑写进大量 UI 组件里
-2. 与后端/实时同步相关：优先在 `useWebSocket`、`useRoom`、`usePlayer` 中扩展，组件只订阅状态与触发动作
-3. 提交前跑一遍：
-
-```bash
-npm run type-check
-npm run lint
-```
-
-### 4. UI 约定（紫色强调）
-
-- 强调色统一用紫色系（例如 `purple-500`/`purple-600`），并尽量与现有交互保持一致
-- 交互态（active/选中）样式参考现有 `.play-mode-option.active`、`.radio-indicator.active` 的表现
-- Tailwind 优先；遇到复杂动画/性能敏感样式再落到 `scoped CSS` 或 `src/styles/`
-
-### 5. 常见问题排查
-
-- 依赖异常：删除 `node_modules` 与锁文件后重装（注意团队约定锁文件类型）
-- 端口占用：Vite 默认 5173，可换端口启动：`npm run dev -- --port 5174`
-- Lint/格式化冲突：本项目使用 ESLint（含 `@antfu/eslint-config`）；避免同时启用会改写风格的其它格式化工具规则
+- `npm run build`
 
 ---
 
-## 📝 开发规范
+## 安全与隐私
 
-### 代码风格
-- 使用 ESLint + @antfu/eslint-config
-- 提交前自动 lint (husky + lint-staged)
+- 不要提交任何密钥、Token、真实房间密码、真实服务器地址或包含个人信息的日志
+- 示例与文档使用占位符（例如 `wss://example.com`、`roomId=demo`）
+- 调试日志避免打印完整 payload（尤其是用户信息、鉴权字段）
 
-### 组件命名
-- 组件文件使用 PascalCase
-- 组合式函数使用 `use` 前缀
+---
 
-### 样式规范
-- 优先使用 TailwindCSS 类名
-- 复杂样式使用 scoped CSS
-- 强调色统一使用紫色系
+## Git 约定
 
-### Git 提交规范
+提交信息使用简洁的 Conventional Commits 风格（与仓库现有约定一致）：
+
 ```
 feat: 新功能
 fix: 修复问题
@@ -296,10 +108,13 @@ perf: 性能优化
 
 ---
 
-## 📄 许可证
+## AI 代理工作方式（默认行为）
 
-MIT License
+- 先读后改：优先定位相关组件/组合式函数/样式入口，避免“猜位置写代码”
+- 变更最小化：不做无关重命名、不做大面积格式化、不改动不相关文件
+- UI 变更要对齐项目规范：紫色强调、Glass UI、一致的交互态
+- 不编辑生成物或依赖目录：不要改 `dist/`、不要改 `node_modules/`
 
 ---
 
-*最后更新：2026年1月26日*
+*最后更新：2026年1月27日*
