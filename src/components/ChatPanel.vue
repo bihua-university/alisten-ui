@@ -56,7 +56,7 @@
         <div class="space-y-2 overflow-y-auto pr-1 custom-scrollbar">
           <div v-for="user in onlineUsers" :key="user.name" class="flex items-center gap-3 p-2 rounded-xl bg-white/[0.03] hover:bg-white/5 border border-white/5 transition-all">
             <div class="relative">
-              <Avatar :name="user.name" :avatar="user.avatar" class="w-8 h-8 rounded-lg" />
+              <Avatar :name="user.name" :avatar="user.avatar" class="w-10 h-10 rounded-lg" />
               <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-black" />
             </div>
             <div class="flex-1 min-w-0">
@@ -80,28 +80,53 @@
           聊天
         </div>
       </div>
-      <div class="flex-1 overflow-y-auto space-y-3 relative px-3 pt-3">
-        <div v-for="msg in chatMessages" :key="msg.timestamp" class="flex gap-2 items-start">
-          <Avatar :name="msg.user.name" :avatar="msg.user.avatar" class="w-8 h-8 rounded-full shrink-0 mt-0.5" />
-          <div class="flex-1 min-w-0">
-            <div class="flex items-baseline gap-2 mb-0.5">
-              <span class="font-bold text-sm text-purple-400">{{ msg.user.name }}</span>
-              <span class="text-[10px] text-white/30">{{ formatTimeHH_MM(msg.timestamp) }}</span>
-            </div>
-            <div class="text-sm text-white/80 leading-relaxed break-words">
-              {{ msg.content }}
+      <div class="flex-1 overflow-y-auto space-y-3 relative px-3 pt-3 chat-messages-container">
+        <TransitionGroup name="chat-message">
+          <div
+            v-for="msg in chatMessages"
+            :key="msg.timestamp"
+            class="flex gap-3 items-start"
+            :class="isCurrentUser(msg.user.name) ? 'flex-row-reverse' : ''"
+          >
+            <Avatar :name="msg.user.name" :avatar="msg.user.avatar" class="w-14 h-17 pt-4 rounded-full shrink-0" />
+            <div class="flex-1 min-w-0" :class="isCurrentUser(msg.user.name) ? 'text-right' : ''">
+              <div class="flex items-center gap-2 mb-0.5" :class="isCurrentUser(msg.user.name) ? 'flex-row-reverse' : ''">
+                <span class="font-bold text-sm leading-none py-2" :class="isCurrentUser(msg.user.name) ? 'text-indigo-400' : 'text-purple-400'">{{ msg.user.name }}</span>
+              </div>
+              <div class="flex items-end gap-2" :class="isCurrentUser(msg.user.name) ? 'flex-row-reverse' : ''">
+                <div
+                  class="chat-bubble text-sm leading-relaxed break-words inline-block text-left"
+                  :class="isCurrentUser(msg.user.name) ? 'chat-bubble-self' : 'chat-bubble-other'"
+                >
+                  {{ msg.content }}
+                </div>
+                <span class="text-[10px] text-white/30 pb-1">{{ formatTimeHH_MM(msg.timestamp) }}</span>
+              </div>
             </div>
           </div>
-        </div>
+        </TransitionGroup>
       </div>
       <div class="p-3 bg-black/20 shrink-0">
-        <input
-          v-model="newMessage"
-          type="text"
-          placeholder="发送消息..."
-          class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-colors"
-          @keyup.enter="handleSendMessage"
-        >
+        <div class="relative">
+          <input
+            v-model="newMessage"
+            type="text"
+            placeholder="发送消息..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:bg-white/10 focus:border-purple-500/50 transition-all"
+            @keyup.enter="handleSendMessage"
+          >
+          <button
+            :disabled="!newMessage.trim()"
+            class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all duration-200"
+            :class="newMessage.trim() ? 'text-purple-400 hover:bg-purple-500/20 hover:scale-110 active:scale-95' : 'text-white/20'"
+            @click="handleSendMessage"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -109,9 +134,10 @@
 
 <script setup lang="ts">
 import { CircleHelp, History, MessageSquare, Settings, Share2, Users, X } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useChat } from '@/composables/useChat'
 import { useRoom } from '@/composables/useRoom'
+import { useUserSettings } from '@/composables/useUserSettings'
 import { formatTimeHH_MM } from '@/utils/time'
 import Avatar from './common/Avatar.vue'
 
@@ -132,6 +158,12 @@ const emit = defineEmits<{
 
 const { chatMessages, sendMessage, onlineUsers } = useChat()
 const { roomInfo } = useRoom()
+const { currentUser } = useUserSettings()
+
+// 判断消息是否来自当前用户
+const isCurrentUser = computed(() => {
+  return (userName: string) => userName === currentUser.value.name
+})
 
 const showOnlineUsers = ref(false)
 const newMessage = ref('')
@@ -194,5 +226,75 @@ function closeOnlineUsers() {
 .volume-popup-leave-to {
   opacity: 0;
   transform: translateY(-8px) scale(0.95);
+}
+
+/* Chat Message Animations */
+.chat-message-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.chat-message-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.chat-message-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.chat-message-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.chat-message-move {
+  transition: transform 0.3s ease;
+}
+
+/* Chat Bubble Styles */
+.chat-bubble {
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+/* Self Message Bubble - Right side */
+.chat-bubble-self {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%);
+  color: white;
+  border-bottom-right-radius: 4px;
+  box-shadow:
+    0 2px 8px rgba(99, 102, 241, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Other Message Bubble - Left side */
+.chat-bubble-other {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom-left-radius: 4px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  backdrop-filter: blur(10px);
+}
+
+/* Scrollbar Styling for Chat */
+.chat-messages-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 </style>
