@@ -11,6 +11,10 @@ const userEmail = useStorage('alisten_email', '')
 // 播放模式状态
 const playMode = ref<PlayMode>('sequential')
 
+// 气泡样式状态
+export type BubbleStyle = 'default' | 'feibi'
+const bubbleStyle = useStorage<BubbleStyle>('alisten_bubble_style', 'default')
+
 const { registerMessageHandler, send } = useWebSocket()
 
 registerMessageHandler('setting/push', (message: any) => {
@@ -92,6 +96,7 @@ export function useUserSettings() {
     currentUser,
     emailValidation,
     playMode,
+    bubbleStyle,
 
     // 方法
     syncUserSettings,

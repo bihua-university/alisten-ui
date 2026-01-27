@@ -88,17 +88,28 @@
             class="flex gap-3 items-start"
             :class="isCurrentUser(msg.user.name) ? 'flex-row-reverse' : ''"
           >
-            <Avatar :name="msg.user.name" :avatar="msg.user.avatar" class="w-14 h-17 pt-4 rounded-full shrink-0" />
+            <Avatar :name="msg.user.name" :avatar="msg.user.avatar" class="w-10 h-12 pt-2 rounded-full shrink-0" />
             <div class="flex-1 min-w-0" :class="isCurrentUser(msg.user.name) ? 'text-right' : ''">
               <div class="flex items-center gap-2 mb-0.5" :class="isCurrentUser(msg.user.name) ? 'flex-row-reverse' : ''">
                 <span class="font-bold text-sm leading-none py-2" :class="isCurrentUser(msg.user.name) ? 'text-indigo-400' : 'text-purple-400'">{{ msg.user.name }}</span>
               </div>
               <div class="flex items-end gap-2" :class="isCurrentUser(msg.user.name) ? 'flex-row-reverse' : ''">
-                <div
-                  class="chat-bubble text-sm leading-relaxed break-words inline-block text-left"
-                  :class="isCurrentUser(msg.user.name) ? 'chat-bubble-self' : 'chat-bubble-other'"
-                >
-                  {{ msg.content }}
+                <div class="relative">
+                  <div
+                    class="chat-bubble text-sm leading-relaxed break-words inline-block text-left relative"
+                    :class="[
+                      isCurrentUser(msg.user.name) ? 'chat-bubble-self' : 'chat-bubble-other',
+                      bubbleStyle === 'feibi' ? 'chat-bubble-feibi' : '',
+                    ]"
+                  >
+                    {{ msg.content }}
+                  </div>
+                  <img
+                    v-if="bubbleStyle === 'feibi' && isCurrentUser(msg.user.name)"
+                    src="/feibi.png"
+                    class="feibi-avatar"
+                    alt="菲比"
+                  >
                 </div>
                 <span class="text-[10px] text-white/30 pb-1">{{ formatTimeHH_MM(msg.timestamp) }}</span>
               </div>
@@ -158,7 +169,7 @@ const emit = defineEmits<{
 
 const { chatMessages, sendMessage, onlineUsers } = useChat()
 const { roomInfo } = useRoom()
-const { currentUser } = useUserSettings()
+const { currentUser, bubbleStyle } = useUserSettings()
 
 // 判断消息是否来自当前用户
 const isCurrentUser = computed(() => {
@@ -255,8 +266,46 @@ function closeOnlineUsers() {
 .chat-bubble {
   padding: 8px 12px;
   border-radius: 12px;
-  max-width: 85%;
+  max-width: min(280px, calc(100vw - 140px));
   word-wrap: break-word;
+}
+
+@media (min-width: 768px) {
+  .chat-bubble {
+    max-width: 400px;
+  }
+}
+
+/* Feibi Bubble Style */
+.chat-bubble-feibi {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-radius: 14px !important;
+  box-shadow: 1px 1px 0 #3f3f3f !important;
+  font-weight: 600;
+}
+
+.chat-bubble-feibi.chat-bubble-self {
+  background: #ffffff !important;
+  border-bottom-right-radius: 2px !important;
+  z-index: 5;
+  position: relative;
+}
+
+.chat-bubble-feibi.chat-bubble-other {
+  background: #ffffff !important;
+  border-bottom-left-radius: 2px !important;
+}
+
+.feibi-avatar {
+  position: absolute;
+  right: -25px;
+  bottom: -20px;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Self Message Bubble - Right side */

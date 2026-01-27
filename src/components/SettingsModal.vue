@@ -159,6 +159,77 @@
                       <RoomSettings :show-advanced="true" />
                     </div>
                   </div>
+
+                  <!-- 气泡样式选择 -->
+                  <div>
+                    <h3 class="text-lg font-semibold text-white mb-3">
+                      聊天气泡样式
+                    </h3>
+                    <div class="bg-black/20 rounded-2xl p-4 border border-white/5">
+                      <div class="grid grid-cols-2 gap-4">
+                        <!-- 默认气泡选项 -->
+                        <button
+                          class="relative p-4 rounded-xl border-2 transition-all duration-300 text-left"
+                          :class="bubbleStyle === 'default' ? 'border-purple-500 bg-purple-500/10' : 'border-white/10 hover:border-white/20 hover:bg-white/5'"
+                          @click="bubbleStyle = 'default'"
+                        >
+                          <div class="flex items-center gap-3 mb-3">
+                            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center" :class="bubbleStyle === 'default' ? 'border-purple-500' : 'border-white/30'">
+                              <div v-if="bubbleStyle === 'default'" class="w-2 h-2 rounded-full bg-purple-500" />
+                            </div>
+                            <span class="font-medium text-white">默认</span>
+                          </div>
+                          <!-- 预览 -->
+                          <div class="flex flex-col gap-2">
+                            <div class="flex gap-2 items-start">
+                              <div class="w-6 h-6 rounded-full bg-purple-500/30 shrink-0" />
+                              <div class="px-3 py-2 rounded-lg text-xs" style="background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9);">
+                                你好！
+                              </div>
+                            </div>
+                            <div class="flex gap-2 items-start flex-row-reverse">
+                              <div class="w-6 h-6 rounded-full bg-indigo-500/30 shrink-0" />
+                              <div class="px-3 py-2 rounded-lg text-xs text-white" style="background: linear-gradient(135deg, rgba(99,102,241,0.9), rgba(139,92,246,0.9));">
+                                你好呀！
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+
+                        <!-- 菲比气泡选项 -->
+                        <button
+                          class="relative p-4 rounded-xl border-2 transition-all duration-300 text-left overflow-hidden"
+                          :class="bubbleStyle === 'feibi' ? 'border-purple-500 bg-purple-500/10' : 'border-white/10 hover:border-white/20 hover:bg-white/5'"
+                          @click="bubbleStyle = 'feibi'"
+                        >
+                          <div class="flex items-center gap-3 mb-3">
+                            <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center" :class="bubbleStyle === 'feibi' ? 'border-purple-500' : 'border-white/30'">
+                              <div v-if="bubbleStyle === 'feibi'" class="w-2 h-2 rounded-full bg-purple-500" />
+                            </div>
+                            <span class="font-medium text-white">菲比</span>
+                          </div>
+                          <!-- 预览 -->
+                          <div class="relative flex flex-col gap-2">
+                            <div class="flex gap-2 items-start">
+                              <div class="w-6 h-6 rounded-full bg-purple-500/30 shrink-0" />
+                              <div class="px-3 py-2 rounded-xl text-xs bg-white text-black font-semibold" style="border-radius: 14px; box-shadow: 1px 1px 0 #3f3f3f; border-bottom-left-radius: 4px;">
+                                你好！
+                              </div>
+                            </div>
+                            <div class="flex gap-2 items-start flex-row-reverse" style="padding-bottom: 12px;">
+                              <div class="w-6 h-6 rounded-full bg-indigo-500/30 shrink-0" />
+                              <div class="relative">
+                                <div class="relative px-3 py-2 text-xs bg-white text-black font-semibold" style="border-radius: 14px; box-shadow: 1px 1px 0 #3f3f3f; border-bottom-right-radius: 4px; z-index: 5; position: relative;">
+                                  你好呀！
+                                </div>
+                                <img src="/feibi.png" class="absolute object-contain pointer-events-none" style="right: -25px; bottom: -20px; width: 40px; height: 40px; z-index: 0;" alt="菲比">
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -219,7 +290,7 @@ onMounted(() => {
 })
 
 // 使用用户设置
-const { userName, userEmail, currentUser, emailValidation, syncUserSettings } = useUserSettings()
+const { userName, userEmail, currentUser, emailValidation, syncUserSettings, bubbleStyle } = useUserSettings()
 
 // 关闭时保存设置
 function handleClose() {
