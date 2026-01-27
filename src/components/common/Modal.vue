@@ -5,14 +5,14 @@
     appear
   >
     <div class="fixed inset-0 flex items-center justify-center" :style="{ zIndex }">
-      <!-- 背景层过渡 -->
+      <!-- 背景层 - 透明遮罩（仅用于捕获点击事件） -->
       <Transition
         v-if="enableBackdropTransition"
         name="modal-backdrop"
         appear
       >
         <div
-          class="absolute inset-0 bg-black/60"
+          class="absolute inset-0 bg-transparent"
           @click="handleBackdropClick"
         />
       </Transition>
@@ -23,51 +23,57 @@
         appear
       >
         <div
-          class="glass-effect relative bg-dark border border-white/20 rounded-2xl w-full mx-4 overflow-hidden max-h-[75vh] flex flex-col"
+          class="relative w-full mx-4 overflow-hidden flex flex-col modal-container"
           :class="[
             modalSizeClass,
-            shadowClass,
           ]"
         >
+          <!-- 背景层 -->
+          <div class="absolute inset-0 modal-bg rounded-3xl" />
+
+          <!-- 装饰性光晕 -->
+          <div v-if="shouldShowEffects" class="absolute -top-20 -right-20 w-40 h-40 bg-purple-500/20 rounded-full blur-[80px] pointer-events-none" />
+          <div v-if="shouldShowEffects" class="absolute -bottom-20 -left-20 w-40 h-40 bg-indigo-500/20 rounded-full blur-[80px] pointer-events-none" />
+
           <!-- 固定头部 -->
-          <div v-if="showHeader" class="flex-shrink-0 p-6 pb-4 border-b border-white/10">
+          <div v-if="showHeader" class="flex-shrink-0 px-6 pt-6 pb-4 relative z-10">
             <div class="flex justify-between items-center">
-              <h2 class="text-xl font-semibold flex items-center text-white">
-                <i
+              <div class="flex items-center gap-3">
+                <div
                   v-if="headerIcon"
-                  class="mr-3"
-                  :class="[
-                    headerIcon,
-                    headerIconColorClass,
-                    shouldShowHeaderAnimation ? 'animate-pulse' : '',
-                  ]"
-                />
-                {{ title }}
-              </h2>
+                  class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"
+                  :class="headerIconBgClass"
+                >
+                  <i
+                    class="text-lg" :class="[
+                      headerIcon,
+                      headerIconColorClass,
+                    ]"
+                  />
+                </div>
+                <div>
+                  <h2 class="text-lg font-semibold text-white">
+                    {{ title }}
+                  </h2>
+                  <p v-if="subtitle" class="text-sm text-white/40 mt-0.5">
+                    {{ subtitle }}
+                  </p>
+                </div>
+              </div>
               <button
                 v-if="allowBackdropClose"
-                class="text-gray-400 hover:text-white transition-colors touch-target p-2 -m-2"
+                class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all duration-200"
                 @click="$emit('close')"
               >
-                <i class="fa-solid fa-times text-lg" />
+                <i class="fa-solid fa-times text-sm" />
               </button>
-            </div>
-
-            <!-- 副标题 -->
-            <div v-if="subtitle" class="mt-4">
-              <p class="text-sm text-gray-400 text-center">
-                {{ subtitle }}
-              </p>
             </div>
           </div>
 
           <!-- 可滚动内容区域 -->
-          <div class="flex-1 overflow-y-auto scrollable-content">
-            <div class="p-6 relative">
-              <div class="relative z-10">
-                <!-- 插槽内容 -->
-                <slot />
-              </div>
+          <div class="flex-1 overflow-y-auto scrollable-content relative z-10">
+            <div class="px-6 pb-6">
+              <slot />
             </div>
           </div>
         </div>
@@ -116,91 +122,40 @@ const { performanceLevel } = usePerformance()
 // 性能等级计算
 const isMediumPerformance = computed(() => performanceLevel.value === 'medium')
 const isHighPerformance = computed(() => performanceLevel.value === 'high')
-
-// 动画和效果控制
-const shouldShowHeaderAnimation = computed(() => isHighPerformance.value)
+const shouldShowEffects = computed(() => isHighPerformance.value || isMediumPerformance.value)
 
 const modalSizeClass = computed(() => {
   const sizeMap = {
     sm: 'max-w-md',
-    md: 'max-w-2xl',
-    lg: 'max-w-4xl',
-    xl: 'max-w-6xl',
+    md: 'max-w-xl',
+    lg: 'max-w-3xl',
+    xl: 'max-w-5xl',
   }
   return sizeMap[props.size]
-})
-
-const shadowClass = computed(() => {
-  if (isHighPerformance.value) {
-    return 'shadow-2xl backdrop-blur-xl'
-  }
-  if (isMediumPerformance.value) {
-    return 'shadow-xl backdrop-blur-md'
-  }
-  return ''
 })
 
 // 主题相关样式
 const themeConfig = computed(() => {
   const themes = {
     primary: {
-      gradient: 'bg-gradient-to-br from-primary/10 via-purple-500/5 to-pink-500/10',
-      headerBg: 'bg-gradient-to-br from-primary/30 to-primary/10',
-      headerColor: 'text-primary',
-      circles: [
-        { class: 'w-40 h-40 bg-primary/20', position: { top: '-5rem', left: '-5rem' }, delay: '0s' },
-        { class: 'w-64 h-64 bg-purple-500/15', position: { top: '33%', right: '-8rem' }, delay: '1s' },
-        { class: 'w-32 h-32 bg-pink-500/20', position: { bottom: '-4rem', left: '25%' }, delay: '2s' },
-      ],
-      icons: [
-        { iconClass: 'fa-solid fa-music', class: 'text-primary/10 text-6xl', position: { top: '5rem', left: '25%' }, delay: '0s' },
-        { iconClass: 'fa-solid fa-headphones', class: 'text-purple-400/10 text-4xl', position: { bottom: '8rem', right: '25%' }, delay: '1.5s' },
-        { iconClass: 'fa-solid fa-heart', class: 'text-pink-400/10 text-5xl', position: { top: '50%', left: '2.5rem' }, delay: '0.8s' },
-      ],
+      headerIconBg: 'bg-purple-500/10',
+      headerColor: 'text-purple-400',
     },
     success: {
-      gradient: 'bg-gradient-to-br from-green-500/15 via-blue-500/8 to-purple-500/15',
-      headerBg: 'bg-gradient-to-br from-green-500/40 to-green-500/15',
+      headerIconBg: 'bg-green-500/10',
       headerColor: 'text-green-400',
-      circles: [
-        { class: 'w-32 h-32 bg-green-500/25', position: { top: '-2.5rem', left: '-2.5rem' }, delay: '0s' },
-        { class: 'w-48 h-48 bg-blue-500/20', position: { top: '25%', right: '-4rem' }, delay: '1s' },
-        { class: 'w-24 h-24 bg-purple-500/25', position: { bottom: '-2rem', left: '33%' }, delay: '2s' },
-      ],
-      icons: [],
     },
     warning: {
-      gradient: 'bg-gradient-to-br from-yellow-500/15 via-orange-500/8 to-red-500/15',
-      headerBg: 'bg-gradient-to-br from-yellow-500/40 to-yellow-500/15',
-      headerColor: 'text-yellow-400',
-      circles: [
-        { class: 'w-32 h-32 bg-yellow-500/25', position: { top: '-2.5rem', left: '-2.5rem' }, delay: '0s' },
-        { class: 'w-48 h-48 bg-orange-500/20', position: { top: '25%', right: '-4rem' }, delay: '1s' },
-        { class: 'w-24 h-24 bg-red-500/25', position: { bottom: '-2rem', left: '33%' }, delay: '2s' },
-      ],
-      icons: [],
+      headerIconBg: 'bg-amber-500/10',
+      headerColor: 'text-amber-400',
     },
     danger: {
-      gradient: 'bg-gradient-to-br from-red-500/15 via-pink-500/8 to-purple-500/15',
-      headerBg: 'bg-gradient-to-br from-red-500/40 to-red-500/15',
+      headerIconBg: 'bg-red-500/10',
       headerColor: 'text-red-400',
-      circles: [
-        { class: 'w-32 h-32 bg-red-500/25', position: { top: '-2.5rem', left: '-2.5rem' }, delay: '0s' },
-        { class: 'w-48 h-48 bg-pink-500/20', position: { top: '25%', right: '-4rem' }, delay: '1s' },
-        { class: 'w-24 h-24 bg-purple-500/25', position: { bottom: '-2rem', left: '33%' }, delay: '2s' },
-      ],
-      icons: [],
     },
     info: {
-      gradient: 'bg-gradient-to-br from-blue-500/15 via-cyan-500/8 to-teal-500/15',
-      headerBg: 'bg-gradient-to-br from-blue-500/40 to-blue-500/15',
+      headerIconBg: 'bg-blue-500/10',
       headerColor: 'text-blue-400',
-      circles: [
-        { class: 'w-32 h-32 bg-blue-500/25', position: { top: '-2.5rem', left: '-2.5rem' }, delay: '0s' },
-        { class: 'w-48 h-48 bg-cyan-500/20', position: { top: '25%', right: '-4rem' }, delay: '1s' },
-        { class: 'w-24 h-24 bg-teal-500/25', position: { bottom: '-2rem', left: '33%' }, delay: '2s' },
-      ],
-      icons: [],
     },
   }
   return themes[props.theme]
@@ -212,17 +167,20 @@ const decorationConfig = computed(() => {
     default: themeConfig.value,
     create: {
       ...themeConfig.value,
-      gradient: 'bg-gradient-to-br from-green-500/15 via-blue-500/8 to-purple-500/15',
+      headerIconBg: 'bg-green-500/10',
+      headerColor: 'text-green-400',
     },
     confirm: {
       ...themeConfig.value,
-      gradient: 'bg-gradient-to-br from-primary/15 via-purple-500/8 to-pink-500/15',
+      headerIconBg: 'bg-purple-500/10',
+      headerColor: 'text-purple-400',
     },
   }
   return configs[props.decorationVariant]
 })
 
 // 头部图标样式
+const headerIconBgClass = computed(() => decorationConfig.value.headerIconBg)
 const headerIconColorClass = computed(() => decorationConfig.value.headerColor)
 
 // 事件处理
@@ -235,6 +193,21 @@ function handleBackdropClick() {
 </script>
 
 <style scoped>
+/* 不透明背景 */
+.modal-bg {
+  background: #1a1a1f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+/* 模态框容器 */
+.modal-container {
+  border-radius: 24px;
+  max-height: 80vh;
+}
+
 /* 模态框整体过渡 */
 .modal-enter-active,
 .modal-leave-active {
@@ -270,12 +243,12 @@ function handleBackdropClick() {
 /* 模态框内容过渡 */
 .modal-content-enter-active,
 .modal-content-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .modal-content-enter-from {
   opacity: 0;
-  transform: scale(0.9) translateY(-20px);
+  transform: scale(0.9) translateY(30px);
 }
 
 .modal-content-leave-to {
@@ -292,11 +265,7 @@ function handleBackdropClick() {
 /* 高性能模式下的额外动画效果 */
 @media (prefers-reduced-motion: no-preference) {
   .modal-content-enter-active {
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .modal-content-enter-from {
-    transform: scale(0.8) translateY(-30px) rotateX(10deg);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
@@ -319,49 +288,24 @@ function handleBackdropClick() {
 
 /* 响应式调整 */
 @media (max-width: 640px) {
-  .modal-content-enter-from {
-    transform: scale(0.95) translateY(-10px);
+  .modal-container {
+    margin-left: 16px;
+    margin-right: 16px;
+    max-height: 85vh;
   }
 
-  .modal-content-leave-to {
-    transform: scale(0.98) translateY(5px);
+  .modal-content-enter-from {
+    transform: scale(0.95) translateY(20px);
   }
 }
 
-/* 滚动条样式 */
+/* 滚动条样式 - 隐藏 */
 .scrollable-content {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .scrollable-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.scrollable-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollable-content::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
-  transition: background-color 0.2s ease;
-}
-
-.scrollable-content::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.5);
-}
-
-/* 移动端优化 */
-@media (max-width: 640px) {
-  .scrollable-content {
-    /* 在移动端隐藏滚动条 */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .scrollable-content::-webkit-scrollbar {
-    display: none;
-  }
+  display: none;
 }
 </style>

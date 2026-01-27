@@ -1,53 +1,30 @@
 <template>
-  <!-- 全屏背景装饰 -->
-  <div v-if="show" class="fixed inset-0 pointer-events-none" style="z-index: 90;">
-    <!-- 静态渐变背景 -->
-    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-pink-500/10" />
-
-    <!-- 装饰性图标 - 覆盖整个屏幕 -->
-    <div class="absolute top-20 left-1/4 text-blue-500/15 text-6xl">
-      <i class="fa-solid fa-music" />
-    </div>
-    <div class="absolute bottom-32 right-1/4 text-purple-400/15 text-4xl">
-      <i class="fa-solid fa-headphones" />
-    </div>
-    <div class="absolute top-1/2 left-10 text-pink-400/15 text-5xl">
-      <i class="fa-solid fa-heart" />
-    </div>
-    <div class="absolute top-32 right-20 text-blue-400/10 text-3xl">
-      <i class="fa-solid fa-compact-disc" />
-    </div>
-    <div class="absolute bottom-20 left-20 text-purple-300/10 text-4xl">
-      <i class="fa-solid fa-microphone" />
-    </div>
-    <div class="absolute top-2/3 right-1/3 text-pink-300/10 text-2xl">
-      <i class="fa-solid fa-musical-note" />
-    </div>
-  </div>
-
   <!-- 房间选择主弹窗 -->
   <Modal
     v-if="show" :z-index="100" size="md" title="选择房间" subtitle="选择或搜索要加入的音乐房间" header-icon="fa-solid fa-music"
     :enable-backdrop-transition="false" :allow-backdrop-close="false" @close="emit('cancel')"
   >
-    <!-- 移除模态框内部的装饰 -->
     <!-- 房间搜索和选择 -->
-    <div class="space-y-4">
+    <div class="space-y-6 modal-content-reveal">
       <!-- 搜索框和创建按钮 -->
       <div class="flex gap-3">
-        <div class="relative flex-1">
+        <div class="relative flex-1 group">
           <input
             v-model="searchKeyword" type="text" placeholder="搜索房间名称..."
-            class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
+            class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 pl-11 text-white placeholder-white/40
+                   focus:outline-none focus:border-purple-500/50 focus:bg-white/10
+                   transition-all duration-300"
             @input="handleSearch"
           >
-          <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-white/40 group-focus-within:text-purple-400 transition-colors duration-300" />
           <div v-if="isSearching" class="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <i class="fa-solid fa-spinner animate-spin text-blue-500" />
+            <i class="fa-solid fa-spinner animate-spin text-purple-500" />
           </div>
         </div>
         <button
-          class="bg-gradient-to-r from-blue-500 to-blue-500/80 hover:from-blue-500/90 hover:to-blue-500/70 text-white rounded-lg px-4 py-3 transition-all shadow-lg backdrop-blur-sm flex items-center gap-2 whitespace-nowrap"
+          class="relative overflow-hidden bg-purple-600 hover:bg-purple-500 active:scale-95 text-white rounded-2xl px-6 py-3.5
+                 transition-all duration-300 shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40 hover:-translate-y-0.5
+                 flex items-center gap-2 whitespace-nowrap font-medium btn-shine"
           @click="showCreateRoomDialog"
         >
           <i class="fa-solid fa-plus" />
@@ -55,56 +32,74 @@
         </button>
       </div>
 
-      <!-- 房间列表 -->
-      <div class="max-h-64 overflow-y-auto space-y-2 custom-scrollbar">
-        <div
-          v-for="room in filteredRooms" :key="room.id" class="p-4 rounded-lg border transition-all cursor-pointer"
-          :class="[
-            selectedRoomId === room.id
-              ? 'bg-blue-500/20 border-blue-500/50 shadow-lg'
-              : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20',
-          ]" @click="selectRoom(room)"
-        >
-          <div class="flex items-center justify-between">
-            <div class="flex-1">
-              <div class="flex items-center mb-2">
-                <span class="font-medium text-white">{{ room.name }}</span>
-                <span v-if="room.needPwd" class="ml-2 text-yellow-400" title="需要密码">
-                  <i class="fa-solid fa-lock text-xs" />
-                </span>
-              </div>
-              <div class="flex items-center text-sm text-gray-300">
-                <div class="flex items-center mr-4">
-                  <i class="fa-solid fa-users mr-2" />
-                  <span>{{ room.population }} 人</span>
+      <!-- 房间列表 - 无边框设计 -->
+      <div class="max-h-72 overflow-y-auto room-list-container">
+        <div class="space-y-3">
+          <TransitionGroup name="room-list">
+            <div
+              v-for="(room, index) in filteredRooms" :key="room.id"
+              class="group p-4 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-300 cursor-pointer room-card"
+              :class="[
+                selectedRoomId === room.id ? 'selected-room' : '',
+              ]"
+              :style="{ animationDelay: `${index * 50}ms` }"
+              @click="selectRoom(room)"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center mb-2">
+                    <span class="font-semibold text-white text-sm truncate group-hover:text-purple-200 transition-colors">{{ room.name }}</span>
+                    <span v-if="room.needPwd" class="ml-2 text-white/40 flex-shrink-0 group-hover:text-amber-400/80 transition-colors" title="需要密码">
+                      <i class="fa-solid fa-lock text-xs" />
+                    </span>
+                  </div>
+                  <div class="flex items-center text-xs text-white/40">
+                    <div class="flex items-center mr-4 flex-shrink-0">
+                      <i class="fa-solid fa-users mr-1.5 text-white/30 group-hover:text-purple-400/60 transition-colors" />
+                      <span>{{ room.population }} 人</span>
+                    </div>
+                    <div class="flex items-center min-w-0">
+                      <i class="fa-solid fa-info-circle mr-1.5 text-white/30 group-hover:text-purple-400/60 transition-colors" />
+                      <span class="truncate">{{ room.description || '暂无简介' }}</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="flex items-center">
-                  <i class="fa-solid fa-info-circle mr-2" />
-                  <span class="truncate">{{ room.description || '暂无简介' }}</span>
+                <div
+                  class="ml-4 flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300"
+                  :class="selectedRoomId === room.id
+                    ? 'bg-purple-600 border-purple-600 scale-110 check-bounce'
+                    : 'border-white/20 group-hover:border-white/40 group-hover:scale-105'"
+                >
+                  <i v-if="selectedRoomId === room.id" class="fa-solid fa-check text-white text-xs" />
                 </div>
               </div>
             </div>
-            <div v-if="selectedRoomId === room.id" class="text-blue-500">
-              <i class="fa-solid fa-check-circle" />
+          </TransitionGroup>
+
+          <!-- 无房间提示 -->
+          <Transition name="fade-scale">
+            <div v-if="!isSearching && filteredRooms.length === 0" class="text-center py-10 text-white/40">
+              <i class="fa-solid fa-search text-3xl mb-3 text-white/20" />
+              <p class="text-sm">
+                {{ searchKeyword ? '未找到匹配的房间' : '暂无可用房间' }}
+              </p>
             </div>
-          </div>
-        </div>
+          </Transition>
 
-        <!-- 无房间提示 -->
-        <div v-if="!isSearching && filteredRooms.length === 0" class="text-center py-8 text-gray-400">
-          <i class="fa-solid fa-search text-2xl mb-2 opacity-50" />
-          <p>{{ searchKeyword ? '未找到匹配的房间' : '暂无可用房间' }}</p>
-        </div>
-
-        <!-- 加载中 -->
-        <div v-if="isSearching" class="text-center py-8 text-gray-400">
-          <i class="fa-solid fa-spinner animate-spin text-2xl mb-2" />
-          <p>正在搜索房间...</p>
+          <!-- 加载中 -->
+          <Transition name="fade-scale">
+            <div v-if="isSearching" class="text-center py-10 text-white/40">
+              <i class="fa-solid fa-spinner animate-spin text-3xl mb-3 text-purple-500" />
+              <p class="text-sm">
+                正在搜索房间...
+              </p>
+            </div>
+          </Transition>
         </div>
       </div>
 
-      <p class="text-sm text-gray-400 text-center">
-        点击房间即可加入，享受与其他用户一起听歌、聊天和互动的乐趣
+      <p class="text-xs text-white/30 text-center">
+        点击房间即可加入，与其他用户一起听歌互动
       </p>
     </div>
   </Modal>
@@ -115,48 +110,61 @@
     header-icon="fa-solid fa-music" decoration-variant="confirm" @close="handleCancel"
   >
     <!-- 房间信息卡片 -->
-    <div
-      class="bg-gradient-to-r from-white/15 to-white/8 rounded-lg p-4 mb-6 text-left backdrop-blur-sm border border-white/20 shadow-lg"
-    >
-      <div class="flex items-center mb-3">
-        <i class="fa-solid fa-door-open text-blue-500 mr-2" />
-        <span class="font-medium">{{ selectedRoom.name }}</span>
-        <span v-if="selectedRoom.needPwd" class="ml-2 text-yellow-400" title="需要密码">
-          <i class="fa-solid fa-lock text-xs" />
-        </span>
+    <div class="rounded-2xl p-5 mb-6 bg-white/[0.03] relative overflow-hidden">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 rounded-xl bg-purple-600/20 flex items-center justify-center mr-4">
+          <i class="fa-solid fa-door-open text-purple-400 text-lg" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <span class="font-semibold text-white text-base block truncate">{{ selectedRoom.name }}</span>
+          <span v-if="selectedRoom.needPwd" class="text-white/40 text-xs flex items-center gap-1 mt-0.5">
+            <i class="fa-solid fa-lock text-xs" />
+            需要密码
+          </span>
+        </div>
       </div>
-      <div class="flex items-center mb-2">
-        <i class="fa-solid fa-users text-blue-500 mr-2" />
-        <span class="text-sm text-gray-300">{{ selectedRoom.population }} 人在线</span>
-      </div>
-      <div class="flex items-center">
-        <i class="fa-solid fa-info-circle text-blue-500 mr-2" />
-        <span class="text-sm text-gray-300">{{ selectedRoom.description || '暂无简介' }}</span>
+      <div class="flex items-center gap-6 text-sm text-white/40">
+        <div class="flex items-center">
+          <i class="fa-solid fa-users mr-2 text-white/30" />
+          <span>{{ selectedRoom.population }} 人在线</span>
+        </div>
+        <div class="flex items-center min-w-0">
+          <i class="fa-solid fa-info-circle mr-2 text-white/30" />
+          <span class="truncate">{{ selectedRoom.description || '暂无简介' }}</span>
+        </div>
       </div>
     </div>
 
     <!-- 密码输入框 -->
-    <div v-if="selectedRoom.needPwd" class="mb-6">
-      <PasswordInput v-model="confirmPassword" placeholder="请输入房间密码" :show-counter="false" @enter="handleConfirm" />
-    </div>
+    <Transition name="slide-down">
+      <div v-if="selectedRoom.needPwd" class="mb-6">
+        <PasswordInput v-model="confirmPassword" placeholder="请输入房间密码" :show-counter="false" @enter="handleConfirm" />
+      </div>
+    </Transition>
 
-    <p class="text-sm text-gray-400 mb-6 text-center">
+    <p class="text-sm text-white/40 mb-6 text-center">
       加入后您将与其他用户一起听歌、聊天和互动
     </p>
 
     <!-- 操作按钮 -->
-    <div class="flex space-x-3">
+    <div class="flex gap-3">
       <button
-        class="flex-1 bg-white/10 hover:bg-white/20 text-white rounded-full py-3 px-4 transition-all backdrop-blur-sm border border-white/10 shadow-lg"
+        class="flex-1 bg-white/5 hover:bg-white/10 active:scale-95 text-white rounded-2xl py-3.5 px-4
+               transition-all duration-300 border border-white/10 font-medium hover:border-white/20"
         @click="handleCancel"
       >
         取消
       </button>
       <button
-        class="flex-1 bg-gradient-to-r from-blue-500 to-blue-500/80 hover:from-blue-500/90 hover:to-blue-500/70 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-full py-3 px-4 transition-all shadow-lg backdrop-blur-sm"
+        class="relative overflow-hidden flex-1 bg-purple-600 hover:bg-purple-500 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
+               disabled:active:scale-100 text-white rounded-2xl py-3.5 px-4 transition-all duration-300
+               shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40 hover:-translate-y-0.5 font-medium btn-shine"
         :disabled="selectedRoom.needPwd && !confirmPassword.trim()" @click="handleConfirm"
       >
-        加入房间
+        <span class="flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket" />
+          加入房间
+        </span>
       </button>
     </div>
   </Modal>
@@ -167,79 +175,92 @@
     header-icon="fa-solid fa-plus" theme="success" @close="hideCreateRoomDialog"
   >
     <!-- 创建房间表单 -->
-    <div class="space-y-4">
+    <div class="space-y-5">
       <!-- 房间名称 -->
-      <div>
-        <label class="block text-sm font-medium mb-2 text-gray-300">
-          <i class="fa-solid fa-tag text-blue-500 mr-2" />
+      <div class="form-field" style="--delay: 0ms">
+        <label class="block text-sm font-medium mb-2.5 text-white/60">
+          <i class="fa-solid fa-tag text-white/40 mr-2" />
           房间名称 *
         </label>
         <input
           v-model="createForm.name" type="text" placeholder="请输入房间名称"
-          class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
+          class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-white placeholder-white/30
+                 focus:outline-none focus:border-purple-500/50 focus:bg-white/10
+                 transition-all duration-300"
           maxlength="50" @keyup.enter="handleCreateRoom"
         >
-        <div class="text-xs text-gray-500 mt-1 text-right">
-          {{ createForm.name.length }}/50
+        <div class="text-xs text-white/30 mt-2 text-right">
+          <span :class="createForm.name.length > 40 ? 'text-amber-400/80' : ''">{{ createForm.name.length }}</span>/50
         </div>
       </div>
 
       <!-- 房间描述 -->
-      <div>
-        <label class="block text-sm font-medium mb-2 text-gray-300">
-          <i class="fa-solid fa-info-circle text-blue-500 mr-2" />
+      <div class="form-field" style="--delay: 50ms">
+        <label class="block text-sm font-medium mb-2.5 text-white/60">
+          <i class="fa-solid fa-info-circle text-white/40 mr-2" />
           房间描述
         </label>
         <textarea
           v-model="createForm.description" placeholder="请输入房间描述（可选）"
-          class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all resize-none"
+          class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-white placeholder-white/30
+                 focus:outline-none focus:border-purple-500/50 focus:bg-white/10
+                 transition-all duration-300 resize-none"
           rows="3" maxlength="200"
         />
-        <div class="text-xs text-gray-500 mt-1 text-right">
-          {{ (createForm.description || '').length }}/200
+        <div class="text-xs text-white/30 mt-2 text-right">
+          <span :class="(createForm.description || '').length > 180 ? 'text-amber-400/80' : ''">{{ (createForm.description || '').length }}</span>/200
         </div>
       </div>
 
       <!-- 密码设置 -->
-      <div>
-        <div class="flex flex-row justify-between items-center mb-2">
-          <label class="text-sm font-medium text-gray-300">
-            <i class="fa-solid fa-lock text-blue-500 mr-2" />
+      <div class="form-field" style="--delay: 100ms">
+        <div class="flex flex-row justify-between items-center mb-2.5">
+          <label class="text-sm font-medium text-white/60">
+            <i class="fa-solid fa-lock text-white/40 mr-2" />
             房间密码
           </label>
           <button
-            type="button" class="text-xs text-blue-500 hover:text-blue-500/80 transition-colors"
+            type="button" class="text-xs text-purple-400 hover:text-purple-300 transition-colors duration-300 hover:scale-105 transform"
             @click="createForm.enablePassword = !createForm.enablePassword"
           >
-            {{ createForm.enablePassword ? '取消密码' : '设置密码' }}
+            <span class="flex items-center gap-1">
+              <i :class="createForm.enablePassword ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock'" />
+              {{ createForm.enablePassword ? '取消密码' : '设置密码' }}
+            </span>
           </button>
         </div>
-        <div class="bg-white/5 rounded-lg p-4 border border-white/10">
-          <div v-if="createForm.enablePassword" class="space-y-2">
-            <PasswordInput v-model="createForm.password" placeholder="请输入房间密码" @enter="handleCreateRoom" />
-          </div>
-          <div v-else class="text-sm text-gray-500">
-            <i class="fa-solid fa-info-circle text-blue-500 mr-2" />
-            房间将对所有人开放，无需密码即可加入
-          </div>
+        <div class="rounded-2xl p-4 bg-white/[0.03]">
+          <Transition name="fade" mode="out-in">
+            <div v-if="createForm.enablePassword" key="password-input" class="space-y-2">
+              <PasswordInput v-model="createForm.password" placeholder="请输入房间密码" @enter="handleCreateRoom" />
+            </div>
+            <div v-else key="password-hint" class="text-sm text-white/40 flex items-center">
+              <i class="fa-solid fa-info-circle text-white/30 mr-2" />
+              房间将对所有人开放，无需密码即可加入
+            </div>
+          </Transition>
         </div>
       </div>
 
-      <p class="text-sm text-gray-400 text-center">
+      <p class="text-xs text-white/30 text-center">
         创建房间后您将成为房主，可以管理房间设置和播放列表
       </p>
     </div>
 
     <!-- 操作按钮 -->
-    <div class="flex space-x-3 mt-6">
+    <div class="flex gap-3 mt-7">
       <button
-        class="flex-1 bg-white/10 hover:bg-white/20 text-white rounded-full py-3 px-4 transition-all backdrop-blur-sm border border-white/10 shadow-lg"
+        class="flex-1 bg-white/5 hover:bg-white/10 active:scale-95 text-white rounded-2xl py-3.5 px-4
+               transition-all duration-300 border border-white/10 font-medium hover:border-white/20"
         @click="hideCreateRoomDialog"
       >
         取消
       </button>
       <button
-        class="flex-1 bg-gradient-to-r from-green-500 to-green-500/80 hover:from-green-500/90 hover:to-green-500/70 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-full py-3 px-4 transition-all shadow-lg backdrop-blur-sm flex items-center justify-center gap-2"
+        class="relative overflow-hidden flex-1 bg-purple-600 hover:bg-purple-500 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
+               disabled:active:scale-100 text-white rounded-2xl py-3.5 px-4 transition-all duration-300
+               shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40 hover:-translate-y-0.5
+               flex items-center justify-center gap-2 font-medium btn-shine"
         :disabled="!createForm.name.trim() || isCreatingRoom" @click="handleCreateRoom"
       >
         <i v-if="isCreatingRoom" class="fa-solid fa-spinner animate-spin" />
@@ -564,26 +585,182 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 自定义滚动条样式 */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(79, 70, 229, 0.6) transparent;
+/* 房间列表容器 - 隐藏滚动条 */
+.room-list-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+.room-list-container::-webkit-scrollbar {
+  display: none;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+/* 房间列表进入动画 */
+.room-list-enter-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(79, 70, 229, 0.6);
-  border-radius: 3px;
+.room-list-leave-active {
+  transition: all 0.3s ease;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 70, 229, 0.8);
+.room-list-enter-from {
+  opacity: 0;
+  transform: translateX(-20px) scale(0.95);
+}
+
+.room-list-leave-to {
+  opacity: 0;
+  transform: translateX(20px) scale(0.95);
+}
+
+/* 淡入淡出动画 */
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* 淡入动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 滑下动画 */
+.slide-down-enter-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.slide-down-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-15px);
+  max-height: 0;
+  margin-bottom: 0;
+}
+
+/* 模态框内容揭示动画 */
+@keyframes modal-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-content-reveal {
+  animation: modal-reveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 选中房间样式 */
+.selected-room {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.15);
+}
+
+/* 按钮闪光扫过效果 */
+@keyframes btn-shine-sweep {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.btn-shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: btn-shine-sweep 3s ease-in-out infinite;
+}
+
+/* 勾选图标弹跳动画 */
+@keyframes check-bounce {
+  0% { transform: scale(0) rotate(-45deg); }
+  50% { transform: scale(1.3) rotate(10deg); }
+  100% { transform: scale(1.1) rotate(0deg); }
+}
+
+.check-bounce {
+  animation: check-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 房间卡片悬停光效 */
+.room-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.room-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.room-card:hover::before {
+  left: 100%;
+}
+
+/* 表单字段依次进入动画 */
+.form-field {
+  opacity: 0;
+  animation: form-field-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes form-field-enter {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 按钮悬浮 lift 效果 */
+button:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+button:not(:disabled):active {
+  transform: translateY(0) scale(0.98);
 }
 </style>
