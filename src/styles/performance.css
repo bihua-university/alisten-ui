@@ -89,6 +89,13 @@
   opacity: 1 !important;
 }
 
+/* 非高亮歌词模糊控制 - 在极简、省电、平衡模式下移除模糊 */
+.performance-medium .far-lyric,
+.performance-low .far-lyric,
+.performance-off .far-lyric {
+  filter: none !important;
+}
+
 .performance-off .blur-3xl,
 .performance-off .blur-lg,
 .performance-off .blur-medium,
