@@ -46,9 +46,9 @@
       </div>
 
       <!-- Content -->
-      <div class="flex-1 relative z-10 flex flex-col w-full max-w-7xl mx-auto">
+      <div class="flex-1 relative z-10 flex flex-col w-full h-full max-w-7xl mx-auto overflow-y-auto">
         <!-- Search View -->
-        <div v-if="currentMode === 'search'" class="w-full h-full flex flex-col px-4 md:px-8 pt-6 pb-2">
+        <div v-if="currentMode === 'search'" class="flex-1 w-full flex flex-col px-4 md:px-8 pt-6 pb-6 min-h-0">
           <!-- Search Inputs & Filters -->
           <div class="flex-shrink-0 space-y-4 mb-4 max-w-4xl mx-auto w-full">
             <!-- Big Search Input -->
@@ -143,10 +143,10 @@
           </div>
 
           <!-- Results Grid -->
-          <div class="flex-1 relative min-h-0 max-w-4xl mx-auto w-full">
-            <div class="h-full bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-sm overflow-hidden scroll-container flex flex-col">
+          <div class="flex-1 min-h-0 max-w-4xl mx-auto w-full">
+            <div class="h-full bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-sm overflow-hidden flex flex-col">
               <!-- Empty State -->
-              <div v-if="searchResults.length === 0" class="absolute inset-0 flex flex-col items-center justify-center text-white/40 pointer-events-none">
+              <div v-if="searchResults.length === 0" class="flex-1 flex flex-col items-center justify-center text-white/40">
                 <div class="w-24 h-24 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/10">
                   <i :class="selectedSearchMode.icon" class="text-4xl text-purple-400/60" />
                 </div>
@@ -159,57 +159,66 @@
               </div>
 
               <!-- Content List -->
-              <div v-else class="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                <div class="flex flex-col gap-2 touch-pan-y">
-                  <template v-if="selectedSearchMode.id === 'song'">
-                    <MusicItem
-                      v-for="result in searchResults"
-                      :key="result.id"
-                      :music="result"
-                      @add="(music) => pickMusic(music, selectedMusicSource.id)"
-                    />
-                  </template>
-                  <template v-else>
-                    <PlaylistItem
-                      v-for="result in searchResults"
-                      :key="result.id"
-                      :playlist="result"
-                      @view="viewPlaylist"
-                    />
-                  </template>
-                </div>
+              <template v-else>
+                <div class="flex-1 min-h-0 overflow-y-auto pt-4 custom-scrollbar">
+                  <div class="flex flex-col gap-2 touch-pan-y px-4">
+                    <template v-if="selectedSearchMode.id === 'song'">
+                      <MusicItem
+                        v-for="result in searchResults"
+                        :key="result.id"
+                        :music="result"
+                        @add="(music) => pickMusic(music, selectedMusicSource.id)"
+                      />
+                    </template>
+                    <template v-else>
+                      <PlaylistItem
+                        v-for="result in searchResults"
+                        :key="result.id"
+                        :playlist="result"
+                        @view="viewPlaylist"
+                      />
+                    </template>
+                  </div>
 
-                <!-- Pagination -->
-                <div v-if="totalPages > 1" class="mt-6 flex justify-center pb-4">
-                  <div class="flex items-center gap-1 bg-white/5 p-1.5 rounded-xl border border-white/5">
-                    <button
-                      :disabled="currentPage === 0"
-                      class="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white/70"
-                      @click="changePage(currentPage - 1)"
-                    >
-                      <i class="fa-solid fa-chevron-left text-xs" />
-                    </button>
-                    <div class="flex gap-1 px-1">
+                  <!-- Pagination -->
+                  <div v-if="totalPages > 1" class="mt-6 flex justify-center pb-4 px-4">
+                    <div class="flex items-center gap-1 bg-white/5 p-1.5 rounded-xl border border-white/5">
                       <button
-                        v-for="page in visiblePages"
-                        :key="page"
-                        class="pagination-btn min-w-9 h-9 px-2 flex items-center justify-center rounded-lg text-sm font-medium"
-                        :class="currentPage === page ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-white/60 hover:bg-white/10 hover:text-white'"
-                        @click="page !== -1 && changePage(page)"
+                        :disabled="currentPage === 0"
+                        class="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white/70"
+                        @click="changePage(currentPage - 1)"
                       >
-                        {{ page === -1 ? '...' : page + 1 }}
+                        <i class="fa-solid fa-chevron-left text-xs" />
+                      </button>
+                      <div class="flex gap-1 px-1">
+                        <button
+                          v-for="page in visiblePages"
+                          :key="page"
+                          class="pagination-btn min-w-9 h-9 px-2 flex items-center justify-center rounded-lg text-sm font-medium"
+                          :class="currentPage === page ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-white/60 hover:bg-white/10 hover:text-white'"
+                          @click="page !== -1 && changePage(page)"
+                        >
+                          {{ page === -1 ? '...' : page + 1 }}
+                        </button>
+                      </div>
+                      <button
+                        :disabled="!hasNextPage"
+                        class="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white/70"
+                        @click="changePage(currentPage + 1)"
+                      >
+                        <i class="fa-solid fa-chevron-right text-xs" />
                       </button>
                     </div>
-                    <button
-                      :disabled="!hasNextPage"
-                      class="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white/70"
-                      @click="changePage(currentPage + 1)"
-                    >
-                      <i class="fa-solid fa-chevron-right text-xs" />
-                    </button>
+                  </div>
+
+                  <!-- Footer -->
+                  <div class="pt-6 pb-6 border-t border-white/5 flex flex-col items-center gap-3 text-center bg-gradient-to-b from-transparent to-purple-500/5 rounded-b-3xl -mx-0">
+                    <p class="text-xs text-white/40">
+                      由第三方音乐平台提供搜索服务
+                    </p>
                   </div>
                 </div>
-              </div>
+              </template>
             </div>
           </div>
         </div>
