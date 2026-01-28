@@ -39,13 +39,11 @@
         </div>
       </div>
       <!-- Progress Bar -->
-      <div class="h-1.5 bg-white/10 rounded-full overflow-hidden relative cursor-pointer group/progress">
+      <div class="h-1.5 bg-white/10 rounded-full overflow-hidden relative">
         <div
-          class="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-full transition-all duration-300"
+          class="player-progress-bar absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-full"
           :style="{ width: `${progress}%` }"
-        >
-          <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover/progress:opacity-100 transition-opacity" />
-        </div>
+        />
       </div>
     </div>
 

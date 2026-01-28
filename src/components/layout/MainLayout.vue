@@ -1,9 +1,9 @@
 <template>
   <div class="root-container overflow-x-hidden">
-    <div class="app-viewport flex flex-col items-center relative bg-gradient-to-br from-gray-900 to-black overflow-hidden font-sans text-white">
+    <div class="main-layout-bg app-viewport flex flex-col items-center relative overflow-hidden font-sans text-white">
       <!-- Background Abstract Shapes -->
-      <div class="bg-shapes absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
-      <div class="bg-shapes absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none" />
+      <div class="bg-shapes performance-bg-shape absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
+      <div class="bg-shapes performance-bg-shape absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none" />
 
       <!-- Dynamic Song Background -->
       <div v-if="currentSong?.cover && !isImmersiveMode" class="song-bg absolute inset-0 z-0">

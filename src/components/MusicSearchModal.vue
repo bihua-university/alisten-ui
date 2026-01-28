@@ -7,38 +7,41 @@
     leave-from-class="opacity-100 translate-y-0"
     leave-to-class="opacity-0 translate-y-4"
   >
-    <div v-show="true" class="fixed inset-0 z-[60] bg-gray-900/95 backdrop-blur-md text-white flex flex-col overflow-hidden">
-      <!-- Background Decorations -->
-      <!-- Removed decorations to match HelpModal style -->
+    <div v-show="true" class="search-modal-bg fixed inset-0 z-[60] bg-gradient-to-b from-gray-900 via-gray-900 to-black text-white flex flex-col overflow-hidden">
+      <!-- Background Glow Effects -->
+      <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="bg-glow absolute top-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl" />
+        <div class="bg-glow absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
+      </div>
 
       <!-- Top Bar -->
-      <div class="relative z-10 flex-shrink-0 px-4 md:px-8 py-4 border-b border-white/5 bg-black/20 backdrop-blur-md flex justify-between items-center">
+      <div class="search-glass relative z-10 flex-shrink-0 px-4 md:px-8 py-4 border-b border-white/5 bg-black/20 flex justify-between items-center">
         <div class="flex items-center gap-4">
           <button
-            class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+            class="w-10 h-10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all duration-200 text-white/70 hover:text-white active:scale-95"
             @click="$emit('close')"
           >
             <i class="fa-solid fa-arrow-left text-lg" />
           </button>
-          <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+          <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
             点歌台
           </h1>
         </div>
 
         <div class="flex items-center space-x-2 md:space-x-4">
           <!-- Mode Toggle Pills -->
-          <div class="flex items-center bg-white/5 p-1 rounded-full border border-white/5">
+          <div class="flex items-center bg-white/5 p-1 rounded-2xl border border-white/5">
             <button
-              class="relative px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2"
-              :class="currentMode === 'search' ? 'bg-purple-600/10 text-purple-400 shadow-sm ring-1 ring-purple-600/50' : 'text-gray-400 hover:text-gray-200'"
+              class="mode-tab relative px-4 py-1.5 rounded-xl text-sm font-medium flex items-center gap-2"
+              :class="currentMode === 'search' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-white/60 hover:text-white hover:bg-white/5'"
               @click="setCurrentMode('search')"
             >
               <i class="fa-solid fa-search text-xs" />
               <span class="hidden md:inline">搜索</span>
             </button>
             <button
-              class="relative px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2"
-              :class="currentMode === 'ai' ? 'bg-purple-600/10 text-purple-400 shadow-sm ring-1 ring-purple-600/50' : 'text-gray-400 hover:text-gray-200'"
+              class="mode-tab relative px-4 py-1.5 rounded-xl text-sm font-medium flex items-center gap-2"
+              :class="currentMode === 'ai' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-white/60 hover:text-white hover:bg-white/5'"
               @click="setCurrentMode('ai')"
             >
               <i class="fa-solid fa-robot text-xs" />
@@ -51,20 +54,20 @@
       <!-- Content -->
       <div class="flex-1 overflow-hidden relative z-10 flex flex-col w-full max-w-7xl mx-auto">
         <!-- Search View -->
-        <div v-if="currentMode === 'search'" class="w-full h-full flex flex-col px-4 md:px-8 pt-6 pb-2">
+        <div v-if="currentMode === 'search'" class="w-full h-full overflow-y-auto custom-scrollbar px-4 md:px-8 pt-6 pb-2">
           <!-- Search Inputs & Filters -->
-          <div class="flex-shrink-0 space-y-5 mb-4">
+          <div class="space-y-4 mb-4 max-w-4xl mx-auto">
             <!-- Big Search Input -->
             <div class="relative group max-w-4xl mx-auto w-full">
               <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                <i class="fa-solid fa-search text-gray-400 group-focus-within:text-purple-400 transition-colors text-lg" />
+                <i class="fa-solid fa-search text-white/40 group-focus-within:text-purple-400 transition-colors text-lg" />
               </div>
               <input
                 ref="searchInputRef"
                 v-model="songSearchQuery"
                 type="text"
                 :placeholder="`在 ${selectedMusicSource.name} 中搜索${selectedSearchMode.name}...`"
-                class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-14 pr-14 text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600/50 focus:bg-white/10 transition-all shadow-lg"
+                class="search-input w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-14 pr-14 text-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white/10 shadow-lg shadow-black/20"
                 @keyup.enter="handleSearch"
                 @keydown="handleKeyDown"
                 @focus="handleInputFocus"
@@ -73,8 +76,8 @@
               <!-- History Icon -->
               <button
                 v-if="currentSearchHistory.length > 0"
-                class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center transition-colors"
-                :class="showSearchHistory ? 'text-purple-400 bg-purple-600/10' : 'text-gray-400 hover:text-white hover:bg-white/10'"
+                class="search-btn absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center"
+                :class="showSearchHistory ? 'text-purple-400 bg-purple-500/20' : 'text-white/50 hover:text-white hover:bg-white/10'"
                 @click="toggleSearchHistory"
               >
                 <i class="fa-solid fa-clock-rotate-left" />
@@ -83,28 +86,28 @@
               <!-- History Dropdown (Styled) -->
               <div
                 v-if="showSearchHistory"
-                class="absolute left-0 right-0 top-full mt-2 bg-gray-900/95 border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden backdrop-blur-3xl"
+                class="search-history-dropdown absolute left-0 right-0 top-full mt-2 bg-[#121214] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden"
               >
-                <div v-if="currentSearchHistory.length === 0" class="p-6 text-center text-gray-500">
+                <div v-if="currentSearchHistory.length === 0" class="p-6 text-center text-white/40">
                   暂无历史
                 </div>
                 <div v-else>
-                  <div class="px-4 py-2 bg-white/5 border-b border-white/10 flex justify-between items-center text-xs text-gray-400">
+                  <div class="px-4 py-3 bg-white/5 border-b border-white/10 flex justify-between items-center text-xs text-white/50">
                     <span>历史记录</span>
-                    <button class="hover:text-red-400 transition-colors" @click="clearCurrentHistory">
-                      清空
+                    <button class="hover:text-red-400 transition-colors flex items-center gap-1" @click="clearCurrentHistory">
+                      <i class="fa-solid fa-trash-can text-xs" /> 清空
                     </button>
                   </div>
                   <div
                     v-for="(item, index) in currentSearchHistory"
                     :key="index"
-                    class="px-4 py-3 flex items-center cursor-pointer transition-colors border-b border-white/5 last:border-0"
-                    :class="selectedHistoryIndex === index ? 'bg-purple-600/10 text-white' : 'hover:bg-white/5 text-gray-300'"
+                    class="px-4 py-3 flex items-center cursor-pointer transition-all duration-150 border-b border-white/5 last:border-0"
+                    :class="selectedHistoryIndex === index ? 'bg-purple-500/20 text-white' : 'hover:bg-white/5 text-white/70'"
                     @click="selectFromHistory(item)"
                   >
-                    <i class="fa-solid fa-search mr-3 text-xs opacity-50" />
+                    <i class="fa-solid fa-clock-rotate-left mr-3 text-xs opacity-40" />
                     <span class="flex-1 truncate">{{ item.query }}</span>
-                    <button class="text-gray-500 hover:text-red-400 px-2" @click.stop="removeHistoryItem(item)">
+                    <button class="text-white/30 hover:text-red-400 px-2 py-1 rounded-lg hover:bg-white/5 transition-all" @click.stop="removeHistoryItem(item)">
                       <i class="fa-solid fa-times" />
                     </button>
                   </div>
@@ -113,16 +116,16 @@
             </div>
 
             <!-- Filters -->
-            <div class="flex flex-col gap-3 justify-center items-center max-w-4xl mx-auto w-full">
+            <div class="flex flex-col gap-2 justify-center items-center max-w-4xl mx-auto w-full">
               <!-- Source Tabs (Row 1) -->
-              <div class="flex p-1 bg-white/5 rounded-xl border border-white/5 overflow-x-auto w-full">
+              <div class="flex p-1 bg-white/5 rounded-xl border border-white/5 overflow-x-auto w-full custom-scrollbar">
                 <button
                   v-for="source in musicSources"
                   :key="source.id"
-                  class="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+                  class="mode-tab flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 whitespace-nowrap"
                   :class="selectedMusicSource.id === source.id
-                    ? 'bg-purple-600/10 text-purple-400 border border-purple-600/50'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'"
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20'
+                    : 'text-white/60 hover:text-white hover:bg-white/5'"
                   @click="selectMusicSource(source)"
                 >
                   <i :class="source.icon" /> {{ source.name }}
@@ -133,10 +136,10 @@
                 <button
                   v-for="mode in availableSearchModes"
                   :key="mode.id"
-                  class="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+                  class="mode-tab flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 whitespace-nowrap"
                   :class="selectedSearchMode.id === mode.id
-                    ? 'bg-purple-600/10 text-purple-400 border border-purple-600/50'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'"
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                    : 'text-white/60 hover:text-white hover:bg-white/5'"
                   @click="selectSearchMode(mode)"
                 >
                   <i :class="mode.icon" /> {{ mode.name }}
@@ -146,24 +149,24 @@
           </div>
 
           <!-- Results Grid -->
-          <div class="flex-1 relative min-h-0 max-w-4xl mx-auto w-full">
-            <div class="h-full bg-black/20 border border-white/5 rounded-2xl backdrop-blur-sm overflow-hidden flex flex-col">
+          <div class="max-w-4xl mx-auto w-full">
+            <div class="bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-sm overflow-hidden min-h-[300px]">
               <!-- Empty State -->
-              <div v-if="searchResults.length === 0" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 pointer-events-none">
-                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
-                  <i :class="selectedSearchMode.icon" class="text-3xl opacity-30" />
+              <div v-if="searchResults.length === 0" class="flex flex-col items-center justify-center text-white/40 py-20 pointer-events-none">
+                <div class="w-24 h-24 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/10">
+                  <i :class="selectedSearchMode.icon" class="text-4xl text-purple-400/60" />
                 </div>
-                <p class="text-lg text-gray-300 font-medium">
+                <p class="text-xl text-white/80 font-semibold">
                   准备搜索
                 </p>
-                <p class="text-sm opacity-50 mt-1">
+                <p class="text-sm text-white/40 mt-2">
                   支持 {{ selectedMusicSource.name }}
                 </p>
               </div>
 
               <!-- Content List -->
-              <div v-else class="flex-1 overflow-y-auto p-4 pr-1 custom-scrollbar">
-                <div class="grid grid-cols-1 gap-3">
+              <div v-else class="p-4">
+                <div class="grid grid-cols-1 gap-2">
                   <template v-if="selectedSearchMode.id === 'song'">
                     <MusicItem
                       v-for="result in searchResults"
@@ -183,21 +186,21 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="mt-6 flex justify-center pb-4">
-                  <div class="flex items-center space-x-2 bg-white/5 p-2 rounded-lg">
+                <div v-if="totalPages > 1" class="mt-6 flex justify-center pb-4">
+                  <div class="flex items-center gap-1 bg-white/5 p-1.5 rounded-xl border border-white/5">
                     <button
                       :disabled="currentPage === 0"
-                      class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/10 disabled:opacity-30 transition-colors"
+                      class="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white/70"
                       @click="changePage(currentPage - 1)"
                     >
                       <i class="fa-solid fa-chevron-left text-xs" />
                     </button>
-                    <div class="flex space-x-1">
+                    <div class="flex gap-1 px-1">
                       <button
                         v-for="page in visiblePages"
                         :key="page"
-                        class="w-8 h-8 flex items-center justify-center rounded-md text-xs font-medium transition-all"
-                        :class="currentPage === page ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:bg-white/10 hover:text-white'"
+                        class="pagination-btn min-w-9 h-9 px-2 flex items-center justify-center rounded-lg text-sm font-medium"
+                        :class="currentPage === page ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-white/60 hover:bg-white/10 hover:text-white'"
                         @click="page !== -1 && changePage(page)"
                       >
                         {{ page === -1 ? '...' : page + 1 }}
@@ -205,7 +208,7 @@
                     </div>
                     <button
                       :disabled="!hasNextPage"
-                      class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/10 disabled:opacity-30 transition-colors"
+                      class="pagination-btn w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white/70"
                       @click="changePage(currentPage + 1)"
                     >
                       <i class="fa-solid fa-chevron-right text-xs" />
@@ -218,23 +221,23 @@
         </div>
 
         <!-- AI View -->
-        <div v-else-if="currentMode === 'ai'" class="w-full h-full flex flex-col p-4 md:p-8 items-center justify-center">
-          <div class="w-full max-w-4xl h-full bg-black/20 border border-white/5 rounded-2xl flex flex-col overflow-hidden backdrop-blur-sm">
+        <div v-else-if="currentMode === 'ai'" class="w-full h-full overflow-y-auto custom-scrollbar p-4 md:p-8 flex flex-col items-center">
+          <div class="w-full max-w-4xl min-h-[500px] bg-white/[0.02] border border-white/5 rounded-3xl flex flex-col overflow-hidden backdrop-blur-sm">
             <div class="p-6 border-b border-white/5 flex justify-between items-center">
               <div>
-                <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
                   AI 智能推荐
                 </h2>
-                <p class="text-gray-400 text-sm mt-1">
+                <p class="text-white/40 text-sm mt-1">
                   猜你喜欢
                 </p>
               </div>
-              <button class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-gray-300 transition-colors border border-white/10" @click="pullRecommendations">
-                <i class="fa-solid fa-rotate-right mr-2" />换一批
+              <button class="search-btn px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-sm text-white shadow-lg shadow-purple-600/20 flex items-center gap-2" @click="handleRefreshRecommendations">
+                <i class="fa-solid fa-rotate-right" />换一批
               </button>
             </div>
-            <div class="flex-1 overflow-y-auto p-4 pr-1 custom-scrollbar">
-              <div v-if="recommendations.length > 0" class="grid grid-cols-1 gap-3">
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-4">
+              <div v-if="recommendations.length > 0" class="grid grid-cols-1 gap-2">
                 <MusicItem
                   v-for="result in recommendations"
                   :key="result.id"
@@ -242,9 +245,13 @@
                   @add="(music) => pickMusic(music, selectedMusicSource.id)"
                 />
               </div>
-              <div v-else class="h-full flex flex-col items-center justify-center text-gray-500">
-                <i class="fa-solid fa-robot text-5xl mb-4 opacity-20" />
-                <p>正在生成推荐...</p>
+              <div v-else class="h-full flex flex-col items-center justify-center text-white/30 py-20 min-h-[300px]">
+                <div class="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/10">
+                  <i class="fa-solid fa-robot text-3xl text-purple-400/60" />
+                </div>
+                <p class="text-white/50">
+                  正在生成推荐...
+                </p>
               </div>
             </div>
           </div>
@@ -260,6 +267,7 @@ import { useStorage } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { MusicItem, PlaylistItem } from '@/components/common'
 import { useHistory } from '@/composables/useHistory'
+import { useNotification } from '@/composables/useNotification'
 import { usePlayer } from '@/composables/usePlayer'
 import { useRoom } from '@/composables/useRoom'
 import { useSearch } from '@/composables/useSearch'
@@ -278,6 +286,7 @@ const {
   clearSearchHistory,
 } = useHistory()
 const { pickMusic, pullRecommendations, recommendations } = usePlayer()
+const { showInfo } = useNotification()
 const { roomInfo } = useRoom()
 
 // 模式切换状态
@@ -696,4 +705,10 @@ watch([selectedMusicSource, selectedSearchMode], () => {
   showSearchHistory.value = false
   selectedHistoryIndex.value = -1
 })
+
+// 处理刷新推荐
+function handleRefreshRecommendations() {
+  pullRecommendations()
+  showInfo('已为你刷新推荐歌曲', { icon: 'fa-solid fa-rotate-right' })
+}
 </script>

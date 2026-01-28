@@ -14,6 +14,12 @@
   contain: paint;
 }
 
+/* 极简模式下禁用 contain: paint 以减少绘制层 */
+.performance-off,
+.performance-off * {
+  contain: none !important;
+}
+
 /* =================================================================
    性能级别控制 - 动画和效果
    ================================================================= */
@@ -69,13 +75,47 @@
 
 /* 极简模式 - 禁用所有动画和效果 */
 .performance-off .dynamic-bg img,
-.performance-off .glass-effect,
-.performance-off * {
+.performance-off .glass-effect {
   animation: none !important;
-  transition: none !important;
   backdrop-filter: none !important;
   filter: none !important;
   will-change: auto !important;
+}
+
+/* 极简模式下禁用大多数元素的过渡效果，但保留必要的 */
+.performance-off * {
+  animation: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  will-change: auto !important;
+}
+
+/* 进度条例外：不受全局规则影响 */
+.performance-off .player-progress-bar,
+.performance-off .immersive-progress {
+  animation: unset !important;
+  backdrop-filter: unset !important;
+  filter: unset !important;
+  will-change: transform !important;
+  transition: width 500ms linear, transform 500ms linear !important;
+}
+
+/* 允许 Vue Transition 组件的过渡效果 */
+.performance-off .v-enter-active,
+.performance-off .v-leave-active,
+.performance-off .v-enter-from,
+.performance-off .v-enter-to,
+.performance-off .v-leave-from,
+.performance-off .v-leave-to,
+.performance-off [class*="-enter-active"],
+.performance-off [class*="-leave-active"] {
+  transition: opacity 200ms ease !important;
+}
+
+/* 允许音量弹出框的显示 */
+.performance-off .volume-popup-enter-active,
+.performance-off .volume-popup-leave-active {
+  transition: opacity 150ms ease, transform 150ms ease !important;
 }
 
 /* 极简模式玻璃效果替代背景 */
@@ -89,11 +129,252 @@
   opacity: 1 !important;
 }
 
+/* =================================================================
+   极简模式 - 全面 GPU 优化
+   ================================================================= */
+
+/* 极简模式移除 body 背景渐变 */
+body.performance-off,
+html.performance-off body,
+.performance-off body {
+  background-image: none !important;
+  background-color: #121214 !important;
+}
+
+/* 极简模式禁用所有遮罩效果 (mask-image) */
+.performance-off .lyrics-container,
+.performance-off [class*="mask-"] {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+/* 极简模式禁用所有文字阴影 */
+.performance-off .glow-text,
+.performance-off [class*="text-shadow"],
+.performance-off * {
+  text-shadow: none !important;
+}
+
+/* 极简模式禁用 song-bg 和 bg-shapes 背景效果 */
+.performance-off .song-bg,
+.performance-off .bg-shapes,
+.performance-off .performance-bg-shape {
+  display: none !important;
+}
+
+/* 极简模式主布局使用纯色背景 */
+.performance-off .main-layout-bg,
+.performance-off .app-viewport {
+  background: #121214 !important;
+  background-image: none !important;
+}
+
+/* 极简模式禁用聊天消息动画 */
+.performance-off .chat-message-enter-active,
+.performance-off .chat-message-leave-active,
+.performance-off .chat-message-move {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* 极简模式禁用所有阴影效果 */
+.performance-off * {
+  box-shadow: none !important;
+}
+
+/* 极简模式歌词面板优化 */
+.performance-off .lyrics-container,
+.performance-off .lyrics-scroll {
+  overflow-y: auto !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.performance-off .lyrics-container::-webkit-scrollbar,
+.performance-off .lyrics-scroll::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* 极简模式禁用歌词行所有效果 */
+.performance-off .lyric-line {
+  transform: none !important;
+  filter: none !important;
+  transition: none !important;
+  text-shadow: none !important;
+}
+
+/* 极简模式禁用麦克风浮动动画 */
+.performance-off .animate-float-mic {
+  animation: none !important;
+  display: none !important;
+}
+
+/* 但保留基本的按钮阴影以维持可识别性 */
+.performance-off button {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 极简模式禁用渐变背景 */
+.performance-off [class*="bg-gradient"] {
+  background-image: none !important;
+}
+
+/* 极简和省电模式使用纯色进度条 */
+.performance-off .player-progress-bar,
+.performance-off .immersive-progress,
+.performance-low .player-progress-bar,
+.performance-low .immersive-progress {
+  background: #8b5cf6 !important;
+  background-image: none !important;
+}
+
 /* 非高亮歌词模糊控制 - 在极简、省电、平衡模式下移除模糊 */
 .performance-medium .far-lyric,
 .performance-low .far-lyric,
 .performance-off .far-lyric {
   filter: none !important;
+}
+
+/* =================================================================
+   歌曲项悬停效果控制 - 极简和省电模式下禁用
+   ================================================================= */
+
+/* 省电模式 - 简化悬停效果 */
+.performance-low .music-item,
+.performance-low .playlist-item {
+  /* 禁用过渡动画，直接切换 */
+  transition: none !important;
+}
+
+.performance-low .music-item:hover,
+.performance-low .playlist-item:hover {
+  /* 保留背景色变化，但无动画 */
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.performance-low .music-item .group-hover\:scale-105,
+.performance-low .playlist-item .group-hover\:scale-105 {
+  transform: none !important;
+}
+
+.performance-low .music-item .group-hover\:text-purple-300,
+.performance-low .music-item .group-hover\:text-indigo-300,
+.performance-low .playlist-item .group-hover\:text-purple-300,
+.performance-low .playlist-item .group-hover\:text-indigo-300 {
+  color: white !important;
+}
+
+.performance-low .music-item .group-hover\:shadow-purple-500\/10,
+.performance-low .music-item .group-hover\:shadow-indigo-500\/10,
+.performance-low .playlist-item .group-hover\:shadow-purple-500\/10,
+.performance-low .playlist-item .group-hover\:shadow-indigo-500\/10 {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.performance-low .music-item .play-overlay,
+.performance-low .playlist-item .play-overlay {
+  display: none !important;
+}
+
+/* 极简模式 - 简化悬停效果，保留背景色变化 */
+.performance-off .music-item,
+.performance-off .playlist-item {
+  transition: none !important;
+}
+
+.performance-off .music-item:hover,
+.performance-off .playlist-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 极简模式 - 移除背景渐变 */
+.performance-off .search-modal-bg {
+  background: #121214 !important;
+}
+
+.performance-off .music-item *,
+.performance-off .playlist-item * {
+  transition: none !important;
+}
+
+.performance-off .music-item .group-hover\:scale-105,
+.performance-off .playlist-item .group-hover\:scale-105 {
+  transform: none !important;
+}
+
+.performance-off .music-item .group-hover\:text-purple-300,
+.performance-off .music-item .group-hover\:text-indigo-300,
+.performance-off .playlist-item .group-hover\:text-purple-300,
+.performance-off .playlist-item .group-hover\:text-indigo-300 {
+  color: white !important;
+}
+
+/* =================================================================
+   极简模式 - 额外 GPU 优化
+   ================================================================= */
+
+/* 禁用不必要的 GPU 加速（但保留进度条的 transform） */
+.performance-off {
+  backface-visibility: hidden !important;
+  perspective: none !important;
+}
+
+/* 进度条需要保留 transform 功能 */
+.performance-off .player-progress-bar,
+.performance-off .immersive-progress {
+  backface-visibility: visible !important;
+}
+
+/* 禁用所有合成层 */
+.performance-off * {
+  isolation: auto !important;
+}
+
+/* 但进度条需要合成层以正常渲染 */
+.performance-off .player-progress-bar,
+.performance-off .immersive-progress {
+  isolation: auto !important;
+}
+
+
+/* 省电模式下也优化 */
+.performance-low .animate-pulse,
+.performance-low .animate-bounce,
+.performance-low .animate-spin {
+  animation-duration: 4s !important;
+}
+
+/* 禁用所有脉冲动画在极简模式 */
+.performance-off .animate-pulse,
+.performance-off .animate-bounce,
+.performance-off .animate-spin,
+.performance-off .animate-ping {
+  animation: none !important;
+}
+
+/* 极简模式下禁用在线状态脉冲 */
+.performance-off .animate-ping {
+  display: none !important;
+}
+
+.performance-off .music-item .group-hover\:shadow-purple-500\/10,
+.performance-off .music-item .group-hover\:shadow-indigo-500\/10,
+.performance-off .playlist-item .group-hover\:shadow-purple-500\/10,
+.performance-off .playlist-item .group-hover\:shadow-indigo-500\/10 {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.performance-off .music-item .play-overlay,
+.performance-off .playlist-item .play-overlay {
+  display: none !important;
+}
+
+.performance-off .music-item button:hover,
+.performance-off .playlist-item button:hover {
+  background: rgba(147, 51, 234, 0.2) !important;
+  color: rgba(167, 139, 250, 1) !important;
 }
 
 .performance-off .blur-3xl,
@@ -215,7 +496,26 @@
 }
 
 .performance-off .immersive-progress {
-  transition: none;
+  /* 极简模式下仍允许进度条更新，但降低频率以节省 GPU */
+  transition: transform 500ms linear;
+}
+
+/* PlayerControls 进度条优化 */
+.performance-high .player-progress-bar {
+  transition: width 200ms linear;
+}
+
+.performance-medium .player-progress-bar {
+  transition: width 250ms linear;
+}
+
+.performance-low .player-progress-bar {
+  transition: width 300ms linear;
+}
+
+.performance-off .player-progress-bar {
+  /* 极简模式下降低进度条更新频率 */
+  transition: width 500ms linear;
 }
 
 /* 影响条动画控制 */
@@ -356,6 +656,195 @@
   .performance-high .dynamic-bg img {
     animation: none;
   }
+}
+
+/* =================================================================
+   点歌台/搜索界面性能优化
+   ================================================================= */
+
+/* 搜索框过渡效果 */
+.performance-high .search-input {
+  transition: all 0.3s ease;
+}
+
+.performance-medium .search-input {
+  transition: all 0.2s ease;
+}
+
+.performance-low .search-input {
+  transition: opacity 0.15s ease;
+}
+
+.performance-off .search-input {
+  transition: none;
+}
+
+/* 搜索结果项动画 */
+.performance-high .music-item,
+.performance-high .playlist-item {
+  transition: all 0.25s ease;
+}
+
+.performance-medium .music-item,
+.performance-medium .playlist-item {
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.performance-low .music-item,
+.performance-low .playlist-item {
+  transition: background-color 0.15s ease;
+}
+
+.performance-off .music-item,
+.performance-off .playlist-item {
+  transition: none;
+}
+
+/* 封面图片缩放效果 */
+.performance-high .music-item img,
+.performance-high .playlist-item img {
+  transition: transform 0.3s ease;
+}
+
+.performance-medium .music-item img,
+.performance-medium .playlist-item img {
+  transition: transform 0.2s ease;
+}
+
+.performance-low .music-item img,
+.performance-low .playlist-item img,
+.performance-off .music-item img,
+.performance-off .playlist-item img {
+  transition: none;
+}
+
+/* 播放遮罩层动画 */
+.performance-high .music-item .play-overlay,
+.performance-high .playlist-item .play-overlay {
+  transition: opacity 0.2s ease;
+}
+
+.performance-medium .music-item .play-overlay,
+.performance-medium .playlist-item .play-overlay {
+  transition: opacity 0.15s ease;
+}
+
+.performance-low .music-item .play-overlay,
+.performance-low .playlist-item .play-overlay,
+.performance-off .music-item .play-overlay,
+.performance-off .playlist-item .play-overlay {
+  display: none;
+}
+
+/* 按钮阴影和缩放 */
+.performance-high .search-btn {
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+}
+
+.performance-medium .search-btn {
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.2);
+}
+
+.performance-low .search-btn {
+  transition: none;
+  box-shadow: none;
+}
+
+.performance-off .search-btn {
+  transition: none;
+  box-shadow: none;
+}
+
+/* 分页按钮效果 */
+.performance-high .pagination-btn {
+  transition: all 0.2s ease;
+}
+
+.performance-medium .pagination-btn {
+  transition: background-color 0.15s ease;
+}
+
+.performance-low .pagination-btn,
+.performance-off .pagination-btn {
+  transition: none;
+}
+
+/* 背景光晕效果 - 根据性能级别调整 */
+.performance-high .bg-glow {
+  opacity: 1;
+  filter: blur(80px);
+}
+
+.performance-medium .bg-glow {
+  opacity: 0.7;
+  filter: blur(60px);
+}
+
+.performance-low .bg-glow {
+  opacity: 0.4;
+  filter: blur(40px);
+}
+
+.performance-off .bg-glow {
+  display: none;
+}
+
+/* 玻璃效果 backdrop-blur 优化 */
+.performance-high .search-glass {
+  backdrop-filter: blur(20px);
+}
+
+.performance-medium .search-glass {
+  backdrop-filter: blur(12px);
+}
+
+.performance-low .search-glass {
+  backdrop-filter: blur(6px);
+}
+
+.performance-off .search-glass {
+  backdrop-filter: none;
+  background: rgba(18, 18, 20, 0.98);
+}
+
+/* 搜索历史下拉菜单 */
+.performance-high .search-history-dropdown {
+  backdrop-filter: blur(24px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.performance-medium .search-history-dropdown {
+  backdrop-filter: blur(16px);
+  transition: opacity 0.15s ease;
+}
+
+.performance-low .search-history-dropdown {
+  backdrop-filter: blur(8px);
+  transition: none;
+}
+
+.performance-off .search-history-dropdown {
+  backdrop-filter: none;
+  transition: none;
+}
+
+/* 标签切换动画 */
+.performance-high .mode-tab {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.performance-medium .mode-tab {
+  transition: all 0.2s ease;
+}
+
+.performance-low .mode-tab {
+  transition: background-color 0.15s ease;
+}
+
+.performance-off .mode-tab {
+  transition: none;
 }
 
 /* =================================================================
