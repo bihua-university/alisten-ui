@@ -1,25 +1,21 @@
 <template>
   <div
-    class="music-item group bg-white/[0.03] hover:bg-white/[0.08] rounded-2xl p-2 md:p-3 flex items-center border border-transparent hover:border-white/5"
+    class="music-item group bg-white/[0.03] rounded-2xl p-2 md:p-3 flex items-center border border-transparent"
   >
     <!-- 封面图片 -->
-    <div class="w-14 h-14 md:w-20 md:h-20 rounded-xl overflow-hidden mr-3 md:mr-4 flex-shrink-0 relative shadow-lg group-hover:shadow-purple-500/10">
+    <div class="w-14 h-14 md:w-20 md:h-20 rounded-xl mr-3 md:mr-4 flex-shrink-0 relative shadow-lg">
       <img
         :src="music.cover"
         :alt="music.title"
-        class="w-full h-full object-cover group-hover:scale-105"
+        class="w-full h-full object-cover rounded-xl group-hover:scale-105"
         @error="handleImageError"
       >
-      <!-- 播放图标遮罩 -->
-      <div class="play-overlay absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center">
-        <i class="fa-solid fa-play text-white/80 text-lg" />
-      </div>
     </div>
 
     <!-- 歌曲信息 -->
-    <div class="flex-1 min-w-0 mr-3">
+    <div class="flex-1 flex-col min-w-0 flex-shrink-0 pointer-events-none">
       <p
-        class="text-sm md:text-lg font-medium truncate mb-1 text-white group-hover:text-purple-300"
+        class="text-sm md:text-lg font-medium truncate mb-1 text-white"
       >
         {{ music.title }}
       </p>

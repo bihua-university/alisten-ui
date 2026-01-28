@@ -7,13 +7,7 @@
     leave-from-class="opacity-100 translate-y-0"
     leave-to-class="opacity-0 translate-y-4"
   >
-    <div v-show="true" class="search-modal-bg fixed inset-0 z-[60] bg-gradient-to-b from-gray-900 via-gray-900 to-black text-white flex flex-col overflow-hidden">
-      <!-- Background Glow Effects -->
-      <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="bg-glow absolute top-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl" />
-        <div class="bg-glow absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
-      </div>
-
+    <div v-show="true" class="search-modal-bg fixed inset-0 z-[60] bg-gray-900/95 backdrop-blur-md text-white flex flex-col">
       <!-- Top Bar -->
       <div class="search-glass relative z-10 flex-shrink-0 px-4 md:px-8 py-4 border-b border-white/5 bg-black/20 flex justify-between items-center">
         <div class="flex items-center gap-4">
@@ -52,13 +46,13 @@
       </div>
 
       <!-- Content -->
-      <div class="flex-1 overflow-hidden relative z-10 flex flex-col w-full max-w-7xl mx-auto">
+      <div class="flex-1 relative z-10 flex flex-col w-full max-w-7xl mx-auto">
         <!-- Search View -->
-        <div v-if="currentMode === 'search'" class="w-full h-full overflow-y-auto custom-scrollbar px-4 md:px-8 pt-6 pb-2">
+        <div v-if="currentMode === 'search'" class="w-full h-full flex flex-col px-4 md:px-8 pt-6 pb-2">
           <!-- Search Inputs & Filters -->
-          <div class="space-y-4 mb-4 max-w-4xl mx-auto">
+          <div class="flex-shrink-0 space-y-4 mb-4 max-w-4xl mx-auto w-full">
             <!-- Big Search Input -->
-            <div class="relative group max-w-4xl mx-auto w-full">
+            <div class="relative group w-full">
               <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                 <i class="fa-solid fa-search text-white/40 group-focus-within:text-purple-400 transition-colors text-lg" />
               </div>
@@ -116,7 +110,7 @@
             </div>
 
             <!-- Filters -->
-            <div class="flex flex-col gap-2 justify-center items-center max-w-4xl mx-auto w-full">
+            <div class="flex flex-col gap-2 justify-center items-center w-full">
               <!-- Source Tabs (Row 1) -->
               <div class="flex p-1 bg-white/5 rounded-xl border border-white/5 overflow-x-auto w-full custom-scrollbar">
                 <button
@@ -149,10 +143,10 @@
           </div>
 
           <!-- Results Grid -->
-          <div class="max-w-4xl mx-auto w-full">
-            <div class="bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-sm overflow-hidden min-h-[300px]">
+          <div class="flex-1 relative min-h-0 max-w-4xl mx-auto w-full">
+            <div class="h-full bg-white/[0.02] border border-white/5 rounded-3xl backdrop-blur-sm overflow-hidden scroll-container flex flex-col">
               <!-- Empty State -->
-              <div v-if="searchResults.length === 0" class="flex flex-col items-center justify-center text-white/40 py-20 pointer-events-none">
+              <div v-if="searchResults.length === 0" class="absolute inset-0 flex flex-col items-center justify-center text-white/40 pointer-events-none">
                 <div class="w-24 h-24 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/10">
                   <i :class="selectedSearchMode.icon" class="text-4xl text-purple-400/60" />
                 </div>
@@ -165,8 +159,8 @@
               </div>
 
               <!-- Content List -->
-              <div v-else class="p-4">
-                <div class="grid grid-cols-1 gap-2">
+              <div v-else class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                <div class="flex flex-col gap-2 touch-pan-y">
                   <template v-if="selectedSearchMode.id === 'song'">
                     <MusicItem
                       v-for="result in searchResults"
@@ -712,3 +706,12 @@ function handleRefreshRecommendations() {
   showInfo('已为你刷新推荐歌曲', { icon: 'fa-solid fa-rotate-right' })
 }
 </script>
+
+<style lang="css">
+.scroll-container {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+</style>
