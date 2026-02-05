@@ -739,7 +739,7 @@ onMounted(() => {
 
 /* 表单字段依次进入动画 */
 .form-field {
-  opacity: 0;
+  opacity: 1;
   animation: form-field-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   animation-delay: var(--delay, 0ms);
 }
