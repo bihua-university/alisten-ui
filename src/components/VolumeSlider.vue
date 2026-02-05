@@ -8,7 +8,7 @@
     </button>
     <div
       ref="volumeBarContainer"
-      class="w-32 h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer relative group"
+      class="flex-1 h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer relative group"
       @click="handleVolumeClick"
       @mousedown="handleVolumeMouseDown"
     >

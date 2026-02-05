@@ -61,11 +61,11 @@
       </button>
 
       <!-- Volume Button (Desktop Only) -->
-      <div v-if="isDesktop" class="relative">
+      <div v-if="isDesktop" ref="volumePopupRef" class="relative">
         <button
           class="p-2 hover:bg-white/10 rounded-full transition-all duration-200 hover:scale-110 active:scale-95 volume-btn"
           :class="showVolumePopup ? 'bg-white/10 scale-110' : ''"
-          @click="toggleVolumePopup"
+          @click.stop="toggleVolumePopup"
         >
           <Volume2 :size="18" class="text-white/70 transition-transform hover:rotate-12" />
         </button>
@@ -74,6 +74,7 @@
           <div
             v-if="showVolumePopup"
             class="absolute bottom-full right-0 mb-2 bg-[#121214]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/10 z-50"
+            @click.stop
           >
             <VolumeSlider />
           </div>
@@ -86,6 +87,7 @@
 <script setup lang="ts">
 import { SkipForward, Volume2 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
+import { useClickOutside } from '@/composables/useClickOutside'
 import { usePlayer } from '@/composables/usePlayer'
 import { formatTime } from '@/utils/time'
 import VolumeSlider from './VolumeSlider.vue'
@@ -102,6 +104,12 @@ const { playerState, progressPercentage, skipSong } = usePlayer()
 
 const showVolumePopup = ref(false)
 const isSkipping = ref(false)
+const volumePopupRef = ref<HTMLElement | null>(null)
+
+// 点击音量弹窗外部时关闭
+useClickOutside(volumePopupRef, () => {
+  showVolumePopup.value = false
+}, showVolumePopup)
 
 const currentSong = computed(() => playerState.currentSong)
 const progress = computed(() => progressPercentage.value)

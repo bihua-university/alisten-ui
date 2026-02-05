@@ -139,14 +139,7 @@
                       音频控制
                     </h3>
                     <div class="bg-black/20 rounded-2xl p-5 border border-white/5 hover:border-white/10 transition-colors">
-                      <div class="flex items-center gap-4">
-                        <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400">
-                          <i class="fa-solid fa-volume-high text-sm" />
-                        </div>
-                        <div class="flex-1">
-                          <VolumeSlider />
-                        </div>
-                      </div>
+                      <VolumeSlider />
                     </div>
                   </div>
 

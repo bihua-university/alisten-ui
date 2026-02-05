@@ -15,7 +15,7 @@
 
       <!-- Action Buttons -->
       <div :class="isDesktop ? 'flex items-center gap-1 flex-wrap' : 'grid grid-cols-3 gap-1.5'">
-        <button class="py-2 px-2 md:px-3 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1.5" :class="isDesktop ? 'flex-1' : ''" @click="openOnlineUsers">
+        <button class="py-2 px-2 md:px-3 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1.5" :class="isDesktop ? 'flex-1' : ''" @click.stop="openOnlineUsers">
           <span class="flex h-2 w-2 shrink-0 relative">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
             <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
@@ -43,7 +43,12 @@
 
     <!-- Online Users Popup -->
     <Transition name="volume-popup">
-      <div v-if="showOnlineUsers" class="absolute top-0 left-0 right-0 mt-[120px] md:mt-[120px] bg-[#121214]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/10 z-[100] max-h-[280px] md:max-h-[300px] overflow-hidden flex flex-col">
+      <div
+        v-if="showOnlineUsers"
+        ref="onlineUsersPopupRef"
+        class="absolute top-0 left-0 right-0 mt-[120px] md:mt-[120px] bg-[#121214]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/10 z-[100] max-h-[280px] md:max-h-[300px] overflow-hidden flex flex-col"
+        @click.stop
+      >
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-2">
             <Users :size="16" class="text-white/60" />
@@ -149,6 +154,7 @@
 import { CircleHelp, History, MessageSquare, Settings, Share2, Users, X } from 'lucide-vue-next'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
+import { useClickOutside } from '@/composables/useClickOutside'
 import { useRoom } from '@/composables/useRoom'
 import { useUserSettings } from '@/composables/useUserSettings'
 import { formatTimeHH_MM } from '@/utils/time'
@@ -181,6 +187,12 @@ const isCurrentUser = computed(() => {
 const showOnlineUsers = ref(false)
 const newMessage = ref('')
 const chatContainer = ref<HTMLDivElement | null>(null)
+const onlineUsersPopupRef = ref<HTMLElement | null>(null)
+
+// 点击在线人数弹窗外部时关闭
+useClickOutside(onlineUsersPopupRef, () => {
+  showOnlineUsers.value = false
+}, showOnlineUsers)
 
 // 滚动到底部
 function scrollToBottom() {
