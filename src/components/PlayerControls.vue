@@ -73,7 +73,7 @@
         <Transition name="volume-popup">
           <div
             v-if="showVolumePopup"
-            class="absolute bottom-full right-0 mb-2 bg-[#121214]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/10 z-50"
+            class="absolute bottom-full right-0 mb-2 bg-[#121214]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/10 z-50 w-48"
             @click.stop
           >
             <VolumeSlider />
