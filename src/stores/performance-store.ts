@@ -7,9 +7,11 @@ interface PerformanceState {
   reducedMotion: boolean
 }
 
+type MotionPreferenceSource = 'system' | 'manual'
+
 class PerformanceStore extends Store<PerformanceState> {
   constructor() {
-    super({ level: 'medium', reducedMotion: true })
+    super({ level: 'medium', reducedMotion: false })
     if (typeof window !== 'undefined') {
       this.loadSettings()
       this.applySettings()
@@ -25,19 +27,31 @@ class PerformanceStore extends Store<PerformanceState> {
       if (saved && ['high', 'medium', 'low', 'off'].includes(saved)) {
         this.setState({ level: saved as PerformanceLevel })
       }
+
       const motionSaved = localStorage.getItem('alisten-reduced-motion')
-      if (motionSaved) {
+      const motionSource = localStorage.getItem('alisten-reduced-motion-source') as MotionPreferenceSource | null
+
+      if (motionSaved && motionSource === 'manual') {
         this.setState({ reducedMotion: JSON.parse(motionSaved) })
+      } else if (typeof window !== 'undefined') {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        this.setState({ reducedMotion: prefersReducedMotion })
+        this.saveSettings('system')
       }
     } catch (error) {
       console.warn('读取性能设置失败:', error)
     }
   }
 
-  saveSettings() {
+  private getMotionPreferenceSource(): MotionPreferenceSource {
+    return localStorage.getItem('alisten-reduced-motion-source') === 'manual' ? 'manual' : 'system'
+  }
+
+  saveSettings(motionSource = this.getMotionPreferenceSource()) {
     try {
       localStorage.setItem('alisten-performance-level', this.state.level)
       localStorage.setItem('alisten-reduced-motion', JSON.stringify(this.state.reducedMotion))
+      localStorage.setItem('alisten-reduced-motion-source', motionSource)
     } catch (error) {
       console.warn('保存性能设置失败:', error)
     }
@@ -70,9 +84,9 @@ class PerformanceStore extends Store<PerformanceState> {
   }
 
   autoDetect() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      this.setState({ reducedMotion: true })
-    }
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    this.setState({ reducedMotion: prefersReducedMotion })
+
     const isMobile = window.innerWidth <= 768
     const isLowEnd = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4
     if (isMobile || isLowEnd) {
@@ -83,7 +97,7 @@ class PerformanceStore extends Store<PerformanceState> {
       this.setState({ level: 'medium' })
     }
     this.applySettings()
-    this.saveSettings()
+    this.saveSettings('system')
   }
 
   getPerformanceClasses(): string[] {
@@ -133,7 +147,7 @@ class PerformanceStore extends Store<PerformanceState> {
   toggleReducedMotion() {
     this.setState({ reducedMotion: !this.state.reducedMotion })
     this.applySettings()
-    this.saveSettings()
+    this.saveSettings('manual')
   }
 }
 

@@ -1,6 +1,7 @@
 import { html, LitElement, nothing } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { styleMap } from 'lit/directives/style-map.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 import { performanceStore } from '@/stores/performance-store'
 import { playerStore } from '@/stores/player-store'
@@ -25,6 +26,8 @@ export class MainLayoutElement extends LitElement {
   private touchStartY = 0
   private touchCurrentX = 0
   private startTime = 0
+  private transitionPrepFrame: number | null = null
+  private transitionApplyFrame: number | null = null
   private isScrolling = false
   private performanceLevel = performanceStore.state.level
 
@@ -43,31 +46,94 @@ export class MainLayoutElement extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback()
+    this.cancelScheduledTransition()
     window.removeEventListener('keydown', this.handleKeydown)
   }
 
   private handleKeydown = (e: KeyboardEvent) => {
     if (window.innerWidth >= 768)
       return
-    if (e.key === 'ArrowLeft')
-      this.switchTab('prev')
-    else if (e.key === 'ArrowRight')
-      this.switchTab('next')
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')
+      return
+
+    const direction = e.key === 'ArrowLeft' ? 'prev' : 'next'
+
+    if (this.isMinimalMode) {
+      this.switchTab(direction)
+      return
+    }
+
+    if (this.isTransitioning)
+      return
+    if (!this.getNextTab(direction))
+      return
+
+    this.schedulePanelTransition(() => {
+      this.switchTab(direction)
+    })
+  }
+
+  private getNextTab(direction: 'next' | 'prev') {
+    const tabs: Array<'lyrics' | 'playlist' | 'room'> = ['lyrics', 'playlist', 'room']
+    const currentIndex = tabs.indexOf(this.activeTab)
+
+    if (direction === 'next' && currentIndex < tabs.length - 1)
+      return tabs[currentIndex + 1]
+    if (direction === 'prev' && currentIndex > 0)
+      return tabs[currentIndex - 1]
+
+    return null
   }
 
   private switchTab(direction: 'next' | 'prev') {
-    const tabs: Array<'lyrics' | 'playlist' | 'room'> = ['lyrics', 'playlist', 'room']
-    const currentIndex = tabs.indexOf(this.activeTab)
-    if (direction === 'next' && currentIndex < tabs.length - 1) {
-      this.activeTab = tabs[currentIndex + 1]
-    } else if (direction === 'prev' && currentIndex > 0) {
-      this.activeTab = tabs[currentIndex - 1]
-    }
+    const nextTab = this.getNextTab(direction)
+    if (!nextTab)
+      return false
+
+    this.activeTab = nextTab
+    return true
   }
 
   private isTouchOnScrollable(e: TouchEvent): boolean {
     const target = e.target as Element
     return !!isScrollableElement(target)
+  }
+
+  private cancelScheduledTransition() {
+    if (this.transitionPrepFrame !== null)
+      cancelAnimationFrame(this.transitionPrepFrame)
+    if (this.transitionApplyFrame !== null)
+      cancelAnimationFrame(this.transitionApplyFrame)
+
+    this.transitionPrepFrame = null
+    this.transitionApplyFrame = null
+  }
+
+  private schedulePanelTransition(update: () => void) {
+    if (this.isMinimalMode) {
+      update()
+      return
+    }
+
+    this.cancelScheduledTransition()
+    this.isTransitioning = true
+
+    void this.updateComplete.then(() => {
+      this.transitionPrepFrame = requestAnimationFrame(() => {
+        this.transitionPrepFrame = null
+        this.transitionApplyFrame = requestAnimationFrame(() => {
+          this.transitionApplyFrame = null
+          update()
+        })
+      })
+    })
+  }
+
+  private handlePanelTransitionEnd = (e: TransitionEvent) => {
+    if (e.target !== e.currentTarget || e.propertyName !== 'transform')
+      return
+
+    this.isTransitioning = false
   }
 
   private handleTouchStart = (e: TouchEvent) => {
@@ -83,6 +149,7 @@ export class MainLayoutElement extends LitElement {
     if (this.isTouchOnScrollable(e))
       return
 
+    this.cancelScheduledTransition()
     this.isDragging = true
     this.isTransitioning = false
     this.dragOffset = 0
@@ -131,6 +198,11 @@ export class MainLayoutElement extends LitElement {
   }
 
   private handleTouchEnd = (e: TouchEvent) => {
+    if (!this.isDragging) {
+      this.isScrolling = false
+      return
+    }
+
     const touch = e.changedTouches[0]
     const endX = touch.clientX
     const endTime = Date.now()
@@ -150,22 +222,25 @@ export class MainLayoutElement extends LitElement {
       return
     }
 
-    this.isTransitioning = true
     this.isDragging = false
+    this.schedulePanelTransition(() => {
+      if (isQuickSwipe || isLongSwipe)
+        this.switchTab(deltaX < 0 ? 'next' : 'prev')
 
-    if (isQuickSwipe || isLongSwipe) {
-      this.switchTab(deltaX < 0 ? 'next' : 'prev')
-    }
-    this.dragOffset = 0
+      this.dragOffset = 0
+      this.isScrolling = false
+    })
   }
 
   private handleTouchCancel = () => {
     if (this.isMinimalMode)
       return
-    this.isTransitioning = true
+
     this.isDragging = false
-    this.dragOffset = 0
-    this.isScrolling = false
+    this.schedulePanelTransition(() => {
+      this.dragOffset = 0
+      this.isScrolling = false
+    })
   }
 
   private get baseTransform(): number {
@@ -174,11 +249,11 @@ export class MainLayoutElement extends LitElement {
   }
 
   private get panelsStyle() {
-    if (this.isDragging) {
-      const totalOffset = this.baseTransform + (this.dragOffset / window.innerWidth) * 100
-      return `transform: translateX(${totalOffset}vw)`
+    const totalOffset = this.baseTransform + (this.dragOffset / window.innerWidth) * 100
+    return {
+      transform: `translateX(${totalOffset}vw)`,
+      transition: this.isTransitioning ? 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1)' : 'none',
     }
-    return `transform: translateX(${this.baseTransform}vw)`
   }
 
   render() {
@@ -258,12 +333,13 @@ export class MainLayoutElement extends LitElement {
             </div>
 
             <!-- Mobile Swipe Container -->
-            <div class="mobile-panels flex w-[300vw] flex-1 min-h-0 md:hidden ${this.isTransitioning ? 'transition-transform' : ''}"
-              style=${this.panelsStyle}
+            <div class="mobile-panels flex w-[300vw] flex-1 min-h-0 md:hidden"
+              style=${styleMap(this.panelsStyle)}
               @touchstart=${this.handleTouchStart}
               @touchmove=${this.handleTouchMove}
               @touchend=${this.handleTouchEnd}
-              @touchcancel=${this.handleTouchCancel}>
+              @touchcancel=${this.handleTouchCancel}
+              @transitionend=${this.handlePanelTransitionEnd}>
               <!-- Mobile Panel: Player & Lyrics -->
               <div class="w-screen shrink-0 flex flex-col min-h-0 h-full relative px-4 pb-2">
                 <alisten-lyrics-panel class="mb-4 flex-1 min-h-0 flex flex-col"></alisten-lyrics-panel>
@@ -294,7 +370,6 @@ export class MainLayoutElement extends LitElement {
       <style>
         .app-viewport { height: 100vh; height: 100dvh; min-height: 100svh; }
         .mobile-panels { will-change: transform; touch-action: pan-y; }
-        .mobile-panels.transition-transform { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
         @media (min-width: 768px) { .mobile-panels { transform: none !important; transition: none !important; } }
         .performance-low .app-viewport, .performance-off .app-viewport { background: #0D1016 !important; }
         .performance-low .glass, .performance-off .glass { background: #15171B !important; backdrop-filter: none !important; border-color: rgba(255,255,255,0.05) !important; }
