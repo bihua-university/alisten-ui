@@ -1,6 +1,5 @@
 import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
-import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -35,7 +34,6 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(gitInfo),
   },
   plugins: [
-    vue(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['icon-64x64.png', 'icon-180x180.png'],
@@ -56,19 +54,19 @@ export default defineConfig({
             src: 'icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable', // 同时支持普通显示和 maskable
+            purpose: 'any maskable',
           },
           {
             src: 'icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable', // 同时支持普通显示和 maskable
+            purpose: 'any maskable',
           },
         ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        globIgnores: ['**/icon.png'], // 排除原始大图标文件，避免缓存过大文件
+        globIgnores: ['**/icon.png'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -77,7 +75,7 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
+                maxAgeSeconds: 60 * 60 * 24 * 365,
               },
             },
           },
@@ -88,7 +86,7 @@ export default defineConfig({
               cacheName: 'gstatic-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
+                maxAgeSeconds: 60 * 60 * 24 * 365,
               },
             },
           },

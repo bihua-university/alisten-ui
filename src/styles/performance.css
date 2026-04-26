@@ -73,6 +73,12 @@
   transition: opacity 0.15s ease !important;
 }
 
+/* 低画质和极简模式下隐藏模态框装饰光晕 */
+.performance-low .modal-glow,
+.performance-off .modal-glow {
+  display: none !important;
+}
+
 /* 极简模式 - 禁用所有动画和效果 */
 .performance-off .dynamic-bg img,
 .performance-off .glass-effect {
@@ -219,11 +225,17 @@ html.performance-off body,
   background-image: none !important;
 }
 
-/* 极简和省电模式使用纯色进度条 */
+/* 极简和省电模式使用纯色进度条和音量条 */
 .performance-off .player-progress-bar,
 .performance-off .immersive-progress,
 .performance-low .player-progress-bar,
 .performance-low .immersive-progress {
+  background: #8b5cf6 !important;
+  background-image: none !important;
+}
+
+.performance-off .volume-bar,
+.performance-low .volume-bar {
   background: #8b5cf6 !important;
   background-image: none !important;
 }

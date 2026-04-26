@@ -77,7 +77,7 @@ export function isInModal(target: Element): boolean {
  * 检查是否在应用内
  */
 export function isInApp(target: Element): boolean {
-  return !!target.closest('#app')
+  return !!target.closest('alisten-app')
 }
 
 /**

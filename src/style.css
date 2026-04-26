@@ -90,7 +90,6 @@ body {
 /* Lyric line base styles */
 .lyric-line {
   transform-origin: center center;
-  will-change: transform, opacity, filter;
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap;
@@ -103,7 +102,6 @@ body {
   line-height: 1.5;
   padding: 0.5rem 0.5rem;
   margin: 0;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 @media (min-width: 768px) {
@@ -776,7 +774,9 @@ body {
   }
 
   /* 应用容器适配 */
-  #app {
+  #app,
+  alisten-app {
+    display: block;
     height: calc(var(--vh, 1vh) * 100) !important;
     min-height: calc(var(--vh, 1vh) * 100) !important;
     max-height: calc(var(--vh, 1vh) * 100) !important;
@@ -785,6 +785,25 @@ body {
     position: relative !important;
     width: 100% !important;
     overscroll-behavior: none !important;
+  }
+
+  /* Lit 自定义元素默认 display: block，确保 flex/h-full 等属性正确生效 */
+  alisten-main-layout,
+  alisten-lyrics-panel,
+  alisten-player-controls,
+  alisten-playlist-panel,
+  alisten-chat-panel,
+  alisten-music-search-modal,
+  alisten-settings-modal,
+  alisten-help-modal,
+  alisten-play-history-modal,
+  alisten-notification-container,
+  alisten-notification-toast,
+  alisten-join-room-modal,
+  alisten-manual-start-play-modal,
+  alisten-modal,
+  alisten-avatar {
+    display: block;
   }
 
   /* 全局滚动条隐藏 */
