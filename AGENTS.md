@@ -175,6 +175,20 @@ npm run preview
 - 路径别名：`@/` 映射到 `src/`
 - 装饰器配置：`experimentalDecorators: true`、`useDefineForClassFields: false`
 
+### ESLint 风格规范
+
+项目使用 `@antfu/eslint-config`，核心风格规则如下：
+
+- **引号**：字符串统一使用单引号（`'`）
+- **分号**：禁止语句末尾分号
+- **if 换行**：`if` 语句的条件表达式后必须换行，如 `if (condition)\n  return`
+- **运算符换行**：二元运算符（`=`、`||`、`>=` 等）必须放在行首
+- **箭头函数括号**：单参数且函数体无大括号时省略括号，如 `x => x + 1`
+- **缩进**：2 空格缩进，二元运算操作数对齐特定规则
+- **大括号风格**：使用 1tbs（`style/brace-style`）
+
+提交前务必运行 `npm run lint:fix` 自动修复格式问题。
+
 ### 命名约定
 - 组件文件：kebab-case（如 `chat-panel-element.ts`）
 - 自定义元素标签名：`alisten-` 前缀（如 `<alisten-chat-panel>`）
