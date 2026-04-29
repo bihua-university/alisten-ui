@@ -19,15 +19,20 @@ function setStorageItem(key: string, value: any) {
   localStorage.setItem(key, JSON.stringify(value))
 }
 
+// 页面会话级持久化：模态框关闭后再打开保持搜索状态
+let _persistedQuery = ''
+let _persistedPlatform = 'wy'
+let _persistedSearchMode: 'song' | 'playlist' = 'song'
+
 @customElement('alisten-music-search-modal')
 export class MusicSearchModalElement extends LitElement {
   createRenderRoot() {
     return this
   }
 
-  @state() private query = ''
-  @state() private platform = 'wy'
-  @state() private searchMode: 'song' | 'playlist' = 'song'
+  @state() private query = _persistedQuery
+  @state() private platform = _persistedPlatform
+  @state() private searchMode: 'song' | 'playlist' = _persistedSearchMode
   @state() private searchResults = searchStore.state.searchResults
   @state() private searchCounts = searchStore.state.searchCounts
   @state() private currentPage = searchStore.state.currentPage
@@ -35,7 +40,10 @@ export class MusicSearchModalElement extends LitElement {
   @state() private pageSize = searchStore.state.pageSize
   @state() private isSearching = false
   @state() private recommendations = playerStore.state.recommendations
-  @state() private currentMode: 'search' | 'ai' = getStorageItem('music-modal-mode', 'search')
+  @state() private currentMode: 'search' | 'ai' = getStorageItem(
+    'music-modal-mode',
+    'search',
+  )
 
   connectedCallback() {
     super.connectedCallback()
@@ -76,6 +84,8 @@ export class MusicSearchModalElement extends LitElement {
     this.currentPage = 1
     this.totalPages = 0
     this.isSearching = false
+    _persistedQuery = ''
+    this.query = ''
     searchStore.clearSearchResults()
   }
 
@@ -88,8 +98,10 @@ export class MusicSearchModalElement extends LitElement {
     if (!this.query.trim())
       return
     this.isSearching = true
+    _persistedQuery = this.query
     searchStore.setPage(page)
-    const action = this.searchMode === 'song' ? '/music/search' : '/music/searchsonglist'
+    const action
+      = this.searchMode === 'song' ? '/music/search' : '/music/searchsonglist'
     websocketStore.send({
       action,
       data: {
@@ -113,22 +125,25 @@ export class MusicSearchModalElement extends LitElement {
 
   private viewPlaylist(result: any) {
     this.searchMode = 'song'
+    _persistedSearchMode = 'song'
     this.query = `*${result.id}`
+    _persistedQuery = this.query
     this.handleSearch()
   }
 
   private selectSearchMode(mode: 'song' | 'playlist') {
     this.searchMode = mode
+    _persistedSearchMode = mode
     this.clearSearchResults()
   }
 
   private selectPlatform(platform: string) {
     this.platform = platform
+    _persistedPlatform = platform
     this.clearSearchResults()
   }
 
   private handleClose() {
-    this.clearSearchResults()
     this.dispatchEvent(new CustomEvent('close'))
   }
 
@@ -138,8 +153,7 @@ export class MusicSearchModalElement extends LitElement {
     const pages: (number | string)[] = []
 
     if (total <= 7) {
-      for (let i = 1; i <= total; i++)
-        pages.push(i)
+      for (let i = 1; i <= total; i++) pages.push(i)
     } else {
       if (current <= 3) {
         pages.push(1, 2, 3, 4, '...', total)
@@ -157,8 +171,11 @@ export class MusicSearchModalElement extends LitElement {
       const isActive = page === current
       return html`
         <button
-          class="w-7 h-7 rounded-lg text-xs transition-colors ${isActive ? 'bg-purple-600 text-white' : 'text-white/60 hover:bg-white/10 hover:text-white'}"
-          @click=${() => this.goToPage(page as number)}>
+          class="w-7 h-7 rounded-lg text-xs transition-colors ${isActive
+            ? 'bg-purple-600 text-white'
+            : 'text-white/60 hover:bg-white/10 hover:text-white'}"
+          @click=${() => this.goToPage(page as number)}
+        >
           ${page}
         </button>
       `
@@ -167,18 +184,28 @@ export class MusicSearchModalElement extends LitElement {
 
   render() {
     return html`
-      <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-8">
+      <div
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-8"
+      >
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click=${this.handleClose}></div>
+        <div
+          class="absolute inset-0 bg-black/70 backdrop-blur-md"
+          @click=${this.handleClose}
+        ></div>
 
         <!-- Modal Container -->
-        <div class="relative w-full max-w-[1100px] h-[85vh] min-h-[600px] flex flex-col rounded-3xl overflow-hidden border border-white/10 shadow-2xl"
-          style="background: #1a1a1f;">
-
+        <div
+          class="relative w-full max-w-[1100px] h-[85vh] min-h-[600px] flex flex-col rounded-3xl overflow-hidden border border-white/10 shadow-2xl"
+          style="background: #1a1a1f;"
+        >
           <!-- Header -->
-          <div class="flex-shrink-0 px-6 py-4 border-b border-white/5 flex justify-between items-center">
+          <div
+            class="flex-shrink-0 px-6 py-4 border-b border-white/5 flex justify-between items-center"
+          >
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+              <div
+                class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center"
+              >
                 ${unsafeSVG(icons.search(20, 'text-purple-400'))}
               </div>
               <h2 class="text-xl font-bold text-white">点歌台</h2>
@@ -187,18 +214,30 @@ export class MusicSearchModalElement extends LitElement {
               <!-- AI Toggle -->
               <div class="flex items-center gap-2">
                 <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" class="sr-only peer"
+                  <input
+                    type="checkbox"
+                    class="sr-only peer"
                     .checked=${this.currentMode === 'ai'}
-                    @change=${this.handleModeToggle}>
-                  <div class="relative w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-500/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                    @change=${this.handleModeToggle}
+                  />
+                  <div
+                    class="relative w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-500/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"
+                  ></div>
                 </label>
-                <span class="text-sm flex items-center gap-1 ${this.currentMode === 'ai' ? 'text-purple-400' : 'text-white/40'}">
+                <span
+                  class="text-sm flex items-center gap-1 ${this.currentMode
+                  === 'ai'
+                    ? 'text-purple-400'
+                    : 'text-white/40'}"
+                >
                   <i class="fa-solid fa-robot text-xs"></i>
                   AI推荐
                 </span>
               </div>
-              <button class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all"
-                @click=${this.handleClose}>
+              <button
+                class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all"
+                @click=${this.handleClose}
+              >
                 <i class="fa-solid fa-times text-sm"></i>
               </button>
             </div>
@@ -206,187 +245,314 @@ export class MusicSearchModalElement extends LitElement {
 
           <!-- Content -->
           <div class="flex-1 flex flex-col min-h-0 p-6 gap-4">
-
             ${this.currentMode === 'search'
               ? html`
-              <!-- Search Input -->
-              <div class="relative group flex-shrink-0">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  ${unsafeSVG(icons.search(18, 'text-white/30 group-focus-within:text-purple-400 transition-colors'))}
-                </div>
-                <input type="text" .value=${this.query}
-                  placeholder="搜索歌曲、歌手、专辑..."
-                  class="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-14 text-base text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
-                  @input=${(e: InputEvent) => this.query = (e.target as HTMLInputElement).value}
-                  @keydown=${(e: KeyboardEvent) => {
-                    if (e.key === 'Enter')
-                      this.handleSearch()
-                  }}>
-                <button class="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 transition-colors shadow-lg shadow-purple-600/20 flex items-center justify-center"
-                  @click=${this.handleSearch}>
-                  ${unsafeSVG(icons.search(16, 'text-white'))}
-                </button>
-              </div>
+                  <!-- Search Input -->
+                  <div class="relative group flex-shrink-0">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
+                    >
+                      ${unsafeSVG(
+                        icons.search(
+                          18,
+                          'text-white/30 group-focus-within:text-purple-400 transition-colors',
+                        ),
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      .value=${this.query}
+                      placeholder="搜索歌曲、歌手、专辑..."
+                      class="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-14 text-base text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
+                      @input=${(e: InputEvent) => {
+                        this.query = (e.target as HTMLInputElement).value
+                        _persistedQuery = this.query
+                      }}
+                      @keydown=${(e: KeyboardEvent) => {
+                        if (e.key === 'Enter')
+                          this.handleSearch()
+                      }}
+                    />
+                    <button
+                      class="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 transition-colors shadow-lg shadow-purple-600/20 flex items-center justify-center"
+                      @click=${this.handleSearch}
+                    >
+                      ${unsafeSVG(icons.search(16, 'text-white'))}
+                    </button>
+                  </div>
 
-              <!-- Mode Tabs -->
-              <div class="flex-shrink-0 flex p-1 bg-white/5 rounded-xl border border-white/5">
-                ${([
-                  { id: 'song' as const, name: '单曲', icon: 'fa-solid fa-music' },
-                  { id: 'playlist' as const, name: '歌单', icon: 'fa-solid fa-list-ul' },
-                ] as const).map(m => html`
-                  <button class="flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all whitespace-nowrap
+                  <!-- Mode Tabs -->
+                  <div
+                    class="flex-shrink-0 flex p-1 bg-white/5 rounded-xl border border-white/5"
+                  >
+                    ${(
+                      [
+                        {
+                          id: 'song' as const,
+                          name: '单曲',
+                          icon: 'fa-solid fa-music',
+                        },
+                        {
+                          id: 'playlist' as const,
+                          name: '歌单',
+                          icon: 'fa-solid fa-list-ul',
+                        },
+                      ] as const
+                    ).map(
+                      m => html`
+                        <button
+                          class="flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all whitespace-nowrap
                     ${this.searchMode === m.id
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                       : 'text-white/50 hover:text-white hover:bg-white/5'}"
-                    @click=${() => this.selectSearchMode(m.id)}>
-                    <i class="${m.icon} text-xs"></i>
-                    ${m.name}
-                  </button>
-                `)}
-              </div>
+                          @click=${() => this.selectSearchMode(m.id)}
+                        >
+                          <i class="${m.icon} text-xs"></i>
+                          ${m.name}
+                        </button>
+                      `,
+                    )}
+                  </div>
 
-              <!-- Platform Tabs -->
-              <div class="flex-shrink-0 flex p-1 bg-white/5 rounded-xl border border-white/5">
-                ${[
-                  { id: 'wy', name: '网易云', icon: 'fa-solid fa-music' },
-                  { id: 'qq', name: 'QQ音乐', icon: 'fa-brands fa-qq' },
-                  { id: 'bili', name: 'B站', icon: 'fa-solid fa-tv' },
-                ].map(p => html`
-                  <button class="flex-1 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all whitespace-nowrap
+                  <!-- Platform Tabs -->
+                  <div
+                    class="flex-shrink-0 flex p-1 bg-white/5 rounded-xl border border-white/5"
+                  >
+                    ${[
+                      { id: 'wy', name: '网易云', icon: 'fa-solid fa-music' },
+                      { id: 'qq', name: 'QQ音乐', icon: 'fa-brands fa-qq' },
+                      { id: 'bili', name: 'B站', icon: 'fa-solid fa-tv' },
+                    ].map(
+                      p => html`
+                        <button
+                          class="flex-1 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all whitespace-nowrap
                     ${this.platform === p.id
                       ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20'
                       : 'text-white/50 hover:text-white hover:bg-white/5'}"
-                    @click=${() => this.selectPlatform(p.id)}>
-                    <i class="${p.icon} text-xs"></i>
-                    ${p.name}
-                  </button>
-                `)}
-              </div>
+                          @click=${() => this.selectPlatform(p.id)}
+                        >
+                          <i class="${p.icon} text-xs"></i>
+                          ${p.name}
+                        </button>
+                      `,
+                    )}
+                  </div>
 
-              <!-- Results Area -->
-              <div class="flex-1 min-h-0 bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden flex flex-col">
-                ${this.isSearching
-                  ? html`
-                    <div class="flex-1 flex flex-col items-center justify-center text-white/40">
-                      <div class="w-10 h-10 border-3 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mb-3"></div>
-                      <p class="text-sm">正在搜索...</p>
-                    </div>
-                  `
-                  : this.searchResults.length === 0
-                    ? html`
-                      <div class="flex-1 flex flex-col items-center justify-center text-white/40">
-                        <div class="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/10">
-                          ${unsafeSVG(icons.music(28, 'text-purple-400/60'))}
-                        </div>
-                        <p class="text-lg font-semibold text-white/60">准备搜索</p>
-                        <p class="text-sm text-white/30 mt-1">输入关键词开始搜索歌曲</p>
-                      </div>
-                    `
-                    : html`
-                      <div class="px-4 py-3 border-b border-white/5 flex items-center justify-between shrink-0">
-                        <span class="text-xs text-white/40">找到 ${this.searchCounts} 个结果</span>
-                      </div>
-                      <div class="flex-1 overflow-y-auto p-2">
-                        <div class="flex flex-col gap-1">
-                          ${this.searchResults.map((result: any) => html`
-                            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group">
-                              <img src=${result.cover || ''} alt=${result.title} class="w-12 h-12 rounded-lg object-cover shrink-0 bg-white/5">
-                              <div class="flex-1 min-w-0">
-                                <div class="text-sm font-medium text-white truncate">${result.title}</div>
-                                <div class="text-xs text-white/40 truncate">
-                                  ${this.searchMode === 'playlist'
-                                    ? html`${result.creator || ''}${result.songCount ? ` · ${result.songCount}首` : ''}`
-                                    : result.artist || ''}
-                                </div>
-                              </div>
-                              ${this.searchMode === 'playlist'
-                                ? html`
-                                  <button class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
-                                    @click=${() => this.viewPlaylist(result)}>
-                                    ${unsafeSVG(icons.eye(16))}
-                                  </button>
-                                `
-                                : html`
-                                  <button class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
-                                    @click=${() => this.pickMusic(result)}>
-                                    ${unsafeSVG(icons.plus(16))}
-                                  </button>
-                                `}
-                            </div>
-                          `)}
-                        </div>
-                      </div>
-                      ${this.totalPages > 1
-                        ? html`
-                          <div class="px-4 py-3 border-t border-white/5 flex items-center justify-between shrink-0">
-                            <span class="text-xs text-white/40">第 ${this.currentPage} / ${this.totalPages} 页</span>
-                            <div class="flex items-center gap-1">
-                              <button
-                                class="px-2 py-1 rounded-lg text-xs transition-colors ${this.currentPage <= 1 ? 'text-white/20 cursor-not-allowed' : 'text-white/60 hover:bg-white/10 hover:text-white'}"
-                                ?disabled=${this.currentPage <= 1}
-                                @click=${() => this.goToPage(this.currentPage - 1)}>
-                                上一页
-                              </button>
-                              ${this.renderPageNumbers()}
-                              <button
-                                class="px-2 py-1 rounded-lg text-xs transition-colors ${this.currentPage >= this.totalPages ? 'text-white/20 cursor-not-allowed' : 'text-white/60 hover:bg-white/10 hover:text-white'}"
-                                ?disabled=${this.currentPage >= this.totalPages}
-                                @click=${() => this.goToPage(this.currentPage + 1)}>
-                                下一页
-                              </button>
-                            </div>
+                  <!-- Results Area -->
+                  <div
+                    class="flex-1 min-h-0 bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden flex flex-col"
+                  >
+                    ${this.isSearching
+                      ? html`
+                          <div
+                            class="flex-1 flex flex-col items-center justify-center text-white/40"
+                          >
+                            <div
+                              class="w-10 h-10 border-3 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mb-3"
+                            ></div>
+                            <p class="text-sm">正在搜索...</p>
                           </div>
                         `
-                        : nothing}
-                    `}
-              </div>
-            `
-              : html`
-              <!-- AI Recommendations -->
-              <div class="flex-1 min-h-0 flex flex-col gap-4">
-                <div class="flex items-center justify-between flex-shrink-0">
-                  <h3 class="text-base md:text-lg font-medium flex items-center gap-2">
-                    <i class="fa-solid fa-robot text-purple-400"></i>
-                    AI为您推荐
-                    ${this.recommendations.length > 0
-                      ? html`<span class="text-xs text-white/40">(${this.recommendations.length}首)</span>`
-                      : nothing}
-                  </h3>
-                  <button class="text-white/40 hover:text-white transition-colors w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5"
-                    @click=${() => playerStore.pullRecommendations()}>
-                    <i class="fa-solid fa-refresh text-xs"></i>
-                  </button>
-                </div>
-                <div class="flex-1 min-h-0 bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden flex flex-col">
-                  ${this.recommendations.length > 0
-                    ? html`
-                      <div class="flex-1 overflow-y-auto p-2">
-                        <div class="flex flex-col gap-1">
-                          ${this.recommendations.map((result: any) => html`
-                            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group">
-                              <img src=${result.cover || ''} alt=${result.title} class="w-12 h-12 rounded-lg object-cover shrink-0 bg-white/5">
-                              <div class="flex-1 min-w-0">
-                                <div class="text-sm font-medium text-white truncate">${result.title}</div>
-                                <div class="text-xs text-white/40 truncate">${result.artist || ''}</div>
+                      : this.searchResults.length === 0
+                        ? html`
+                            <div
+                              class="flex-1 flex flex-col items-center justify-center text-white/40"
+                            >
+                              <div
+                                class="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/10"
+                              >
+                                ${unsafeSVG(
+                                  icons.music(28, 'text-purple-400/60'),
+                                )}
                               </div>
-                              <button class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-0 group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
-                                @click=${() => this.pickMusic(result)}>
-                                ${unsafeSVG(icons.plus(16))}
-                              </button>
+                              <p class="text-lg font-semibold text-white/60">
+                                准备搜索
+                              </p>
+                              <p class="text-sm text-white/30 mt-1">
+                                输入关键词开始搜索歌曲
+                              </p>
                             </div>
-                          `)}
-                        </div>
-                      </div>
-                    `
-                    : html`
-                      <div class="flex-1 flex flex-col items-center justify-center text-white/40">
-                        <i class="fa-solid fa-robot text-4xl mb-4 opacity-50"></i>
-                        <p class="text-lg mb-2">AI正在为您生成推荐...</p>
-                      </div>
-                    `}
-                </div>
-              </div>
-            `}
+                          `
+                        : html`
+                            <div
+                              class="px-4 py-3 border-b border-white/5 flex items-center justify-between shrink-0"
+                            >
+                              <span class="text-xs text-white/40"
+                                >找到 ${this.searchCounts} 个结果</span
+                              >
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-2">
+                              <div class="flex flex-col gap-1">
+                                ${this.searchResults.map(
+                                  (result: any) => html`
+                                    <div
+                                      class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
+                                    >
+                                      <img
+                                        src=${result.cover || ''}
+                                        alt=${result.title}
+                                        class="w-12 h-12 rounded-lg object-cover shrink-0 bg-white/5"
+                                      />
+                                      <div class="flex-1 min-w-0">
+                                        <div
+                                          class="text-sm font-medium text-white truncate"
+                                        >
+                                          ${result.title}
+                                        </div>
+                                        <div
+                                          class="text-xs text-white/40 truncate"
+                                        >
+                                          ${this.searchMode === 'playlist'
+                                            ? html`${result.creator
+                                            || ''}${result.songCount
+                                              ? ` · ${result.songCount}首`
+                                              : ''}`
+                                            : result.artist || ''}
+                                        </div>
+                                      </div>
+                                      ${this.searchMode === 'playlist'
+                                        ? html`
+                                            <button
+                                              class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
+                                              @click=${() =>
+                                                this.viewPlaylist(result)}
+                                            >
+                                              ${unsafeSVG(icons.eye(16))}
+                                            </button>
+                                          `
+                                        : html`
+                                            <button
+                                              class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
+                                              @click=${() =>
+                                                this.pickMusic(result)}
+                                            >
+                                              ${unsafeSVG(icons.plus(16))}
+                                            </button>
+                                          `}
+                                    </div>
+                                  `,
+                                )}
+                              </div>
+                            </div>
+                            ${this.totalPages > 1
+                              ? html`
+                                  <div
+                                    class="px-4 py-3 border-t border-white/5 flex items-center justify-between shrink-0"
+                                  >
+                                    <span class="text-xs text-white/40"
+                                      >第 ${this.currentPage} /
+                                      ${this.totalPages} 页</span
+                                    >
+                                    <div class="flex items-center gap-1">
+                                      <button
+                                        class="px-2 py-1 rounded-lg text-xs transition-colors ${this
+                                          .currentPage <= 1
+                                          ? 'text-white/20 cursor-not-allowed'
+                                          : 'text-white/60 hover:bg-white/10 hover:text-white'}"
+                                        ?disabled=${this.currentPage <= 1}
+                                        @click=${() =>
+                                          this.goToPage(this.currentPage - 1)}
+                                      >
+                                        上一页
+                                      </button>
+                                      ${this.renderPageNumbers()}
+                                      <button
+                                        class="px-2 py-1 rounded-lg text-xs transition-colors ${this
+                                          .currentPage >= this.totalPages
+                                          ? 'text-white/20 cursor-not-allowed'
+                                          : 'text-white/60 hover:bg-white/10 hover:text-white'}"
+                                        ?disabled=${this.currentPage
+                                        >= this.totalPages}
+                                        @click=${() =>
+                                          this.goToPage(this.currentPage + 1)}
+                                      >
+                                        下一页
+                                      </button>
+                                    </div>
+                                  </div>
+                                `
+                              : nothing}
+                          `}
+                  </div>
+                `
+              : html`
+                  <!-- AI Recommendations -->
+                  <div class="flex-1 min-h-0 flex flex-col gap-4">
+                    <div
+                      class="flex items-center justify-between flex-shrink-0"
+                    >
+                      <h3
+                        class="text-base md:text-lg font-medium flex items-center gap-2"
+                      >
+                        <i class="fa-solid fa-robot text-purple-400"></i>
+                        AI为您推荐
+                        ${this.recommendations.length > 0
+                          ? html`<span class="text-xs text-white/40"
+                              >(${this.recommendations.length}首)</span
+                            >`
+                          : nothing}
+                      </h3>
+                      <button
+                        class="text-white/40 hover:text-white transition-colors w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5"
+                        @click=${() => playerStore.pullRecommendations()}
+                      >
+                        <i class="fa-solid fa-refresh text-xs"></i>
+                      </button>
+                    </div>
+                    <div
+                      class="flex-1 min-h-0 bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden flex flex-col"
+                    >
+                      ${this.recommendations.length > 0
+                        ? html`
+                            <div class="flex-1 overflow-y-auto p-2">
+                              <div class="flex flex-col gap-1">
+                                ${this.recommendations.map(
+                                  (result: any) => html`
+                                    <div
+                                      class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
+                                    >
+                                      <img
+                                        src=${result.cover || ''}
+                                        alt=${result.title}
+                                        class="w-12 h-12 rounded-lg object-cover shrink-0 bg-white/5"
+                                      />
+                                      <div class="flex-1 min-w-0">
+                                        <div
+                                          class="text-sm font-medium text-white truncate"
+                                        >
+                                          ${result.title}
+                                        </div>
+                                        <div
+                                          class="text-xs text-white/40 truncate"
+                                        >
+                                          ${result.artist || ''}
+                                        </div>
+                                      </div>
+                                      <button
+                                        class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-0 group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
+                                        @click=${() => this.pickMusic(result)}
+                                      >
+                                        ${unsafeSVG(icons.plus(16))}
+                                      </button>
+                                    </div>
+                                  `,
+                                )}
+                              </div>
+                            </div>
+                          `
+                        : html`
+                            <div
+                              class="flex-1 flex flex-col items-center justify-center text-white/40"
+                            >
+                              <i
+                                class="fa-solid fa-robot text-4xl mb-4 opacity-50"
+                              ></i>
+                              <p class="text-lg mb-2">AI正在为您生成推荐...</p>
+                            </div>
+                          `}
+                    </div>
+                  </div>
+                `}
           </div>
         </div>
       </div>
