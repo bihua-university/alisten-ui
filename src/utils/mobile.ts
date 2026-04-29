@@ -35,18 +35,32 @@ export function setViewportHeight(): void {
   document.documentElement.style.setProperty('--vh', `${vh}px`)
 }
 
+function resolveTargetElement(target: EventTarget | null): Element | null {
+  if (target instanceof Element)
+    return target
+
+  if (target instanceof Node)
+    return target.parentElement
+
+  return null
+}
+
 /**
  * 检查元素是否在允许滚动的区域内
  */
-export function isScrollableElement(target: Element): Element | null {
+export function isScrollableElement(target: EventTarget | null): Element | null {
+  const element = resolveTargetElement(target)
+  if (!element)
+    return null
+
   // 首先检查精确的滚动选择器
-  const exactMatch = target.closest(MOBILE_SCROLL_SELECTORS)
+  const exactMatch = element.closest(MOBILE_SCROLL_SELECTORS)
   if (exactMatch) {
     return exactMatch
   }
 
   // 检查元素本身或父元素是否有滚动相关的类名
-  let current: Element | null = target
+  let current: Element | null = element
   while (current && current !== document.body) {
     const classList = current.className || ''
 
@@ -69,15 +83,23 @@ export function isScrollableElement(target: Element): Element | null {
 /**
  * 检查是否在模态框中
  */
-export function isInModal(target: Element): boolean {
-  return !!target.closest('.fixed, .modal, .dialog, .popup, [class*="z-"]')
+export function isInModal(target: EventTarget | null): boolean {
+  const element = resolveTargetElement(target)
+  if (!element)
+    return false
+
+  return !!element.closest('.fixed, .modal, .dialog, .popup, [class*="z-"]')
 }
 
 /**
  * 检查是否在应用内
  */
-export function isInApp(target: Element): boolean {
-  return !!target.closest('alisten-app')
+export function isInApp(target: EventTarget | null): boolean {
+  const element = resolveTargetElement(target)
+  if (!element)
+    return false
+
+  return !!element.closest('alisten-app')
 }
 
 /**
@@ -91,7 +113,7 @@ export function createPreventScrollHandler() {
       return
     }
 
-    const target = e.target as Element
+    const target = e.target
     const scrollableElement = isScrollableElement(target)
 
     // 如果在可滚动区域内，总是允许滚动
@@ -119,7 +141,7 @@ export function createPreventScrollHandler() {
  */
 export function createPreventTouchMoveHandler() {
   return function preventTouchMove(e: TouchEvent) {
-    const target = e.target as Element
+    const target = e.target
 
     // 检查是否在允许滚动的区域内
     const scrollableElement = isScrollableElement(target)
@@ -142,7 +164,7 @@ export function createPreventTouchMoveHandler() {
  */
 export function createPreventTouchStartHandler() {
   return function preventTouchStart(e: TouchEvent) {
-    const target = e.target as Element
+    const target = e.target
     const scrollableElement = isScrollableElement(target)
     if (!scrollableElement && e.touches.length > 1) {
       e.preventDefault()

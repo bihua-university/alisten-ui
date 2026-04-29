@@ -97,9 +97,13 @@ export class MusicSearchModalElement extends LitElement {
   private handleSearch(page = 1) {
     if (!this.query.trim())
       return
+
+    const nextPage
+      = typeof page === 'number' && Number.isFinite(page) ? page : 1
+
     this.isSearching = true
     _persistedQuery = this.query
-    searchStore.setPage(page)
+    searchStore.setPage(nextPage)
     const action
       = this.searchMode === 'song' ? '/music/search' : '/music/searchsonglist'
     websocketStore.send({
@@ -107,7 +111,7 @@ export class MusicSearchModalElement extends LitElement {
       data: {
         keyword: this.query.trim(),
         source: this.platform,
-        pageIndex: page,
+        pageIndex: nextPage,
         pageSize: this.pageSize,
       },
     })
@@ -185,7 +189,7 @@ export class MusicSearchModalElement extends LitElement {
   render() {
     return html`
       <div
-        class="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-8"
+        class="fixed top-0 left-0 right-0 bottom-0 z-[60] flex items-center justify-center p-0 md:p-8"
       >
         <!-- Backdrop -->
         <div
@@ -195,7 +199,7 @@ export class MusicSearchModalElement extends LitElement {
 
         <!-- Modal Container -->
         <div
-          class="relative w-full max-w-[1100px] h-[85vh] min-h-[600px] flex flex-col rounded-3xl overflow-hidden border border-white/10 shadow-2xl"
+          class="relative w-full max-w-none md:max-w-[1100px] h-[100dvh] md:h-[85vh] min-h-0 md:min-h-[600px] flex flex-col rounded-none md:rounded-3xl overflow-hidden border-0 md:border md:border-white/10 shadow-none md:shadow-2xl"
           style="background: #1a1a1f;"
         >
           <!-- Header -->
@@ -275,7 +279,7 @@ export class MusicSearchModalElement extends LitElement {
                     />
                     <button
                       class="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 transition-colors shadow-lg shadow-purple-600/20 flex items-center justify-center"
-                      @click=${this.handleSearch}
+                      @click=${() => this.handleSearch()}
                     >
                       ${unsafeSVG(icons.search(16, 'text-white'))}
                     </button>
@@ -386,7 +390,7 @@ export class MusicSearchModalElement extends LitElement {
                                 ${this.searchResults.map(
                                   (result: any) => html`
                                     <div
-                                      class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
+                                      class="flex items-center gap-3 p-3 rounded-xl transition-colors group md:hover:bg-white/5"
                                     >
                                       <img
                                         src=${result.cover || ''}
@@ -509,7 +513,7 @@ export class MusicSearchModalElement extends LitElement {
                                 ${this.recommendations.map(
                                   (result: any) => html`
                                     <div
-                                      class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
+                                      class="flex items-center gap-3 p-3 rounded-xl transition-colors group md:hover:bg-white/5"
                                     >
                                       <img
                                         src=${result.cover || ''}
@@ -529,7 +533,7 @@ export class MusicSearchModalElement extends LitElement {
                                         </div>
                                       </div>
                                       <button
-                                        class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-0 group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
+                                        class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
                                         @click=${() => this.pickMusic(result)}
                                       >
                                         ${unsafeSVG(icons.plus(16))}

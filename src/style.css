@@ -1,6 +1,6 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css");
 /* 导入性能优化样式 - 必须在所有CSS规则之前 */
-@import './styles/performance.css';
+@import "./styles/performance.css";
 
 @tailwind base;
 @tailwind components;
@@ -8,957 +8,998 @@
 
 /* ===== New UI Glass Style ===== */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: dark;
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color-scheme: dark;
 }
 
 body {
-  background-color: #0f0f13;
-  background-image: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
-                    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
-                    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
-                    radial-gradient(at 0% 100%, rgba(34, 197, 94, 0.15) 0px, transparent 50%);
+    background-color: #0f0f13;
+    background-image:
+        radial-gradient(
+            at 0% 0%,
+            rgba(56, 189, 248, 0.15) 0px,
+            transparent 50%
+        ),
+        radial-gradient(
+            at 100% 0%,
+            rgba(168, 85, 247, 0.15) 0px,
+            transparent 50%
+        ),
+        radial-gradient(
+            at 100% 100%,
+            rgba(236, 72, 153, 0.15) 0px,
+            transparent 50%
+        ),
+        radial-gradient(
+            at 0% 100%,
+            rgba(34, 197, 94, 0.15) 0px,
+            transparent 50%
+        );
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
 }
 
 .glass-panel {
-  background: rgba(17, 24, 39, 0.4);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(17, 24, 39, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* New UI Animations */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
 }
 
 .slide-up-enter-from,
 .slide-up-leave-to {
-  transform: translateY(20px);
-  opacity: 0;
+    transform: translateY(20px);
+    opacity: 0;
 }
 
 /* 隐藏滚动条 */
 .scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 /* 歌词样式 */
 /* Lyrics scroll container */
 .lyrics-scroll {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
 }
 
 .lyrics-scroll::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 /* Lyric line base styles */
 .lyric-line {
-  transform-origin: center center;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
-  user-select: none;
-  -webkit-user-select: none;
+    transform-origin: center center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 /* 当前播放的歌词 - 高亮 */
 .active-lyric {
-  line-height: 1.5;
-  padding: 0.5rem 0.5rem;
-  margin: 0;
+    line-height: 1.5;
+    padding: 0.5rem 0.5rem;
+    margin: 0;
 }
 
 @media (min-width: 768px) {
-  .active-lyric {
-    padding: 0.75rem 0.5rem;
-  }
+    .active-lyric {
+        padding: 0.75rem 0.5rem;
+    }
 }
 
 /* 相邻歌词 */
 .near-lyric {
-  line-height: 1.5;
-  padding: 0.5rem 0.5rem;
-  margin: 0;
+    line-height: 1.5;
+    padding: 0.5rem 0.5rem;
+    margin: 0;
 }
 
 @media (min-width: 768px) {
-  .near-lyric {
-    padding: 0.75rem 0.5rem;
-  }
+    .near-lyric {
+        padding: 0.75rem 0.5rem;
+    }
 }
 
 /* 远处歌词 */
 .far-lyric {
-  line-height: 1.4;
-  padding: 0.375rem 0.5rem;
-  margin: 0;
+    line-height: 1.4;
+    padding: 0.375rem 0.5rem;
+    margin: 0;
 }
 
 @media (min-width: 768px) {
-  .far-lyric {
-    padding: 0.5rem 0.5rem;
-  }
+    .far-lyric {
+        padding: 0.5rem 0.5rem;
+    }
 }
 
 /* 模态框动画 */
 .modal-enter-active,
 .modal-leave-active {
-  transition: all 0.3s ease;
+    transition: all 0.3s ease;
 }
 .modal-enter-from,
 .modal-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
+    opacity: 0;
+    transform: scale(0.95);
 }
 
 /* 侧边栏动画 */
 .slide-enter-active,
 .slide-leave-active {
-  transition: transform 0.3s ease;
+    transition: transform 0.3s ease;
 }
 .slide-enter-from,
 .slide-leave-to {
-  transform: translateX(-100%);
+    transform: translateX(-100%);
 }
 
 /* 遮罩淡入淡出 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 .fade-enter-from,
 .fade-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
 
 /* 移动端触摸优化 */
 @media (max-width: 768px) {
-  /* 增加按钮触摸面积 */
-  button {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  /* 小按钮特殊处理 */
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  /* 输入框优化 */
-  input {
-    font-size: 16px; /* 防止iPhone缩放 */
-  }
-  
-  /* 平滑滚动 */
-  .smooth-scroll {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-  }
-  
-  /* 模态框动画调整 */
-  .modal-enter-from,
-  .modal-leave-to {
-    transform: translateY(100%);
-  }
-  
-  /* 防止页面缩放 */
-  html {
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-  }
-  
-  /* 键盘弹起时的处理 */
-  .keyboard-adjust {
-    height: 100vh;
-    height: 100dvh; /* 动态视窗高度 */
-  }
-  
-  /* 防止横向滚动 */
-  body {
-    overflow-x: hidden;
-  }
-  
-  /* 触摸反馈 */
-  .touch-feedback:active {
-    transform: scale(0.95);
-    transition: transform 0.1s ease;
-  }
+    /* 增加按钮触摸面积 */
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* 小按钮特殊处理 */
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 输入框优化 */
+    input {
+        font-size: 16px; /* 防止iPhone缩放 */
+    }
+
+    /* 平滑滚动 */
+    .smooth-scroll {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+
+    /* 模态框动画调整 */
+    .modal-enter-from,
+    .modal-leave-to {
+        transform: translateY(100%);
+    }
+
+    /* 防止页面缩放 */
+    html {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+
+    /* 键盘弹起时的处理 */
+    .keyboard-adjust {
+        height: 100vh;
+        height: 100dvh; /* 动态视窗高度 */
+    }
+
+    /* 防止横向滚动 */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* 触摸反馈 */
+    .touch-feedback:active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease;
+    }
 }
 
 /* 移动端模态框样式优化 */
 @media (max-width: 768px) {
-  .modal-enter-from,
-  .modal-leave-to {
-    transform: translateY(100%);
-  }
+    .modal-enter-from,
+    .modal-leave-to {
+        transform: translateY(100%);
+    }
 }
 
 /* 长按反馈 */
 .long-press:active,
 .touch-feedback:active {
-  transform: scale(0.95);
-  transition: transform 0.1s ease;
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
 }
 
 /* 拖拽指示器 */
 .drag-indicator {
-  background: #6b7280;
-  border-radius: 9999px;
-  transition: background-color 0.2s ease;
+    background: #6b7280;
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
 }
 
 /* 自定义进度条 */
 .progress-bar {
-  position: relative;
-  cursor: pointer;
+    position: relative;
+    cursor: pointer;
 }
 .progress-bar:hover .progress-thumb {
-  opacity: 1;
+    opacity: 1;
 }
 .progress-thumb {
-  position: absolute;
-  top: 50%;
-  transform: translate(50%, -50%);
-  opacity: 0;
-  transition: opacity 0.2s ease;
+    position: absolute;
+    top: 50%;
+    transform: translate(50%, -50%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
 /* 移动端进度条优化 */
 @media (max-width: 768px) {
-  .progress-bar {
-    padding: 0.5rem 0; /* 增加触摸面积 */
-  }
+    .progress-bar {
+        padding: 0.5rem 0; /* 增加触摸面积 */
+    }
 }
 
 /* 沉浸模式样式 */
 .immersive-mode {
-  background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.1) 0%, rgba(0, 0, 0, 0.9) 70%);
+    background: radial-gradient(
+        ellipse at center,
+        rgba(59, 130, 246, 0.1) 0%,
+        rgba(0, 0, 0, 0.9) 70%
+    );
 }
 
 /* 沉浸模式歌词滚动容器 */
 .immersive-lyrics-container {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .immersive-lyrics-container::-webkit-scrollbar {
-  width: 4px;
+    width: 4px;
 }
 
 .immersive-lyrics-container::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
 .immersive-lyrics-container::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
 }
 
 .immersive-lyrics-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.3);
 }
 
 /* 沉浸模式专辑封面动画 */
 .album-cover-immersive {
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .album-cover-immersive::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .album-cover-immersive:hover::before {
-  opacity: 1;
+    opacity: 1;
 }
 
 /* 沉浸模式渐变进度条 */
 .immersive-progress {
-  background: linear-gradient(90deg, 
-    rgba(59, 130, 246, 0.8) 0%, 
-    rgba(147, 51, 234, 0.8) 100%);
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(
+        90deg,
+        rgba(59, 130, 246, 0.8) 0%,
+        rgba(147, 51, 234, 0.8) 100%
+    );
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 /* 沉浸模式歌词高亮动画 */
 .immersive-lyric-active {
-  background: linear-gradient(45deg, 
-    rgba(59, 130, 246, 0.1) 0%, 
-    rgba(147, 51, 234, 0.1) 100%);
-  border-left: 4px solid rgba(59, 130, 246, 0.6);
-  padding-left: 1rem;
-  margin-left: -1rem;
-  border-radius: 0.5rem;
+    background: linear-gradient(
+        45deg,
+        rgba(59, 130, 246, 0.1) 0%,
+        rgba(147, 51, 234, 0.1) 100%
+    );
+    border-left: 4px solid rgba(59, 130, 246, 0.6);
+    padding-left: 1rem;
+    margin-left: -1rem;
+    border-radius: 0.5rem;
 }
 
 /* 沉浸模式控制按钮动画 */
 .immersive-control-btn {
-  position: relative;
-  overflow: hidden;
+    position: relative;
+    overflow: hidden;
 }
 
 .immersive-control-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .immersive-control-btn:hover::before {
-  opacity: 1;
+    opacity: 1;
 }
 
 /* 响应式沉浸模式调整 */
 @media (max-width: 1024px) {
-  .immersive-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    text-align: center;
-  }
-  
-  .album-cover-immersive {
-    width: 300px;
-    height: 300px;
-    margin: 0 auto;
-  }
+    .immersive-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+    }
+
+    .album-cover-immersive {
+        width: 300px;
+        height: 300px;
+        margin: 0 auto;
+    }
 }
 
 @media (max-width: 640px) {
-  .album-cover-immersive {
-    width: 250px;
-    height: 250px;
-  }
-  
-  .immersive-title {
-    font-size: 2rem !important;
-  }
-  
-  .immersive-artist {
-    font-size: 1.25rem !important;
-  }
+    .album-cover-immersive {
+        width: 250px;
+        height: 250px;
+    }
+
+    .immersive-title {
+        font-size: 2rem !important;
+    }
+
+    .immersive-artist {
+        font-size: 1.25rem !important;
+    }
 }
 
 /* 消息气泡样式 */
 .message-bubble {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
+    background: linear-gradient(
+        135deg,
+        rgba(59, 130, 246, 0.1),
+        rgba(147, 51, 234, 0.1)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
 }
 
 /* 加载动画 */
 .spin {
-  animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* 播放列表优化样式 */
 .playlist-item {
-  position: relative;
+    position: relative;
 }
 
 .playlist-item:hover .like-button {
-  opacity: 1;
+    opacity: 1;
 }
 
 .like-button {
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
 }
 
 .requester-info {
-  display: flex;
-  align-items: center;
-  font-size: 0.75rem;
-  color: #6b7280;
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #6b7280;
 }
 
 .requester-avatar {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-  margin-right: 0.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    margin-right: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* 响应式播放列表 */
 @media (max-width: 768px) {
-  .playlist-container .playlist-item {
-    padding: 0.5rem;
-  }
-  
-  .playlist-container .playlist-item .like-button {
-    font-size: 0.75rem;
-    padding: 0.25rem;
-  }
+    .playlist-container .playlist-item {
+        padding: 0.5rem;
+    }
+
+    .playlist-container .playlist-item .like-button {
+        font-size: 0.75rem;
+        padding: 0.25rem;
+    }
 }
 
 /* 动态背景相关样式 */
 .blur-3xl {
-  filter: blur(20px);
+    filter: blur(20px);
 }
 
 .dynamic-bg {
-  transition: opacity 1.5s ease-in-out;
+    transition: opacity 1.5s ease-in-out;
 }
 
 .dynamic-bg img {
-  transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: backgroundPulse 20s ease-in-out infinite;
+    transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: backgroundPulse 20s ease-in-out infinite;
 }
 
 /* 背景叠加优化 */
 .bg-overlay {
-  background: linear-gradient(135deg, 
-    rgba(0, 0, 0, 0.5) 0%, 
-    rgba(0, 0, 0, 0.2) 30%, 
-    rgba(0, 0, 0, 0.4) 70%, 
-    rgba(0, 0, 0, 0.6) 100%);
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.5) 0%,
+        rgba(0, 0, 0, 0.2) 30%,
+        rgba(0, 0, 0, 0.4) 70%,
+        rgba(0, 0, 0, 0.6) 100%
+    );
 }
 
 /* 背景动画 */
 @keyframes backgroundPulse {
-  0%, 100% { 
-    transform: scale(1.1); 
-    filter: blur(40px) brightness(0.8);
-  }
-  50% { 
-    transform: scale(1.15); 
-    filter: blur(45px) brightness(0.9);
-  }
+    0%,
+    100% {
+        transform: scale(1.1);
+        filter: blur(40px) brightness(0.8);
+    }
+    50% {
+        transform: scale(1.15);
+        filter: blur(45px) brightness(0.9);
+    }
 }
 
 /* 玻璃效果增强 */
 .glass-effect {
-
-  backdrop-filter: blur(20px);
-  background: rgba(30, 41, 59, 0.3);
-  border-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    background: rgba(30, 41, 59, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* 音乐平台选择样式 */
 .music-source-button {
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .music-source-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.5s;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transition: left 0.5s;
 }
 
 .music-source-button:hover::before {
-  left: 100%;
+    left: 100%;
 }
 
 .music-source-button.active {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 /* 搜索结果动画 */
 .search-result-enter-active,
 .search-result-leave-active {
-  transition: all 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .search-result-enter-from,
 .search-result-leave-to {
-  opacity: 0;
-  transform: translateY(20px);
+    opacity: 0;
+    transform: translateY(20px);
 }
 
 /* 音乐来源标签 */
 .music-source-tag {
-  font-size: 0.65rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: 9999px;
-  font-weight: 500;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    font-size: 0.65rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* 高级滚动条样式 */
 .custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+    width: 6px;
+    height: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 3px;
+    background: transparent;
+    border-radius: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 3px;
-  transition: background 0.2s ease;
+    background: transparent;
+    border-radius: 3px;
+    transition: background 0.2s ease;
 }
 
 .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .custom-scrollbar::-webkit-scrollbar-corner {
-  background: transparent;
+    background: transparent;
 }
 
 /* 模态框滚动优化 */
 .modal-scroll {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modal-scroll::-webkit-scrollbar {
-  width: 4px;
+    width: 4px;
 }
 
 .modal-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
 }
 
 .modal-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 /* 悬浮滚动指示器 */
 .scroll-indicator {
-  position: absolute;
-  right: 2px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: rgba(255, 255, 255, 0.1);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 1px;
+    position: absolute;
+    right: 2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 1px;
 }
 
 .scroll-container:hover .scroll-indicator {
-  opacity: 1;
+    opacity: 1;
 }
 
 .scroll-thumb {
-  position: absolute;
-  right: 0;
-  width: 2px;
-  background: rgba(59, 130, 246, 0.6);
-  border-radius: 1px;
-  transition: all 0.2s ease;
+    position: absolute;
+    right: 0;
+    width: 2px;
+    background: rgba(59, 130, 246, 0.6);
+    border-radius: 1px;
+    transition: all 0.2s ease;
 }
 
 /* 响应式滚动条优化 */
 @media (max-width: 768px) {
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 3px;
-  }
-  
-  .modal-scroll::-webkit-scrollbar {
-    width: 2px;
-  }
-  
-  .modal-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  /* 移动端隐藏滚动条但保持功能 */
-  .mobile-scroll {
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  
-  .mobile-scroll::-webkit-scrollbar {
-    display: none;
-  }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .modal-scroll::-webkit-scrollbar {
+        width: 2px;
+    }
+
+    .modal-scroll::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* 移动端隐藏滚动条但保持功能 */
+    .mobile-scroll {
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .mobile-scroll::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 /* 桌面端增强滚动体验 */
 @media (min-width: 769px) {
-  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.4);
-  }
-  
-  .modal-scroll:hover::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-  }
+    .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+    .modal-scroll:hover::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+    }
 }
 
 /* 滚动区域渐变遮罩效果 */
 .scroll-fade-top::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
-  pointer-events: none;
-  z-index: 1;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .scroll-fade-bottom::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
-  pointer-events: none;
-  z-index: 1;
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+    pointer-events: none;
+    z-index: 1;
 }
 
 /* 歌词区域滚动优化 */
 .lyrics-container {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
 .lyrics-container::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 .lyrics-container {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 /* 歌词自动滚动动画 */
 .lyrics-scroll-animation {
-  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* 歌词容器渐变遮罩（可选） */
 .lyrics-fade-top::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
-  pointer-events: none;
-  z-index: 2;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
+    pointer-events: none;
+    z-index: 2;
 }
 
 .lyrics-fade-bottom::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
-  pointer-events: none;
-  z-index: 2;
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
+    pointer-events: none;
+    z-index: 2;
 }
 
 /* 歌词行聚焦效果增强 */
 .lyric-line.active {
-  position: relative;
-  z-index: 1;
+    position: relative;
+    z-index: 1;
 }
 
 /* ===== 移动端滚动适配 ===== */
 
 /* CSS 自定义属性用于视口高度 */
 :root {
-  --vh: 1vh;
+    --vh: 1vh;
 }
 
 /* 移动端高度工具类 */
 .h-screen-mobile {
-  height: calc(var(--vh, 1vh) * 100) !important;
+    height: calc(var(--vh, 1vh) * 100) !important;
 }
 
 .min-h-screen-mobile {
-  min-height: calc(var(--vh, 1vh) * 100) !important;
+    min-height: calc(var(--vh, 1vh) * 100) !important;
 }
 
 /* 移动端滚动适配 - 适用于所有窗口和模态框 */
 @media (max-width: 768px) {
-  /* 页面级别滚动阻止 */
-  html, body {
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-    height: calc(var(--vh, 1vh) * 100) !important;
-    min-height: calc(var(--vh, 1vh) * 100) !important;
-    max-height: calc(var(--vh, 1vh) * 100) !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #1E293B !important;
-    overflow: hidden !important;
-    position: fixed !important;
-    width: 100% !important;
-    touch-action: none !important;
-    overscroll-behavior: none !important;
-    -webkit-overflow-scrolling: auto !important;
-  }
+    /* 页面级别滚动阻止 */
+    html,
+    body {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+        height: calc(var(--vh, 1vh) * 100) !important;
+        min-height: calc(var(--vh, 1vh) * 100) !important;
+        max-height: calc(var(--vh, 1vh) * 100) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #1e293b !important;
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        overscroll-behavior: none !important;
+        -webkit-overflow-scrolling: auto !important;
+    }
 
-  html::-webkit-scrollbar,
-  body::-webkit-scrollbar {
-    display: none !important;
-  }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        display: none !important;
+    }
 
-  /* 应用容器适配 */
-  #app,
-  alisten-app {
-    display: block;
-    height: calc(var(--vh, 1vh) * 100) !important;
-    min-height: calc(var(--vh, 1vh) * 100) !important;
-    max-height: calc(var(--vh, 1vh) * 100) !important;
-    overflow: hidden !important;
-    touch-action: manipulation !important;
-    position: relative !important;
-    width: 100% !important;
-    overscroll-behavior: none !important;
-  }
+    /* 应用容器适配 */
+    #app,
+    alisten-app {
+        display: block;
+        height: calc(var(--vh, 1vh) * 100) !important;
+        min-height: calc(var(--vh, 1vh) * 100) !important;
+        max-height: calc(var(--vh, 1vh) * 100) !important;
+        overflow: hidden !important;
+        position: relative !important;
+        width: 100% !important;
+        overscroll-behavior: none !important;
+    }
 
-  /* Lit 自定义元素默认 display: block，确保 flex/h-full 等属性正确生效 */
-  alisten-main-layout,
-  alisten-lyrics-panel,
-  alisten-player-controls,
-  alisten-playlist-panel,
-  alisten-chat-panel,
-  alisten-music-search-modal,
-  alisten-settings-modal,
-  alisten-help-modal,
-  alisten-play-history-modal,
-  alisten-notification-container,
-  alisten-notification-toast,
-  alisten-join-room-modal,
-  alisten-manual-start-play-modal,
-  alisten-modal,
-  alisten-avatar {
-    display: block;
-  }
+    /* Lit 自定义元素默认 display: block，确保 flex/h-full 等属性正确生效 */
+    alisten-main-layout,
+    alisten-lyrics-panel,
+    alisten-player-controls,
+    alisten-playlist-panel,
+    alisten-chat-panel,
+    alisten-music-search-modal,
+    alisten-settings-modal,
+    alisten-help-modal,
+    alisten-play-history-modal,
+    alisten-notification-container,
+    alisten-notification-toast,
+    alisten-join-room-modal,
+    alisten-manual-start-play-modal,
+    alisten-modal,
+    alisten-avatar {
+        display: block;
+    }
 
-  /* 全局滚动条隐藏 */
-  * {
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-    overscroll-behavior: none !important;
-  }
+    /* 全局滚动条隐藏 */
+    * {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+        overscroll-behavior: none !important;
+    }
 
-  *::-webkit-scrollbar {
-    display: none !important;
-  }
+    *::-webkit-scrollbar {
+        display: none !important;
+    }
 
-  /* 容器和模态框滚动阻止 */
-  .fixed, .absolute, .relative, .sticky,
-  main, section, div, header, footer, nav, article, aside,
-  .modal, .modal-content, .dialog, .popup, .overlay {
-    overscroll-behavior: none !important;
-    touch-action: manipulation !important;
-  }
+    /* 容器和模态框滚动阻止 */
+    .fixed,
+    .absolute,
+    .relative,
+    .sticky,
+    main,
+    section,
+    div,
+    header,
+    footer,
+    nav,
+    article,
+    aside,
+    .modal,
+    .modal-content,
+    .dialog,
+    .popup,
+    .overlay {
+        overscroll-behavior: none !important;
+    }
 
-  /* 模态框背景特殊处理 */
-  .fixed.inset-0 {
-    touch-action: none !important;
-    overflow: hidden !important;
-    position: fixed !important;
-  }
+    /* 模态框背景特殊处理 */
+    .fixed.inset-0 {
+        overflow: hidden !important;
+        position: fixed !important;
+    }
 
-  .fixed.inset-0 > *,
-  .modal > *,
-  .modal-content > * {
-    touch-action: manipulation !important;
-  }
+    /* 允许滚动的内容区域 */
+    .lyrics-container,
+    .overflow-y-auto,
+    .overflow-auto,
+    .modal-scroll,
+    .mobile-chat-scroll,
+    .smooth-scroll,
+    [data-scrollable="true"] {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
 
-  /* 允许滚动的内容区域 */
-  .lyrics-container,
-  .overflow-y-auto,
-  .overflow-auto,
-  .modal-scroll,
-  .mobile-chat-scroll,
-  .smooth-scroll,
-  [data-scrollable="true"] {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
+    /* 确保模态框内的滚动区域能正常工作 */
+    .fixed .overflow-y-auto,
+    .fixed .overflow-auto,
+    .fixed .modal-scroll,
+    .fixed .mobile-chat-scroll,
+    .fixed .smooth-scroll,
+    .modal .overflow-y-auto,
+    .modal .overflow-auto,
+    .modal .modal-scroll,
+    .modal .mobile-chat-scroll,
+    .modal .smooth-scroll {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
 
-  /* 确保模态框内的滚动区域能正常工作 */
-  .fixed .overflow-y-auto,
-  .fixed .overflow-auto,
-  .fixed .modal-scroll,
-  .fixed .mobile-chat-scroll,
-  .fixed .smooth-scroll,
-  .modal .overflow-y-auto,
-  .modal .overflow-auto,
-  .modal .modal-scroll,
-  .modal .mobile-chat-scroll,
-  .modal .smooth-scroll {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-  }
+    /* 内容滚动区域的滚动条样式 */
+    .lyrics-container,
+    .overflow-y-auto,
+    .overflow-auto,
+    .modal-scroll,
+    .mobile-chat-scroll {
+        scrollbar-width: thin !important;
+        -ms-overflow-style: auto !important;
+    }
 
-  /* 内容滚动区域的滚动条样式 */
-  .lyrics-container,
-  .overflow-y-auto,
-  .overflow-auto,
-  .modal-scroll,
-  .mobile-chat-scroll {
-    scrollbar-width: thin !important;
-    -ms-overflow-style: auto !important;
-  }
+    .lyrics-container::-webkit-scrollbar,
+    .overflow-y-auto::-webkit-scrollbar,
+    .overflow-auto::-webkit-scrollbar,
+    .modal-scroll::-webkit-scrollbar,
+    .mobile-chat-scroll::-webkit-scrollbar {
+        display: block !important;
+        width: 4px !important;
+    }
 
-  .lyrics-container::-webkit-scrollbar,
-  .overflow-y-auto::-webkit-scrollbar,
-  .overflow-auto::-webkit-scrollbar,
-  .modal-scroll::-webkit-scrollbar,
-  .mobile-chat-scroll::-webkit-scrollbar {
-    display: block !important;
-    width: 4px !important;
-  }
+    .lyrics-container::-webkit-scrollbar-track,
+    .overflow-y-auto::-webkit-scrollbar-track,
+    .overflow-auto::-webkit-scrollbar-track,
+    .modal-scroll::-webkit-scrollbar-track,
+    .mobile-chat-scroll::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 2px !important;
+    }
 
-  .lyrics-container::-webkit-scrollbar-track,
-  .overflow-y-auto::-webkit-scrollbar-track,
-  .overflow-auto::-webkit-scrollbar-track,
-  .modal-scroll::-webkit-scrollbar-track,
-  .mobile-chat-scroll::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 2px !important;
-  }
+    .lyrics-container::-webkit-scrollbar-thumb,
+    .overflow-y-auto::-webkit-scrollbar-thumb,
+    .overflow-auto::-webkit-scrollbar-thumb,
+    .modal-scroll::-webkit-scrollbar-thumb,
+    .mobile-chat-scroll::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3) !important;
+        border-radius: 2px !important;
+    }
 
-  .lyrics-container::-webkit-scrollbar-thumb,
-  .overflow-y-auto::-webkit-scrollbar-thumb,
-  .overflow-auto::-webkit-scrollbar-thumb,
-  .modal-scroll::-webkit-scrollbar-thumb,
-  .mobile-chat-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3) !important;
-    border-radius: 2px !important;
-  }
+    /* 特定组件的滚动区域 */
+    .overflow-y-auto {
+        overscroll-behavior: contain !important;
+        scrollbar-width: thin !important;
+        -ms-overflow-style: auto !important;
+    }
 
-  /* 特定组件的滚动区域 */
-  .overflow-y-auto {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    scrollbar-width: thin !important;
-    -ms-overflow-style: auto !important;
-  }
+    .overflow-y-auto::-webkit-scrollbar {
+        display: block !important;
+        width: 4px !important;
+    }
 
-  .overflow-y-auto::-webkit-scrollbar {
-    display: block !important;
-    width: 4px !important;
-  }
+    .overflow-y-auto::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 2px !important;
+    }
 
-  .overflow-y-auto::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 2px !important;
-  }
-
-  .overflow-y-auto::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3) !important;
-    border-radius: 2px !important;
-  }
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3) !important;
+        border-radius: 2px !important;
+    }
 }
 
 /* 确保模态框内的滚动区域能正常工作 */
 .fixed .overflow-y-auto,
 .modal .overflow-y-auto,
 .dialog .overflow-y-auto {
-  touch-action: pan-y !important;
-  overscroll-behavior: contain !important;
-  -webkit-overflow-scrolling: touch !important;
-  position: relative !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    position: relative !important;
 }
 
 /* 模态框内滚动条样式 */
 .fixed .overflow-y-auto::-webkit-scrollbar,
 .modal .overflow-y-auto::-webkit-scrollbar,
 .dialog .overflow-y-auto::-webkit-scrollbar {
-  display: block !important;
-  width: 4px !important;
+    display: block !important;
+    width: 4px !important;
 }
 
 .fixed .overflow-y-auto::-webkit-scrollbar-track,
 .modal .overflow-y-auto::-webkit-scrollbar-track,
 .dialog .overflow-y-auto::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 2px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 2px !important;
 }
 
 .fixed .overflow-y-auto::-webkit-scrollbar-thumb,
 .modal .overflow-y-auto::-webkit-scrollbar-thumb,
 .dialog .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3) !important;
-  border-radius: 2px !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 2px !important;
 }
 
 /* 重要：覆盖所有可能阻止滚动的规则 */
@@ -966,170 +1007,161 @@ body {
 .overflow-y-auto.smooth-scroll,
 .flex-1.overflow-y-auto,
 [class*="overflow-y-auto"] {
-  touch-action: pan-y !important;
-  overscroll-behavior: contain !important;
-  -webkit-overflow-scrolling: touch !important;
-  overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
 }
 
 /* 强制显示滚动条（移动端） */
 .overflow-y-auto::-webkit-scrollbar {
-  display: block !important;
-  width: 4px !important;
+    display: block !important;
+    width: 4px !important;
 }
 
 .overflow-y-auto::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-radius: 2px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 2px !important;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-radius: 2px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 2px !important;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.3) !important;
 }
 
 /* 移动端模态框滚动强制规则 */
 @media (max-width: 768px) {
-  .fixed .overflow-y-auto,
-  .fixed .overflow-auto,
-  .fixed .modal-scroll,
-  .fixed .mobile-chat-scroll,
-  .fixed .smooth-scroll,
-  .fixed [data-scrollable="true"] {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-    position: relative !important;
-  }
-  
-  /* 确保模态框本身不会滚动 */
-  .fixed.inset-0 {
-    touch-action: none !important;
-    overflow: hidden !important;
-  }
-  
-  /* 但允许模态框内的内容区域滚动 */
-  .fixed.inset-0 .overflow-y-auto,
-  .fixed.inset-0 .overflow-auto,
-  .fixed.inset-0 .modal-scroll,
-  .fixed.inset-0 .mobile-chat-scroll,
-  .fixed.inset-0 .smooth-scroll {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-  }
+    .fixed .overflow-y-auto,
+    .fixed .overflow-auto,
+    .fixed .modal-scroll,
+    .fixed .mobile-chat-scroll,
+    .fixed .smooth-scroll,
+    .fixed [data-scrollable="true"] {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+        position: relative !important;
+    }
+
+    /* 确保模态框本身不会滚动 */
+    .fixed.inset-0 {
+        overflow: hidden !important;
+    }
+
+    /* 但允许模态框内的内容区域滚动 */
+    .fixed.inset-0 .overflow-y-auto,
+    .fixed.inset-0 .overflow-auto,
+    .fixed.inset-0 .modal-scroll,
+    .fixed.inset-0 .mobile-chat-scroll,
+    .fixed.inset-0 .smooth-scroll {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
 }
 
 /* 特定组件的移动端滚动适配 */
 @media (max-width: 768px) {
-  /* 聊天组件滚动 */
-  .chat-component .overflow-y-auto,
-  .chat-component .mobile-chat-scroll,
-  .chat-component .smooth-scroll {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-  }
-  
-  /* 播放列表组件滚动 */
-  .playlist-component .overflow-y-auto,
-  .playlist-component .modal-scroll,
-  .playlist-component .smooth-scroll {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-  }
-  
-  /* 点歌台模态框滚动 */
-  .music-search-modal .overflow-y-auto,
-  .music-search-modal .smooth-scroll,
-  .music-search-modal .custom-scrollbar {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-  }
-  
-  /* 帮助模态框滚动 */
-  .help-modal .overflow-y-auto,
-  .help-modal .modal-scroll {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-  }
-  
-  /* 通用模态框内滚动区域 */
-  [class*="modal"] .overflow-y-auto,
-  [class*="modal"] .overflow-auto,
-  [class*="modal"] .scrollbar-hide,
-  [class*="modal"] .custom-scrollbar,
-  [class*="modal"] .smooth-scroll {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-  }
+    /* 聊天组件滚动 */
+    .chat-component .overflow-y-auto,
+    .chat-component .mobile-chat-scroll,
+    .chat-component .smooth-scroll {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
+
+    /* 播放列表组件滚动 */
+    .playlist-component .overflow-y-auto,
+    .playlist-component .modal-scroll,
+    .playlist-component .smooth-scroll {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
+
+    /* 点歌台模态框滚动 */
+    .music-search-modal .overflow-y-auto,
+    .music-search-modal .smooth-scroll,
+    .music-search-modal .custom-scrollbar {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
+
+    /* 帮助模态框滚动 */
+    .help-modal .overflow-y-auto,
+    .help-modal .modal-scroll {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
+
+    /* 通用模态框内滚动区域 */
+    [class*="modal"] .overflow-y-auto,
+    [class*="modal"] .overflow-auto,
+    [class*="modal"] .scrollbar-hide,
+    [class*="modal"] .custom-scrollbar,
+    [class*="modal"] .smooth-scroll {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
 }
 
 /* 最终强制规则：确保所有可能的滚动区域都能正常工作 */
 @media (max-width: 768px) {
-  /* 使用更强制的选择器确保所有滚动区域都能工作 */
-  .fixed [class*="overflow-y"],
-  .fixed [class*="overflow-auto"],
-  .fixed [class*="scroll"],
-  .modal [class*="overflow-y"],
-  .modal [class*="overflow-auto"],
-  .modal [class*="scroll"] {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-  }
-  
-  /* 确保flex-1容器也能正确处理滚动 */
-  .fixed .flex-1,
-  .modal .flex-1 {
-    overflow: hidden !important;
-  }
-  
-  .fixed .flex-1 [class*="overflow"],
-  .modal .flex-1 [class*="overflow"],
-  .fixed .flex-1 [class*="scroll"],
-  .modal .flex-1 [class*="scroll"] {
-    touch-action: pan-y !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-y: auto !important;
-  }
+    /* 使用更强制的选择器确保所有滚动区域都能工作 */
+    .fixed [class*="overflow-y"],
+    .fixed [class*="overflow-auto"],
+    .fixed [class*="scroll"],
+    .modal [class*="overflow-y"],
+    .modal [class*="overflow-auto"],
+    .modal [class*="scroll"] {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
+
+    /* 确保flex-1容器也能正确处理滚动 */
+    .fixed .flex-1,
+    .modal .flex-1 {
+        overflow: hidden !important;
+    }
+
+    .fixed .flex-1[class*="overflow"],
+    .modal .flex-1[class*="overflow"],
+    .fixed .flex-1[class*="scroll"],
+    .modal .flex-1[class*="scroll"],
+    .fixed .flex-1[data-scrollable="true"],
+    .modal .flex-1[data-scrollable="true"] {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
 }
 
 /* 统一模态框动画样式（桌面+移动端） */
 .modal-enter-active,
 .modal-leave-active {
-  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .modal-enter-from,
 .modal-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
+    opacity: 0;
+    transform: scale(0.95);
 }
 @media (max-width: 768px) {
-  .modal-enter-from,
-  .modal-leave-to {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  .modal-enter-active,
-  .modal-leave-active {
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  }
+    .modal-enter-from,
+    .modal-leave-to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    .modal-enter-active,
+    .modal-leave-active {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 }
