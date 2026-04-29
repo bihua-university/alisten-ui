@@ -22,7 +22,6 @@
             typescript
             nodePackages.typescript-language-server
             vscode-langservers-extracted
-            vue-language-server
             efm-langserver
           ];
         };

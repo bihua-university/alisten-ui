@@ -1,10 +1,3 @@
-declare module '*.vue' {
-  import type { DefineComponent } from 'vue'
-
-  const component: DefineComponent<object, object, any>
-  export default component
-}
-
 // 版本信息类型声明
 declare const __APP_VERSION__: {
   commitHash: string
@@ -13,13 +6,7 @@ declare const __APP_VERSION__: {
   buildTime: string
 }
 
-declare module 'vue' {
-  export * from '@vue/runtime-dom'
-}
-
-declare module 'virtual:pwa-register/vue' {
-  import type { Ref } from 'vue'
-
+declare module 'virtual:pwa-register' {
   export interface RegisterSWOptions {
     immediate?: boolean
     onNeedRefresh?: () => void
@@ -28,11 +15,7 @@ declare module 'virtual:pwa-register/vue' {
     onRegisterError?: (error: any) => void
   }
 
-  export function useRegisterSW(options?: RegisterSWOptions): {
-    needRefresh: Ref<boolean>
-    offlineReady: Ref<boolean>
-    updateServiceWorker: (reloadPage?: boolean) => Promise<void>
-  }
+  export function registerSW(options?: RegisterSWOptions): (reloadPage?: boolean) => Promise<void>
 }
 
 // 环境变量类型定义

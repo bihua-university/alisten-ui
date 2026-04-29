@@ -31,7 +31,7 @@
 ```
 src/
 ├── main.ts                    # 应用入口：注册自定义元素 + 初始化性能设置
-├── app-element.ts             # 根 <alisten-app> 组件（替代原 App.vue）
+├── app-element.ts             # 根 <alisten-app> 组件
 ├── stores/                    # 模块级共享状态（替代原 composables）
 │   ├── store-base.ts          # Store 基类 (EventTarget)
 │   ├── websocket-store.ts     # WebSocket 连接、重连、消息路由

@@ -1,11 +1,9 @@
 import type { PropertyValues } from 'lit'
-import { html, LitElement, nothing } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { ref } from 'lit/directives/ref.js'
-import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 import { lyricsStore } from '@/stores/lyrics-store'
 import { performanceStore } from '@/stores/performance-store'
-import { icons } from '@/utils/icons'
 
 @customElement('alisten-lyrics-panel')
 export class LyricsPanelElement extends LitElement {
@@ -82,19 +80,10 @@ export class LyricsPanelElement extends LitElement {
 
   render() {
     const isOff = this.performanceLevel === 'off'
-    const isLow = this.performanceLevel === 'low'
 
     return html`
       <div class="glass flex-1 rounded-3xl p-4 md:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden group ${isOff ? 'bg-[#1E293B]/95' : ''}">
         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 z-0 pointer-events-none"></div>
-
-        ${!isOff && !isLow
-          ? html`
-          <div class="absolute top-6 right-6 text-white/20" style="animation: float-mic 4s ease-in-out infinite">
-            ${unsafeSVG(icons.music(24))}
-          </div>
-        `
-          : nothing}
 
         <div ${ref((el: Element | undefined) => {
           if (el instanceof HTMLElement)
@@ -121,13 +110,6 @@ export class LyricsPanelElement extends LitElement {
       <style>
         .lyrics-scroll { scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth; }
         .lyrics-scroll::-webkit-scrollbar { display: none; }
-
-        @keyframes float-mic {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          25% { transform: translateY(-5px) rotate(5deg); }
-          50% { transform: translateY(0) rotate(0deg); }
-          75% { transform: translateY(5px) rotate(-5deg); }
-        }
       </style>
     `
   }

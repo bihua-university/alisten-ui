@@ -106,7 +106,7 @@
   transition: width 500ms linear, transform 500ms linear !important;
 }
 
-/* 允许 Vue Transition 组件的过渡效果 */
+/* 保留通用进入/离场过渡类的渐变效果 */
 .performance-off .v-enter-active,
 .performance-off .v-leave-active,
 .performance-off .v-enter-from,

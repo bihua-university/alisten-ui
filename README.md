@@ -1,14 +1,14 @@
 # alisten 听歌房
 
-一个基于 Vue3 + TypeScript + Vite + TailwindCSS 构建的听歌房。
+一个基于 Lit + TypeScript + Vite + TailwindCSS 构建的听歌房。
 
 ## 项目特性
 
 - 🎵 **现代化UI**：使用 TailwindCSS 构建响应式界面
-- 🔧 **Vue3 + TypeScript**：完整的类型安全开发体验
+- 🔧 **Lit + TypeScript**：完整的类型安全开发体验
 - ⚡ **Vite构建**：快速的开发和构建工具
 - 📱 **响应式设计**：支持桌面端和移动端
-- 🎭 **组合式API**：使用 Vue3 Composition API
+- 🧩 **Web Components**：基于 Lit 构建自定义元素组件
 - 🎨 **现代化设计**：玻璃拟态效果和流畅动画
 
 ## 功能模块
@@ -22,12 +22,11 @@
 
 ## 技术栈
 
-- **前端框架**：Vue 3.4+
+- **前端框架**：Lit 3.2+
 - **开发语言**：TypeScript 5.3+
 - **构建工具**：Vite 5.0+
 - **CSS框架**：TailwindCSS 3.4+
-- **图标库**：Font Awesome 6.7+
-- **字体**：Inter
+- **图标库**：lucide
 
 ## 快速开始
 
@@ -68,13 +67,13 @@ npm run type-check
 - `RoomInfo`: 房间信息接口
 - `LyricLine`: 歌词行接口
 
-### 组合式函数
+### 状态管理
 
-使用 Vue3 Composition API 将业务逻辑模块化：
+项目通过 `src/stores/` 下的 Store 模块组织共享状态：
 
-- `usePlayer`: 播放器控制逻辑
-- `useChat`: 聊天功能逻辑
-- `useLyrics`: 歌词同步逻辑
+- `playerStore`: 播放器控制逻辑
+- `chatStore`: 聊天功能逻辑
+- `lyricsStore`: 歌词同步逻辑
 
 ### 响应式设计
 
