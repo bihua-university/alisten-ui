@@ -74,9 +74,9 @@ export class ChatPanelElement extends LitElement {
     return html`
       <div class="flex flex-col gap-2.5 h-full relative">
         <!-- Room Info -->
-        <div class="rounded-xl p-3 shrink-0" style="background: rgba(17,17,17,0.8); border: 1px solid rgba(255,255,255,0.04);">
+        <div class="rounded-xl p-3 shrink-0" style="background: rgba(17,17,17,0.8); border: 1px solid var(--bg-hover);">
           <div class="flex items-center gap-2.5 mb-2.5">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0" style="background: #D4A853; color: #0a0a0a;">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0" style="background: var(--accent); color: var(--bg-base);">
               ${this.roomInfo.name?.slice(0, 1) || 'R'}
             </div>
             <div class="min-w-0">
@@ -124,7 +124,7 @@ export class ChatPanelElement extends LitElement {
         ${this.showOnlineUsers
           ? html`
           <div class="online-users-popup absolute top-0 left-0 right-0 mt-[100px] rounded-xl p-3.5 z-[100] max-h-[280px] md:max-h-[300px] overflow-hidden flex flex-col"
-            style="background: #141414; border: 1px solid rgba(255,255,255,0.06);">
+            style="background: var(--bg-surface); border: 1px solid var(--border-hover);">
             <div class="flex items-center justify-between mb-2.5">
               <div class="flex items-center gap-1.5">
                 ${unsafeSVG(icons.users(14, 'text-white/50'))}
@@ -139,7 +139,7 @@ export class ChatPanelElement extends LitElement {
                 <div class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-white/[0.03] transition-colors">
                   <div class="relative shrink-0">
                     <img src=${user.avatar} alt=${user.name} class="w-8 h-8 rounded-md object-cover">
-                    <div class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full" style="border: 2px solid #141414;"></div>
+                    <div class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full" style="border: 2px solid var(--bg-surface);"></div>
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="text-[12px] font-medium truncate">${user.name}</div>
@@ -154,8 +154,8 @@ export class ChatPanelElement extends LitElement {
 
         <!-- Chat Messages -->
         <div class="flex-1 flex flex-col overflow-hidden min-h-[200px] rounded-xl"
-          style="background: rgba(17,17,17,0.8); border: 1px solid rgba(255,255,255,0.04);">
-          <div class="px-3 py-2.5 shrink-0" style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+          style="background: rgba(17,17,17,0.8); border: 1px solid var(--bg-hover);">
+          <div class="px-3 py-2.5 shrink-0" style="border-bottom: 1px solid var(--bg-hover);">
             <div class="flex items-center gap-1.5 text-[11px] font-medium text-white/40 uppercase tracking-wider">
               ${unsafeSVG(icons.messageSquare(13))}
               聊天
@@ -174,16 +174,16 @@ export class ChatPanelElement extends LitElement {
                   <img src=${msg.user.avatar} alt=${msg.user.name} class="w-7 h-7 rounded-full shrink-0 object-cover mt-0.5">
                   <div class="flex-1 min-w-0 ${isSelf ? 'text-right' : ''}">
                     <div class="flex items-center gap-1.5 mb-1 ${isSelf ? 'flex-row-reverse' : ''}">
-                      <span class="text-[11px] font-medium ${isSelf ? 'text-[#D4A853]/70' : 'text-white/40'}">${msg.user.name}</span>
+                      <span class="text-[11px] font-medium ${isSelf ? 'text-[var(--accent)]/70' : 'text-white/40'}">${msg.user.name}</span>
                       <span class="text-[10px] text-white/25">${formatTimeHH_MM(msg.timestamp)}</span>
                     </div>
                     <div class="inline-block text-left">
                       <div class="text-[13px] leading-relaxed break-words px-3 py-1.5 rounded-lg
                         ${isSelf
-                          ? 'text-[#0a0a0a]'
+                          ? 'text-[var(--bg-base)]'
                           : 'text-white/85'}
                         ${isFeibi && isSelf ? 'feibi-bubble' : ''}"
-                        style="${isSelf && !isFeibi ? 'background: #D4A853;' : isFeibi && isSelf ? '' : 'background: rgba(255,255,255,0.06);'}">
+                        style="${isSelf && !isFeibi ? 'background: var(--accent);' : isFeibi && isSelf ? '' : 'background: var(--border-hover);'}">
                         ${msg.content}
                       </div>
                     </div>
@@ -192,16 +192,16 @@ export class ChatPanelElement extends LitElement {
               `
             })}
           </div>
-          <div class="p-2.5 shrink-0" style="border-top: 1px solid rgba(255,255,255,0.04);">
+          <div class="p-2.5 shrink-0" style="border-top: 1px solid var(--bg-hover);">
             <div class="relative">
               <input
                 .value=${this.newMessage}
                 type="text"
                 placeholder="发送消息..."
                 class="w-full rounded-lg px-3.5 py-2 text-[13px] text-white placeholder-white/20 focus:outline-none transition-all"
-                style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);"
-                @focus=${(e: FocusEvent) => { (e.target as HTMLElement).style.borderColor = 'rgba(212,168,83,0.3)' }}
-                @blur=${(e: FocusEvent) => { (e.target as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)' }}
+                style="background: var(--bg-hover); border: 1px solid var(--border-hover);"
+                @focus=${(e: FocusEvent) => { (e.target as HTMLElement).style.borderColor = 'var(--border-focus)' }}
+                @blur=${(e: FocusEvent) => { (e.target as HTMLElement).style.borderColor = 'var(--border-hover)' }}
                 @input=${(e: InputEvent) => this.newMessage = (e.target as HTMLInputElement).value}
                 @keydown=${(e: KeyboardEvent) => {
                   if (e.key === 'Enter')
@@ -210,7 +210,7 @@ export class ChatPanelElement extends LitElement {
               >
               <button
                 class="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all duration-150
-                  ${this.newMessage.trim() ? 'text-[#D4A853] hover:bg-[#D4A853]/10 active:scale-95' : 'text-white/15'}"
+                  ${this.newMessage.trim() ? 'text-[var(--accent)] hover:bg-[var(--accent)]/10 active:scale-95' : 'text-white/15'}"
                 ?disabled=${!this.newMessage.trim()}
                 @click=${this.handleSendMessage}
               >

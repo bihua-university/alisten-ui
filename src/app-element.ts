@@ -434,7 +434,7 @@ export class AppElement extends LitElement {
               稍后再说
             </button>
             <button
-              class="flex-1 py-2 px-4 rounded-xl bg-[#D4A853] hover:bg-[#C49A4A] text-[#0C0A09] font-medium transition-colors"
+              class="flex-1 py-2 px-4 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[#0C0A09] font-medium transition-colors"
               @click=${() => pwaStore.handleUpdateApp()}
             >
               立即更新
@@ -453,7 +453,7 @@ export class AppElement extends LitElement {
         <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
         <div class="relative flex flex-col items-center">
           <button
-            class="w-[72px] h-[72px] rounded-full bg-[#D4A853] hover:bg-[#C49A4A] flex items-center justify-center transition-all active:scale-95 mb-5 shadow-accent"
+            class="w-[72px] h-[72px] rounded-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] flex items-center justify-center transition-all active:scale-95 mb-5 shadow-accent"
             @click=${() => {
               playerStore.playAudio()
               playerStore.clearManualStartPlay()

@@ -83,7 +83,7 @@ export class LyricsPanelElement extends LitElement {
 
     return html`
       <div class="flex-1 rounded-xl p-4 md:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden group"
-        style="${isOff ? 'background: #111;' : 'background: rgba(20,20,20,0.4); border: 1px solid rgba(255,255,255,0.04);'}">
+        style="${isOff ? 'background: #111;' : 'background: rgba(20,20,20,0.4); border: 1px solid var(--bg-hover);'}">
         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/15 z-0 pointer-events-none"></div>
 
         <div ${ref((el: Element | undefined) => {

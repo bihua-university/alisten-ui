@@ -45,11 +45,11 @@ export class PlayHistoryModalElement extends LitElement {
           <!-- Stats -->
           <div class="flex gap-4">
             <div class="flex-1 glass rounded-xl p-4 text-center">
-              <div class="text-2xl font-bold text-[#D4A853]">${this.stats.totalPlays}</div>
+              <div class="text-2xl font-bold text-[var(--accent)]">${this.stats.totalPlays}</div>
               <div class="text-xs text-white/50 mt-1">总播放次数</div>
             </div>
             <div class="flex-1 glass rounded-xl p-4 text-center">
-              <div class="text-2xl font-bold text-[#D4A853]">${formatTime(this.stats.totalDuration)}</div>
+              <div class="text-2xl font-bold text-[var(--accent)]">${formatTime(this.stats.totalDuration)}</div>
               <div class="text-xs text-white/50 mt-1">总时长</div>
             </div>
           </div>
@@ -57,7 +57,7 @@ export class PlayHistoryModalElement extends LitElement {
           <!-- Search -->
           <div class="relative">
             <input type="text" .value=${this.searchQuery} placeholder="搜索播放历史..."
-              class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 transition-all"
+              class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--accent)]/30 transition-all"
               @input=${(e: InputEvent) => this.searchQuery = (e.target as HTMLInputElement).value}>
           </div>
 
@@ -82,7 +82,7 @@ export class PlayHistoryModalElement extends LitElement {
                         <div class="text-xs text-white/35 truncate">${item.song.artist}</div>
                       </div>
                       <span class="text-xs text-white/25 mr-1">${formatTime(item.song.duration / 1000)}</span>
-                      <button class="p-2 rounded-lg bg-transparent hover:bg-[#D4A853] text-[#D4A853] hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-[#B08A3E] shrink-0"
+                      <button class="p-2 rounded-lg bg-transparent hover:bg-[var(--accent)] text-[var(--accent)] hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-[#B08A3E] shrink-0"
                         @click=${() => playerStore.pickMusic(item.song, item.song.source || 'wy')}>
                         ${unsafeSVG(icons.plus(16))}
                       </button>

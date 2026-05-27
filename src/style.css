@@ -1,56 +1,32 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css");
 @import "./styles/performance.css";
+@import "./styles/themes.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ===== Minimal Design System ===== */
-
-:root {
-  --bg-base: #0a0a0a;
-  --bg-surface: #111111;
-  --bg-elevated: #181818;
-  --bg-hover: rgba(255, 255, 255, 0.04);
-  --bg-active: rgba(255, 255, 255, 0.07);
-
-  --text-primary: #f0f0f0;
-  --text-secondary: #8a8a8a;
-  --text-muted: #555555;
-  --text-disabled: #3a3a3a;
-
-  --accent: #D4A853;
-  --accent-hover: #C49A4A;
-  --accent-dim: rgba(212, 168, 83, 0.12);
-
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.1);
-
-  font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: dark;
-}
-
+/* ===== Base ===== */
 body {
   background-color: var(--bg-base);
   color: var(--text-primary);
+  font-family: var(--font-body);
 }
 
-/* ===== Surfaces (Minimal - no heavy blur) ===== */
+/* ===== Surfaces ===== */
 .glass {
-  background: rgba(20, 20, 20, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
 }
 
 .glass-panel {
-  background: rgba(17, 17, 17, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
 }
 
 .surface-elevated {
-  background: #181818;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
 }
 
 /* ===== Scrollbar ===== */
@@ -62,11 +38,12 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--text-muted);
   border-radius: 9999px;
+  opacity: 0.3;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.12);
+  opacity: 0.5;
 }
 
 /* ===== Utilities ===== */
@@ -383,7 +360,7 @@ body {
   .overflow-auto::-webkit-scrollbar-track,
   .modal-scroll::-webkit-scrollbar-track,
   .mobile-chat-scroll::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02) !important;
+    background: var(--bg-surface) !important;
     border-radius: 2px !important;
   }
 
@@ -392,7 +369,7 @@ body {
   .overflow-auto::-webkit-scrollbar-thumb,
   .modal-scroll::-webkit-scrollbar-thumb,
   .mobile-chat-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: var(--text-muted) !important;
     border-radius: 2px !important;
   }
 }
@@ -407,7 +384,8 @@ body {
 .performance-off .glass,
 .performance-off .glass-panel {
   background: var(--bg-surface) !important;
-  border-color: rgba(255,255,255,0.04) !important;
+  border-color: var(--border-subtle) !important;
+  box-shadow: none !important;
 }
 .performance-low .song-bg,
 .performance-off .song-bg {

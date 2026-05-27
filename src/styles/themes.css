@@ -1,0 +1,72 @@
+/* ===== Theme System ===== */
+
+/* Dark Theme (default) */
+:root,
+[data-theme="dark"] {
+  --bg-base: var(--bg-base);
+  --bg-surface: var(--bg-surface);
+  --bg-elevated: var(--bg-elevated);
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --bg-active: rgba(255, 255, 255, 0.07);
+  --bg-input: rgba(255, 255, 255, 0.04);
+
+  --text-primary: var(--text-primary);
+  --text-secondary: var(--text-secondary);
+  --text-muted: var(--text-muted);
+  --text-disabled: #3a3a3a;
+  --text-on-accent: var(--bg-base);
+
+  --accent: var(--accent);
+  --accent-hover: var(--accent-hover);
+  --accent-dim: rgba(212, 168, 83, 0.12);
+
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-hover: rgba(255, 255, 255, 0.09);
+  --border-focus: rgba(212, 168, 83, 0.3);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --font-display: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  --font-body: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+}
+
+/* BlockFrame Theme (Neobrutalist) */
+[data-theme="blockframe"] {
+  --bg-base: #FFFDF5;
+  --bg-surface: #ffffff;
+  --bg-elevated: #FFF8E1;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(0, 0, 0, 0.07);
+  --bg-input: #ffffff;
+
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --text-muted: #666666;
+  --text-disabled: #999999;
+  --text-on-accent: #000000;
+
+  --accent: #F7CB46;
+  --accent-hover: #E5B93A;
+  --accent-dim: rgba(247, 203, 70, 0.25);
+
+  --border-subtle: #000000;
+  --border-hover: #000000;
+  --border-focus: #000000;
+
+  --shadow-sm: 3px 3px 0px #000000;
+  --shadow-md: 4px 4px 0px #000000;
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}

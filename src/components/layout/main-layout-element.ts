@@ -267,8 +267,8 @@ export class MainLayoutElement extends LitElement {
       <div class="root-container overflow-x-hidden ${perfClasses}">
         <div class="main-layout-bg app-viewport flex flex-col items-center relative overflow-hidden font-sans text-white">
           <!-- Ambient Background -->
-          <div class="bg-shapes performance-bg-shape absolute top-[-15%] left-[-10%] w-[600px] h-[600px] bg-[#D4A853]/[0.06] rounded-full blur-[140px] pointer-events-none"></div>
-          <div class="bg-shapes performance-bg-shape absolute bottom-[-20%] right-[-5%] w-[500px] h-[500px] bg-[#8a8a8a]/[0.04] rounded-full blur-[120px] pointer-events-none"></div>
+          <div class="bg-shapes performance-bg-shape absolute top-[-15%] left-[-10%] w-[600px] h-[600px] bg-[var(--accent)]/[0.06] rounded-full blur-[140px] pointer-events-none"></div>
+          <div class="bg-shapes performance-bg-shape absolute bottom-[-20%] right-[-5%] w-[500px] h-[500px] bg-[var(--text-secondary)]/[0.04] rounded-full blur-[120px] pointer-events-none"></div>
 
           <!-- Dynamic Song Background -->
           ${showBg
@@ -276,13 +276,13 @@ export class MainLayoutElement extends LitElement {
             <div class="song-bg absolute inset-0 z-0">
               <img src=${this.currentSong!.cover} alt=${this.currentSong!.title}
                 class="w-full h-full object-cover blur-[80px] scale-110 opacity-[0.12] transition-all duration-[1500ms]">
-              <div class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/60 via-[#0a0a0a]/85 to-[#0a0a0a]"></div>
+              <div class="absolute inset-0 bg-gradient-to-b from-[var(--bg-base)]/60 via-[var(--bg-base)]/85 to-[var(--bg-base)]"></div>
             </div>
           `
             : nothing}
 
           <!-- Main Layout Container -->
-          <div class="z-10 w-full md:max-w-[1440px] h-full flex flex-col gap-5 pt-3 px-0 md:px-8 md:py-6 overflow-hidden" style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));">
+          <div class="z-10 w-full h-full flex flex-col gap-5 pt-3 px-0 md:px-6 md:py-5 overflow-hidden" style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));">
             <!-- Desktop Layout -->
             <div class="hidden md:flex md:flex-row gap-5 h-full">
               <!-- Left Panel: Player & Lyrics -->
@@ -372,7 +372,7 @@ export class MainLayoutElement extends LitElement {
         .mobile-panels { will-change: transform; touch-action: pan-y; }
         @media (min-width: 768px) { .mobile-panels { transform: none !important; transition: none !important; } }
         .performance-low .app-viewport, .performance-off .app-viewport { background: #0D1016 !important; }
-        .performance-low .glass, .performance-off .glass { background: #15171B !important; backdrop-filter: none !important; border-color: rgba(255,255,255,0.05) !important; }
+        .performance-low .glass, .performance-off .glass { background: #15171B !important; backdrop-filter: none !important; border-color: var(--border-subtle) !important; }
         .performance-low .song-bg, .performance-off .song-bg { display: none !important; }
         .performance-low .bg-shapes, .performance-off .bg-shapes { display: none !important; }
       </style>

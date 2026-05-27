@@ -42,14 +42,14 @@ export class PlaylistPanelElement extends LitElement {
 
     return html`
       <div class="h-full flex flex-col overflow-hidden min-h-[200px]"
-        style="background: rgba(17,17,17,0.8); border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;">
+        style="background: rgba(17,17,17,0.8); border: 1px solid var(--bg-hover); border-radius: 14px;">
         <!-- Header -->
-        <div class="px-4 py-3.5 flex items-center justify-between shrink-0" style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+        <div class="px-4 py-3.5 flex items-center justify-between shrink-0" style="border-bottom: 1px solid var(--bg-hover);">
           <div class="flex items-center gap-2">
-            ${unsafeSVG(icons.listMusic(16, 'text-[#D4A853]'))}
+            ${unsafeSVG(icons.listMusic(16, 'text-[var(--accent)]'))}
             <h3 class="text-[13px] font-semibold text-white/70 tracking-tight">待播列表</h3>
           </div>
-          <span class="text-[11px] px-2 py-0.5 rounded-full text-white/35" style="background: rgba(255,255,255,0.04);">${this.playlist.length} 首</span>
+          <span class="text-[11px] px-2 py-0.5 rounded-full text-white/35" style="background: var(--bg-hover);">${this.playlist.length} 首</span>
         </div>
 
         <!-- List -->
@@ -65,7 +65,7 @@ export class PlaylistPanelElement extends LitElement {
                         @click=${() => song.webUrl && window.open(song.webUrl, '_blank')}>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <div class="text-[13px] font-medium truncate leading-tight ${index === 0 ? 'text-[#D4A853]' : 'text-white/90'}">
+                      <div class="text-[13px] font-medium truncate leading-tight ${index === 0 ? 'text-[var(--accent)]' : 'text-white/90'}">
                         ${song.title}
                       </div>
                       <div class="text-[11px] text-white/35 truncate mt-0.5">
@@ -100,11 +100,11 @@ export class PlaylistPanelElement extends LitElement {
         </div>
 
         <!-- Footer -->
-        <div class="p-3 shrink-0" style="border-top: 1px solid rgba(255,255,255,0.04);">
+        <div class="p-3 shrink-0" style="border-top: 1px solid var(--bg-hover);">
           <button class="w-full py-2.5 rounded-lg text-[13px] font-semibold transition-all active:scale-[0.98]"
-            style="background: #D4A853; color: #0a0a0a;"
-            @mouseenter=${(e: Event) => { (e.target as HTMLElement).style.background = '#C49A4A' }}
-            @mouseleave=${(e: Event) => { (e.target as HTMLElement).style.background = '#D4A853' }}
+            style="background: var(--accent); color: var(--bg-base);"
+            @mouseenter=${(e: Event) => { (e.target as HTMLElement).style.background = 'var(--accent-hover)' }}
+            @mouseleave=${(e: Event) => { (e.target as HTMLElement).style.background = 'var(--accent)' }}
             @click=${() => this.dispatchEvent(new CustomEvent('show-music-search'))}>
             点歌
           </button>

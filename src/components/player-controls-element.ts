@@ -94,7 +94,7 @@ export class PlayerControlsElement extends LitElement {
 
     return html`
       <div class="rounded-xl p-3.5 flex items-center gap-4 shrink-0 transition-colors duration-200"
-        style="background: rgba(20,20,20,0.6); border: 1px solid rgba(255,255,255,0.05);">
+        style="background: rgba(20,20,20,0.6); border: 1px solid var(--border-subtle);">
         <!-- Album Art -->
         <div class="rounded-lg bg-white/[0.03] shrink-0 overflow-hidden flex items-center justify-center album-art-container ${this.isDesktop ? 'w-12 h-12 md:w-14 md:h-14' : 'w-12 h-12'}">
           ${song?.cover
@@ -130,13 +130,13 @@ export class PlayerControlsElement extends LitElement {
               if (el instanceof HTMLElement)
                 this.progressBarEl = el
             })}
-              class="absolute top-0 left-0 h-full w-full bg-[#D4A853] rounded-full origin-left will-change-transform transition-transform duration-100 ease-linear"
+              class="absolute top-0 left-0 h-full w-full bg-[var(--accent)] rounded-full origin-left will-change-transform transition-transform duration-100 ease-linear"
               style="transform: scaleX(${durationSec > 0 ? Math.min(1, Math.max(0, currentTime / durationSec)) : 0})"></div>
           </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex items-center gap-1 pl-3 ml-1 shrink-0" style="border-left: 1px solid rgba(255,255,255,0.06);">
+        <div class="flex items-center gap-1 pl-3 ml-1 shrink-0" style="border-left: 1px solid var(--border-hover);">
           <button
             ?disabled=${this.isSkipping}
             class="p-2 hover:bg-white/[0.06] rounded-lg transition-all duration-150 active:scale-95 ${this.isSkipping ? 'opacity-40 cursor-not-allowed' : ''}"
@@ -155,10 +155,10 @@ export class PlayerControlsElement extends LitElement {
               </button>
               ${this.showVolumePopup
                 ? html`
-                <div class="absolute bottom-full right-0 mb-2 rounded-xl p-3.5 z-50 w-44" style="background: #141414; border: 1px solid rgba(255,255,255,0.06);" @click=${this.handleVolumePopupClick}>
+                <div class="absolute bottom-full right-0 mb-2 rounded-xl p-3.5 z-50 w-44" style="background: var(--bg-surface); border: 1px solid var(--border-hover);" @click=${this.handleVolumePopupClick}>
                   <div class="text-[11px] text-white/40 mb-2.5 font-medium">音量 ${Math.round(this.playerState.volume)}%</div>
                   <div class="h-1.5 bg-white/[0.08] rounded-full cursor-pointer relative" @click=${this.handleVolumeClick}>
-                    <div class="absolute top-0 left-0 h-full bg-[#D4A853] rounded-full transition-all" style="width: ${this.playerState.volume}%"></div>
+                    <div class="absolute top-0 left-0 h-full bg-[var(--accent)] rounded-full transition-all" style="width: ${this.playerState.volume}%"></div>
                   </div>
                 </div>
               `

@@ -29,7 +29,7 @@ export class ModalElement extends LitElement {
 
   private get themeClasses(): { bg: string, text: string } {
     const map = {
-      primary: { bg: 'bg-[#D4A853]/10', text: 'text-[#D4A853]' },
+      primary: { bg: 'bg-[var(--accent)]/10', text: 'text-[var(--accent)]' },
       success: { bg: 'bg-green-500/10', text: 'text-green-400' },
       warning: { bg: 'bg-amber-500/10', text: 'text-amber-400' },
       danger: { bg: 'bg-red-500/10', text: 'text-red-400' },
@@ -89,8 +89,8 @@ export class ModalElement extends LitElement {
           <div class="absolute inset-0 alisten-modal-bg rounded-3xl"></div>
 
           <!-- Decorative glows -->
-          <div class="absolute -top-20 -right-20 w-40 h-40 bg-[#D4A853]/15 rounded-full blur-[80px] pointer-events-none modal-glow"></div>
-          <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-[#D4A853]/15 rounded-full blur-[80px] pointer-events-none modal-glow"></div>
+          <div class="absolute -top-20 -right-20 w-40 h-40 bg-[var(--accent)]/15 rounded-full blur-[80px] pointer-events-none modal-glow"></div>
+          <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-[var(--accent)]/15 rounded-full blur-[80px] pointer-events-none modal-glow"></div>
 
           <!-- Header -->
           ${this.showHeader
@@ -136,7 +136,7 @@ export class ModalElement extends LitElement {
 
       <style>
         .alisten-modal-bg {
-          background: #141414;
+          background: var(--bg-surface);
           border: 1px solid rgba(255, 255, 255, 0.06);
         }
         .alisten-modal-container {

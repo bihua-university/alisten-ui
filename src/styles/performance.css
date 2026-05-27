@@ -270,10 +270,10 @@ html.performance-off body,
   transform: none !important;
 }
 
-.performance-low .music-item .group-hover\:text-[#D4A853],
-.performance-low .music-item .group-hover\:text-[#D4A853],
-.performance-low .playlist-item .group-hover\:text-[#D4A853],
-.performance-low .playlist-item .group-hover\:text-[#D4A853] {
+.performance-low .music-item .group-hover\:text-accent,
+.performance-low .music-item .group-hover\:text-accent,
+.performance-low .playlist-item .group-hover\:text-accent,
+.performance-low .playlist-item .group-hover\:text-accent {
   color: white !important;
 }
 
@@ -316,10 +316,10 @@ html.performance-off body,
   transform: none !important;
 }
 
-.performance-off .music-item .group-hover\:text-[#D4A853],
-.performance-off .music-item .group-hover\:text-[#D4A853],
-.performance-off .playlist-item .group-hover\:text-[#D4A853],
-.performance-off .playlist-item .group-hover\:text-[#D4A853] {
+.performance-off .music-item .group-hover\:text-accent,
+.performance-off .music-item .group-hover\:text-accent,
+.performance-off .playlist-item .group-hover\:text-accent,
+.performance-off .playlist-item .group-hover\:text-accent {
   color: white !important;
 }
 

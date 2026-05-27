@@ -5,6 +5,7 @@ import { customElement, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 import { performanceStore } from '@/stores/performance-store'
 import { playerStore } from '@/stores/player-store'
+import { themeStore } from '@/stores/theme-store'
 import { userSettingsStore } from '@/stores/user-settings-store'
 import { icons } from '@/utils/icons'
 import { generateGravatarUrl } from '@/utils/user'
@@ -21,12 +22,14 @@ export class SettingsModalElement extends LitElement {
   @state() private volume = playerStore.state.volume
   @state() private isMuted = playerStore.state.isMuted
   @state() private playMode = userSettingsStore.state.playMode
+  @state() private theme = themeStore.state.theme
 
   connectedCallback() {
     super.connectedCallback()
     userSettingsStore.addEventListener('change', this.handleUserSettingsChange)
     performanceStore.addEventListener('change', this.handlePerformanceChange)
     playerStore.addEventListener('change', this.handlePlayerChange)
+    themeStore.addEventListener('change', this.handleThemeChange)
     userSettingsStore.pullSetting()
   }
 
@@ -41,6 +44,7 @@ export class SettingsModalElement extends LitElement {
       this.handlePerformanceChange,
     )
     playerStore.removeEventListener('change', this.handlePlayerChange)
+    themeStore.removeEventListener('change', this.handleThemeChange)
 
     const nameInput = this.querySelector(
       'input[type="text"]',
@@ -69,6 +73,10 @@ export class SettingsModalElement extends LitElement {
   private handlePlayerChange = () => {
     this.volume = playerStore.state.volume
     this.isMuted = playerStore.state.isMuted
+  }
+
+  private handleThemeChange = () => {
+    this.theme = themeStore.state.theme
   }
 
   private get avatarUrl(): string {
@@ -109,7 +117,7 @@ export class SettingsModalElement extends LitElement {
         <!-- Container -->
         <div
           class="relative w-full max-w-none md:max-w-xl h-[100dvh] md:h-auto md:max-h-[85vh] flex flex-col rounded-none md:rounded-xl overflow-hidden border-0 md:border md:border-white/[0.06] shadow-none md:shadow-2xl"
-          style="background: #1a1a1f;"
+          style="background: var(--bg-surface); border: 1px solid var(--border-subtle);" 
         >
           <!-- Header -->
           <div
@@ -117,9 +125,9 @@ export class SettingsModalElement extends LitElement {
           >
             <div class="flex items-center gap-3">
               <div
-                class="w-10 h-10 rounded-xl bg-[#D4A853]/10 flex items-center justify-center"
+                class="w-10 h-10 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center"
               >
-                <i class="fa-solid fa-cog text-lg text-[#D4A853]"></i>
+                <i class="fa-solid fa-cog text-lg text-[var(--accent)]"></i>
               </div>
               <h2 class="text-xl font-bold text-white">设置</h2>
             </div>
@@ -138,7 +146,7 @@ export class SettingsModalElement extends LitElement {
               <h4
                 class="text-sm font-bold text-white mb-3 flex items-center gap-2"
               >
-                ${unsafeSVG(icons.users(16, 'text-[#D4A853]'))} 个人资料
+                ${unsafeSVG(icons.users(16, 'text-[var(--accent)]'))} 个人资料
               </h4>
               <div class="space-y-3">
                 <!-- Avatar Preview -->
@@ -162,7 +170,7 @@ export class SettingsModalElement extends LitElement {
                   <input
                     type="text"
                     .value=${this.userName}
-                    class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 transition-all"
+                    class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--accent)]/30 transition-all"
                     placeholder="输入昵称"
                     @input=${(e: InputEvent) =>
                       (this.userName = (e.target as HTMLInputElement).value)}
@@ -175,7 +183,7 @@ export class SettingsModalElement extends LitElement {
                   <input
                     type="email"
                     .value=${this.userEmail}
-                    class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 transition-all"
+                    class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--accent)]/30 transition-all"
                     placeholder="输入邮箱"
                     @input=${(e: InputEvent) =>
                       (this.userEmail = (e.target as HTMLInputElement).value)}
@@ -194,7 +202,7 @@ export class SettingsModalElement extends LitElement {
               <h4
                 class="text-sm font-bold text-white mb-3 flex items-center gap-2"
               >
-                ${unsafeSVG(icons.volume2(16, 'text-[#D4A853]'))} 音量控制
+                ${unsafeSVG(icons.volume2(16, 'text-[var(--accent)]'))} 音量控制
               </h4>
               <div class="flex items-center gap-3">
                 <button
@@ -212,7 +220,7 @@ export class SettingsModalElement extends LitElement {
                   @click=${this.handleVolumeClick}
                 >
                   <div
-                    class="absolute top-0 left-0 h-full bg-gradient-to-r bg-[#D4A853] rounded-full transition-all volume-bar"
+                    class="absolute top-0 left-0 h-full bg-gradient-to-r bg-[var(--accent)] rounded-full transition-all volume-bar"
                     style="width: ${this.isMuted ? 0 : this.volume}%"
                   ></div>
                 </div>
@@ -227,7 +235,7 @@ export class SettingsModalElement extends LitElement {
               <h4
                 class="text-sm font-bold text-white mb-3 flex items-center gap-2"
               >
-                ${unsafeSVG(icons.listMusic(16, 'text-[#D4A853]'))} 播放模式
+                ${unsafeSVG(icons.listMusic(16, 'text-[var(--accent)]'))} 播放模式
               </h4>
               <div class="flex flex-col gap-2 mb-3">
                 ${[
@@ -248,7 +256,7 @@ export class SettingsModalElement extends LitElement {
                   return html`
                     <button
                       class="text-left p-3 rounded-xl transition-all border ${active
-                        ? 'bg-[#D4A853]/15 border-[#D4A853]/30'
+                        ? 'bg-[var(--accent)]/15 border-[var(--accent)]/30'
                         : 'bg-white/[0.04] border-transparent hover:bg-white/10'}"
                       @click=${() => userSettingsStore.setPlayMode(mode)}
                     >
@@ -271,16 +279,45 @@ export class SettingsModalElement extends LitElement {
                         </div>
                         <div
                           class="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 ml-2 ${active
-                            ? 'border-[#D4A853]'
+                            ? 'border-[var(--accent)]'
                             : 'border-white/30'}"
                         >
                           ${active
                             ? html`<div
-                                class="w-2 h-2 rounded-full bg-[#D4A853]"
+                                class="w-2 h-2 rounded-full bg-[var(--accent)]"
                               ></div>`
                             : nothing}
                         </div>
                       </div>
+                    </button>
+                  `
+                })}
+              </div>
+            </div>
+
+            <!-- Theme -->
+            <div>
+              <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                ${unsafeSVG(icons.sparkles(16, 'text-[var(--accent)]'))} 主题
+              </h4>
+              <div class="flex flex-col gap-2">
+                ${[
+                  { id: 'dark' as const, title: '暗夜', desc: '深色极简风格' },
+                  { id: 'blockframe' as const, title: 'BlockFrame', desc: '亮色新粗野主义' },
+                ].map(({ id, title, desc }) => {
+                  const active = this.theme === id
+                  return html`
+                    <button
+                      class="text-left p-3 rounded-xl transition-all border ${active
+                        ? 'bg-[var(--accent)]/15 border-[var(--accent)]/30'
+                        : 'bg-white/[0.04] border-transparent hover:bg-white/10'}"
+                      @click=${() => themeStore.setTheme(id)}
+                    >
+                      <div class="flex items-center gap-2 mb-1">
+                        <div class="w-2 h-2 rounded-full ${active ? 'bg-[var(--accent)]' : 'bg-white/20'}"></div>
+                        <span class="text-sm font-medium ${active ? 'text-white' : 'text-white/70'}">${title}</span>
+                      </div>
+                      <p class="text-xs ${active ? 'text-white/70' : 'text-white/35'} leading-relaxed pl-4">${desc}</p>
                     </button>
                   `
                 })}
@@ -321,7 +358,7 @@ export class SettingsModalElement extends LitElement {
                   return html`
                     <button
                       class="text-left p-3 rounded-xl transition-all border ${active
-                        ? 'bg-[#D4A853]/15 border-[#D4A853]/30'
+                        ? 'bg-[var(--accent)]/15 border-[var(--accent)]/30'
                         : 'bg-white/[0.04] border-transparent hover:bg-white/10'}"
                       @click=${() => {
                         performanceStore.setState({ level })
@@ -332,7 +369,7 @@ export class SettingsModalElement extends LitElement {
                       <div class="flex items-center gap-2 mb-1">
                         <div
                           class="w-2 h-2 rounded-full ${active
-                            ? 'bg-[#D4A853]'
+                            ? 'bg-[var(--accent)]'
                             : 'bg-white/20'}"
                         ></div>
                         <span
