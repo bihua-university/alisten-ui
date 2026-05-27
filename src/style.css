@@ -5,38 +5,26 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== Design Tokens ===== */
-:root {
-  --bg-base: #0C0A09;
-  --bg-surface: #1C1917;
-  --bg-elevated: #292524;
-  --bg-hover: rgba(255, 255, 255, 0.04);
-  --bg-active: rgba(255, 255, 255, 0.06);
+/* ===== Minimal Design System ===== */
 
-  --text-primary: #FAFAF9;
-  --text-secondary: #A8A29E;
-  --text-muted: #78716C;
-  --text-disabled: #57534E;
+:root {
+  --bg-base: #0a0a0a;
+  --bg-surface: #111111;
+  --bg-elevated: #181818;
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --bg-active: rgba(255, 255, 255, 0.07);
+
+  --text-primary: #f0f0f0;
+  --text-secondary: #8a8a8a;
+  --text-muted: #555555;
+  --text-disabled: #3a3a3a;
 
   --accent: #D4A853;
   --accent-hover: #C49A4A;
-  --accent-dim: rgba(212, 168, 83, 0.15);
+  --accent-dim: rgba(212, 168, 83, 0.12);
 
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(255, 255, 255, 0.1);
-
-  --success: #22C55E;
-  --warning: #F59E0B;
-  --error: #EF4444;
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
-
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
 
   font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
   line-height: 1.5;
@@ -49,37 +37,36 @@ body {
   color: var(--text-primary);
 }
 
-/* ===== Glass Surface ===== */
+/* ===== Surfaces (Minimal - no heavy blur) ===== */
 .glass {
-  background: rgba(28, 25, 23, 0.6);
-  backdrop-filter: blur(24px) saturate(1.2);
-  border: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-md);
+  background: rgba(20, 20, 20, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .glass-panel {
-  background: rgba(28, 25, 23, 0.5);
-  backdrop-filter: blur(16px) saturate(1.1);
-  border: 1px solid var(--border-subtle);
+  background: rgba(17, 17, 17, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.surface-elevated {
+  background: #181818;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* ===== Scrollbar ===== */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* ===== Utilities ===== */
@@ -159,7 +146,7 @@ body {
 /* ===== Modal Transitions ===== */
 .modal-enter-active,
 .modal-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .modal-enter-from,
 .modal-leave-to {
@@ -244,7 +231,7 @@ body {
   opacity: 1;
 }
 .like-button {
-  opacity: 0.7;
+  opacity: 0.5;
   transition: opacity 0.2s ease;
 }
 
@@ -388,7 +375,7 @@ body {
   .modal-scroll::-webkit-scrollbar,
   .mobile-chat-scroll::-webkit-scrollbar {
     display: block !important;
-    width: 4px !important;
+    width: 3px !important;
   }
 
   .lyrics-container::-webkit-scrollbar-track,
@@ -396,7 +383,7 @@ body {
   .overflow-auto::-webkit-scrollbar-track,
   .modal-scroll::-webkit-scrollbar-track,
   .mobile-chat-scroll::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
     border-radius: 2px !important;
   }
 
@@ -405,7 +392,7 @@ body {
   .overflow-auto::-webkit-scrollbar-thumb,
   .modal-scroll::-webkit-scrollbar-thumb,
   .mobile-chat-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
     border-radius: 2px !important;
   }
 }
@@ -420,9 +407,7 @@ body {
 .performance-off .glass,
 .performance-off .glass-panel {
   background: var(--bg-surface) !important;
-  backdrop-filter: none !important;
-  border-color: var(--border-subtle) !important;
-  box-shadow: none !important;
+  border-color: rgba(255,255,255,0.04) !important;
 }
 .performance-low .song-bg,
 .performance-off .song-bg {

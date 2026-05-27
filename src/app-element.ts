@@ -450,19 +450,19 @@ export class AppElement extends LitElement {
       return nothing
     return html`
       <div class="fixed inset-0 z-50 flex items-center justify-center">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
         <div class="relative flex flex-col items-center">
           <button
-            class="w-20 h-20 rounded-full bg-[#D4A853] hover:bg-[#C49A4A] flex items-center justify-center transition-transform active:scale-95 mb-4 shadow-lg shadow-[#D4A853]/20"
+            class="w-[72px] h-[72px] rounded-full bg-[#D4A853] hover:bg-[#C49A4A] flex items-center justify-center transition-all active:scale-95 mb-5 shadow-accent"
             @click=${() => {
               playerStore.playAudio()
               playerStore.clearManualStartPlay()
             }}
           >
-            ${unsafeSVG(icons.play(32))}
+            ${unsafeSVG(icons.play(28))}
           </button>
-          <p class="text-white/80 text-lg font-medium">点击开始播放</p>
-          <p class="text-white/40 text-sm mt-1">
+          <p class="text-white/90 text-base font-medium tracking-tight">点击开始播放</p>
+          <p class="text-white/35 text-sm mt-1.5">
             浏览器需要您的交互才能播放音频
           </p>
         </div>

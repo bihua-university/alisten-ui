@@ -115,10 +115,10 @@ export class ModalElement extends LitElement {
                   ${this.allowBackdropClose
                     ? html`
                       <button
-                        class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all duration-200"
+                        class="w-7 h-7 rounded-lg hover:bg-white/[0.06] flex items-center justify-center text-white/30 hover:text-white/60 transition-colors"
                         @click=${this.handleCloseClick}
                       >
-                        <i class="fa-solid fa-times text-sm"></i>
+                        <i class="fa-solid fa-times text-xs"></i>
                       </button>
                     `
                     : nothing}
@@ -136,16 +136,13 @@ export class ModalElement extends LitElement {
 
       <style>
         .alisten-modal-bg {
-          background: #1a1a1f;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow:
-            0 25px 50px -12px rgba(0, 0, 0, 0.5),
-            0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+          background: #141414;
+          border: 1px solid rgba(255, 255, 255, 0.06);
         }
         .alisten-modal-container {
-          border-radius: 24px;
+          border-radius: 16px;
           max-height: 80vh;
-          animation: alisten-modal-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation: alisten-modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .alisten-modal-backdrop {
           animation: alisten-modal-backdrop-in 0.3s ease;

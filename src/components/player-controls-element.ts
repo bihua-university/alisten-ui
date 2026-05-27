@@ -93,28 +93,29 @@ export class PlayerControlsElement extends LitElement {
     const currentTime = this.playerState.currentTime || 0
 
     return html`
-      <div class="glass rounded-2xl p-4 flex items-center gap-4 shrink-0 hover:bg-white/[0.04] transition-all duration-300">
+      <div class="rounded-xl p-3.5 flex items-center gap-4 shrink-0 transition-colors duration-200"
+        style="background: rgba(20,20,20,0.6); border: 1px solid rgba(255,255,255,0.05);">
         <!-- Album Art -->
-        <div class="rounded-xl bg-white/[0.04] shrink-0 overflow-hidden flex items-center justify-center album-art-container ${this.isDesktop ? 'w-14 h-14 md:w-16 md:h-16' : 'w-14 h-14'}">
+        <div class="rounded-lg bg-white/[0.03] shrink-0 overflow-hidden flex items-center justify-center album-art-container ${this.isDesktop ? 'w-12 h-12 md:w-14 md:h-14' : 'w-12 h-12'}">
           ${song?.cover
             ? html`
-            <img src=${song.cover} alt=${song.title} class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            <img src=${song.cover} alt=${song.title} class="w-full h-full object-cover">
           `
-            : html`<span class="text-2xl">🎵</span>`}
+            : html`<div class="w-full h-full flex items-center justify-center"><div class="w-5 h-5 rounded-full border-2 border-white/20"></div></div>`}
         </div>
 
         <!-- Info & Progress -->
         <div class="flex-1 min-w-0 flex flex-col justify-center gap-2">
-          <div class="flex justify-between items-end">
+          <div class="flex justify-between items-baseline gap-3">
             <div class="min-w-0">
-              <h2 class="font-bold text-white truncate ${this.isDesktop ? 'text-base md:text-lg' : 'text-base'}">
+              <h2 class="font-semibold text-white truncate text-[15px] leading-tight tracking-tight">
                 ${song?.title || '暂无歌曲'}
               </h2>
-              <p class="text-white/60 truncate ${this.isDesktop ? 'text-xs md:text-sm' : 'text-xs'}">
+              <p class="text-white/40 truncate text-xs mt-0.5">
                 ${song?.artist || '未知艺术家'}
               </p>
             </div>
-            <div class="text-white/40 font-mono mb-0.5 ${this.isDesktop ? 'text-[10px] md:text-xs' : 'text-[10px]'}">
+            <div class="text-white/30 font-mono text-[11px] shrink-0 tabular-nums">
               <span ${ref((el: Element | undefined) => {
                 if (el instanceof HTMLElement) {
                   this.timeLabelEl = el
@@ -124,40 +125,40 @@ export class PlayerControlsElement extends LitElement {
             </div>
           </div>
           <!-- Progress Bar -->
-          <div class="h-1 bg-white/10 rounded-full overflow-hidden relative">
+          <div class="h-[3px] bg-white/[0.08] rounded-full overflow-hidden relative group cursor-pointer">
             <div ${ref((el: Element | undefined) => {
               if (el instanceof HTMLElement)
                 this.progressBarEl = el
             })}
-              class="absolute top-0 left-0 h-full w-full bg-[#D4A853] rounded-full origin-left will-change-transform transition-transform duration-150 ease-linear player-progress-bar"
+              class="absolute top-0 left-0 h-full w-full bg-[#D4A853] rounded-full origin-left will-change-transform transition-transform duration-100 ease-linear"
               style="transform: scaleX(${durationSec > 0 ? Math.min(1, Math.max(0, currentTime / durationSec)) : 0})"></div>
           </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex items-center gap-2 pl-2 border-l border-white/10 ml-2">
+        <div class="flex items-center gap-1 pl-3 ml-1 shrink-0" style="border-left: 1px solid rgba(255,255,255,0.06);">
           <button
             ?disabled=${this.isSkipping}
-            class="p-2 hover:bg-white/10 rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${this.isSkipping ? 'opacity-50 cursor-not-allowed' : ''}"
+            class="p-2 hover:bg-white/[0.06] rounded-lg transition-all duration-150 active:scale-95 ${this.isSkipping ? 'opacity-40 cursor-not-allowed' : ''}"
             title="切歌"
             @click=${this.handleSkipSong}
           >
-            ${unsafeSVG(icons.skipForward(18, `text-white/70 transition-transform ${this.isSkipping ? 'animate-spin' : ''}`))}
+            ${unsafeSVG(icons.skipForward(17, `text-white/60 ${this.isSkipping ? 'animate-spin' : ''}`))}
           </button>
 
           ${this.isDesktop
             ? html`
             <div class="relative volume-popup">
-              <button class="volume-toggle-btn p-2 hover:bg-white/10 rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${this.showVolumePopup ? 'bg-white/10 scale-110' : ''}"
+              <button class="volume-toggle-btn p-2 hover:bg-white/[0.06] rounded-lg transition-all duration-150 active:scale-95 ${this.showVolumePopup ? 'bg-white/[0.06]' : ''}"
                 @click=${this.handleVolumeToggle}>
-                ${unsafeSVG(icons.volume2(18, 'text-white/70'))}
+                ${unsafeSVG(icons.volume2(17, 'text-white/60'))}
               </button>
               ${this.showVolumePopup
                 ? html`
-                <div class="absolute bottom-full right-0 mb-2 bg-[#121214]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/10 z-50 w-48" @click=${this.handleVolumePopupClick}>
-                  <div class="text-xs text-white/60 mb-2">音量 ${Math.round(this.playerState.volume)}%</div>
-                  <div class="h-2 bg-white/10 rounded-full cursor-pointer relative" @click=${this.handleVolumeClick}>
-                    <div class="absolute top-0 left-0 h-full bg-[#D4A853] rounded-full volume-bar" style="width: ${this.playerState.volume}%"></div>
+                <div class="absolute bottom-full right-0 mb-2 rounded-xl p-3.5 z-50 w-44" style="background: #141414; border: 1px solid rgba(255,255,255,0.06);" @click=${this.handleVolumePopupClick}>
+                  <div class="text-[11px] text-white/40 mb-2.5 font-medium">音量 ${Math.round(this.playerState.volume)}%</div>
+                  <div class="h-1.5 bg-white/[0.08] rounded-full cursor-pointer relative" @click=${this.handleVolumeClick}>
+                    <div class="absolute top-0 left-0 h-full bg-[#D4A853] rounded-full transition-all" style="width: ${this.playerState.volume}%"></div>
                   </div>
                 </div>
               `
@@ -169,8 +170,8 @@ export class PlayerControlsElement extends LitElement {
       </div>
 
       <style>
-        .album-art-container { transition: all 0.3s ease; }
-        .album-art-container:hover { transform: scale(1.05); }
+        .album-art-container { transition: opacity 0.3s ease; }
+        .album-art-container:hover { opacity: 0.85; }
       </style>
     `
   }

@@ -108,7 +108,7 @@ export class SettingsModalElement extends LitElement {
 
         <!-- Container -->
         <div
-          class="relative w-full max-w-none md:max-w-xl h-[100dvh] md:h-auto md:max-h-[85vh] flex flex-col rounded-none md:rounded-3xl overflow-hidden border-0 md:border md:border-white/10 shadow-none md:shadow-2xl"
+          class="relative w-full max-w-none md:max-w-xl h-[100dvh] md:h-auto md:max-h-[85vh] flex flex-col rounded-none md:rounded-xl overflow-hidden border-0 md:border md:border-white/[0.06] shadow-none md:shadow-2xl"
           style="background: #1a1a1f;"
         >
           <!-- Header -->
@@ -124,7 +124,7 @@ export class SettingsModalElement extends LitElement {
               <h2 class="text-xl font-bold text-white">设置</h2>
             </div>
             <button
-              class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all"
+              class="w-10 h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] flex items-center justify-center text-white/35 hover:text-white transition-all"
               @click=${this.handleClose}
             >
               <i class="fa-solid fa-times text-sm"></i>
@@ -142,17 +142,17 @@ export class SettingsModalElement extends LitElement {
               </h4>
               <div class="space-y-3">
                 <!-- Avatar Preview -->
-                <div class="flex items-center gap-4 p-3 bg-white/5 rounded-xl">
+                <div class="flex items-center gap-4 p-3 bg-white/[0.04] rounded-xl">
                   <img
                     src=${this.avatarUrl}
                     alt="头像预览"
-                    class="w-14 h-14 rounded-full bg-white/10 object-cover"
+                    class="w-14 h-14 rounded-full bg-white/[0.06] object-cover"
                   />
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-white truncate">
                       ${this.userName || '匿名用户'}
                     </p>
-                    <p class="text-xs text-white/40 truncate">
+                    <p class="text-xs text-white/35 truncate">
                       ${this.userEmail || '未设置邮箱'}
                     </p>
                   </div>
@@ -162,7 +162,7 @@ export class SettingsModalElement extends LitElement {
                   <input
                     type="text"
                     .value=${this.userName}
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/50 transition-all"
+                    class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 transition-all"
                     placeholder="输入昵称"
                     @input=${(e: InputEvent) =>
                       (this.userName = (e.target as HTMLInputElement).value)}
@@ -175,7 +175,7 @@ export class SettingsModalElement extends LitElement {
                   <input
                     type="email"
                     .value=${this.userEmail}
-                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/50 transition-all"
+                    class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 transition-all"
                     placeholder="输入邮箱"
                     @input=${(e: InputEvent) =>
                       (this.userEmail = (e.target as HTMLInputElement).value)}
@@ -198,7 +198,7 @@ export class SettingsModalElement extends LitElement {
               </h4>
               <div class="flex items-center gap-3">
                 <button
-                  class="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors shrink-0 flex items-center justify-center"
+                  class="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.06] transition-colors shrink-0 flex items-center justify-center"
                   @click=${() => playerStore.toggleMute()}
                 >
                   ${unsafeSVG(
@@ -208,7 +208,7 @@ export class SettingsModalElement extends LitElement {
                   )}
                 </button>
                 <div
-                  class="flex-1 h-2 bg-white/10 rounded-full cursor-pointer relative"
+                  class="flex-1 h-2 bg-white/[0.06] rounded-full cursor-pointer relative"
                   @click=${this.handleVolumeClick}
                 >
                   <div
@@ -249,7 +249,7 @@ export class SettingsModalElement extends LitElement {
                     <button
                       class="text-left p-3 rounded-xl transition-all border ${active
                         ? 'bg-[#D4A853]/15 border-[#D4A853]/30'
-                        : 'bg-white/5 border-transparent hover:bg-white/10'}"
+                        : 'bg-white/[0.04] border-transparent hover:bg-white/10'}"
                       @click=${() => userSettingsStore.setPlayMode(mode)}
                     >
                       <div class="flex items-center justify-between">
@@ -264,7 +264,7 @@ export class SettingsModalElement extends LitElement {
                           <p
                             class="text-xs ${active
                               ? 'text-white/70'
-                              : 'text-white/40'} leading-relaxed pl-6"
+                              : 'text-white/35'} leading-relaxed pl-6"
                           >
                             ${desc}
                           </p>
@@ -322,7 +322,7 @@ export class SettingsModalElement extends LitElement {
                     <button
                       class="text-left p-3 rounded-xl transition-all border ${active
                         ? 'bg-[#D4A853]/15 border-[#D4A853]/30'
-                        : 'bg-white/5 border-transparent hover:bg-white/10'}"
+                        : 'bg-white/[0.04] border-transparent hover:bg-white/10'}"
                       @click=${() => {
                         performanceStore.setState({ level })
                         performanceStore.applySettings()
@@ -345,7 +345,7 @@ export class SettingsModalElement extends LitElement {
                       <p
                         class="text-xs ${active
                           ? 'text-white/70'
-                          : 'text-white/40'} leading-relaxed pl-4"
+                          : 'text-white/35'} leading-relaxed pl-4"
                       >
                         ${desc}
                       </p>

@@ -170,14 +170,14 @@ export class MusicSearchModalElement extends LitElement {
 
     return pages.map((page) => {
       if (page === '...') {
-        return html`<span class="px-1.5 py-1 text-xs text-white/30">...</span>`
+        return html`<span class="px-1.5 py-1 text-xs text-white/25">...</span>`
       }
       const isActive = page === current
       return html`
         <button
           class="w-7 h-7 rounded-lg text-xs transition-colors ${isActive
             ? 'bg-[#D4A853] text-[#0C0A09]'
-            : 'text-white/60 hover:bg-white/10 hover:text-white'}"
+            : 'text-white/50 hover:bg-white/[0.06] hover:text-white'}"
           @click=${() => this.goToPage(page as number)}
         >
           ${page}
@@ -199,7 +199,7 @@ export class MusicSearchModalElement extends LitElement {
 
         <!-- Modal Container -->
         <div
-          class="relative w-full max-w-none md:max-w-[1100px] h-[100dvh] md:h-[85vh] min-h-0 md:min-h-[600px] flex flex-col rounded-none md:rounded-3xl overflow-hidden border-0 md:border md:border-white/10 shadow-none md:shadow-2xl"
+          class="relative w-full max-w-none md:max-w-[1100px] h-[100dvh] md:h-[85vh] min-h-0 md:min-h-[600px] flex flex-col rounded-none md:rounded-xl overflow-hidden border-0 md:border md:border-white/[0.06] shadow-none md:shadow-2xl"
           style="background: #1a1a1f;"
         >
           <!-- Header -->
@@ -225,21 +225,21 @@ export class MusicSearchModalElement extends LitElement {
                     @change=${this.handleModeToggle}
                   />
                   <div
-                    class="relative w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#D4A853]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D4A853]"
+                    class="relative w-11 h-6 bg-white/[0.06] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#D4A853]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D4A853]"
                   ></div>
                 </label>
                 <span
                   class="text-sm flex items-center gap-1 ${this.currentMode
                   === 'ai'
                     ? 'text-[#D4A853]'
-                    : 'text-white/40'}"
+                    : 'text-white/35'}"
                 >
                   <i class="fa-solid fa-robot text-xs"></i>
                   AI推荐
                 </span>
               </div>
               <button
-                class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all"
+                class="w-10 h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.06] flex items-center justify-center text-white/35 hover:text-white transition-all"
                 @click=${this.handleClose}
               >
                 <i class="fa-solid fa-times text-sm"></i>
@@ -259,7 +259,7 @@ export class MusicSearchModalElement extends LitElement {
                       ${unsafeSVG(
                         icons.search(
                           18,
-                          'text-white/30 group-focus-within:text-[#D4A853] transition-colors',
+                          'text-white/25 group-focus-within:text-[#D4A853] transition-colors',
                         ),
                       )}
                     </div>
@@ -267,7 +267,7 @@ export class MusicSearchModalElement extends LitElement {
                       type="text"
                       .value=${this.query}
                       placeholder="搜索歌曲、歌手、专辑..."
-                      class="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-14 text-base text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/50 focus:bg-white/10 transition-all"
+                      class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl py-3.5 pl-12 pr-14 text-base text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 focus:bg-white/[0.06] transition-all"
                       @input=${(e: InputEvent) => {
                         this.query = (e.target as HTMLInputElement).value
                         _persistedQuery = this.query
@@ -278,7 +278,7 @@ export class MusicSearchModalElement extends LitElement {
                       }}
                     />
                     <button
-                      class="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-[#D4A853] hover:bg-[#C49A4A] transition-colors shadow-lg shadow-[#D4A853]/15 flex items-center justify-center"
+                      class="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-[#D4A853] hover:bg-[#C49A4A] transition-colors  flex items-center justify-center"
                       @click=${() => this.handleSearch()}
                     >
                       ${unsafeSVG(icons.search(16, 'text-white'))}
@@ -287,7 +287,7 @@ export class MusicSearchModalElement extends LitElement {
 
                   <!-- Mode Tabs -->
                   <div
-                    class="flex-shrink-0 flex p-1 bg-white/5 rounded-xl border border-white/5"
+                    class="flex-shrink-0 flex p-1 bg-white/[0.04] rounded-xl border border-white/5"
                   >
                     ${(
                       [
@@ -307,7 +307,7 @@ export class MusicSearchModalElement extends LitElement {
                         <button
                           class="flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all whitespace-nowrap
                     ${this.searchMode === m.id
-                      ? 'bg-[#D4A853] text-[#0C0A09] shadow-lg shadow-[#D4A853]/15'
+                      ? 'bg-[#D4A853] text-[#0C0A09] '
                       : 'text-white/50 hover:text-white hover:bg-white/5'}"
                           @click=${() => this.selectSearchMode(m.id)}
                         >
@@ -320,7 +320,7 @@ export class MusicSearchModalElement extends LitElement {
 
                   <!-- Platform Tabs -->
                   <div
-                    class="flex-shrink-0 flex p-1 bg-white/5 rounded-xl border border-white/5"
+                    class="flex-shrink-0 flex p-1 bg-white/[0.04] rounded-xl border border-white/5"
                   >
                     ${[
                       { id: 'wy', name: '网易云', icon: 'fa-solid fa-music' },
@@ -331,7 +331,7 @@ export class MusicSearchModalElement extends LitElement {
                         <button
                           class="flex-1 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all whitespace-nowrap
                     ${this.platform === p.id
-                      ? 'bg-[#D4A853] text-[#0C0A09] shadow-lg shadow-[#D4A853]/15'
+                      ? 'bg-[#D4A853] text-[#0C0A09] '
                       : 'text-white/50 hover:text-white hover:bg-white/5'}"
                           @click=${() => this.selectPlatform(p.id)}
                         >
@@ -344,12 +344,12 @@ export class MusicSearchModalElement extends LitElement {
 
                   <!-- Results Area -->
                   <div
-                    class="flex-1 min-h-0 bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden flex flex-col"
+                    class="flex-1 min-h-0 bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden flex flex-col"
                   >
                     ${this.isSearching
                       ? html`
                           <div
-                            class="flex-1 flex flex-col items-center justify-center text-white/40"
+                            class="flex-1 flex flex-col items-center justify-center text-white/35"
                           >
                             <div
                               class="w-10 h-10 border-3 border-[#D4A853]/20 border-t-[#D4A853] rounded-full animate-spin mb-3"
@@ -360,19 +360,19 @@ export class MusicSearchModalElement extends LitElement {
                       : this.searchResults.length === 0
                         ? html`
                             <div
-                              class="flex-1 flex flex-col items-center justify-center text-white/40"
+                              class="flex-1 flex flex-col items-center justify-center text-white/35"
                             >
                               <div
-                                class="w-20 h-20 bg-gradient-to-br bg-[#D4A853]/10 rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-[#D4A853]/10"
+                                class="w-20 h-20 bg-gradient-to-br bg-[#D4A853]/10 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-[#D4A853]/10"
                               >
                                 ${unsafeSVG(
                                   icons.music(28, 'text-[#D4A853]/60'),
                                 )}
                               </div>
-                              <p class="text-lg font-semibold text-white/60">
+                              <p class="text-lg font-semibold text-white/50">
                                 准备搜索
                               </p>
-                              <p class="text-sm text-white/30 mt-1">
+                              <p class="text-sm text-white/25 mt-1">
                                 输入关键词开始搜索歌曲
                               </p>
                             </div>
@@ -381,7 +381,7 @@ export class MusicSearchModalElement extends LitElement {
                             <div
                               class="px-4 py-3 border-b border-white/5 flex items-center justify-between shrink-0"
                             >
-                              <span class="text-xs text-white/40"
+                              <span class="text-xs text-white/35"
                                 >找到 ${this.searchCounts} 个结果</span
                               >
                             </div>
@@ -404,7 +404,7 @@ export class MusicSearchModalElement extends LitElement {
                                           ${result.title}
                                         </div>
                                         <div
-                                          class="text-xs text-white/40 truncate"
+                                          class="text-xs text-white/35 truncate"
                                         >
                                           ${this.searchMode === 'playlist'
                                             ? html`${result.creator
@@ -443,7 +443,7 @@ export class MusicSearchModalElement extends LitElement {
                                   <div
                                     class="px-4 py-3 border-t border-white/5 flex items-center justify-between shrink-0"
                                   >
-                                    <span class="text-xs text-white/40"
+                                    <span class="text-xs text-white/35"
                                       >第 ${this.currentPage} /
                                       ${this.totalPages} 页</span
                                     >
@@ -452,7 +452,7 @@ export class MusicSearchModalElement extends LitElement {
                                         class="px-2 py-1 rounded-lg text-xs transition-colors ${this
                                           .currentPage <= 1
                                           ? 'text-white/20 cursor-not-allowed'
-                                          : 'text-white/60 hover:bg-white/10 hover:text-white'}"
+                                          : 'text-white/50 hover:bg-white/[0.06] hover:text-white'}"
                                         ?disabled=${this.currentPage <= 1}
                                         @click=${() =>
                                           this.goToPage(this.currentPage - 1)}
@@ -464,7 +464,7 @@ export class MusicSearchModalElement extends LitElement {
                                         class="px-2 py-1 rounded-lg text-xs transition-colors ${this
                                           .currentPage >= this.totalPages
                                           ? 'text-white/20 cursor-not-allowed'
-                                          : 'text-white/60 hover:bg-white/10 hover:text-white'}"
+                                          : 'text-white/50 hover:bg-white/[0.06] hover:text-white'}"
                                         ?disabled=${this.currentPage
                                         >= this.totalPages}
                                         @click=${() =>
@@ -491,20 +491,20 @@ export class MusicSearchModalElement extends LitElement {
                         <i class="fa-solid fa-robot text-[#D4A853]"></i>
                         AI为您推荐
                         ${this.recommendations.length > 0
-                          ? html`<span class="text-xs text-white/40"
+                          ? html`<span class="text-xs text-white/35"
                               >(${this.recommendations.length}首)</span
                             >`
                           : nothing}
                       </h3>
                       <button
-                        class="text-white/40 hover:text-white transition-colors w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5"
+                        class="text-white/35 hover:text-white transition-colors w-7 h-7 flex items-center justify-center rounded-lg border border-white/[0.06] hover:border-white/20 hover:bg-white/5"
                         @click=${() => playerStore.pullRecommendations()}
                       >
                         <i class="fa-solid fa-refresh text-xs"></i>
                       </button>
                     </div>
                     <div
-                      class="flex-1 min-h-0 bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden flex flex-col"
+                      class="flex-1 min-h-0 bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden flex flex-col"
                     >
                       ${this.recommendations.length > 0
                         ? html`
@@ -527,7 +527,7 @@ export class MusicSearchModalElement extends LitElement {
                                           ${result.title}
                                         </div>
                                         <div
-                                          class="text-xs text-white/40 truncate"
+                                          class="text-xs text-white/35 truncate"
                                         >
                                           ${result.artist || ''}
                                         </div>
@@ -546,7 +546,7 @@ export class MusicSearchModalElement extends LitElement {
                           `
                         : html`
                             <div
-                              class="flex-1 flex flex-col items-center justify-center text-white/40"
+                              class="flex-1 flex flex-col items-center justify-center text-white/35"
                             >
                               <i
                                 class="fa-solid fa-robot text-4xl mb-4 opacity-50"

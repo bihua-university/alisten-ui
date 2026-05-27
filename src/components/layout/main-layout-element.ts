@@ -266,46 +266,46 @@ export class MainLayoutElement extends LitElement {
     return html`
       <div class="root-container overflow-x-hidden ${perfClasses}">
         <div class="main-layout-bg app-viewport flex flex-col items-center relative overflow-hidden font-sans text-white">
-          <!-- Background Abstract Shapes -->
-          <div class="bg-shapes performance-bg-shape absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#D4A853]/10 rounded-full blur-[120px] pointer-events-none"></div>
-          <div class="bg-shapes performance-bg-shape absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#A8A29E]/8 rounded-full blur-[120px] pointer-events-none"></div>
+          <!-- Ambient Background -->
+          <div class="bg-shapes performance-bg-shape absolute top-[-15%] left-[-10%] w-[600px] h-[600px] bg-[#D4A853]/[0.06] rounded-full blur-[140px] pointer-events-none"></div>
+          <div class="bg-shapes performance-bg-shape absolute bottom-[-20%] right-[-5%] w-[500px] h-[500px] bg-[#8a8a8a]/[0.04] rounded-full blur-[120px] pointer-events-none"></div>
 
           <!-- Dynamic Song Background -->
           ${showBg
             ? html`
             <div class="song-bg absolute inset-0 z-0">
               <img src=${this.currentSong!.cover} alt=${this.currentSong!.title}
-                class="w-full h-full object-cover blur-3xl scale-110 opacity-20 transition-all duration-1000">
-              <div class="absolute inset-0 bg-gradient-to-b from-[#0C0A09]/70 via-[#0C0A09]/90 to-[#0C0A09]"></div>
+                class="w-full h-full object-cover blur-[80px] scale-110 opacity-[0.12] transition-all duration-[1500ms]">
+              <div class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/60 via-[#0a0a0a]/85 to-[#0a0a0a]"></div>
             </div>
           `
             : nothing}
 
           <!-- Main Layout Container -->
-          <div class="z-10 w-full md:max-w-[95%] h-full flex flex-col gap-6 pt-4 px-0 md:p-6 md:mt-0 md:pb-6 overflow-hidden" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));">
+          <div class="z-10 w-full md:max-w-[1440px] h-full flex flex-col gap-5 pt-3 px-0 md:px-8 md:py-6 overflow-hidden" style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));">
             <!-- Desktop Layout -->
-            <div class="hidden md:flex md:flex-row gap-6 h-full">
+            <div class="hidden md:flex md:flex-row gap-5 h-full">
               <!-- Left Panel: Player & Lyrics -->
-              <div class="flex-[3] flex flex-col min-h-0 min-w-0 relative">
-                <alisten-lyrics-panel class="mb-4 flex-1 min-h-0 flex flex-col"></alisten-lyrics-panel>
+              <div class="flex-[2.2] flex flex-col min-h-0 min-w-0 relative">
+                <alisten-lyrics-panel class="mb-3 flex-1 min-h-0 flex flex-col"></alisten-lyrics-panel>
                 <alisten-player-controls class="shrink-0" .isDesktop=${true}></alisten-player-controls>
               </div>
 
               <!-- Right Panel: Tabbed Interface -->
-              <div class="flex-[1] flex flex-col gap-4 md:gap-6 min-h-0 md:h-auto overflow-hidden min-w-[280px] relative">
+              <div class="flex-[1] flex flex-col gap-3 min-h-0 overflow-hidden min-w-[300px] max-w-[400px] relative">
                 <!-- Tab Navigation -->
-                <div class="glass rounded-xl p-1 flex gap-1 shrink-0">
-                  <button class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${this.desktopRightTab === 'playlist' ? 'bg-white/[0.08] text-white' : 'text-white/40 hover:text-white/60'}"
+                <div class="glass-panel rounded-lg p-1 flex gap-1 shrink-0">
+                  <button class="flex-1 py-2 px-3 rounded-md text-[13px] font-medium transition-all ${this.desktopRightTab === 'playlist' ? 'bg-white/[0.07] text-white shadow-sm' : 'text-white/35 hover:text-white/55'}"
                     @click=${() => this.desktopRightTab = 'playlist'}>
-                    <div class="flex items-center justify-center gap-2">
-                      ${unsafeSVG(icons.listMusic(16))}
+                    <div class="flex items-center justify-center gap-1.5">
+                      ${unsafeSVG(icons.listMusic(15))}
                       <span>播放列表</span>
                     </div>
                   </button>
-                  <button class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${this.desktopRightTab === 'chat' ? 'bg-white/[0.08] text-white' : 'text-white/40 hover:text-white/60'}"
+                  <button class="flex-1 py-2 px-3 rounded-md text-[13px] font-medium transition-all ${this.desktopRightTab === 'chat' ? 'bg-white/[0.07] text-white shadow-sm' : 'text-white/35 hover:text-white/55'}"
                     @click=${() => this.desktopRightTab = 'chat'}>
-                    <div class="flex items-center justify-center gap-2">
-                      ${unsafeSVG(icons.messageSquare(16))}
+                    <div class="flex items-center justify-center gap-1.5">
+                      ${unsafeSVG(icons.messageSquare(15))}
                       <span>聊天</span>
                     </div>
                   </button>
@@ -313,14 +313,14 @@ export class MainLayoutElement extends LitElement {
 
                 <!-- Tab Content Container with Slide Animation -->
                 <div class="flex-1 flex transition-transform duration-300 ease-out overflow-hidden" style="width: 200%; transform: ${this.desktopRightTab === 'playlist' ? 'translateX(0)' : 'translateX(-50%)'};">
-                  <div class="w-1/2 shrink-0 px-2 h-full">
+                  <div class="w-1/2 shrink-0 pr-1.5 h-full">
                     <alisten-playlist-panel class="h-full" .isDesktop=${true}
                       @show-music-search=${() => this.dispatchEvent(new CustomEvent('show-music-search'))}
                       @song-like=${(e: CustomEvent) => this.dispatchEvent(new CustomEvent('song-like', { detail: e.detail }))}
                       @song-delete=${(e: CustomEvent) => this.dispatchEvent(new CustomEvent('song-delete', { detail: e.detail }))}
                     ></alisten-playlist-panel>
                   </div>
-                  <div class="w-1/2 shrink-0 px-2 h-full">
+                  <div class="w-1/2 shrink-0 pl-1.5 h-full">
                     <alisten-chat-panel class="h-full" .isDesktop=${true}
                       @show-help=${() => this.dispatchEvent(new CustomEvent('show-help'))}
                       @show-settings=${() => this.dispatchEvent(new CustomEvent('show-settings'))}
@@ -341,12 +341,12 @@ export class MainLayoutElement extends LitElement {
               @touchcancel=${this.handleTouchCancel}
               @transitionend=${this.handlePanelTransitionEnd}>
               <!-- Mobile Panel: Player & Lyrics -->
-              <div class="w-screen shrink-0 flex flex-col min-h-0 h-full relative px-4 pb-2">
-                <alisten-lyrics-panel class="mb-4 flex-1 min-h-0 flex flex-col"></alisten-lyrics-panel>
+              <div class="w-screen shrink-0 flex flex-col min-h-0 h-full relative px-3 pb-2">
+                <alisten-lyrics-panel class="mb-3 flex-1 min-h-0 flex flex-col"></alisten-lyrics-panel>
                 <alisten-player-controls class="shrink-0"></alisten-player-controls>
               </div>
               <!-- Mobile Panel: Playlist -->
-              <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4 pb-2">
+              <div class="w-screen shrink-0 flex flex-col min-h-0 h-full px-3 pb-2">
                 <alisten-playlist-panel class="h-full"
                   @show-music-search=${() => this.dispatchEvent(new CustomEvent('show-music-search'))}
                   @song-like=${(e: CustomEvent) => this.dispatchEvent(new CustomEvent('song-like', { detail: e.detail }))}
@@ -354,7 +354,7 @@ export class MainLayoutElement extends LitElement {
                 ></alisten-playlist-panel>
               </div>
               <!-- Mobile Panel: Chat -->
-              <div class="w-screen shrink-0 flex flex-col gap-4 min-h-0 h-full px-4 pb-2">
+              <div class="w-screen shrink-0 flex flex-col min-h-0 h-full px-3 pb-2">
                 <alisten-chat-panel class="h-full"
                   @show-help=${() => this.dispatchEvent(new CustomEvent('show-help'))}
                   @show-settings=${() => this.dispatchEvent(new CustomEvent('show-settings'))}

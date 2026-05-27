@@ -202,14 +202,14 @@ export class JoinRoomModalElement extends LitElement {
           <div class="flex gap-3">
             <div class="relative flex-1">
               <input type="text" .value=${this.searchKeyword} placeholder="搜索房间名称..."
-                class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 pl-10 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#D4A853]/50 focus:bg-white/10 transition-all"
+                class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 pl-10 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#D4A853]/30 focus:bg-white/[0.06] transition-all"
                 @input=${(e: InputEvent) => {
                   this.searchKeyword = (e.target as HTMLInputElement).value
                   this.handleSearch()
                 }}>
-              ${unsafeSVG(icons.search(16, 'absolute left-3 top-1/2 -translate-y-1/2 text-white/40'))}
+              ${unsafeSVG(icons.search(16, 'absolute left-3 top-1/2 -translate-y-1/2 text-white/35'))}
             </div>
-            <button class="bg-[#D4A853] hover:bg-[#C49A4A] active:scale-95 text-white rounded-2xl px-4 py-3 transition-all shadow-lg shadow-[#D4A853]/15 flex items-center gap-2 whitespace-nowrap text-sm font-medium"
+            <button class="bg-[#D4A853] hover:bg-[#C49A4A] active:scale-95 text-white rounded-xl px-4 py-3 transition-all  flex items-center gap-2 whitespace-nowrap text-sm font-medium"
               @click=${() => {
                 this.showCreate = true
               }}>
@@ -222,20 +222,20 @@ export class JoinRoomModalElement extends LitElement {
           <div class="max-h-72 overflow-y-auto space-y-2">
             ${this.isSearching
               ? html`
-              <div class="text-center py-8 text-white/40">
+              <div class="text-center py-8 text-white/35">
                 <div class="w-8 h-8 border-2 border-[#D4A853]/20 border-t-[#D4A853] rounded-full animate-spin mx-auto mb-2"></div>
                 <p class="text-sm">正在搜索房间...</p>
               </div>
             `
               : this.filteredRooms.length === 0
                 ? html`
-              <div class="text-center py-8 text-white/40">
+              <div class="text-center py-8 text-white/35">
                 ${unsafeSVG(icons.search(32, 'mx-auto mb-2 opacity-50'))}
                 <p class="text-sm">${this.searchKeyword ? '未找到匹配的房间' : '暂无可用房间'}</p>
               </div>
             `
                 : this.filteredRooms.map(room => html`
-              <div class="group p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] transition-all cursor-pointer border border-transparent
+              <div class="group p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] transition-all cursor-pointer border border-transparent
                 ${this.selectedRoomId === room.id ? 'bg-[#D4A853]/10 border-[#D4A853]/30' : ''}"
                 @click=${() => this.selectRoom(room)}>
                 <div class="flex items-center justify-between">
@@ -244,15 +244,15 @@ export class JoinRoomModalElement extends LitElement {
                       <span class="font-semibold text-white text-sm truncate">${room.name}</span>
                       ${room.needPwd
                         ? html`
-                        <span class="ml-2 text-white/40" title="需要密码">
+                        <span class="ml-2 text-white/35" title="需要密码">
                           ${unsafeSVG(icons.lock(12))}
                         </span>
                       `
                         : nothing}
                     </div>
-                    <div class="flex items-center text-xs text-white/40">
+                    <div class="flex items-center text-xs text-white/35">
                       <span class="flex items-center mr-3">
-                        ${unsafeSVG(icons.users(12, 'mr-1 text-white/30'))}
+                        ${unsafeSVG(icons.users(12, 'mr-1 text-white/25'))}
                         ${room.population} 人
                       </span>
                       <span class="truncate">${room.description || '暂无简介'}</span>
@@ -267,7 +267,7 @@ export class JoinRoomModalElement extends LitElement {
             `)}
           </div>
 
-          <p class="text-xs text-white/30 text-center">点击房间即可加入，与其他用户一起听歌互动</p>
+          <p class="text-xs text-white/25 text-center">点击房间即可加入，与其他用户一起听歌互动</p>
         </div>
       </alisten-modal>
     `
@@ -283,7 +283,7 @@ export class JoinRoomModalElement extends LitElement {
         .open=${true} @close=${() => {
           this.showConfirm = false
         }}>
-        <div class="rounded-2xl p-4 mb-4 bg-white/[0.03]">
+        <div class="rounded-xl p-4 mb-4 bg-white/[0.03]">
           <div class="flex items-center mb-3">
             <div class="w-10 h-10 rounded-xl bg-[#D4A853]/15 flex items-center justify-center mr-3">
               ${unsafeSVG(icons.logIn(20, 'text-[#D4A853]'))}
@@ -292,7 +292,7 @@ export class JoinRoomModalElement extends LitElement {
               <span class="font-semibold text-white text-sm block truncate">${room.name}</span>
               ${room.needPwd
                 ? html`
-                <span class="text-white/40 text-xs flex items-center gap-1 mt-0.5">
+                <span class="text-white/35 text-xs flex items-center gap-1 mt-0.5">
                   ${unsafeSVG(icons.lock(10))}
                   需要密码
                 </span>
@@ -300,7 +300,7 @@ export class JoinRoomModalElement extends LitElement {
                 : nothing}
             </div>
           </div>
-          <div class="flex items-center gap-4 text-xs text-white/40">
+          <div class="flex items-center gap-4 text-xs text-white/35">
             <span class="flex items-center">
               ${unsafeSVG(icons.users(12, 'mr-1'))}
               ${room.population} 人在线
@@ -313,7 +313,7 @@ export class JoinRoomModalElement extends LitElement {
           ? html`
           <div class="mb-4">
             <input type="password" .value=${this.confirmPassword} placeholder="请输入房间密码"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/50 transition-all"
+              class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 transition-all"
               @input=${(e: InputEvent) => this.confirmPassword = (e.target as HTMLInputElement).value}
               @keydown=${(e: KeyboardEvent) => {
                 if (e.key === 'Enter')
@@ -323,12 +323,12 @@ export class JoinRoomModalElement extends LitElement {
         `
           : nothing}
 
-        <p class="text-sm text-white/40 mb-4 text-center">加入后您将与其他用户一起听歌、聊天和互动</p>
+        <p class="text-sm text-white/35 mb-4 text-center">加入后您将与其他用户一起听歌、聊天和互动</p>
 
         <div class="flex gap-3">
-          <button class="flex-1 bg-white/5 hover:bg-white/10 active:scale-95 text-white rounded-xl py-3 transition-all border border-white/10 font-medium"
+          <button class="flex-1 bg-white/[0.04] hover:bg-white/[0.06] active:scale-95 text-white rounded-xl py-3 transition-all border border-white/[0.06] font-medium"
             @click=${this.handleCancel}>取消</button>
-          <button class="flex-1 bg-[#D4A853] hover:bg-[#C49A4A] active:scale-95 text-white rounded-xl py-3 transition-all shadow-lg shadow-[#D4A853]/15 font-medium
+          <button class="flex-1 bg-[#D4A853] hover:bg-[#C49A4A] active:scale-95 text-white rounded-xl py-3 transition-all  font-medium
             ${room.needPwd && !this.confirmPassword.trim() ? 'opacity-50 cursor-not-allowed' : ''}"
             ?disabled=${room.needPwd && !this.confirmPassword.trim()}
             @click=${this.handleConfirm}>
@@ -347,30 +347,30 @@ export class JoinRoomModalElement extends LitElement {
         }}>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium mb-2 text-white/60">房间名称 *</label>
+            <label class="block text-sm font-medium mb-2 text-white/50">房间名称 *</label>
             <input type="text" .value=${this.createName} placeholder="请输入房间名称"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/50 transition-all"
+              class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 transition-all"
               maxlength="50"
               @input=${(e: InputEvent) => this.createName = (e.target as HTMLInputElement).value}
               @keydown=${(e: KeyboardEvent) => {
                 if (e.key === 'Enter')
                   this.handleCreateRoom()
               }}>
-            <div class="text-xs text-white/30 mt-1 text-right">${this.createName.length}/50</div>
+            <div class="text-xs text-white/25 mt-1 text-right">${this.createName.length}/50</div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2 text-white/60">房间描述</label>
+            <label class="block text-sm font-medium mb-2 text-white/50">房间描述</label>
             <textarea .value=${this.createDesc} placeholder="请输入房间描述（可选）"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/50 transition-all resize-none"
+              class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 transition-all resize-none"
               rows="3" maxlength="200"
               @input=${(e: InputEvent) => this.createDesc = (e.target as HTMLInputElement).value}></textarea>
-            <div class="text-xs text-white/30 mt-1 text-right">${this.createDesc.length}/200</div>
+            <div class="text-xs text-white/25 mt-1 text-right">${this.createDesc.length}/200</div>
           </div>
 
           <div>
             <div class="flex justify-between items-center mb-2">
-              <label class="text-sm font-medium text-white/60">房间密码</label>
+              <label class="text-sm font-medium text-white/50">房间密码</label>
               <button type="button" class="text-xs text-[#D4A853] hover:text-[#E8C87A] transition-colors"
                 @click=${() => {
                   this.createEnablePassword = !this.createEnablePassword
@@ -381,7 +381,7 @@ export class JoinRoomModalElement extends LitElement {
             ${this.createEnablePassword
               ? html`
               <input type="password" .value=${this.createPassword} placeholder="请输入房间密码"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/50 transition-all"
+                class="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/30 transition-all"
                 @input=${(e: InputEvent) => this.createPassword = (e.target as HTMLInputElement).value}
                 @keydown=${(e: KeyboardEvent) => {
                   if (e.key === 'Enter')
@@ -389,7 +389,7 @@ export class JoinRoomModalElement extends LitElement {
                 }}>
             `
               : html`
-              <div class="text-sm text-white/40 flex items-center rounded-xl p-3 bg-white/[0.03]">
+              <div class="text-sm text-white/35 flex items-center rounded-xl p-3 bg-white/[0.03]">
                 ${unsafeSVG(icons.info(14, 'mr-2'))}
                 房间将对所有人开放，无需密码即可加入
               </div>
@@ -397,11 +397,11 @@ export class JoinRoomModalElement extends LitElement {
           </div>
 
           <div class="flex gap-3 pt-2">
-            <button class="flex-1 bg-white/5 hover:bg-white/10 active:scale-95 text-white rounded-xl py-3 transition-all border border-white/10 font-medium"
+            <button class="flex-1 bg-white/[0.04] hover:bg-white/[0.06] active:scale-95 text-white rounded-xl py-3 transition-all border border-white/[0.06] font-medium"
               @click=${() => {
                 this.showCreate = false
               }}>取消</button>
-            <button class="flex-1 bg-[#D4A853] hover:bg-[#C49A4A] active:scale-95 text-white rounded-xl py-3 transition-all shadow-lg shadow-[#D4A853]/15 font-medium
+            <button class="flex-1 bg-[#D4A853] hover:bg-[#C49A4A] active:scale-95 text-white rounded-xl py-3 transition-all  font-medium
               ${!this.createName.trim() || this.isCreatingRoom ? 'opacity-50 cursor-not-allowed' : ''}"
               ?disabled=${!this.createName.trim() || this.isCreatingRoom}
               @click=${this.handleCreateRoom}>

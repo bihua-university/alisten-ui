@@ -135,20 +135,20 @@ export class ModalElement extends LitElement {
       </div>
 
       <style>
-        .modal-bg { background: #1a1a1f; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset; }
-        .modal-container { border-radius: 24px; max-height: 80vh; }
-        .modal-enter { animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1); }
-        .modal-backdrop-enter { animation: fadeIn 0.3s ease; }
-        .modal-content-enter { animation: modalContentIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-        .modal-exit { animation: modalOut 0.3s cubic-bezier(0.4,0,0.2,1) forwards; }
-        .modal-backdrop-exit { animation: fadeOut 0.3s ease forwards; }
-        .modal-content-exit { animation: modalContentOut 0.3s cubic-bezier(0.4,0,0.2,1) forwards; }
+        .modal-bg { background: #141414; border: 1px solid rgba(255,255,255,0.06); }
+        .modal-container { border-radius: 16px; max-height: 80vh; }
+        .modal-enter { animation: modalIn 0.25s cubic-bezier(0.16,1,0.3,1); }
+        .modal-backdrop-enter { animation: fadeIn 0.2s ease; }
+        .modal-content-enter { animation: modalContentIn 0.3s cubic-bezier(0.16,1,0.3,1); }
+        .modal-exit { animation: modalOut 0.25s cubic-bezier(0.4,0,0.2,1) forwards; }
+        .modal-backdrop-exit { animation: fadeOut 0.2s ease forwards; }
+        .modal-content-exit { animation: modalContentOut 0.25s cubic-bezier(0.4,0,0.2,1) forwards; }
         @keyframes modalIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes modalContentIn { from { opacity: 0; transform: scale(0.9) translateY(30px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes modalContentIn { from { opacity: 0; transform: scale(0.97) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes modalOut { from { opacity: 1; } to { opacity: 0; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        @keyframes modalContentOut { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.95) translateY(10px); } }
+        @keyframes modalContentOut { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.97) translateY(8px); } }
         .scrollable-content { scrollbar-width: none; -ms-overflow-style: none; }
         .scrollable-content::-webkit-scrollbar { display: none; }
         @media (max-width: 640px) {

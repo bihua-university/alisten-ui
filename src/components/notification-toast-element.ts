@@ -26,14 +26,14 @@ export class NotificationToastElement extends LitElement {
       case 'error': return 'border-red-500/30'
       case 'warning': return 'border-amber-500/30'
       case 'info': return 'border-blue-500/30'
-      default: return 'border-white/10'
+      default: return 'border-white/[0.06]'
     }
   }
 
   render() {
     const show = this.notification.show
     return html`
-      <div class="bg-[#1a1a1f]/95 backdrop-blur-xl rounded-2xl px-5 py-3.5 shadow-2xl border ${this.getBorderClass()} min-w-[280px] max-w-md
+      <div class="bg-[#1a1a1f]/95 backdrop-blur-xl rounded-xl px-5 py-3.5 shadow-2xl border ${this.getBorderClass()} min-w-[280px] max-w-md
         ${show ? 'toast-enter' : 'toast-exit'}">
         <div class="flex items-center gap-3">
           <i class="${this.getIconClass()} text-lg shrink-0"></i>
