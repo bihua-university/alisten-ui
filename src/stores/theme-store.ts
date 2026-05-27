@@ -1,6 +1,6 @@
 import { Store } from './store-base'
 
-type Theme = 'dark' | 'blockframe'
+type Theme = 'dark'
 
 interface ThemeState {
   theme: Theme
@@ -9,7 +9,7 @@ interface ThemeState {
 class ThemeStore extends Store<ThemeState> {
   constructor() {
     const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('alisten-theme') as Theme : null
-    super({ theme: saved === 'blockframe' ? 'blockframe' : 'dark' })
+    super({ theme: saved === 'dark' ? 'dark' : 'dark' })
     this.applyTheme()
   }
 

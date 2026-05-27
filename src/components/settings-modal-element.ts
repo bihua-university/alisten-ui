@@ -5,7 +5,6 @@ import { customElement, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 import { performanceStore } from '@/stores/performance-store'
 import { playerStore } from '@/stores/player-store'
-import { themeStore } from '@/stores/theme-store'
 import { userSettingsStore } from '@/stores/user-settings-store'
 import { icons } from '@/utils/icons'
 import { generateGravatarUrl } from '@/utils/user'
@@ -22,14 +21,12 @@ export class SettingsModalElement extends LitElement {
   @state() private volume = playerStore.state.volume
   @state() private isMuted = playerStore.state.isMuted
   @state() private playMode = userSettingsStore.state.playMode
-  @state() private theme = themeStore.state.theme
 
   connectedCallback() {
     super.connectedCallback()
     userSettingsStore.addEventListener('change', this.handleUserSettingsChange)
     performanceStore.addEventListener('change', this.handlePerformanceChange)
     playerStore.addEventListener('change', this.handlePlayerChange)
-    themeStore.addEventListener('change', this.handleThemeChange)
     userSettingsStore.pullSetting()
   }
 
@@ -44,7 +41,7 @@ export class SettingsModalElement extends LitElement {
       this.handlePerformanceChange,
     )
     playerStore.removeEventListener('change', this.handlePlayerChange)
-    themeStore.removeEventListener('change', this.handleThemeChange)
+
 
     const nameInput = this.querySelector(
       'input[type="text"]',
@@ -73,10 +70,6 @@ export class SettingsModalElement extends LitElement {
   private handlePlayerChange = () => {
     this.volume = playerStore.state.volume
     this.isMuted = playerStore.state.isMuted
-  }
-
-  private handleThemeChange = () => {
-    this.theme = themeStore.state.theme
   }
 
   private get avatarUrl(): string {
@@ -289,35 +282,6 @@ export class SettingsModalElement extends LitElement {
                             : nothing}
                         </div>
                       </div>
-                    </button>
-                  `
-                })}
-              </div>
-            </div>
-
-            <!-- Theme -->
-            <div>
-              <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                ${unsafeSVG(icons.sparkles(16, 'text-[var(--accent)]'))} 主题
-              </h4>
-              <div class="flex flex-col gap-2">
-                ${[
-                  { id: 'dark' as const, title: '暗夜', desc: '深色极简风格' },
-                  { id: 'blockframe' as const, title: 'BlockFrame', desc: '亮色新粗野主义' },
-                ].map(({ id, title, desc }) => {
-                  const active = this.theme === id
-                  return html`
-                    <button
-                      class="text-left p-3 rounded-xl transition-all border ${active
-                        ? 'bg-[var(--accent)]/15 border-[var(--accent)]/30'
-                        : 'bg-white/[0.04] border-transparent hover:bg-white/10'}"
-                      @click=${() => themeStore.setTheme(id)}
-                    >
-                      <div class="flex items-center gap-2 mb-1">
-                        <div class="w-2 h-2 rounded-full ${active ? 'bg-[var(--accent)]' : 'bg-white/20'}"></div>
-                        <span class="text-sm font-medium ${active ? 'text-white' : 'text-white/70'}">${title}</span>
-                      </div>
-                      <p class="text-xs ${active ? 'text-white/70' : 'text-white/35'} leading-relaxed pl-4">${desc}</p>
                     </button>
                   `
                 })}

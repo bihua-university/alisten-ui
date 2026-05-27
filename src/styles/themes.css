@@ -3,21 +3,21 @@
 /* Dark Theme (default) */
 :root,
 [data-theme="dark"] {
-  --bg-base: var(--bg-base);
-  --bg-surface: var(--bg-surface);
-  --bg-elevated: var(--bg-elevated);
+  --bg-base: #0a0a0a;
+  --bg-surface: #111111;
+  --bg-elevated: #181818;
   --bg-hover: rgba(255, 255, 255, 0.04);
   --bg-active: rgba(255, 255, 255, 0.07);
   --bg-input: rgba(255, 255, 255, 0.04);
 
-  --text-primary: var(--text-primary);
-  --text-secondary: var(--text-secondary);
-  --text-muted: var(--text-muted);
+  --text-primary: #f0f0f0;
+  --text-secondary: #8a8a8a;
+  --text-muted: #555555;
   --text-disabled: #3a3a3a;
-  --text-on-accent: var(--bg-base);
+  --text-on-accent: #0a0a0a;
 
-  --accent: var(--accent);
-  --accent-hover: var(--accent-hover);
+  --accent: #D4A853;
+  --accent-hover: #C49A4A;
   --accent-dim: rgba(212, 168, 83, 0.12);
 
   --border-subtle: rgba(255, 255, 255, 0.05);
@@ -34,39 +34,4 @@
 
   --font-display: "Noto Sans SC", system-ui, -apple-system, sans-serif;
   --font-body: "Noto Sans SC", system-ui, -apple-system, sans-serif;
-}
-
-/* BlockFrame Theme (Neobrutalist) */
-[data-theme="blockframe"] {
-  --bg-base: #FFFDF5;
-  --bg-surface: #ffffff;
-  --bg-elevated: #FFF8E1;
-  --bg-hover: rgba(0, 0, 0, 0.04);
-  --bg-active: rgba(0, 0, 0, 0.07);
-  --bg-input: #ffffff;
-
-  --text-primary: #000000;
-  --text-secondary: #333333;
-  --text-muted: #666666;
-  --text-disabled: #999999;
-  --text-on-accent: #000000;
-
-  --accent: #F7CB46;
-  --accent-hover: #E5B93A;
-  --accent-dim: rgba(247, 203, 70, 0.25);
-
-  --border-subtle: #000000;
-  --border-hover: #000000;
-  --border-focus: #000000;
-
-  --shadow-sm: 3px 3px 0px #000000;
-  --shadow-md: 4px 4px 0px #000000;
-
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-
-  --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
 }
