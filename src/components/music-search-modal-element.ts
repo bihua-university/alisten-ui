@@ -176,7 +176,7 @@ export class MusicSearchModalElement extends LitElement {
       return html`
         <button
           class="w-7 h-7 rounded-lg text-xs transition-colors ${isActive
-            ? 'bg-purple-600 text-white'
+            ? 'bg-[#D4A853] text-[#0C0A09]'
             : 'text-white/60 hover:bg-white/10 hover:text-white'}"
           @click=${() => this.goToPage(page as number)}
         >
@@ -208,9 +208,9 @@ export class MusicSearchModalElement extends LitElement {
           >
             <div class="flex items-center gap-3">
               <div
-                class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center"
+                class="w-10 h-10 rounded-xl bg-[#D4A853]/10 flex items-center justify-center"
               >
-                ${unsafeSVG(icons.search(20, 'text-purple-400'))}
+                ${unsafeSVG(icons.search(20, 'text-[#D4A853]'))}
               </div>
               <h2 class="text-xl font-bold text-white">点歌台</h2>
             </div>
@@ -225,13 +225,13 @@ export class MusicSearchModalElement extends LitElement {
                     @change=${this.handleModeToggle}
                   />
                   <div
-                    class="relative w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-500/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"
+                    class="relative w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#D4A853]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D4A853]"
                   ></div>
                 </label>
                 <span
                   class="text-sm flex items-center gap-1 ${this.currentMode
                   === 'ai'
-                    ? 'text-purple-400'
+                    ? 'text-[#D4A853]'
                     : 'text-white/40'}"
                 >
                   <i class="fa-solid fa-robot text-xs"></i>
@@ -259,7 +259,7 @@ export class MusicSearchModalElement extends LitElement {
                       ${unsafeSVG(
                         icons.search(
                           18,
-                          'text-white/30 group-focus-within:text-purple-400 transition-colors',
+                          'text-white/30 group-focus-within:text-[#D4A853] transition-colors',
                         ),
                       )}
                     </div>
@@ -267,7 +267,7 @@ export class MusicSearchModalElement extends LitElement {
                       type="text"
                       .value=${this.query}
                       placeholder="搜索歌曲、歌手、专辑..."
-                      class="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-14 text-base text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
+                      class="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-14 text-base text-white placeholder-white/30 focus:outline-none focus:border-[#D4A853]/50 focus:bg-white/10 transition-all"
                       @input=${(e: InputEvent) => {
                         this.query = (e.target as HTMLInputElement).value
                         _persistedQuery = this.query
@@ -278,7 +278,7 @@ export class MusicSearchModalElement extends LitElement {
                       }}
                     />
                     <button
-                      class="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 transition-colors shadow-lg shadow-purple-600/20 flex items-center justify-center"
+                      class="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-[#D4A853] hover:bg-[#C49A4A] transition-colors shadow-lg shadow-[#D4A853]/15 flex items-center justify-center"
                       @click=${() => this.handleSearch()}
                     >
                       ${unsafeSVG(icons.search(16, 'text-white'))}
@@ -307,7 +307,7 @@ export class MusicSearchModalElement extends LitElement {
                         <button
                           class="flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all whitespace-nowrap
                     ${this.searchMode === m.id
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                      ? 'bg-[#D4A853] text-[#0C0A09] shadow-lg shadow-[#D4A853]/15'
                       : 'text-white/50 hover:text-white hover:bg-white/5'}"
                           @click=${() => this.selectSearchMode(m.id)}
                         >
@@ -331,7 +331,7 @@ export class MusicSearchModalElement extends LitElement {
                         <button
                           class="flex-1 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all whitespace-nowrap
                     ${this.platform === p.id
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20'
+                      ? 'bg-[#D4A853] text-[#0C0A09] shadow-lg shadow-[#D4A853]/15'
                       : 'text-white/50 hover:text-white hover:bg-white/5'}"
                           @click=${() => this.selectPlatform(p.id)}
                         >
@@ -352,7 +352,7 @@ export class MusicSearchModalElement extends LitElement {
                             class="flex-1 flex flex-col items-center justify-center text-white/40"
                           >
                             <div
-                              class="w-10 h-10 border-3 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mb-3"
+                              class="w-10 h-10 border-3 border-[#D4A853]/20 border-t-[#D4A853] rounded-full animate-spin mb-3"
                             ></div>
                             <p class="text-sm">正在搜索...</p>
                           </div>
@@ -363,10 +363,10 @@ export class MusicSearchModalElement extends LitElement {
                               class="flex-1 flex flex-col items-center justify-center text-white/40"
                             >
                               <div
-                                class="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/10"
+                                class="w-20 h-20 bg-gradient-to-br bg-[#D4A853]/10 rounded-3xl flex items-center justify-center mb-4 shadow-lg shadow-[#D4A853]/10"
                               >
                                 ${unsafeSVG(
-                                  icons.music(28, 'text-purple-400/60'),
+                                  icons.music(28, 'text-[#D4A853]/60'),
                                 )}
                               </div>
                               <p class="text-lg font-semibold text-white/60">
@@ -417,7 +417,7 @@ export class MusicSearchModalElement extends LitElement {
                                       ${this.searchMode === 'playlist'
                                         ? html`
                                             <button
-                                              class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
+                                              class="p-2 rounded-lg bg-transparent hover:bg-[#D4A853] text-[#D4A853] hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-[#B08A3E] shrink-0"
                                               @click=${() =>
                                                 this.viewPlaylist(result)}
                                             >
@@ -426,7 +426,7 @@ export class MusicSearchModalElement extends LitElement {
                                           `
                                         : html`
                                             <button
-                                              class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
+                                              class="p-2 rounded-lg bg-transparent hover:bg-[#D4A853] text-[#D4A853] hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-[#B08A3E] shrink-0"
                                               @click=${() =>
                                                 this.pickMusic(result)}
                                             >
@@ -488,7 +488,7 @@ export class MusicSearchModalElement extends LitElement {
                       <h3
                         class="text-base md:text-lg font-medium flex items-center gap-2"
                       >
-                        <i class="fa-solid fa-robot text-purple-400"></i>
+                        <i class="fa-solid fa-robot text-[#D4A853]"></i>
                         AI为您推荐
                         ${this.recommendations.length > 0
                           ? html`<span class="text-xs text-white/40"
@@ -533,7 +533,7 @@ export class MusicSearchModalElement extends LitElement {
                                         </div>
                                       </div>
                                       <button
-                                        class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
+                                        class="p-2 rounded-lg bg-transparent hover:bg-[#D4A853] text-[#D4A853] hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-[#B08A3E] shrink-0"
                                         @click=${() => this.pickMusic(result)}
                                       >
                                         ${unsafeSVG(icons.plus(16))}

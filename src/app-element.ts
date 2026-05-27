@@ -307,7 +307,7 @@ export class AppElement extends LitElement {
     return html`
       <div
         id="app-root"
-        class="text-white h-screen-mobile font-inter overflow-hidden relative scrollbar-hide"
+        class="text-white h-screen-mobile font-sans overflow-hidden relative scrollbar-hide"
       >
         ${this.renderPWAUpdateModal()}
         ${this.showJoinRoomConfirm
@@ -434,7 +434,7 @@ export class AppElement extends LitElement {
               稍后再说
             </button>
             <button
-              class="flex-1 py-2 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+              class="flex-1 py-2 px-4 rounded-xl bg-[#D4A853] hover:bg-[#C49A4A] text-[#0C0A09] font-medium transition-colors"
               @click=${() => pwaStore.handleUpdateApp()}
             >
               立即更新
@@ -453,7 +453,7 @@ export class AppElement extends LitElement {
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
         <div class="relative flex flex-col items-center">
           <button
-            class="w-20 h-20 rounded-full bg-purple-600 hover:bg-purple-500 flex items-center justify-center transition-transform active:scale-95 mb-4"
+            class="w-20 h-20 rounded-full bg-[#D4A853] hover:bg-[#C49A4A] flex items-center justify-center transition-transform active:scale-95 mb-4 shadow-lg shadow-[#D4A853]/20"
             @click=${() => {
               playerStore.playAudio()
               playerStore.clearManualStartPlay()

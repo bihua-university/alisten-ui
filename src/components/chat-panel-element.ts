@@ -76,17 +76,17 @@ export class ChatPanelElement extends LitElement {
         <!-- Room Info Card -->
         <div class="glass rounded-2xl p-3 shrink-0">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center font-bold text-sm shadow-lg shadow-purple-500/20">
+            <div class="w-10 h-10 rounded-xl bg-[#D4A853] flex items-center justify-center font-bold text-sm text-[#0C0A09]">
               ${this.roomInfo.name?.slice(0, 1) || 'R'}
             </div>
             <div>
-              <h3 class="font-bold text-sm leading-none">${this.roomInfo.name || '音乐房间'}</h3>
+              <h3 class="font-semibold text-sm leading-none">${this.roomInfo.name || '音乐房间'}</h3>
             </div>
           </div>
 
           <!-- Action Buttons -->
           <div class="${this.isDesktop ? 'flex items-center gap-1 flex-wrap' : 'grid grid-cols-3 gap-1.5'}">
-            <button class="py-2 px-2 md:px-3 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1.5 ${this.isDesktop ? 'flex-1' : ''}"
+            <button class="py-2 px-2 md:px-3 hover:bg-white/[0.06] rounded-lg transition-colors flex items-center justify-center gap-1.5 ${this.isDesktop ? 'flex-1' : ''}"
               @click=${(e: Event) => {
                 e.stopPropagation()
                 this.showOnlineUsers = true
@@ -95,27 +95,27 @@ export class ChatPanelElement extends LitElement {
                 <span class="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" style="animation: ping 1s cubic-bezier(0,0,0.2,1) infinite"></span>
                 <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
               </span>
-              <span class="text-xs text-white/70 whitespace-nowrap">${this.onlineUsers.length} 在线</span>
+              <span class="text-xs text-white/60 whitespace-nowrap">${this.onlineUsers.length} 在线</span>
             </button>
             ${this.isDesktop
               ? html`
-              <button class="flex-1 py-2 px-3 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1.5" @click=${() => this.dispatchEvent(new CustomEvent('show-play-history'))}>
-                ${unsafeSVG(icons.history(16, 'text-white/70'))}
-                <span class="text-xs text-white/70">历史</span>
+              <button class="flex-1 py-2 px-3 hover:bg-white/[0.06] rounded-lg transition-colors flex items-center justify-center gap-1.5" @click=${() => this.dispatchEvent(new CustomEvent('show-play-history'))}>
+                ${unsafeSVG(icons.history(16, 'text-white/60'))}
+                <span class="text-xs text-white/60">历史</span>
               </button>
-              <button class="flex-1 py-2 px-3 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1.5" @click=${() => this.dispatchEvent(new CustomEvent('share-room'))}>
-                ${unsafeSVG(icons.share2(16, 'text-white/70'))}
-                <span class="text-xs text-white/70">分享</span>
+              <button class="flex-1 py-2 px-3 hover:bg-white/[0.06] rounded-lg transition-colors flex items-center justify-center gap-1.5" @click=${() => this.dispatchEvent(new CustomEvent('share-room'))}>
+                ${unsafeSVG(icons.share2(16, 'text-white/60'))}
+                <span class="text-xs text-white/60">分享</span>
               </button>
             `
               : nothing}
-            <button class="py-2 px-2 md:px-3 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1.5 ${this.isDesktop ? 'flex-1' : ''}" @click=${() => this.dispatchEvent(new CustomEvent('show-settings'))}>
-              ${unsafeSVG(icons.settings(16, 'text-white/70'))}
-              <span class="text-xs text-white/70">设置</span>
+            <button class="py-2 px-2 md:px-3 hover:bg-white/[0.06] rounded-lg transition-colors flex items-center justify-center gap-1.5 ${this.isDesktop ? 'flex-1' : ''}" @click=${() => this.dispatchEvent(new CustomEvent('show-settings'))}>
+              ${unsafeSVG(icons.settings(16, 'text-white/60'))}
+              <span class="text-xs text-white/60">设置</span>
             </button>
-            <button class="py-2 px-2 md:px-3 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center gap-1.5 ${this.isDesktop ? 'flex-1' : ''}" @click=${() => this.dispatchEvent(new CustomEvent('show-help'))}>
-              ${unsafeSVG(icons.helpCircle(16, 'text-white/70'))}
-              <span class="text-xs text-white/70">帮助</span>
+            <button class="py-2 px-2 md:px-3 hover:bg-white/[0.06] rounded-lg transition-colors flex items-center justify-center gap-1.5 ${this.isDesktop ? 'flex-1' : ''}" @click=${() => this.dispatchEvent(new CustomEvent('show-help'))}>
+              ${unsafeSVG(icons.helpCircle(16, 'text-white/60'))}
+              <span class="text-xs text-white/60">帮助</span>
             </button>
           </div>
         </div>
@@ -123,7 +123,7 @@ export class ChatPanelElement extends LitElement {
         <!-- Online Users Popup -->
         ${this.showOnlineUsers
           ? html`
-          <div class="online-users-popup absolute top-0 left-0 right-0 mt-[120px] bg-[#121214]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/10 z-[100] max-h-[280px] md:max-h-[300px] overflow-hidden flex flex-col">
+          <div class="online-users-popup absolute top-0 left-0 right-0 mt-[120px] glass rounded-2xl p-4 z-[100] max-h-[280px] md:max-h-[300px] overflow-hidden flex flex-col">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
                 ${unsafeSVG(icons.users(16, 'text-white/60'))}
@@ -172,7 +172,7 @@ export class ChatPanelElement extends LitElement {
                   <img src=${msg.user.avatar} alt=${msg.user.name} class="w-10 h-10 rounded-full shrink-0 object-cover">
                   <div class="flex-1 min-w-0 ${isSelf ? 'text-right' : ''}">
                     <div class="flex items-center gap-2 mb-0.5 ${isSelf ? 'flex-row-reverse' : ''}">
-                      <span class="font-bold text-sm leading-none py-2 ${isSelf ? 'text-indigo-400' : 'text-purple-400'}">${msg.user.name}</span>
+                      <span class="font-semibold text-sm leading-none py-2 ${isSelf ? 'text-[#D4A853]' : 'text-white/70'}">${msg.user.name}</span>
                     </div>
                     <div class="flex items-end gap-2 ${isSelf ? 'flex-row-reverse' : ''}">
                       <div class="relative">
@@ -196,7 +196,7 @@ export class ChatPanelElement extends LitElement {
                 .value=${this.newMessage}
                 type="text"
                 placeholder="发送消息..."
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:bg-white/10 focus:border-purple-500/50 transition-all"
+                class="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/25 focus:outline-none focus:bg-white/[0.06] focus:border-[#D4A853]/30 transition-all"
                 @input=${(e: InputEvent) => this.newMessage = (e.target as HTMLInputElement).value}
                 @keydown=${(e: KeyboardEvent) => {
                   if (e.key === 'Enter')
@@ -205,7 +205,7 @@ export class ChatPanelElement extends LitElement {
               >
               <button
                 class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all duration-200
-                  ${this.newMessage.trim() ? 'text-purple-400 hover:bg-purple-500/20 hover:scale-110 active:scale-95' : 'text-white/20'}"
+                  ${this.newMessage.trim() ? 'text-[#D4A853] hover:bg-[#D4A853]/10 hover:scale-110 active:scale-95' : 'text-white/20'}"
                 ?disabled=${!this.newMessage.trim()}
                 @click=${this.handleSendMessage}
               >
@@ -229,7 +229,7 @@ export class ChatPanelElement extends LitElement {
         .chat-bubble-feibi.chat-bubble-self { border-bottom-right-radius: 2px !important; z-index: 5; position: relative; }
         .chat-bubble-feibi.chat-bubble-other { border-bottom-left-radius: 2px !important; }
         .feibi-avatar { position: absolute; right: -25px; bottom: -20px; width: 40px; height: 40px; object-fit: contain; pointer-events: none; z-index: 0; }
-        .chat-bubble-self { background: linear-gradient(135deg, rgba(99,102,241,0.9) 0%, rgba(139,92,246,0.9) 100%); color: white; border-bottom-right-radius: 4px; box-shadow: 0 2px 8px rgba(99,102,241,0.3), 0 0 0 1px rgba(255,255,255,0.1) inset; }
+        .chat-bubble-self { background: #D4A853; color: #0C0A09; border-bottom-right-radius: 4px; }
         .chat-bubble-other { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); border-bottom-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05) inset; backdrop-filter: blur(10px); }
         @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
       </style>

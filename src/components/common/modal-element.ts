@@ -31,7 +31,7 @@ export class ModalElement extends LitElement {
 
   private get themeClasses() {
     const themes = {
-      primary: { bg: 'bg-purple-500/10', text: 'text-purple-400' },
+      primary: { bg: 'bg-[#D4A853]/10', text: 'text-[#D4A853]' },
       success: { bg: 'bg-green-500/10', text: 'text-green-400' },
       warning: { bg: 'bg-amber-500/10', text: 'text-amber-400' },
       danger: { bg: 'bg-red-500/10', text: 'text-red-400' },
@@ -91,8 +91,8 @@ export class ModalElement extends LitElement {
           <div class="absolute inset-0 modal-bg rounded-3xl"></div>
           ${showEffects
             ? html`
-            <div class="absolute -top-20 -right-20 w-40 h-40 bg-purple-500/20 rounded-full blur-[80px] pointer-events-none"></div>
-            <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-indigo-500/20 rounded-full blur-[80px] pointer-events-none"></div>
+            <div class="absolute -top-20 -right-20 w-40 h-40 bg-[#D4A853]/15 rounded-full blur-[80px] pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-[#D4A853]/15 rounded-full blur-[80px] pointer-events-none"></div>
           `
             : nothing}
 

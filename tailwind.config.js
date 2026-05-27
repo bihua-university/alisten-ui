@@ -4,13 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#165DFF',
-        secondary: '#722ED1',
-        dark: '#1E293B',
-        light: '#F8FAFC',
+        primary: '#D4A853',
+        'primary-hover': '#C49A4A',
+        dark: '#0C0A09',
+        surface: '#1C1917',
+        'surface-elevated': '#292524',
+        light: '#FAFAF9',
       },
       fontFamily: {
-        inter: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['"Noto Sans SC"', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       height: {
         'screen-mobile': 'calc(var(--vh, 1vh) * 100)',

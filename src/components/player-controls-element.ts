@@ -93,9 +93,9 @@ export class PlayerControlsElement extends LitElement {
     const currentTime = this.playerState.currentTime || 0
 
     return html`
-      <div class="glass rounded-3xl p-4 flex items-center gap-4 shrink-0 hover:bg-white/[0.05] transition-all duration-300">
+      <div class="glass rounded-2xl p-4 flex items-center gap-4 shrink-0 hover:bg-white/[0.04] transition-all duration-300">
         <!-- Album Art -->
-        <div class="rounded-xl bg-white/10 shrink-0 overflow-hidden flex items-center justify-center album-art-container ${this.isDesktop ? 'w-14 h-14 md:w-16 md:h-16' : 'w-14 h-14'}">
+        <div class="rounded-xl bg-white/[0.04] shrink-0 overflow-hidden flex items-center justify-center album-art-container ${this.isDesktop ? 'w-14 h-14 md:w-16 md:h-16' : 'w-14 h-14'}">
           ${song?.cover
             ? html`
             <img src=${song.cover} alt=${song.title} class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
@@ -124,12 +124,12 @@ export class PlayerControlsElement extends LitElement {
             </div>
           </div>
           <!-- Progress Bar -->
-          <div class="h-1.5 bg-white/10 rounded-full overflow-hidden relative">
+          <div class="h-1 bg-white/10 rounded-full overflow-hidden relative">
             <div ${ref((el: Element | undefined) => {
               if (el instanceof HTMLElement)
                 this.progressBarEl = el
             })}
-              class="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-full origin-left will-change-transform transition-transform duration-150 ease-linear player-progress-bar"
+              class="absolute top-0 left-0 h-full w-full bg-[#D4A853] rounded-full origin-left will-change-transform transition-transform duration-150 ease-linear player-progress-bar"
               style="transform: scaleX(${durationSec > 0 ? Math.min(1, Math.max(0, currentTime / durationSec)) : 0})"></div>
           </div>
         </div>
@@ -157,7 +157,7 @@ export class PlayerControlsElement extends LitElement {
                 <div class="absolute bottom-full right-0 mb-2 bg-[#121214]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-2xl border border-white/10 z-50 w-48" @click=${this.handleVolumePopupClick}>
                   <div class="text-xs text-white/60 mb-2">音量 ${Math.round(this.playerState.volume)}%</div>
                   <div class="h-2 bg-white/10 rounded-full cursor-pointer relative" @click=${this.handleVolumeClick}>
-                    <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full volume-bar" style="width: ${this.playerState.volume}%"></div>
+                    <div class="absolute top-0 left-0 h-full bg-[#D4A853] rounded-full volume-bar" style="width: ${this.playerState.volume}%"></div>
                   </div>
                 </div>
               `

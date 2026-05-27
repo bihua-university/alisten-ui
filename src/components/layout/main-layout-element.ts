@@ -267,16 +267,16 @@ export class MainLayoutElement extends LitElement {
       <div class="root-container overflow-x-hidden ${perfClasses}">
         <div class="main-layout-bg app-viewport flex flex-col items-center relative overflow-hidden font-sans text-white">
           <!-- Background Abstract Shapes -->
-          <div class="bg-shapes performance-bg-shape absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none"></div>
-          <div class="bg-shapes performance-bg-shape absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+          <div class="bg-shapes performance-bg-shape absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#D4A853]/10 rounded-full blur-[120px] pointer-events-none"></div>
+          <div class="bg-shapes performance-bg-shape absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#A8A29E]/8 rounded-full blur-[120px] pointer-events-none"></div>
 
           <!-- Dynamic Song Background -->
           ${showBg
             ? html`
             <div class="song-bg absolute inset-0 z-0">
               <img src=${this.currentSong!.cover} alt=${this.currentSong!.title}
-                class="w-full h-full object-cover blur-3xl scale-110 opacity-30 transition-all duration-1000">
-              <div class="absolute inset-0 bg-gradient-to-br from-gray-900/80 to-black/90"></div>
+                class="w-full h-full object-cover blur-3xl scale-110 opacity-20 transition-all duration-1000">
+              <div class="absolute inset-0 bg-gradient-to-b from-[#0C0A09]/70 via-[#0C0A09]/90 to-[#0C0A09]"></div>
             </div>
           `
             : nothing}
@@ -294,15 +294,15 @@ export class MainLayoutElement extends LitElement {
               <!-- Right Panel: Tabbed Interface -->
               <div class="flex-[1] flex flex-col gap-4 md:gap-6 min-h-0 md:h-auto overflow-hidden min-w-[280px] relative">
                 <!-- Tab Navigation -->
-                <div class="glass rounded-2xl p-1.5 flex gap-1 shrink-0">
-                  <button class="flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all ${this.desktopRightTab === 'playlist' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'}"
+                <div class="glass rounded-xl p-1 flex gap-1 shrink-0">
+                  <button class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${this.desktopRightTab === 'playlist' ? 'bg-white/[0.08] text-white' : 'text-white/40 hover:text-white/60'}"
                     @click=${() => this.desktopRightTab = 'playlist'}>
                     <div class="flex items-center justify-center gap-2">
                       ${unsafeSVG(icons.listMusic(16))}
                       <span>播放列表</span>
                     </div>
                   </button>
-                  <button class="flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all ${this.desktopRightTab === 'chat' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'}"
+                  <button class="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${this.desktopRightTab === 'chat' ? 'bg-white/[0.08] text-white' : 'text-white/40 hover:text-white/60'}"
                     @click=${() => this.desktopRightTab = 'chat'}>
                     <div class="flex items-center justify-center gap-2">
                       ${unsafeSVG(icons.messageSquare(16))}
