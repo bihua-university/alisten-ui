@@ -4,11 +4,11 @@
 
 // 可滚动区域选择器
 export const MOBILE_SCROLL_SELECTORS = `
-  .lyrics-container, 
-  .overflow-y-auto, 
+  .lyrics-container,
+  .overflow-y-auto,
   .overflow-auto,
-  .modal-scroll, 
-  .mobile-chat-scroll, 
+  .modal-scroll,
+  .mobile-chat-scroll,
   .smooth-scroll,
   .scrollbar-hide,
   .custom-scrollbar,

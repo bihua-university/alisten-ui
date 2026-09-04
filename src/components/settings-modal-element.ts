@@ -3,11 +3,15 @@ import { html, LitElement, nothing } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
+import { notificationStore } from '@/stores/notification-store'
 import { performanceStore } from '@/stores/performance-store'
 import { playerStore } from '@/stores/player-store'
 import { userSettingsStore } from '@/stores/user-settings-store'
+import { getAppConfig } from '@/utils/config'
 import { icons } from '@/utils/icons'
 import { generateGravatarUrl } from '@/utils/user'
+
+const COOKIE_TOKEN_KEY = 'alisten-cookie-admin-token'
 
 @customElement('alisten-settings-modal')
 export class SettingsModalElement extends LitElement {
@@ -21,6 +25,12 @@ export class SettingsModalElement extends LitElement {
   @state() private volume = playerStore.state.volume
   @state() private isMuted = playerStore.state.isMuted
   @state() private playMode = userSettingsStore.state.playMode
+  @state() private cookieToken = ''
+  @state() private cookieValue = ''
+  @state() private cookieStatus: 'unknown' | 'loading' | 'set' | 'unset' | 'error'
+    = 'unknown'
+
+  @state() private cookieSaving = false
 
   connectedCallback() {
     super.connectedCallback()
@@ -28,6 +38,10 @@ export class SettingsModalElement extends LitElement {
     performanceStore.addEventListener('change', this.handlePerformanceChange)
     playerStore.addEventListener('change', this.handlePlayerChange)
     userSettingsStore.pullSetting()
+
+    this.cookieToken = localStorage.getItem(COOKIE_TOKEN_KEY) || ''
+    if (this.cookieToken)
+      this.queryCookieStatus()
   }
 
   disconnectedCallback() {
@@ -92,6 +106,99 @@ export class SettingsModalElement extends LitElement {
     playerStore.setVolume(newVolume)
     if (newVolume > 0 && this.isMuted) {
       playerStore.toggleMute()
+    }
+  }
+
+  private get cookieApiUrl(): string {
+    const baseUrl = getAppConfig().api.baseUrl.replace(/\/+$/, '')
+    return `${baseUrl}/config/cookie`
+  }
+
+  private get cookieStatusInfo(): { text: string, color: string } {
+    switch (this.cookieStatus) {
+      case 'loading':
+        return { text: '查询中...', color: 'text-white/50' }
+      case 'set':
+        return { text: '已设置', color: 'text-green-400' }
+      case 'unset':
+        return { text: '未设置', color: 'text-amber-400' }
+      case 'error':
+        return { text: '查询失败', color: 'text-red-400' }
+      default:
+        return { text: '未查询', color: 'text-white/40' }
+    }
+  }
+
+  private handleCookieTokenInput(e: InputEvent) {
+    this.cookieToken = (e.target as HTMLInputElement).value.trim()
+    localStorage.setItem(COOKIE_TOKEN_KEY, this.cookieToken)
+  }
+
+  private notifyCookieHttpError(status: number) {
+    if (status === 401)
+      notificationStore.error('Token 错误')
+    else if (status === 403)
+      notificationStore.error('服务端未配置 token')
+    else
+      notificationStore.error(`请求失败 (HTTP ${status})`)
+  }
+
+  private async queryCookieStatus() {
+    if (!this.cookieToken) {
+      this.cookieStatus = 'unknown'
+      return
+    }
+    this.cookieStatus = 'loading'
+    try {
+      const response = await fetch(this.cookieApiUrl, {
+        headers: { Authorization: `Bearer ${this.cookieToken}` },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        this.cookieStatus = data.set ? 'set' : 'unset'
+      } else {
+        this.cookieStatus = 'error'
+        this.notifyCookieHttpError(response.status)
+      }
+    } catch {
+      this.cookieStatus = 'error'
+      notificationStore.error('无法连接服务器')
+    }
+  }
+
+  private async saveCookie() {
+    if (!this.cookieToken) {
+      notificationStore.warning('请先填写管理 Token')
+      return
+    }
+    if (!this.cookieValue.trim()) {
+      notificationStore.warning('请先粘贴网易云音乐 Cookie')
+      return
+    }
+    this.cookieSaving = true
+    try {
+      const response = await fetch(this.cookieApiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.cookieToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cookie: this.cookieValue.trim() }),
+      })
+      if (response.ok) {
+        const data = await response.json()
+        if (data.persisted)
+          notificationStore.success('已保存并写入配置文件')
+        else
+          notificationStore.warning('已生效但写入配置文件失败，重启后会丢失')
+        this.queryCookieStatus()
+      } else {
+        this.notifyCookieHttpError(response.status)
+      }
+    } catch {
+      notificationStore.error('无法连接服务器')
+    } finally {
+      this.cookieSaving = false
     }
   }
 
@@ -352,6 +459,70 @@ export class SettingsModalElement extends LitElement {
                     </button>
                   `
                 })}
+              </div>
+            </div>
+            <!-- Cookie -->
+            <div>
+              <h4
+                class="text-sm font-bold text-white mb-3 flex items-center gap-2"
+              >
+                ${unsafeSVG(icons.lock(16, 'text-indigo-400'))} Cookie 管理
+              </h4>
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs text-white/50 mb-1 block"
+                    >管理 Token</label
+                  >
+                  <input
+                    type="password"
+                    .value=${this.cookieToken}
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-all"
+                    placeholder="输入管理 Token"
+                    @input=${this.handleCookieTokenInput}
+                  />
+                </div>
+                <div
+                  class="flex items-center justify-between p-3 bg-white/5 rounded-xl"
+                >
+                  <span class="text-sm text-white/60">当前状态</span>
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="text-sm font-medium ${this.cookieStatusInfo.color}"
+                      >${this.cookieStatusInfo.text}</span
+                    >
+                    <button
+                      class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center"
+                      title="刷新状态"
+                      @click=${() => this.queryCookieStatus()}
+                    >
+                      ${unsafeSVG(icons.refreshCw(14, 'text-white/50'))}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-xs text-white/50 mb-1 block"
+                    >网易云音乐 Cookie</label
+                  >
+                  <textarea
+                    rows="3"
+                    .value=${this.cookieValue}
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-all resize-none"
+                    placeholder="MUSIC_U=..."
+                    @input=${(e: InputEvent) =>
+                      (this.cookieValue = (e.target as HTMLTextAreaElement).value)}
+                  ></textarea>
+                  <p class="text-xs text-white/30 mt-1 leading-relaxed">
+                    浏览器打开 music.163.com 并登录，按 F12 → Application →
+                    Cookies，复制并粘贴到此处
+                  </p>
+                </div>
+                <button
+                  class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white transition-all active:scale-95"
+                  ?disabled=${this.cookieSaving}
+                  @click=${this.saveCookie}
+                >
+                  ${this.cookieSaving ? '保存中...' : '保存'}
+                </button>
               </div>
             </div>
           </div>
