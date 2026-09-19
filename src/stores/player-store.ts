@@ -18,6 +18,7 @@ interface PlayerState {
 }
 
 let networkDelay = 0
+let volumeCoef = 1
 let audioPlayer: HTMLAudioElement | null = null
 let rafId: number | null = null
 let currentTimeValue = 0
@@ -84,7 +85,15 @@ class PlayerStore extends Store<PlayerState> {
         duration: message.duration || 0,
         cover: message.pictureUrl || getDefaultAvatar(message.id),
       }
+      // 服务器音量修正系数（最大 150%），仅修正实际播放音量，不影响前端音量条
+      const coef = Number.parseFloat(message.volumeCoef)
+      volumeCoef = Number.isNaN(coef) ? 1 : Math.max(0, Math.min(1.5, coef))
+
       this.setState({ currentSong: music, pushTime: message.pushTime || Date.now() })
+      if (audioPlayer) {
+        audioPlayer.volume = this.getEffectiveVolume()
+        console.log(`实际播放音量已修正: ${(audioPlayer.volume * 100).toFixed(1)}%（用户音量: ${this.state.volume}%，修正系数: ${(volumeCoef * 100).toFixed(1)}%）`)
+      }
       lyricsStore.loadLrcLyrics(message.lyric || '')
       mediaSessionStore.updateMetadata(music)
     })
@@ -140,10 +149,15 @@ class PlayerStore extends Store<PlayerState> {
     })
   }
 
+  // 实际播放音量 = 用户音量 × 服务器修正系数，浏览器上限 100%
+  private getEffectiveVolume(): number {
+    return Math.min(1, (this.state.volume / 100) * volumeCoef)
+  }
+
   setAudioPlayer(el: HTMLAudioElement | null) {
     audioPlayer = el
     if (el) {
-      el.volume = this.state.volume / 100
+      el.volume = this.getEffectiveVolume()
       el.muted = this.state.isMuted
       // 当音频开始播放时，确保时间基准已同步
       el.addEventListener('play', () => {
@@ -205,7 +219,7 @@ class PlayerStore extends Store<PlayerState> {
 
   async playAudio(): Promise<{ audioPlaySuccess: boolean | undefined }> {
     if (audioPlayer) {
-      audioPlayer.volume = this.state.volume / 100
+      audioPlayer.volume = this.getEffectiveVolume()
       audioPlayer.muted = this.state.isMuted
       try {
         await audioPlayer.play()
@@ -314,14 +328,14 @@ class PlayerStore extends Store<PlayerState> {
       saveMute(false)
     }
     if (audioPlayer)
-      audioPlayer.volume = newVolume / 100
+      audioPlayer.volume = this.getEffectiveVolume()
   }
 
   setVolume(volume: number) {
     this.setState({ volume })
     saveVolume(volume)
     if (audioPlayer)
-      audioPlayer.volume = volume / 100
+      audioPlayer.volume = this.getEffectiveVolume()
   }
 
   toggleMute() {
