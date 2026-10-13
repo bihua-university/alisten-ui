@@ -567,6 +567,20 @@ html.performance-off body,
   backdrop-filter: blur(6px);
 }
 
+/* .glass 是主要表面（歌词面板、播放控制、播放列表、聊天面板等），
+   此前没有移动端降级规则，一直以 blur(20px) 全量运行；
+   这里收敛到 blur(8px)，保留毛玻璃观感的同时显著降低 GPU 开销 */
+.mobile-performance .glass,
+.mobile-performance .glass-panel {
+  backdrop-filter: blur(8px) !important;
+}
+
+/* 背景光晕用的是任意值 blur-[100px]，不受 blur-3xl 等命名类规则约束，
+   移动端单独收敛，避免大尺寸高斯模糊持续占用 GPU */
+.mobile-performance .bg-shapes {
+  filter: blur(40px) !important;
+}
+
 .mobile-performance .dynamic-bg img {
   animation: backgroundPulseOptimized 50s ease-in-out infinite;
 }

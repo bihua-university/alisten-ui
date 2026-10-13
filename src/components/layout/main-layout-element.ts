@@ -282,7 +282,8 @@ export class MainLayoutElement extends LitElement {
             : nothing}
 
           <!-- Main Layout Container -->
-          <div class="z-10 w-full md:max-w-[95%] h-full flex flex-col gap-6 pt-4 px-0 md:p-6 md:mt-0 md:pb-6 overflow-hidden" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));">
+          <div class="z-10 w-full md:max-w-[95%] h-full flex flex-col gap-6 pt-4 px-0 md:p-6 md:mt-0 md:pb-6 overflow-hidden"
+            style="padding-top: max(1rem, env(safe-area-inset-top, 0px)); padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));">
             <!-- Desktop Layout -->
             <div class="hidden md:flex md:flex-row gap-6 h-full">
               <!-- Left Panel: Player & Lyrics -->

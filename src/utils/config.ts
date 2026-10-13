@@ -21,7 +21,7 @@ const defaultConfig: AppConfig = {
     url: 'ws://localhost:8080',
     reconnectAttempts: 5,
     reconnectInterval: 3000,
-    heartbeatInterval: 30000,
+    heartbeatInterval: 5000,
   },
   api: {
     baseUrl: 'http://localhost:8080',

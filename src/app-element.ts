@@ -16,7 +16,7 @@ import { websocketStore } from './stores/websocket-store'
 import { getAppConfig, logConfig, validateConfig } from './utils/config'
 import { icons } from './utils/icons'
 
-import { isMobileDevice, setViewportHeight } from './utils/mobile'
+import { setViewportHeight } from './utils/mobile'
 // Import child components to trigger custom element registration
 import './components/chat-panel-element'
 import './components/help-modal-element'
@@ -53,7 +53,6 @@ export class AppElement extends LitElement {
   @state() private needManualStartPlay = playerStore.state.needManualStartPlay
   @state() private showUpdateModal = pwaStore.state.showUpdateModal
   // roomStore state accessed directly when needed
-  @state() private isMobile = isMobileDevice()
 
   // audio element managed by playerStore
   private lyricsContainerEl: HTMLElement | null = null
@@ -105,7 +104,10 @@ export class AppElement extends LitElement {
     })
 
     // Watch connection status for notifications
+    // 重连已改为不限次数，状态会在 disconnected/reconnecting/connecting 之间反复切换，
+    // 因此按「一次断连」为单位提示，避免每轮退避重试都弹一次通知。
     let lastStatus = this.connectionStatus
+    let outageNotified = false
     websocketStore.addEventListener('change', () => {
       const status = websocketStore.state.connectionStatus
       if (status === lastStatus)
@@ -113,24 +115,35 @@ export class AppElement extends LitElement {
       lastStatus = status
       switch (status) {
         case 'connecting':
-          notificationStore.info('正在连接服务器...', {
-            icon: 'fa-solid fa-spinner fa-spin',
-          })
+          // 首次连接时提示，重连过程中的连接尝试保持安静
+          if (!outageNotified) {
+            notificationStore.info('正在连接服务器...', {
+              icon: 'fa-solid fa-spinner fa-spin',
+            })
+          }
           break
         case 'connected':
+          outageNotified = false
           notificationStore.connectionSuccess()
           userSettingsStore.syncUserSettings()
           break
         case 'disconnected':
-          notificationStore.error('与服务器断开连接', {
-            icon: 'fa-solid fa-wifi',
-          })
+          if (!outageNotified) {
+            outageNotified = true
+            notificationStore.error('与服务器断开连接，正在自动重连', {
+              icon: 'fa-solid fa-wifi',
+            })
+          }
           break
         case 'reconnecting':
-          notificationStore.connectionWarning('正在重新连接...')
+          // 每轮退避都会经过该状态，保持安静
+          outageNotified = true
           break
         case 'error':
-          notificationStore.connectionError('连接错误')
+          if (!outageNotified) {
+            outageNotified = true
+            notificationStore.connectionError('连接错误，正在自动重连')
+          }
           break
       }
     })
@@ -161,16 +174,12 @@ export class AppElement extends LitElement {
   }
 
   private setupResponsiveLayout() {
+    // 高度兜底：现代浏览器由 CSS 的 100dvh 负责，这里只同步 --vh 供旧浏览器使用
     setViewportHeight()
 
-    this.viewportResizeHandler = () => {
-      setViewportHeight()
-      const newIsMobile = isMobileDevice()
-      if (this.isMobile !== newIsMobile)
-        this.isMobile = newIsMobile
-    }
+    this.viewportResizeHandler = () => setViewportHeight()
     this.viewportOrientationHandler = () =>
-      setTimeout(() => this.viewportResizeHandler?.(), 200)
+      setTimeout(() => setViewportHeight(), 200)
 
     window.addEventListener('resize', this.viewportResizeHandler, {
       passive: true,
@@ -343,9 +352,9 @@ export class AppElement extends LitElement {
                     this.openModal(v => (this.showPlayHistory = v))}
                   @share-room=${this.shareRoom}
                   @song-like=${(e: CustomEvent) =>
-                    websocketStore.sendSongLike(e.detail.index, e.detail.title)}
+                    websocketStore.sendSongLike(e.detail.id, e.detail.source)}
                   @song-delete=${(e: CustomEvent) =>
-                    websocketStore.sendDeleteSong(e.detail.songName)}
+                    websocketStore.sendDeleteSong(e.detail.id, e.detail.source)}
                 ></alisten-main-layout>
 
                 ${this.showMusicSearchModal

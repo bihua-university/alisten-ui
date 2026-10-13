@@ -83,7 +83,7 @@ export class PlayHistoryModalElement extends LitElement {
                       </div>
                       <span class="text-xs text-white/30 mr-1">${formatTime(item.song.duration / 1000)}</span>
                       <button class="p-2 rounded-lg bg-purple-600/0 hover:bg-purple-600 text-purple-400 hover:text-white transition-all duration-150 opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-90 active:bg-purple-700 shrink-0"
-                        @click=${() => playerStore.pickMusic(item.song, item.song.source || 'wy')}>
+                        @click=${() => playerStore.pickMusic(item.song)}>
                         ${unsafeSVG(icons.plus(16))}
                       </button>
                     </div>

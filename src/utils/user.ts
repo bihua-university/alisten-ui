@@ -29,10 +29,15 @@ export function generateGravatarUrl(
  * @returns 处理后的用户对象
  */
 export function processUser(user: User): User {
-  return {
-    ...user,
-    avatar: user.email ? generateGravatarUrl(user.email) : user.avatar,
+  let avatar = user.avatar
+  if (user.emailHash) {
+    avatar = generateGravatarUrl(user.emailHash)
+  } else if (user.email) {
+    avatar = generateGravatarUrl(user.email)
+  } else if (!avatar) {
+    avatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name || '匿名用户')}`
   }
+  return { ...user, avatar }
 }
 
 /**
@@ -42,6 +47,14 @@ export function processUser(user: User): User {
  */
 export function processUsers(users: User[]): User[] {
   return users.map(processUser)
+}
+
+/**
+ * 将协议用户 { name, emailHash } 适配为 UI 用户模型，
+ * 头像统一交给 processUser 生成
+ */
+export function adaptProtocolUser(user: { name: string, emailHash: string }): User {
+  return processUser({ name: user.name || '未知用户', emailHash: user.emailHash, avatar: '' })
 }
 
 /**

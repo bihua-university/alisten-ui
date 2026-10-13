@@ -1,5 +1,6 @@
 import type { SearchResult, Song } from '@/types'
-import { getDefaultAvatar } from '@/utils/user'
+import type { PlaybackData, QueueData, QueueItem, Source } from '@/types/ws-protocol'
+import { adaptProtocolUser, getDefaultAvatar } from '@/utils/user'
 import { lyricsStore } from './lyrics-store'
 import { mediaSessionStore } from './media-session-store'
 import { notificationStore } from './notification-store'
@@ -9,15 +10,18 @@ import { websocketStore } from './websocket-store'
 interface PlayerState {
   currentTime: number
   currentSong: Song | null
-  pushTime: number | null
+  /** 当前歌曲开始播放的服务器时间戳（毫秒），0 表示无 */
+  startedAtMs: number
+  /** 等待队列（不含当前歌曲） */
   playlist: Song[]
+  /** 队列快照中的当前歌曲 */
+  queueCurrent: Song | null
   volume: number
   isMuted: boolean
   needManualStartPlay: boolean
   recommendations: SearchResult[]
 }
 
-let networkDelay = 0
 let volumeCoef = 1
 let audioPlayer: HTMLAudioElement | null = null
 let rafId: number | null = null
@@ -26,6 +30,7 @@ let lastSyncTime = 0
 let lastSyncCurrentTime = 0
 let lastProgressEmitTime = 0
 const progressCallbacks = new Set<(time: number) => void>()
+let delayedStartTimer: ReturnType<typeof setTimeout> | null = null
 let volumeStorage = 75
 let muteStorage = false
 
@@ -48,104 +53,103 @@ function saveMute(isMuted: boolean) {
   localStorage.setItem('MUTE', isMuted.toString())
 }
 
+/** 修正历史遗留的酷我 CDN 链接，并统一升级为 https */
+function normalizeAudioUrl(rawUrl: string): string {
+  let url = rawUrl
+  if (url.includes('kuwo.cn') && !url.includes('-')) {
+    const urls = url.split('.sycdn.')
+    const headUrls = urls[0].replace('http://', '').split('.')
+    const lastHeadUrl = headUrls[headUrls.length - 1]
+    url = `https://${lastHeadUrl}-sycdn.${urls[1]}`
+  }
+  return url.replace('http://', 'https://')
+}
+
+function mapQueueItem(item: QueueItem): Song {
+  return {
+    id: item.song.id,
+    source: item.song.source,
+    title: item.song.name,
+    artist: item.song.artist || '未知艺术家',
+    album: item.song.album || '未知专辑',
+    duration: item.song.durationMs,
+    cover: item.song.pictureUrl || getDefaultAvatar(item.song.id),
+    webUrl: item.song.webUrl || undefined,
+    requestedBy: adaptProtocolUser(item.user),
+  }
+}
+
 class PlayerStore extends Store<PlayerState> {
   constructor() {
     super({
       currentTime: 0,
       currentSong: null,
-      pushTime: null,
+      startedAtMs: 0,
       playlist: [],
+      queueCurrent: null,
       volume: volumeStorage,
       isMuted: muteStorage,
       needManualStartPlay: false,
       recommendations: [],
     })
 
-    websocketStore.registerMessageHandler('music', (message: any) => {
-      if (!message.url) {
-        console.warn('收到不完整的音乐消息:', message)
-        return
-      }
-      let url = message.url || ''
-      if (url.includes('kuwo.cn') && !url.includes('-')) {
-        const urls = url.split('.sycdn.')
-        const headUrls = urls[0].replace('http://', '').split('.')
-        const lastHeadUrl = headUrls[headUrls.length - 1]
-        url = `https://${lastHeadUrl}-sycdn.${urls[1]}`
-      }
-      url = url.replace('http://', 'https://')
+    websocketStore.registerEventHandler('playback.updated', (data) => {
+      this.applyPlayback(data)
+    })
 
-      const music: Song = {
-        url,
-        id: message.id,
-        source: message.source,
-        title: message.name,
-        artist: message.artist || '未知艺术家',
-        album: message.album || '未知专辑',
-        duration: message.duration || 0,
-        cover: message.pictureUrl || getDefaultAvatar(message.id),
-      }
-      // 服务器音量修正系数（最大 150%），仅修正实际播放音量，不影响前端音量条
-      const coef = Number.parseFloat(message.volumeCoef)
-      volumeCoef = Number.isNaN(coef) ? 1 : Math.max(0, Math.min(1.5, coef))
+    websocketStore.registerEventHandler('queue.updated', (data) => {
+      this.applyQueue(data)
+    })
 
-      this.setState({ currentSong: music, pushTime: message.pushTime || Date.now() })
+    websocketStore.registerEventHandler('notice', (data) => {
+      notificationStore.info(data.message)
+    })
+  }
+
+  /** 应用播放状态快照，playback.get 响应与 playback.updated 事件共用 */
+  private applyPlayback(data: PlaybackData) {
+    if (!data.song) {
+      // 房间当前没有歌曲：停止播放并清空
+      this.clearDelayedStart()
       if (audioPlayer) {
-        audioPlayer.volume = this.getEffectiveVolume()
-        console.log(`实际播放音量已修正: ${(audioPlayer.volume * 100).toFixed(1)}%（用户音量: ${this.state.volume}%，修正系数: ${(volumeCoef * 100).toFixed(1)}%）`)
+        audioPlayer.pause()
+        audioPlayer.removeAttribute('src')
+        audioPlayer.load()
       }
-      lyricsStore.loadLrcLyrics(message.lyric || '')
-      mediaSessionStore.updateMetadata(music)
-    })
+      this.setState({ currentSong: null, startedAtMs: 0, currentTime: 0 })
+      lyricsStore.loadLrcLyrics('')
+      return
+    }
 
-    websocketStore.registerMessageHandler('pick', (message: any) => {
-      if (!message.data || !Array.isArray(message.data)) {
-        console.warn('收到无效的播放列表:', message)
-        return
-      }
-      const playlist: Song[] = message.data
-        .filter((item: any) => item && item.name)
-        .map((item: any) => ({
-          ...item,
-          title: item.name,
-          artist: item.artist || '未知艺术家',
-          album: item.album || '未知专辑',
-          duration: item.duration ? (item.duration / 1000) : 240,
-          cover: item.pictureUrl || getDefaultAvatar(item.id),
-          requestedBy: item.user,
-        }))
-      this.setState({ playlist: [...playlist] })
-    })
+    const song = data.song
+    const music: Song = {
+      url: normalizeAudioUrl(song.url),
+      id: song.id,
+      source: song.source,
+      title: song.name,
+      artist: song.artist || '未知艺术家',
+      album: song.album || '未知专辑',
+      duration: song.durationMs,
+      cover: song.pictureUrl || getDefaultAvatar(song.id),
+      webUrl: song.webUrl || undefined,
+    }
+    // 服务器音量修正系数（最大 150%），仅修正实际播放音量，不影响前端音量条
+    volumeCoef = Math.max(0, Math.min(1.5, data.volumeCoefficient))
 
-    websocketStore.registerMessageHandler('music/recommend', (message: any) => {
-      if (!message.data || !Array.isArray(message.data))
-        return
-      const results: SearchResult[] = message.data
-        .filter((item: any) => item && item.id && item.name)
-        .map((item: any) => ({
-          id: item.id,
-          title: item.name,
-          artist: item.artist || '未知艺术家',
-          album: item.album || '未知专辑',
-          cover: item.cover || getDefaultAvatar(item.id),
-          duration: item.duration || 240,
-          requestedBy: {
-            name: item.requestedBy?.name || '未知用户',
-            avatar: item.requestedBy?.avatar || getDefaultAvatar(),
-          },
-        }))
-      this.setState({ recommendations: results })
-    })
+    this.setState({ currentSong: music, startedAtMs: data.startedAtMs })
+    if (audioPlayer) {
+      audioPlayer.volume = this.getEffectiveVolume()
+      console.log(`实际播放音量已修正: ${(audioPlayer.volume * 100).toFixed(1)}%（用户音量: ${this.state.volume}%，修正系数: ${(volumeCoef * 100).toFixed(1)}%）`)
+    }
+    lyricsStore.loadLrcLyrics(song.lyric || '')
+    mediaSessionStore.updateMetadata(music)
+  }
 
-    websocketStore.registerMessageHandler('delay', (message: any) => {
-      if (typeof message.delay === 'number') {
-        networkDelay = message.delay
-        console.log('收到延迟信息:', `${message.delay}ms`)
-      }
-    })
-
-    websocketStore.registerMessageHandler('info/push', (message: any) => {
-      notificationStore.info(message.info)
+  /** 应用队列快照，queue.get 响应与 queue.updated 事件共用 */
+  private applyQueue(data: QueueData) {
+    this.setState({
+      playlist: data.items.map(mapQueueItem),
+      queueCurrent: data.current ? mapQueueItem(data.current) : null,
     })
   }
 
@@ -247,24 +251,33 @@ class PlayerStore extends Store<PlayerState> {
     }
   }
 
+  private clearDelayedStart() {
+    if (delayedStartTimer) {
+      clearTimeout(delayedStartTimer)
+      delayedStartTimer = null
+    }
+  }
+
   syncAudioCurrentTime() {
-    if (!this.state.pushTime || this.state.pushTime === 0)
+    this.clearDelayedStart()
+    const startedAtMs = this.state.startedAtMs
+    if (!startedAtMs)
       return
-    const delta = Date.now() - this.state.pushTime - networkDelay
-    // pushTime 大于当前时间（服务器时间不同步），从头播放
-    if (delta < 0) {
-      console.log('pushTime 是未来时间，从头播放')
-      if (audioPlayer) {
-        this.setAudioCurrentTime(0)
-        currentTimeValue = 0
-        this.setState({ currentTime: 0 })
-      }
+    const elapsedMs = Date.now() + websocketStore.getClockOffsetMs() - startedAtMs
+    // 播放开始时间可能领先约 200ms，属正常预推送而非时钟错误：等到开始时间再播放
+    if (elapsedMs < 0) {
+      this.setAudioCurrentTime(0)
+      currentTimeValue = 0
+      this.setState({ currentTime: 0 })
+      delayedStartTimer = setTimeout(() => {
+        delayedStartTimer = null
+        this.playAudio()
+      }, -elapsedMs)
       return
     }
-    const duration = this.state.currentSong?.duration ?? 0
-    const newTime = Math.min(delta, duration)
+    const durationMs = this.state.currentSong?.duration ?? 0
+    const newTimeSeconds = Math.min(elapsedMs, durationMs) / 1000
     if (audioPlayer) {
-      const newTimeSeconds = newTime / 1000
       this.setAudioCurrentTime(newTimeSeconds)
       lastSyncTime = performance.now()
       lastSyncCurrentTime = newTimeSeconds
@@ -291,13 +304,11 @@ class PlayerStore extends Store<PlayerState> {
     console.error('音频播放错误:', audio.error)
   }
 
-  onCanPlay() {
+  async onCanPlay() {
     this.syncAudioCurrentTime()
-    this.playAudio().then((res) => {
-      if (res.audioPlaySuccess === false) {
-        this.setState({ needManualStartPlay: true })
-      }
-    })
+    const res = await this.playAudio()
+    if (res.audioPlaySuccess === false)
+      this.setState({ needManualStartPlay: true })
   }
 
   handleNewSong() {
@@ -353,28 +364,59 @@ class PlayerStore extends Store<PlayerState> {
     return 0
   }
 
-  pickMusic(result: any, source: string) {
-    if (source === 'netease')
-      source = 'wy'
-    websocketStore.send({
-      action: '/music/pick',
-      data: { id: result.id, name: result.title, source },
-    })
-    notificationStore.success(`已发送点歌请求: ${result.title}`)
+  async pickMusic(result: { id?: string, title: string, source?: string }) {
+    const source = (result.source || 'netease') as Source
+    try {
+      const res = await websocketStore.request('music.pick', { source, id: result.id, name: result.title })
+      notificationStore.success(`已发送点歌请求: ${res.name}`)
+    } catch (error) {
+      notificationStore.error(error instanceof Error ? error.message : '点歌失败')
+    }
   }
 
-  skipSong() {
-    websocketStore.send({ action: '/music/skip/vote', data: {} })
-    notificationStore.info('正在切歌...', { icon: 'fa-solid fa-forward', duration: 2000 })
+  async skipSong() {
+    try {
+      const res = await websocketStore.request('playback.skipVote', {})
+      if (res.skipped) {
+        notificationStore.success('已切歌', { icon: 'fa-solid fa-forward', duration: 2000 })
+      } else {
+        notificationStore.info(`切歌投票 ${res.currentVotes}/${res.requiredVotes}`, { icon: 'fa-solid fa-forward', duration: 2000 })
+      }
+    } catch (error) {
+      notificationStore.error(error instanceof Error ? error.message : '切歌失败')
+    }
   }
 
-  requestMusicSync() {
-    websocketStore.send({ action: '/music/sync', data: {} })
+  async requestMusicSync() {
     console.log('请求重新同步音乐')
+    try {
+      const data = await websocketStore.request('playback.get', {})
+      this.applyPlayback(data)
+    } catch (error) {
+      console.warn('同步播放状态失败:', error instanceof Error ? error.message : error)
+    }
   }
 
-  pullRecommendations() {
-    websocketStore.send({ action: '/music/recommend', data: {} })
+  async pullRecommendations() {
+    try {
+      const data = await websocketStore.request('music.recommend', {})
+      const results: SearchResult[] = data.items
+        .filter(item => item && item.id && item.name)
+        .map(item => ({
+          id: item.id,
+          originalId: item.id,
+          source: item.source,
+          title: item.name,
+          artist: item.artist || '未知艺术家',
+          album: item.album || '未知专辑',
+          cover: item.pictureUrl || getDefaultAvatar(item.id),
+          duration: item.durationMs,
+          webUrl: item.webUrl || undefined,
+        }))
+      this.setState({ recommendations: results })
+    } catch (error) {
+      notificationStore.error(error instanceof Error ? error.message : '获取推荐失败')
+    }
   }
 
   clearManualStartPlay() {

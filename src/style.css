@@ -780,12 +780,15 @@ body {
 }
 
 /* 移动端高度工具类 */
+/* 优先使用 dvh：高度由 CSS 直接决定，不依赖 JS 计算 --vh，地址栏收放时不会触发重排 */
 .h-screen-mobile {
     height: calc(var(--vh, 1vh) * 100) !important;
+    height: 100dvh !important;
 }
 
 .min-h-screen-mobile {
     min-height: calc(var(--vh, 1vh) * 100) !important;
+    min-height: 100dvh !important;
 }
 
 /* 移动端滚动适配 - 适用于所有窗口和模态框 */

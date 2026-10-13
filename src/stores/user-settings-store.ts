@@ -1,5 +1,6 @@
 import type { PlayMode, User } from '@/types'
 import { generateGravatarUrl } from '@/utils/user'
+import { notificationStore } from './notification-store'
 import { Store } from './store-base'
 import { websocketStore } from './websocket-store'
 
@@ -34,9 +35,14 @@ class UserSettingsStore extends Store<UserSettingsState> {
       bubbleStyle: getStorageItem('alisten_bubble_style', 'default'),
     })
 
-    websocketStore.registerMessageHandler('setting/push', (message: any) => {
-      this.setState({ playMode: message.data.playmode || 'sequential' })
+    websocketStore.registerEventHandler('settings.updated', (data) => {
+      this.applyPlayMode(data.playMode)
     })
+  }
+
+  private applyPlayMode(mode: PlayMode) {
+    if (mode === 'sequential' || mode === 'random')
+      this.setState({ playMode: mode })
   }
 
   get currentUser(): User {
@@ -69,24 +75,38 @@ class UserSettingsStore extends Store<UserSettingsState> {
     setStorageItem('alisten_bubble_style', style)
   }
 
-  setPlayMode(mode: PlayMode) {
-    if (['sequential', 'random'].includes(mode)) {
-      this.setState({ playMode: mode })
+  async setPlayMode(mode: PlayMode) {
+    try {
+      const data = await websocketStore.request('settings.set', { playMode: mode })
+      this.applyPlayMode(data.playMode)
+    } catch (error) {
+      notificationStore.error(error instanceof Error ? error.message : '切换播放模式失败')
     }
-    websocketStore.send({ action: '/music/playmode', data: { mode: this.state.playMode } })
   }
 
-  syncUserSettings() {
+  async syncUserSettings() {
     if (!this.state.userName)
       return
-    websocketStore.send({
-      action: '/setting/user',
-      data: { name: this.state.userName, email: this.state.userEmail, sendTime: Date.now() },
-    })
+    const clientTimeMs = Date.now()
+    try {
+      const res = await websocketStore.request('user.update', {
+        name: this.state.userName,
+        email: this.state.userEmail,
+        clientTimeMs,
+      })
+      websocketStore.recordClockSample(clientTimeMs, Date.now(), res.serverTimeMs)
+    } catch (error) {
+      notificationStore.error(error instanceof Error ? error.message : '同步用户信息失败')
+    }
   }
 
-  pullSetting() {
-    websocketStore.send({ action: '/setting/pull', data: {} })
+  async pullSetting() {
+    try {
+      const data = await websocketStore.request('settings.get', {})
+      this.applyPlayMode(data.playMode)
+    } catch (error) {
+      console.warn('拉取设置失败:', error instanceof Error ? error.message : error)
+    }
   }
 }
 

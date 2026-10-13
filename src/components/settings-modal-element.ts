@@ -216,7 +216,7 @@ export class SettingsModalElement extends LitElement {
         <!-- Container -->
         <div
           class="relative w-full max-w-none md:max-w-xl h-[100dvh] md:h-auto md:max-h-[85vh] flex flex-col rounded-none md:rounded-3xl overflow-hidden border-0 md:border md:border-white/10 shadow-none md:shadow-2xl"
-          style="background: #1a1a1f;"
+          style="background: #1a1a1f; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);"
         >
           <!-- Header -->
           <div

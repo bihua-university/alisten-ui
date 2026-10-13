@@ -16,23 +16,68 @@ export const MOBILE_SCROLL_SELECTORS = `
   [class*="scroll"]
 `.replace(/\s+/g, ' ').trim()
 
+/** 与布局实际使用的 Tailwind md=768px 断点保持一致 */
+const MOBILE_BREAKPOINT_QUERY = '(max-width: 767px)'
+/** 粗指针：以手指为主要输入。可识别 UA 已伪装为 macOS 的 iPad 与折叠屏 */
+const COARSE_POINTER_QUERY = '(pointer: coarse)'
+
 /**
- * 检测是否为移动设备
+ * 检测是否为移动端。
+ *
+ * 组合「窄视口」与「触摸优先」两个信号，替代原先的 UA 正则嗅探：
+ * - 窄视口：桌面窗口拖窄时同样成立，与 CSS 断点行为保持一致
+ * - 粗指针：UA 嗅探识别不了的 iPad（iPadOS 13+ 上报为 macOS）可以正确命中
  */
 export function isMobileDevice(): boolean {
-  const userAgent = navigator.userAgent
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
-  const isSmallScreen = window.innerWidth <= 768
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
+    return false
 
-  return isMobile || isSmallScreen
+  return window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches
+    || window.matchMedia(COARSE_POINTER_QUERY).matches
 }
 
 /**
- * 设置视口高度CSS变量
+ * 订阅移动端判定变化，返回取消订阅函数。
+ *
+ * 用媒体查询替代 resize + innerWidth 轮询：旋屏、折叠屏展开、窗口缩放都会可靠触发，
+ * 且不必在每次 resize 中重复计算。
+ */
+export function onMobileDeviceChange(handler: (isMobile: boolean) => void): () => void {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
+    return () => {}
+
+  const queries = [
+    window.matchMedia(MOBILE_BREAKPOINT_QUERY),
+    window.matchMedia(COARSE_POINTER_QUERY),
+  ]
+  const listener = () => handler(isMobileDevice())
+
+  queries.forEach(query => query.addEventListener('change', listener))
+  return () => queries.forEach(query => query.removeEventListener('change', listener))
+}
+
+let viewportRafId: number | null = null
+let lastViewportHeight = -1
+
+/**
+ * 设置视口高度 CSS 变量。
+ *
+ * 现代浏览器的高度已由 CSS 的 `100dvh` 接管，这里只是旧浏览器的兜底。
+ * 因此用 requestAnimationFrame 合并高频 resize 调用，并跳过数值未变化的写入，
+ * 避免移动端滚动（地址栏收放会持续触发 resize）时反复重排整页。
  */
 export function setViewportHeight(): void {
-  const vh = window.innerHeight * 0.01
-  document.documentElement.style.setProperty('--vh', `${vh}px`)
+  if (viewportRafId !== null)
+    return
+
+  viewportRafId = requestAnimationFrame(() => {
+    viewportRafId = null
+    const height = window.innerHeight
+    if (height === lastViewportHeight)
+      return
+    lastViewportHeight = height
+    document.documentElement.style.setProperty('--vh', `${height * 0.01}px`)
+  })
 }
 
 function resolveTargetElement(target: EventTarget | null): Element | null {

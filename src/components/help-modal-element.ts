@@ -18,7 +18,7 @@ export class HelpModalElement extends LitElement {
               ${unsafeSVG(icons.music(16, 'text-purple-400'))}
               点歌
             </h4>
-            <p>点击播放列表下方的"点歌"按钮搜索并添加歌曲。支持网易云音乐、QQ音乐、B站等平台。</p>
+            <p>点击播放列表下方的"点歌"按钮搜索并添加歌曲。支持网易云音乐、QQ音乐，也可以在聊天中发送「点歌 歌名」或「点歌 链接」。</p>
           </div>
           <div class="glass rounded-2xl p-4">
             <h4 class="font-bold text-white mb-2 flex items-center gap-2">

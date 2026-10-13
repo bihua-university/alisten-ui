@@ -14,6 +14,7 @@ export interface Song {
 export interface User {
   name: string
   email?: string
+  emailHash?: string
   avatar: string
 }
 
@@ -48,13 +49,6 @@ export interface MusicSource {
 export interface SearchResult extends Song {
   originalId: string
   previewUrl?: string
-}
-
-export interface WebSocketMessage {
-  action: string
-  data: any
-  timestamp?: number
-  userId?: number
 }
 
 export interface WebSocketConfig {

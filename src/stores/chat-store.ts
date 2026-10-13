@@ -1,5 +1,7 @@
 import type { ChatMessage, User } from '@/types'
-import { processUser, processUsers } from '@/utils/user'
+import type { MembersData } from '@/types/ws-protocol'
+import { adaptProtocolUser, processUser } from '@/utils/user'
+import { notificationStore } from './notification-store'
 import { Store } from './store-base'
 import { websocketStore } from './websocket-store'
 
@@ -12,24 +14,25 @@ class ChatStore extends Store<ChatState> {
   constructor() {
     super({ chatMessages: [], onlineUsers: [] })
 
-    websocketStore.registerMessageHandler('chat', (message: any) => {
-      if (!message.content)
+    websocketStore.registerEventHandler('chat.message', (data) => {
+      if (!data.content)
         return
       const msg: ChatMessage = {
-        content: message.content,
-        timestamp: message.sendTime || Date.now(),
-        user: message.user,
+        content: data.content,
+        timestamp: data.sentAtMs || Date.now(),
+        user: adaptProtocolUser(data.user),
       }
       this.setState({ chatMessages: [...this.state.chatMessages, msg] })
     })
 
-    websocketStore.registerMessageHandler('house_user', (message: any) => {
-      if (!message.data || !Array.isArray(message.data)) {
-        console.warn('收到无效的用户列表:', message)
-        return
-      }
-      this.setState({ onlineUsers: [...processUsers(message.data)] })
+    websocketStore.registerEventHandler('members.updated', (data) => {
+      this.applyMembers(data)
     })
+  }
+
+  /** members.get 响应与 members.updated 事件共用 */
+  private applyMembers(data: MembersData) {
+    this.setState({ onlineUsers: data.users.map(adaptProtocolUser) })
   }
 
   get chatMessages(): ChatMessage[] {
@@ -65,8 +68,13 @@ class ChatStore extends Store<ChatState> {
     }
   }
 
-  refreshOnlineUsers() {
-    websocketStore.send({ action: '/house/houseuser', data: {} })
+  async refreshOnlineUsers() {
+    try {
+      const data = await websocketStore.request('members.get', {})
+      this.applyMembers(data)
+    } catch (error) {
+      notificationStore.error(error instanceof Error ? error.message : '获取在线用户失败')
+    }
   }
 }
 

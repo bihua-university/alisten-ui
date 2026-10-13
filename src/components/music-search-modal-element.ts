@@ -1,10 +1,14 @@
+import type { SearchResult } from '@/types'
+import type { Playlist, Song as ProtocolSong, Source } from '@/types/ws-protocol'
 import { html, LitElement, nothing } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
+import { notificationStore } from '@/stores/notification-store'
 import { playerStore } from '@/stores/player-store'
 import { searchStore } from '@/stores/search-store'
 import { websocketStore } from '@/stores/websocket-store'
 import { icons } from '@/utils/icons'
+import { getDefaultAvatar } from '@/utils/user'
 
 function getStorageItem<T>(key: string, defaultValue: T): T {
   try {
@@ -19,9 +23,19 @@ function setStorageItem(key: string, value: any) {
   localStorage.setItem(key, JSON.stringify(value))
 }
 
+/** 可搜索的平台；url_common 不能搜索，kuwo 暂无独立 provider */
+const SEARCH_PLATFORMS: { id: Source, name: string, icon: string }[] = [
+  { id: 'netease', name: '网易云', icon: 'fa-solid fa-music' },
+  { id: 'qq', name: 'QQ音乐', icon: 'fa-brands fa-qq' },
+]
+
+function normalizePlatform(value: string): Source {
+  return SEARCH_PLATFORMS.some(p => p.id === value) ? value as Source : 'netease'
+}
+
 // 页面会话级持久化：模态框关闭后再打开保持搜索状态
 let _persistedQuery = ''
-let _persistedPlatform = 'wy'
+let _persistedPlatform = normalizePlatform(getStorageItem('music-modal-platform', 'netease'))
 let _persistedSearchMode: 'song' | 'playlist' = 'song'
 
 @customElement('alisten-music-search-modal')
@@ -44,6 +58,9 @@ export class MusicSearchModalElement extends LitElement {
     'music-modal-mode',
     'search',
   )
+
+  /** 防止晚到的旧查询覆盖新查询：只应用最近一次请求的结果 */
+  private latestSearchRequestId = 0
 
   connectedCallback() {
     super.connectedCallback()
@@ -94,7 +111,7 @@ export class MusicSearchModalElement extends LitElement {
     this.setMode(target.checked ? 'ai' : 'search')
   }
 
-  private handleSearch(page = 1) {
+  private async handleSearch(page = 1) {
     if (!this.query.trim())
       return
 
@@ -104,17 +121,49 @@ export class MusicSearchModalElement extends LitElement {
     this.isSearching = true
     _persistedQuery = this.query
     searchStore.setPage(nextPage)
-    const action
-      = this.searchMode === 'song' ? '/music/search' : '/music/searchsonglist'
-    websocketStore.send({
-      action,
-      data: {
+    const type
+      = this.searchMode === 'song' ? 'music.search' as const : 'playlist.search' as const
+    const requestSeq = ++this.latestSearchRequestId
+    try {
+      const data = await websocketStore.request(type, {
         keyword: this.query.trim(),
         source: this.platform,
         pageIndex: nextPage,
         pageSize: this.pageSize,
-      },
-    })
+      })
+      if (requestSeq !== this.latestSearchRequestId)
+        return
+      const results: SearchResult[] = this.searchMode === 'song'
+        ? (data.items as ProtocolSong[]).map(item => ({
+            id: item.id,
+            originalId: item.id,
+            source: item.source,
+            title: item.name,
+            artist: item.artist || '未知艺术家',
+            album: item.album || '未知专辑',
+            cover: item.pictureUrl || getDefaultAvatar(item.id),
+            duration: item.durationMs,
+            webUrl: item.webUrl || undefined,
+          }))
+        : (data.items as Playlist[]).map(item => ({
+            id: item.id,
+            originalId: item.id,
+            source: item.source,
+            title: item.name,
+            artist: '',
+            album: '',
+            cover: item.pictureUrl || getDefaultAvatar(item.id),
+            duration: 0,
+            creator: item.creator,
+            songCount: item.songCount,
+          } as SearchResult))
+      searchStore.updateSearchResults(results, data.totalSize || results.length)
+    } catch (error) {
+      if (requestSeq !== this.latestSearchRequestId)
+        return
+      this.isSearching = false
+      notificationStore.error(error instanceof Error ? error.message : '搜索失败')
+    }
   }
 
   private goToPage(page: number) {
@@ -124,12 +173,14 @@ export class MusicSearchModalElement extends LitElement {
   }
 
   private pickMusic(result: any) {
-    playerStore.pickMusic(result, this.platform)
+    playerStore.pickMusic(result)
   }
 
   private viewPlaylist(result: any) {
     this.searchMode = 'song'
     _persistedSearchMode = 'song'
+    this.platform = normalizePlatform(result.source)
+    _persistedPlatform = this.platform
     this.query = `*${result.id}`
     _persistedQuery = this.query
     this.handleSearch()
@@ -141,7 +192,7 @@ export class MusicSearchModalElement extends LitElement {
     this.clearSearchResults()
   }
 
-  private selectPlatform(platform: string) {
+  private selectPlatform(platform: Source) {
     this.platform = platform
     _persistedPlatform = platform
     this.clearSearchResults()
@@ -200,7 +251,7 @@ export class MusicSearchModalElement extends LitElement {
         <!-- Modal Container -->
         <div
           class="relative w-full max-w-none md:max-w-[1100px] h-[100dvh] md:h-[85vh] min-h-0 md:min-h-[600px] flex flex-col rounded-none md:rounded-3xl overflow-hidden border-0 md:border md:border-white/10 shadow-none md:shadow-2xl"
-          style="background: #1a1a1f;"
+          style="background: #1a1a1f; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);"
         >
           <!-- Header -->
           <div
@@ -322,11 +373,7 @@ export class MusicSearchModalElement extends LitElement {
                   <div
                     class="flex-shrink-0 flex p-1 bg-white/5 rounded-xl border border-white/5"
                   >
-                    ${[
-                      { id: 'wy', name: '网易云', icon: 'fa-solid fa-music' },
-                      { id: 'qq', name: 'QQ音乐', icon: 'fa-brands fa-qq' },
-                      { id: 'bili', name: 'B站', icon: 'fa-solid fa-tv' },
-                    ].map(
+                    ${SEARCH_PLATFORMS.map(
                       p => html`
                         <button
                           class="flex-1 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all whitespace-nowrap
