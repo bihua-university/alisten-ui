@@ -144,7 +144,7 @@ export function isInApp(target: EventTarget | null): boolean {
   if (!element)
     return false
 
-  return !!element.closest('alisten-app')
+  return !!element.closest('#root')
 }
 
 /**

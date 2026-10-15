@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -34,6 +35,7 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(gitInfo),
   },
   plugins: [
+    react(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['icon-64x64.png', 'icon-180x180.png'],
@@ -41,8 +43,8 @@ export default defineConfig({
         name: '壁画音乐厅',
         short_name: '壁画音乐厅',
         description: '壁画音乐厅 - 在线音乐同步播放应用',
-        theme_color: '#1f2937',
-        background_color: '#ffffff',
+        theme_color: '#18181b',
+        background_color: '#18181b',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
@@ -101,7 +103,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: true,
+    open: false,
   },
   build: {
     outDir: 'dist',

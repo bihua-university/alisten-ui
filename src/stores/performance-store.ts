@@ -110,8 +110,8 @@ class PerformanceStore extends Store<PerformanceState> {
     return classes
   }
 
-  getDescription(): string {
-    switch (this.state.level) {
+  getDescription(level = this.state.level): string {
+    switch (level) {
       case 'high': return '高质量 - 所有动画效果，适合高性能设备'
       case 'medium': return '平衡 - 优化过的动画效果，推荐设置'
       case 'low': return '省电 - 简化动画效果，适合移动设备'

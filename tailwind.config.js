@@ -10,7 +10,16 @@ export default {
         light: '#F8FAFC',
       },
       fontFamily: {
-        inter: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Microsoft YaHei', 'sans-serif'],
+      },
+      fontSize: {
+        'ui-xl': 'var(--text-ui-xl)',
+        'ui-lg': 'var(--text-ui-lg)',
+        'ui-base': 'var(--text-ui-base)',
+        'ui-caption': 'var(--text-ui-caption)',
+        'ui-sm': 'var(--text-ui-sm)',
+        'ui-xs': 'var(--text-ui-xs)',
+        'mobile-input-safe': 'var(--text-mobile-input-safe)',
       },
       height: {
         'screen-mobile': 'calc(var(--vh, 1vh) * 100)',

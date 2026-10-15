@@ -7,8 +7,13 @@ function isSupported() {
 }
 
 function updateMetadata(song: Song | null) {
-  if (!isSupported() || !song)
+  if (!isSupported())
     return
+  if (!song) {
+    navigator.mediaSession.metadata = null
+    navigator.mediaSession.playbackState = 'none'
+    return
+  }
   try {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: song.title,

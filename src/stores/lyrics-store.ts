@@ -1,5 +1,6 @@
 import type { LyricLine } from '@/types'
 import { isValidLrc, parseLyrics } from '@/utils/lrcParser'
+import { performanceStore } from './performance-store'
 import { Store } from './store-base'
 
 interface LyricsState {
@@ -12,37 +13,47 @@ let scrollRafId: number | null = null
 
 class LyricsStore extends Store<LyricsState> {
   constructor() {
-    super({ currentLyrics: [], currentLyricIndex: 0 })
+    super({ currentLyrics: [], currentLyricIndex: -1 })
   }
 
   private scrollToCenter(container: HTMLElement, index: number, smooth = true) {
-    const lyricLines = container.querySelectorAll('.lyric-line')
-    if (lyricLines[index]) {
-      const targetLine = lyricLines[index] as HTMLElement
-      const containerHeight = container.clientHeight
-      const targetTop = targetLine.offsetTop
-      const targetHeight = targetLine.clientHeight
-      const targetScrollTop = targetTop - (containerHeight / 2) + (targetHeight / 2)
-      container.scrollTo({ top: Math.max(0, targetScrollTop), behavior: smooth ? 'smooth' : 'instant' })
+    let before: HTMLElement | undefined
+    let after: HTMLElement | undefined
+    for (const line of container.querySelectorAll<HTMLElement>('[data-lyric-index]')) {
+      const lineIndex = Number(line.dataset.lyricIndex)
+      if (lineIndex <= index)
+        before = line
+      if (lineIndex >= index) {
+        after = line
+        break
+      }
     }
+    before ??= after
+    after ??= before
+    if (!before || !after)
+      return
+    // During a silent cue, center the boundary between the surrounding words
+    // without inserting an empty row in the layout.
+    const center = (before.offsetTop + before.clientHeight / 2 + after.offsetTop + after.clientHeight / 2) / 2
+    container.scrollTo({ top: Math.max(0, center - container.clientHeight / 2), behavior: smooth ? 'smooth' : 'instant' })
   }
 
-  syncScrollAllContainers(smooth = true) {
+  syncScrollAllContainers(smooth = !performanceStore.state.reducedMotion && !['low', 'off'].includes(performanceStore.state.level) && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     registeredContainers.forEach((container) => {
       this.scrollToCenter(container, this.state.currentLyricIndex, smooth)
     })
   }
 
   setCurrentLyrics(lyrics: LyricLine[]) {
-    const emptyLyricsStart: LyricLine[] = Array.from({ length: 10 }, (_, index) => ({
-      time: -666666 + index,
-      text: '',
-    }))
-    const emptyLyricsEnd: LyricLine[] = Array.from({ length: 10 }, (_, index) => ({
-      time: 666666 + index,
-      text: '',
-    }))
-    this.setState({ currentLyrics: [...emptyLyricsStart, ...lyrics, ...emptyLyricsEnd] })
+    // Keep silent cues in the timeline only; they never create lyric DOM rows.
+    const compactLyrics: LyricLine[] = []
+    for (const line of lyrics) {
+      const text = line.text.trim()
+      if (!text && compactLyrics.length && !compactLyrics[compactLyrics.length - 1].text)
+        continue
+      compactLyrics.push({ ...line, text })
+    }
+    this.setState({ currentLyrics: compactLyrics, currentLyricIndex: -1 })
   }
 
   setCurrentLyricIndex(index: number) {
@@ -58,13 +69,13 @@ class LyricsStore extends Store<LyricsState> {
   }
 
   clearLyrics() {
-    this.setState({ currentLyrics: [], currentLyricIndex: 0 })
+    this.setState({ currentLyrics: [], currentLyricIndex: -1 })
   }
 
   get lyricLines(): Array<LyricLine & { isActive: boolean, isPassed: boolean, isComing: boolean }> {
     return this.state.currentLyrics.map((lyric, index) => ({
       ...lyric,
-      isActive: index === this.state.currentLyricIndex,
+      isActive: !!lyric.text && index === this.state.currentLyricIndex,
       isPassed: index < this.state.currentLyricIndex,
       isComing: index > this.state.currentLyricIndex,
     }))
@@ -76,7 +87,7 @@ class LyricsStore extends Store<LyricsState> {
       return
     let left = 0
     let right = lyrics.length - 1
-    let result = 0
+    let result = -1
     while (left <= right) {
       const mid = Math.floor((left + right) / 2)
       if (lyrics[mid].time <= currentTime) {
@@ -99,7 +110,6 @@ class LyricsStore extends Store<LyricsState> {
       }
       const parsed = parseLyrics(lrcContent)
       this.setCurrentLyrics(parsed.lyrics)
-      this.setState({ currentLyricIndex: 0 })
       return true
     } catch (error) {
       console.error('解析LRC歌词失败:', error)
@@ -123,7 +133,7 @@ class LyricsStore extends Store<LyricsState> {
       current: current || null,
       next: next || null,
       prev: prev || null,
-      progress: this.state.currentLyricIndex / Math.max(1, this.state.currentLyrics.length - 1),
+      progress: Math.max(0, this.state.currentLyricIndex) / Math.max(1, this.state.currentLyrics.length - 1),
       totalLines: this.state.currentLyrics.length,
     }
   }

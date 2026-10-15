@@ -26,8 +26,6 @@ let volumeCoef = 1
 let audioPlayer: HTMLAudioElement | null = null
 let rafId: number | null = null
 let currentTimeValue = 0
-let lastSyncTime = 0
-let lastSyncCurrentTime = 0
 let lastProgressEmitTime = 0
 const progressCallbacks = new Set<(time: number) => void>()
 let delayedStartTimer: ReturnType<typeof setTimeout> | null = null
@@ -80,6 +78,11 @@ function mapQueueItem(item: QueueItem): Song {
 }
 
 class PlayerStore extends Store<PlayerState> {
+  private lastLyricContent = ''
+  private handleCanPlay = () => {
+    void this.onCanPlay()
+  }
+
   constructor() {
     super({
       currentTime: 0,
@@ -117,6 +120,7 @@ class PlayerStore extends Store<PlayerState> {
         audioPlayer.load()
       }
       this.setState({ currentSong: null, startedAtMs: 0, currentTime: 0 })
+      this.lastLyricContent = ''
       lyricsStore.loadLrcLyrics('')
       return
     }
@@ -141,7 +145,12 @@ class PlayerStore extends Store<PlayerState> {
       audioPlayer.volume = this.getEffectiveVolume()
       console.log(`实际播放音量已修正: ${(audioPlayer.volume * 100).toFixed(1)}%（用户音量: ${this.state.volume}%，修正系数: ${(volumeCoef * 100).toFixed(1)}%）`)
     }
-    lyricsStore.loadLrcLyrics(song.lyric || '')
+    const lyricContent = song.lyric || ''
+    if (lyricContent !== this.lastLyricContent) {
+      this.lastLyricContent = lyricContent
+      lyricsStore.loadLrcLyrics(lyricContent)
+      lyricsStore.syncLyrics(this.getCurrentTime())
+    }
     mediaSessionStore.updateMetadata(music)
   }
 
@@ -159,15 +168,13 @@ class PlayerStore extends Store<PlayerState> {
   }
 
   setAudioPlayer(el: HTMLAudioElement | null) {
+    audioPlayer?.removeEventListener('canplay', this.handleCanPlay)
+    this.clearDelayedStart()
+    this.stopProgressUpdate()
     audioPlayer = el
     if (el) {
       el.volume = this.getEffectiveVolume()
       el.muted = this.state.isMuted
-      // 当音频开始播放时，确保时间基准已同步
-      el.addEventListener('play', () => {
-        lastSyncTime = performance.now()
-        lastSyncCurrentTime = el.currentTime
-      })
     }
   }
 
@@ -178,9 +185,15 @@ class PlayerStore extends Store<PlayerState> {
   private runProgressLoop() {
     if (audioPlayer && !audioPlayer.paused && !audioPlayer.ended) {
       const now = performance.now()
-      const elapsed = (now - lastSyncTime) / 1000
-      const newTime = lastSyncCurrentTime + elapsed
+      // Follow the media clock: wall time keeps advancing during buffering and
+      // can disagree with the sound after a seek or playback-rate change.
+      const newTime = this.getCurrentTime()
+      if (newTime >= (this.state.currentSong?.duration || 0) / 1000)
+        audioPlayer.pause()
       currentTimeValue = newTime
+      // Only changing lines notify subscribers; keep lyric boundaries precise
+      // without raising the frequency of progress-bar DOM updates.
+      lyricsStore.syncLyrics(newTime)
       // 每 100ms 触发一次进度回调，降低 DOM 更新频率（约 10fps）
       if (now - lastProgressEmitTime >= 100) {
         lastProgressEmitTime = now
@@ -214,10 +227,8 @@ class PlayerStore extends Store<PlayerState> {
   }
 
   getCurrentTime(): number {
-    if (audioPlayer && !audioPlayer.paused) {
-      const now = performance.now()
-      return lastSyncCurrentTime + (now - lastSyncTime) / 1000
-    }
+    if (audioPlayer)
+      return Math.max(0, Math.min(audioPlayer.currentTime, (this.state.currentSong?.duration || 0) / 1000))
     return currentTimeValue
   }
 
@@ -231,8 +242,6 @@ class PlayerStore extends Store<PlayerState> {
         console.warn('播放失败', e)
         return { audioPlaySuccess: false }
       }
-      lastSyncTime = performance.now()
-      lastSyncCurrentTime = audioPlayer.currentTime
       this.startProgressUpdate()
       return { audioPlaySuccess: true }
     }
@@ -243,8 +252,7 @@ class PlayerStore extends Store<PlayerState> {
     if (audioPlayer) {
       try {
         audioPlayer.currentTime = Math.max(0, time)
-        lastSyncTime = performance.now()
-        lastSyncCurrentTime = Math.max(0, time)
+        currentTimeValue = audioPlayer.currentTime
       } catch (e) {
         console.warn('设置播放时间失败:', e)
       }
@@ -269,9 +277,10 @@ class PlayerStore extends Store<PlayerState> {
       this.setAudioCurrentTime(0)
       currentTimeValue = 0
       this.setState({ currentTime: 0 })
+      lyricsStore.syncLyrics(0)
       delayedStartTimer = setTimeout(() => {
         delayedStartTimer = null
-        this.playAudio()
+        void this.onCanPlay()
       }, -elapsedMs)
       return
     }
@@ -279,10 +288,9 @@ class PlayerStore extends Store<PlayerState> {
     const newTimeSeconds = Math.min(elapsedMs, durationMs) / 1000
     if (audioPlayer) {
       this.setAudioCurrentTime(newTimeSeconds)
-      lastSyncTime = performance.now()
-      lastSyncCurrentTime = newTimeSeconds
       currentTimeValue = newTimeSeconds
       this.setState({ currentTime: newTimeSeconds })
+      lyricsStore.syncLyrics(newTimeSeconds)
       console.log('同步新时间:', `${newTimeSeconds}s`)
     }
   }
@@ -290,8 +298,6 @@ class PlayerStore extends Store<PlayerState> {
   onAudioTimeUpdate(event: Event) {
     const audio = event.target as HTMLAudioElement
     if (audio) {
-      lastSyncTime = performance.now()
-      lastSyncCurrentTime = audio.currentTime
       currentTimeValue = audio.currentTime
       lastProgressEmitTime = performance.now()
       progressCallbacks.forEach(cb => cb(currentTimeValue))
@@ -306,6 +312,11 @@ class PlayerStore extends Store<PlayerState> {
 
   async onCanPlay() {
     this.syncAudioCurrentTime()
+    const elapsedMs = Date.now() + websocketStore.getClockOffsetMs() - this.state.startedAtMs
+    if (!this.state.startedAtMs || elapsedMs < 0 || elapsedMs >= (this.state.currentSong?.duration || 0)) {
+      audioPlayer?.pause()
+      return
+    }
     const res = await this.playAudio()
     if (res.audioPlaySuccess === false)
       this.setState({ needManualStartPlay: true })
@@ -315,14 +326,13 @@ class PlayerStore extends Store<PlayerState> {
     const song = this.state.currentSong
     if (song && audioPlayer && song.url) {
       console.log('加载新歌曲:', song.title)
-      // 直接设置 src，避免 Lit 模板绑定的异步延迟导致 load() 时 src 为空
+      // 直接设置 src，确保 load() 前音频源已经就绪
+      // Seeking can fire canplay again. Consume it once per source load,
+      // before syncing currentTime, to avoid an endless seek/play loop.
+      audioPlayer.removeEventListener('canplay', this.handleCanPlay)
+      audioPlayer.addEventListener('canplay', this.handleCanPlay, { once: true })
       audioPlayer.src = song.url
       audioPlayer.load()
-      const handler = () => {
-        this.onCanPlay()
-        audioPlayer?.removeEventListener('canplay', handler)
-      }
-      audioPlayer.addEventListener('canplay', handler)
     }
   }
 
@@ -343,6 +353,7 @@ class PlayerStore extends Store<PlayerState> {
   }
 
   setVolume(volume: number) {
+    volume = Math.max(0, Math.min(100, volume))
     this.setState({ volume })
     saveVolume(volume)
     if (audioPlayer)
@@ -390,11 +401,39 @@ class PlayerStore extends Store<PlayerState> {
   async requestMusicSync() {
     console.log('请求重新同步音乐')
     try {
+      const previousUrl = this.state.currentSong?.url
+      const previousStartedAtMs = this.state.startedAtMs
       const data = await websocketStore.request('playback.get', {})
       this.applyPlayback(data)
+      // Explicit resume/sync still seeks once even for an identical snapshot.
+      if (this.state.currentSong?.url && this.state.currentSong.url === previousUrl
+        && this.state.startedAtMs === previousStartedAtMs) {
+        await this.onCanPlay()
+      }
     } catch (error) {
       console.warn('同步播放状态失败:', error instanceof Error ? error.message : error)
     }
+  }
+
+  async refreshQueue() {
+    try {
+      this.applyQueue(await websocketStore.request('queue.get', {}))
+    } catch (error) {
+      console.warn('获取队列失败:', error instanceof Error ? error.message : error)
+    }
+  }
+
+  resetRoom() {
+    this.clearDelayedStart()
+    audioPlayer?.pause()
+    audioPlayer?.removeAttribute('src')
+    audioPlayer?.load()
+    this.stopProgressUpdate()
+    currentTimeValue = 0
+    this.setState({ currentSong: null, startedAtMs: 0, currentTime: 0, queueCurrent: null, playlist: [], recommendations: [], needManualStartPlay: false })
+    lyricsStore.clearLyrics()
+    this.lastLyricContent = ''
+    mediaSessionStore.updateMetadata(null)
   }
 
   async pullRecommendations() {

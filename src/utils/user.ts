@@ -1,5 +1,5 @@
 import type { User } from '@/types'
-import { MD5 } from 'crypto-js'
+import MD5 from 'crypto-js/md5'
 /**
  * 生成 Gravatar 头像 URL
  * @param emailOrHash 邮箱地址或MD5哈希值

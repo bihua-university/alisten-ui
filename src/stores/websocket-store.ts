@@ -166,6 +166,29 @@ class WebSocketStore extends Store<WebSocketState> {
     }
   }
 
+  private handleConnectionLoss(ws: WebSocket) {
+    if (this.state.ws !== ws)
+      return
+
+    ws.onopen = null
+    ws.onmessage = null
+    ws.onclose = null
+    ws.onerror = null
+    this.stopHeartbeat()
+    this.clearPendingRequests('连接已断开')
+    this.resetClockSamples()
+    this.setState({ ws: null, connectionStatus: 'disconnected', isConnecting: false })
+    if (ws.readyState !== WebSocket.CLOSED) {
+      try {
+        ws.close()
+      } catch (error) {
+        console.warn('关闭失效连接失败:', error)
+      }
+    }
+    if (!manuallyClosed)
+      this.scheduleReconnect()
+  }
+
   connect() {
     if (this.state.isConnecting || this.state.connectionStatus === 'connected')
       return
@@ -179,6 +202,7 @@ class WebSocketStore extends Store<WebSocketState> {
     this.clearReconnectTimer()
     manuallyClosed = false
     this.setState({ isConnecting: true, connectionStatus: 'connecting' })
+    this.bindLifecycle()
 
     try {
       const params = new URLSearchParams({ houseId: roomStore.state.id })
@@ -190,33 +214,30 @@ class WebSocketStore extends Store<WebSocketState> {
       const ws = new WebSocket(wsUrl)
 
       ws.onopen = () => {
+        if (this.state.ws !== ws || manuallyClosed)
+          return
         console.log('WebSocket 连接已建立')
         this.setState({ connectionStatus: 'connected', isConnecting: false, reconnectAttempts: 0 })
-        this.startHeartbeat()
+        if (this.state.ws === ws && !manuallyClosed)
+          this.startHeartbeat()
       }
 
-      ws.onmessage = this.handleMessage.bind(this)
+      ws.onmessage = (event) => {
+        if (this.state.ws === ws && !manuallyClosed)
+          this.handleMessage(event)
+      }
 
       ws.onclose = (event) => {
         console.log('WebSocket 连接已关闭:', event.code, event.reason)
-        this.stopHeartbeat()
-        this.clearPendingRequests('连接已断开')
-        this.resetClockSamples()
-        // 清理已失效的 socket 引用，避免 send() 继续对着死连接写入
-        if (this.state.ws === ws)
-          this.setState({ ws: null })
-        this.setState({ connectionStatus: 'disconnected', isConnecting: false })
-        if (!manuallyClosed)
-          this.scheduleReconnect()
+        this.handleConnectionLoss(ws)
       }
 
       ws.onerror = (error) => {
         console.error('WebSocket 连接错误:', error)
-        this.setState({ connectionStatus: 'error', isConnecting: false })
+        this.handleConnectionLoss(ws)
       }
 
       this.setState({ ws })
-      this.bindLifecycle()
     } catch (error) {
       console.error('创建 WebSocket 连接失败:', error)
       this.setState({ connectionStatus: 'error', isConnecting: false })
@@ -338,7 +359,7 @@ class WebSocketStore extends Store<WebSocketState> {
   }
 
   private handleVisibilityChange = () => {
-    if (document.hidden)
+    if (document.hidden || manuallyClosed)
       return
 
     if (this.state.connectionStatus === 'connected') {
@@ -355,15 +376,19 @@ class WebSocketStore extends Store<WebSocketState> {
   }
 
   private handleOnline = () => {
-    if (this.state.connectionStatus === 'connected' || this.state.isConnecting)
+    if (manuallyClosed || this.state.isConnecting)
       return
+    if (this.state.connectionStatus === 'connected') {
+      this.verifyConnectionOnResume('网络恢复')
+      return
+    }
     console.log('网络已恢复，立即重连')
     this.restartConnection('网络恢复')
   }
 
   /** bfcache 恢复：整个页面被冻结后唤醒，socket 基本已经失效 */
   private handlePageShow = (event: PageTransitionEvent) => {
-    if (!event.persisted)
+    if (!event.persisted || manuallyClosed)
       return
     this.restartConnection('页面从缓存恢复')
   }
@@ -413,8 +438,7 @@ class WebSocketStore extends Store<WebSocketState> {
   }
 
   reconnect() {
-    this.disconnect()
-    setTimeout(() => this.connect(), 1000)
+    this.restartConnection('手动重连')
   }
 
   /**
@@ -428,6 +452,8 @@ class WebSocketStore extends Store<WebSocketState> {
   ): Promise<ResponseDataMap[T]> {
     const ws = this.state.ws
     if (!ws || ws.readyState !== WebSocket.OPEN) {
+      if (ws && (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING))
+        this.handleConnectionLoss(ws)
       console.warn('WebSocket 未连接，请求发送失败:', type)
       return Promise.reject(new RequestError('CLIENT_ERROR', '与服务器断开连接'))
     }
@@ -445,6 +471,7 @@ class WebSocketStore extends Store<WebSocketState> {
         pendingRequests.delete(requestId)
         clearTimeout(timeoutTimer)
         reject(new RequestError('CLIENT_ERROR', `消息写入失败: ${error}`))
+        this.handleConnectionLoss(ws)
       }
     })
   }
@@ -498,6 +525,7 @@ class WebSocketStore extends Store<WebSocketState> {
   async sendSongLike(id: string, source: Source) {
     try {
       await this.request('queue.like', { id, source })
+      notificationStore.success('已点赞歌曲')
     } catch (error) {
       notificationStore.error((error as RequestError).message)
     }
@@ -506,6 +534,7 @@ class WebSocketStore extends Store<WebSocketState> {
   async sendDeleteSong(id: string, source: Source) {
     try {
       await this.request('queue.remove', { id, source })
+      notificationStore.success('已移除歌曲')
     } catch (error) {
       notificationStore.error((error as RequestError).message)
     }

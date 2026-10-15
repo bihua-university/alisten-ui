@@ -50,7 +50,7 @@ export async function createRoom(roomData: CreateRoomRequest): Promise<CreateRoo
  * @param keyword 搜索关键词（可选）
  * @returns Promise<RoomSearchResponse>
  */
-export async function searchRooms(keyword?: string): Promise<RoomInfo[]> {
+export async function searchRooms(keyword?: string, signal?: AbortSignal): Promise<RoomInfo[]> {
   const config = getAppConfig()
   const url = new URL('/house/search', config.api.baseUrl)
 
@@ -61,6 +61,7 @@ export async function searchRooms(keyword?: string): Promise<RoomInfo[]> {
   try {
     const response = await fetch(url.toString(), {
       method: 'GET',
+      signal,
       headers: {
         'Content-Type': 'application/json',
       },

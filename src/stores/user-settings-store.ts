@@ -4,8 +4,6 @@ import { notificationStore } from './notification-store'
 import { Store } from './store-base'
 import { websocketStore } from './websocket-store'
 
-export type BubbleStyle = 'default' | 'feibi'
-
 function getStorageItem<T>(key: string, defaultValue: T): T {
   try {
     const item = localStorage.getItem(key)
@@ -23,7 +21,6 @@ interface UserSettingsState {
   userName: string
   userEmail: string
   playMode: PlayMode
-  bubbleStyle: BubbleStyle
 }
 
 class UserSettingsStore extends Store<UserSettingsState> {
@@ -32,7 +29,6 @@ class UserSettingsStore extends Store<UserSettingsState> {
       userName: getStorageItem('alisten_nickname', ''),
       userEmail: getStorageItem('alisten_email', ''),
       playMode: 'sequential',
-      bubbleStyle: getStorageItem('alisten_bubble_style', 'default'),
     })
 
     websocketStore.registerEventHandler('settings.updated', (data) => {
@@ -70,33 +66,32 @@ class UserSettingsStore extends Store<UserSettingsState> {
     setStorageItem('alisten_email', email)
   }
 
-  setBubbleStyle(style: BubbleStyle) {
-    this.setState({ bubbleStyle: style })
-    setStorageItem('alisten_bubble_style', style)
-  }
-
   async setPlayMode(mode: PlayMode) {
     try {
       const data = await websocketStore.request('settings.set', { playMode: mode })
       this.applyPlayMode(data.playMode)
+      return true
     } catch (error) {
       notificationStore.error(error instanceof Error ? error.message : '切换播放模式失败')
+      return false
     }
   }
 
-  async syncUserSettings() {
-    if (!this.state.userName)
-      return
+  async syncUserSettings(profile = { name: this.state.userName, email: this.state.userEmail }) {
+    if (!profile.name)
+      return true
     const clientTimeMs = Date.now()
     try {
       const res = await websocketStore.request('user.update', {
-        name: this.state.userName,
-        email: this.state.userEmail,
+        name: profile.name,
+        email: profile.email,
         clientTimeMs,
       })
       websocketStore.recordClockSample(clientTimeMs, Date.now(), res.serverTimeMs)
+      return true
     } catch (error) {
       notificationStore.error(error instanceof Error ? error.message : '同步用户信息失败')
+      return false
     }
   }
 

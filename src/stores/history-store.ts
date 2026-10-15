@@ -26,6 +26,36 @@ function setStorageItem(key: string, value: any) {
   localStorage.setItem(key, JSON.stringify(value))
 }
 
+function searchHistoryKey(query: string) {
+  return query.trim().toLowerCase()
+}
+
+function loadSearchHistory(): SearchHistoryItem[] {
+  const saved = getStorageItem<unknown>('alisten_search_history', [])
+  if (!Array.isArray(saved))
+    return []
+  const latest = new Map<string, SearchHistoryItem>()
+  for (const item of saved) {
+    if (!item || typeof item.query !== 'string' || !item.query.trim() || item.query.trimStart().startsWith('*')
+      || typeof item.platform !== 'string' || typeof item.searchMode !== 'string' || typeof item.timestamp !== 'number') {
+      continue
+    }
+    const key = searchHistoryKey(item.query)
+    const previous = latest.get(key)
+    if (!previous || item.timestamp > previous.timestamp)
+      latest.set(key, { ...item, query: item.query.trim() })
+  }
+  const history = [...latest.values()].sort((a, b) => b.timestamp - a.timestamp)
+  if (JSON.stringify(history) !== JSON.stringify(saved)) {
+    try {
+      setStorageItem('alisten_search_history', history)
+    } catch (error) {
+      console.warn('整理搜索历史失败:', error)
+    }
+  }
+  return history
+}
+
 const MAX_PLAY_HISTORY_SIZE = 500
 
 interface HistoryState {
@@ -42,7 +72,7 @@ class HistoryStore extends Store<HistoryState> {
       playHistory: getStorageItem<PlayHistoryItem[]>('music-play-history', []),
       enableSearchHistory: getStorageItem('alisten_enable_search_history', true),
       maxSearchHistoryCount: getStorageItem('alisten_max_search_history_count', 10),
-      searchHistory: getStorageItem<SearchHistoryItem[]>('alisten_search_history', []),
+      searchHistory: loadSearchHistory(),
       isRecording: true,
     })
   }
@@ -140,15 +170,10 @@ class HistoryStore extends Store<HistoryState> {
   }
 
   addToSearchHistory(query: string, platform: string, searchMode: string) {
-    if (!this.state.enableSearchHistory || !query.trim())
+    if (!this.state.enableSearchHistory || !query.trim() || query.trimStart().startsWith('*'))
       return
     const newItem: SearchHistoryItem = { query: query.trim(), platform, searchMode, timestamp: Date.now() }
-    let history = this.getValidSearchHistory()
-    const existingIndex = history.findIndex(item =>
-      item.query === newItem.query && item.platform === newItem.platform && item.searchMode === newItem.searchMode,
-    )
-    if (existingIndex !== -1)
-      history.splice(existingIndex, 1)
+    let history = this.getValidSearchHistory().filter(item => searchHistoryKey(item.query) !== searchHistoryKey(newItem.query))
     history.unshift(newItem)
     if (history.length > this.state.maxSearchHistoryCount) {
       history = history.slice(0, this.state.maxSearchHistoryCount)

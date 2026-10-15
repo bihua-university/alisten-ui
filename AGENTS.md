@@ -14,11 +14,11 @@
 
 ## 技术基线
 
-- **前端框架**：Lit 3.2+（Web Components）
+- **前端框架**：React 18.3+
 - **开发语言**：TypeScript 5.3+
 - **构建工具**：Vite 5.0+
 - **CSS 框架**：TailwindCSS 3.4+
-- **图标库**：`lucide`（vanilla，框架无关）
+- **图标库**：`lucide-react`（按需导入）
 - **状态管理**：模块级 Store 类（EventTarget-based，零外部依赖）
 - **工具库**：`crypto-js`
 - **PWA**：`vite-plugin-pwa` + Workbox
@@ -30,49 +30,32 @@
 
 ```
 src/
-├── main.ts                    # 应用入口：注册自定义元素 + 初始化性能设置
-├── app-element.ts             # 根 <alisten-app> 组件
-├── stores/                    # 模块级共享状态（替代原 composables）
-│   ├── store-base.ts          # Store 基类 (EventTarget)
-│   ├── websocket-store.ts     # WebSocket 连接、重连、消息路由
-│   ├── player-store.ts        # 播放器状态、音频控制、播放列表、网络延迟同步
-│   ├── chat-store.ts          # 聊天消息、在线用户列表
-│   ├── room-store.ts          # 房间信息、密码管理
-│   ├── lyrics-store.ts        # LRC 歌词解析、同步滚动、高亮
-│   ├── search-store.ts        # 搜索/歌单结果处理
-│   ├── notification-store.ts  # 全局 Toast 通知
-│   ├── performance-store.ts   # 性能等级（high/medium/low/off）
-│   ├── history-store.ts       # 播放历史、搜索历史（localStorage）
-│   ├── user-settings-store.ts # 用户昵称、邮箱（Gravatar）、播放模式同步
-│   ├── pwa-store.ts           # Service Worker 注册、更新检测
-│   └── media-session-store.ts # 浏览器媒体会话控制
-├── components/                # Lit 自定义元素组件
-│   ├── common/
-│   │   └── modal-element.ts   # 通用模态框壳
-│   ├── layout/
-│   │   └── main-layout-element.ts  # 主布局：桌面三栏 + 移动端三页滑动
-│   ├── chat-panel-element.ts
-│   ├── lyrics-panel-element.ts
-│   ├── player-controls-element.ts
-│   ├── playlist-panel-element.ts
-│   ├── music-search-modal-element.ts
-│   ├── settings-modal-element.ts
-│   ├── help-modal-element.ts
-│   ├── play-history-modal-element.ts
-│   ├── notification-container-element.ts
-│   └── notification-toast-element.ts
-├── types/
-│   └── index.ts               # 全局类型：Song、User、ChatMessage、RoomInfo 等
-├── utils/
-│   ├── config.ts              # 应用配置
-│   ├── api.ts                 # HTTP API
-│   ├── lrcParser.ts           # LRC 格式歌词解析器
-│   ├── mobile.ts              # 移动设备检测、视口高度修复
-│   ├── time.ts                # 时间格式化
-│   ├── user.ts                # Gravatar 生成、用户处理
-│   └── icons.ts               # lucide 图标 SVG 生成工具
-└── styles/
-    └── performance.css        # 四级性能模式的 CSS 覆盖规则
+├── main.tsx                   # React 入口，初始化性能与外观
+├── app.tsx                    # 主界面、导航、懒加载、房间切换
+├── hooks/use-store.ts         # useSyncExternalStore 字段选择器
+├── stores/                    # EventTarget Store，保留同步播放与 v1 协议
+│   ├── player-store.ts
+│   ├── websocket-store.ts
+│   ├── appearance-store.ts    # 主题与 --ui-font-size
+│   └── ...                    # 聊天、歌词、历史、房间、性能、PWA 等
+├── components/
+│   ├── audio-engine.tsx       # 音频、连接与媒体会话生命周期
+│   ├── header-search.tsx      # 顶部搜索与选择浮窗
+│   ├── player-bar.tsx         # Spotify 式底部播放器，播放控制仅切歌
+│   ├── listen-page.tsx        # 听歌房歌词主界面
+│   ├── room-browser.tsx       # 搜索、创建、加入房间
+│   ├── search-page.tsx        # 搜索提交后的结果页
+│   ├── queue-page.tsx
+│   ├── chat-panel.tsx
+│   ├── lyrics.tsx             # 当前行高亮，不重建歌词树
+│   ├── history-page.tsx
+│   ├── settings-modal.tsx
+│   ├── notifications.tsx
+│   └── ui.tsx                 # 公共控件与原生 dialog
+├── types/                     # UI 类型与生成的 ws-protocol.ts
+├── utils/                     # API、用户、时间、移动端、弹窗历史等
+├── style.css                  # 语义颜色、字号、布局
+└── styles/performance.css     # 四级性能覆盖规则
 ```
 
 ### 构建产物
@@ -109,71 +92,42 @@ npm run preview
 
 **质量门槛**：只要改动涉及逻辑/类型/样式，合并前至少跑 `npm run type-check` 和 `npm run lint`。若改动影响构建路径（PWA、Vite 配置等），再补一次 `npm run build`。
 
----
+### 测试约定
 
-## UI / 样式规范（深色主题 + Glass UI）
-
-### 核心原则
-
-所有 Lit 组件**禁用 Shadow DOM**（`createRenderRoot() { return this }`），以确保：
-- TailwindCSS 全局工具类直接生效
-- 全局 CSS（performance.css、style.css）无需穿透
-- 移动端滚动控制机制正常工作
-- 事件冒泡和 DOM 查询保持正常
-
-### 色彩体系
-
-**背景色**
-- 主背景：`from-gray-900 to-black` 深灰到黑色的渐变背景
-- 次级背景：`#121214` 近黑色（弹窗、浮层）
-- 背景光晕：`purple-600/20` + `indigo-600/20` 紫罗兰/靛蓝色渐变模糊光晕
-
-**Glass 毛玻璃效果**
-- 背景：`rgba(255, 255, 255, 0.03)` 极淡白色半透明
-- 模糊：`backdrop-filter: blur(20px)`
-- 边框：`rgba(255, 255, 255, 0.05)` 极淡白色边框
-- 阴影：`0 8px 32px 0 rgba(0, 0, 0, 0.36)`
-
-**强调色**
-- 核心紫色：`purple-600` / `purple-500` 主按钮、关键操作
-- 靛蓝色：`indigo-500` / `indigo-400` 图标、次级强调
-
-**文字色**
-- 主文字：`text-white` 纯白
-- 次级文字：`text-white/60` 60% 透明度白
-- 辅助文字：`text-white/40` 40% 透明度白
-
-### 圆角规范
-- 大卡片：`rounded-3xl` (1.5rem)
-- 中等卡片/按钮：`rounded-2xl` (1rem)
-- 小元素/输入框：`rounded-xl` (0.75rem)
-
-### 交互规范
-- 悬浮：`hover:bg-white/10` 背景提亮
-- 按下：`active:scale-95` 轻微缩小
-- 过渡：`transition-colors` 颜色过渡
+- 不编写或新增 UI、前端单元测试。
+- 尤其不要为界面数值、尺寸、间距、坐标、断点或 layout（布局）编写断言，也不要通过组件测试、快照测试或浏览器自动化测试变相添加这些断言。
+- UI 与布局改动通过实际浏览器人工检查，代码质量继续使用类型检查、Lint 和必要的构建检查验证。
 
 ---
 
+## UI / 样式规范
+
+视觉和工程规范以 `DESIGN.md` 为准。不显示左侧栏，导航和同步播放收进顶部菜单；顶部参考 Spotify 搜索栏，内容和右侧采用独立面板。听歌房主界面仅显示歌词，当前行放大并高亮，切换带过渡；默认关闭右侧面板。右侧面板桌面宽度 480px，紧凑桌面 420px。底部播放器左侧封面，主体歌曲信息和宽进度条，时间靠右；右侧保留切歌、音量和辅助入口。中间歌曲信息不能点击。主内容和右侧面板无外边框；顶部栏和底部播放器贴边，无边框、圆角、外侧留白或毛玻璃，背景固定 #000000。
+
+- 使用语义颜色 token、统一 `text-ui-*` 字号、系统字体和明确的文字层级。
+- 点击顶部搜索展开平台 / 类型选择浮窗，提交后进入搜索页；不提供独立点歌导航 tab。
+- 普通控件圆角 8px，内容面板 12px，弹窗 16px；主题、对比度和键盘焦点都要验证。
+- 高频进度通过 ref 更新 transform，时间只在秒数变化时更新；歌词只更新当前行。
+- 页面按需加载，列表减少屏外绘制；新增效果必须有性能降级。
+
+---
 ## 代码与模块约定
 
-### Lit / Web Components
-- **禁用 Shadow DOM**：所有组件重写 `createRenderRoot() { return this }`
-- 使用 `@state()` 声明内部状态，`@property()` 声明外部属性
-- 使用 `html` / `classMap` / `styleMap` / `unsafeSVG` 等 directives
-- 事件处理使用 Lit 的 `@click` 等绑定语法
-- 在 `connectedCallback()` 中订阅 Store，在 `disconnectedCallback()` 中取消订阅
-
+### React
+- 使用函数组件和 TypeScript TSX，外部状态通过 `useStore` 选择稳定字段或数组。
+- 用 `useState` 管理局部交互，避免把播放进度、滚动等连续值放入 React state。
+- 在 `useEffect` 中建立订阅，并清理事件、定时器和 rAF。
+- `canplay` 每次加载只监听一次，重复播放快照不能重启音频。
+- 组件使用普通 DOM，公共控件复用 `components/ui.tsx`，不使用 Shadow DOM。
 ### 状态管理（Store 模式）
 - 所有全局状态通过 `src/stores/` 中的 Store 类管理
 - Store 基类继承 `EventTarget`，通过 `dispatchEvent('change')` 通知订阅者
-- 组件通过 `store.addEventListener('change', ...)` 订阅更新
+- React 组件通过 `useStore(store, selector)` 订阅更新；音频层直接订阅 Store 并清理
 - 避免在组件间直接传递复杂状态
 
 ### TypeScript
 - 严格模式：`strict: true`、`noUnusedLocals: true`、`noUnusedParameters: true`
 - 路径别名：`@/` 映射到 `src/`
-- 装饰器配置：`experimentalDecorators: true`、`useDefineForClassFields: false`
 
 ### ESLint 风格规范
 
@@ -190,8 +144,8 @@ npm run preview
 提交前务必运行 `npm run lint:fix` 自动修复格式问题。
 
 ### 命名约定
-- 组件文件：kebab-case（如 `chat-panel-element.ts`）
-- 自定义元素标签名：`alisten-` 前缀（如 `<alisten-chat-panel>`）
+- 组件文件：kebab-case（如 `chat-panel.tsx`）
+- React 组件名：PascalCase（如 `ChatPanel`）
 - 组合式函数/Store：`useXxx` / `XxxStore`（如 `playerStore`）
 - 工具函数：camelCase
 
@@ -251,8 +205,8 @@ WebSocket 服务器地址通过环境变量 `VITE_WS_URL` 配置。
 - **安全区**：`index.html` 的 viewport 带 `viewport-fit=cover`，因此全屏容器需要自行补 `env(safe-area-inset-*)`（主布局与两个全屏弹窗已处理）。桌面端 env() 为 0，可无条件书写
 - **视口高度**：优先用 CSS `100dvh`（`.h-screen-mobile`、`.app-viewport`），CSS 变量 `--vh` 仅作为旧浏览器兜底，由 `setViewportHeight()` 以 rAF 合并并跳过重复值写入
 - **滚动控制**：全局阻止 `body` / `html` 滚动，仅允许特定容器滚动
-- **三页滑动**：`MainLayout` 使用三页横向滑动容器（Player / Playlist / Chat）
-- **返回键处理**：`AppElement` 维护 modal 堆栈，拦截 `popstate`
+- **移动导航**：底部导航切换聆听、队列、聊天、历史和房间；搜索位于顶部
+- **返回键处理**：`modal-history.ts` 维护 dialog 堆栈，返回键仅关闭顶部弹窗
 
 ---
 
@@ -263,20 +217,17 @@ WebSocket 服务器地址通过环境变量 `VITE_WS_URL` 配置。
 
 | 级别 | 行为 |
 |------|------|
-| `high` | 所有动画、backdrop-blur、背景脉动全开 |
+| `high` | 完整交互过渡、封面阴影与局部模糊 |
 | `medium` | 平衡设置，移动端自动附加 `mobile-performance` 类 |
-| `low` | 简化动画、降低模糊强度、禁用背景动画 |
+| `low` | 简化动画、降低模糊强度、移除封面阴影，歌词只保留简短透明度过渡 |
 | `off` | 极简模式：禁用所有动画/模糊/阴影/渐变 |
 
-### 移动端重效果收敛（`mobile-performance`）
+### 移动端效果收敛
 
-以下两处曾是降级盲区，改动时不要回退：
-
-- `.glass` / `.glass-panel`（歌词面板、播放控制、播放列表、聊天面板）原本没有移动端规则，一直以 `blur(20px)` 全量运行 → 移动端收敛到 `blur(8px)`
-- 背景光晕用的是任意值 `blur-[100px]`，不受 `blur-3xl` 等命名类规则约束 → 移动端收敛到 `blur(40px)`
-
-新增使用任意值模糊（`blur-[...]`）的元素时，记得补一条 `mobile-performance` 降级规则。
-
+- 平衡 / 移动模式播放器模糊降到 8px，省电为 4px，极简完全移除。
+- 不使用持续背景动画或 100px 背景光晕；封面轻阴影在省电模式移除。
+- 极简与减少动态效果禁用动画及平滑滚动。歌词滚动必须读取实际性能偏好。
+- 新增效果需覆盖 high / medium / low / off，不能只降级少量旧类名。
 ---
 
 ## PWA 配置
@@ -315,7 +266,7 @@ perf: 性能优化
 
 - **先读后改**：优先定位相关组件/Store/样式入口
 - **变更最小化**：不做无关重命名、不做大面积格式化
-- **UI 变更要对齐项目规范**：紫色强调、Glass UI、一致的交互态
+- **UI 变更要对齐项目规范**：DESIGN.md 中的语义颜色、音乐界面层级和一致的交互态
 - **不编辑生成物或依赖目录**：不要改 `dist/`、不要改 `node_modules/`
 - **状态管理注意**：全局状态分布在各 Store 中，修改时注意是否影响其他组件
 - **性能敏感**：新增动画/效果时，考虑在 `performance.css` 中添加对应级别的降级规则
@@ -323,4 +274,4 @@ perf: 性能优化
 
 ---
 
-*最后更新：2026年4月25日*
+*最后更新：2026年10月16日*

@@ -6,3 +6,5 @@ newmusicui
 result*
 .direnv/
 *.psd
+test-results/
+playwright-report/

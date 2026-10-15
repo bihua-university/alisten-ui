@@ -61,3 +61,10 @@ export interface WebSocketConfig {
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error' | 'reconnecting'
 
 export type PlayMode = 'sequential' | 'random'
+
+export interface MusicSearchSelection {
+  id: number
+  keyword: string
+  mode: 'all' | 'song' | 'playlist'
+  source: 'netease' | 'qq'
+}
