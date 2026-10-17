@@ -1,10 +1,10 @@
 import type { RoomInfo } from '@/types'
-import { Headphones, LockKeyhole, Plus, Search, Users } from 'lucide-react'
+import { ArrowRight, Headphones, LockKeyhole, Plus, Search, Users } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { notificationStore } from '@/stores/notification-store'
 import { createRoom, searchRooms } from '@/utils/api'
 import { getLastJoinedRoom, getSavedRoomPassword } from '@/utils/user'
-import { EmptyState, Modal, Skeleton } from './ui'
+import { EmptyState, Modal } from './ui'
 
 export default function RoomBrowser({
   onJoin,
@@ -113,7 +113,7 @@ export default function RoomBrowser({
       </div>
       {loading
         ? (
-            <Skeleton rows={5} />
+            <RoomSkeleton />
           )
         : error
           ? (
@@ -161,21 +161,29 @@ export default function RoomBrowser({
                         key={room.id}
                         onClick={() => select(room)}
                       >
-                        <div className="room-art">
-                          <Headphones size={48} strokeWidth={1.2} aria-hidden="true" />
+                        <div className="room-card-art">
+                          <div className="room-art">
+                            <Headphones size={44} strokeWidth={1.2} aria-hidden="true" />
+                          </div>
+                          {room.needPwd && (
+                            <span className="room-card-badge text-ui-xs">
+                              <LockKeyhole size={12} aria-hidden="true" />
+                              密码
+                            </span>
+                          )}
+                          <span className="room-card-join" aria-hidden="true">
+                            <ArrowRight size={20} strokeWidth={2} />
+                          </span>
                         </div>
                         <div className="room-card-copy">
-                          <div className="room-name">
-                            <h3 className="text-ui-lg">{room.name}</h3>
-                            {room.needPwd && (
-                              <LockKeyhole size={14} aria-label="需要密码" />
-                            )}
-                          </div>
+                          <h3 className="text-ui-base truncate" title={room.name}>
+                            {room.name}
+                          </h3>
                           <p className="text-ui-caption muted">
                             {room.description || '来这里，听见好音乐。'}
                           </p>
                           <span className="text-ui-sm muted">
-                            <Users size={14} />
+                            <Users size={14} aria-hidden="true" />
                             {room.population}
                             {' '}
                             人正在听
@@ -196,9 +204,28 @@ export default function RoomBrowser({
             }}
           >
             <div className="join-summary">
-              <Headphones size={32} className="accent" />
-              <h3 className="text-ui-lg">{selected.name}</h3>
-              <p className="text-ui-caption muted">{selected.description}</p>
+              <div className="join-art">
+                <Headphones size={36} strokeWidth={1.2} aria-hidden="true" />
+              </div>
+              <div className="join-detail">
+                <h3 className="text-ui-lg">{selected.name}</h3>
+                <p className="text-ui-caption muted">
+                  {selected.description || '来这里，听见好音乐。'}
+                </p>
+                <span className="join-meta text-ui-sm muted">
+                  <Users size={14} aria-hidden="true" />
+                  {selected.population}
+                  {' '}
+                  人正在听
+                  {selected.needPwd && (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <LockKeyhole size={14} aria-hidden="true" />
+                      需要密码
+                    </>
+                  )}
+                </span>
+              </div>
             </div>
             {selected.needPwd && (
               <label>
@@ -230,6 +257,25 @@ export default function RoomBrowser({
       {creating && (
         <CreateRoom onClose={() => setCreating(false)} onJoin={onJoin} />
       )}
+    </div>
+  )
+}
+
+/** Card-shaped placeholder that matches the final room grid. */
+function RoomSkeleton() {
+  return (
+    <div className="room-grid" role="status" aria-label="正在加载房间">
+      {Array.from({ length: 8 }, (_, i) => (
+        <div className="room-card room-skeleton" key={i} aria-hidden="true">
+          <div className="room-card-art">
+            <div className="room-art" />
+          </div>
+          <div className="room-card-copy">
+            <span className="skeleton-line" />
+            <span className="skeleton-line" />
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

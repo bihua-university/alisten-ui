@@ -37,22 +37,24 @@ const PlaybackProgress = memo(() => {
     return () => playerStore.unregisterProgressCallback(update)
   }, [song])
   return (
-    <div className="playback-progress">
+    <>
       <span ref={timeLabel} className="player-time text-ui-xs">
         0:00 / 0:00
       </span>
-      <div
-        ref={meter}
-        className="progress-track"
-        role="progressbar"
-        aria-label="播放进度"
-        aria-valuemin={0}
-        aria-valuemax={Math.floor((song?.duration || 0) / 1000)}
-        aria-valuenow={0}
-      >
-        <div ref={bar} className="progress-fill" />
+      <div className="playback-progress">
+        <div
+          ref={meter}
+          className="progress-track"
+          role="progressbar"
+          aria-label="播放进度"
+          aria-valuemin={0}
+          aria-valuemax={Math.floor((song?.duration || 0) / 1000)}
+          aria-valuenow={0}
+        >
+          <div ref={bar} className="progress-fill" />
+        </div>
       </div>
-    </div>
+    </>
   )
 })
 

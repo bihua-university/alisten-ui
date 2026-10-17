@@ -65,6 +65,8 @@ export type PlayMode = 'sequential' | 'random'
 export interface MusicSearchSelection {
   id: number
   keyword: string
+  /** User-facing name for queries that are not plain text, such as an opened playlist. */
+  label?: string
   mode: 'all' | 'song' | 'playlist'
   source: 'netease' | 'qq'
 }

@@ -7,17 +7,19 @@ import { websocketStore } from '@/stores/websocket-store'
 import { IconButton } from './ui'
 
 export function HeaderSearch({
+  initialQuery,
   initialSearch,
   open,
   onOpenChange,
   onSearch,
 }: {
+  initialQuery: string
   initialSearch?: MusicSearchSelection
   open: boolean
   onOpenChange: (open: boolean) => void
   onSearch: (selection: Omit<MusicSearchSelection, 'id'>) => void
 }) {
-  const [query, setQuery] = useState(initialSearch?.keyword ?? '')
+  const [query, setQuery] = useState(initialQuery)
   const [source] = useState<'netease' | 'qq'>(() => {
     if (initialSearch)
       return initialSearch.source

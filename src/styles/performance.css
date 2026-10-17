@@ -13,6 +13,18 @@
 .performance-low .lyric-line { transition: opacity 160ms ease; }
 .performance-low .search-featured-song,
 .performance-low .search-playlist-card { transition: none; }
+.performance-low .room-card { transition: none; }
+.performance-low .room-card-join { box-shadow: none; transform: none; transition: opacity 120ms ease; }
+.performance-low .modal { animation-duration: 120ms; }
+.performance-low .header-menu .main-nav,
+.performance-low .search-popover,
+.performance-low .member-popover { animation-name: fade-in; animation-duration: 160ms; }
+.performance-low .main-content,
+.performance-low .detail-panel-swap { animation-name: fade-in; animation-duration: 140ms; }
+@keyframes fade-in {
+  from { opacity: 0; transform: none; }
+  to { opacity: 1; transform: none; }
+}
 .performance-low .search-playlist-open { transition-duration: 120ms; }
 .performance-low .detail-panel { animation-duration: 120ms; animation-name: detail-panel-fade-in; }
 .performance-low .detail-panel-closing { animation-name: detail-panel-fade-out; }

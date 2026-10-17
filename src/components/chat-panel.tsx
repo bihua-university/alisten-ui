@@ -21,11 +21,30 @@ export const ChatPanel = memo(({ onClose }: { onClose?: () => void }) => {
   const [atBottom, setAtBottom] = useState(true)
   const membersId = useId()
   const list = useRef<HTMLDivElement>(null)
+  const members = useRef<HTMLDivElement>(null)
   const pinned = useRef(true)
   useEffect(() => {
     if (pinned.current)
       list.current?.scrollTo({ top: list.current.scrollHeight })
   }, [messages])
+  useEffect(() => {
+    if (!showUsers)
+      return
+    const dismiss = (e: PointerEvent) => {
+      if (!members.current?.contains(e.target as Node))
+        setShowUsers(false)
+    }
+    const escape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape')
+        setShowUsers(false)
+    }
+    document.addEventListener('pointerdown', dismiss)
+    document.addEventListener('keydown', escape)
+    return () => {
+      document.removeEventListener('pointerdown', dismiss)
+      document.removeEventListener('keydown', escape)
+    }
+  }, [showUsers])
   const first = Math.max(0, messages.length - visibleCount)
   const hasNew = !atBottom && messages.length > readCount
   return (
@@ -33,38 +52,51 @@ export const ChatPanel = memo(({ onClose }: { onClose?: () => void }) => {
       <header className="chat-heading">
         <h2 className="text-ui-lg">房间聊天</h2>
         <div className="chat-heading-actions">
-          <button
-            type="button"
-            className="button-ghost chat-members-toggle text-ui-sm"
-            aria-label={`在线成员，${users.length} 人`}
-            aria-controls={membersId}
-            aria-expanded={showUsers}
-            onClick={() => setShowUsers(!showUsers)}
-          >
-            <Users size={16} aria-hidden="true" />
-            {users.length}
-            {' '}
-            人
-          </button>
+          <div className="member-popover-anchor" ref={members}>
+            <button
+              type="button"
+              className="button-ghost chat-members-toggle text-ui-sm"
+              aria-label={`在线成员，${users.length} 人`}
+              aria-controls={membersId}
+              aria-expanded={showUsers}
+              aria-haspopup="dialog"
+              onClick={() => setShowUsers(!showUsers)}
+            >
+              <Users size={16} aria-hidden="true" />
+              {users.length}
+              {' '}
+              人
+            </button>
+            {showUsers && (
+              <div className="member-popover" id={membersId} role="dialog" aria-label="在线成员">
+                <div className="member-popover-head">
+                  <strong className="text-ui-sm">在线成员</strong>
+                  <span className="text-ui-xs muted">
+                    {users.length}
+                    {' '}
+                    人
+                  </span>
+                </div>
+                <div className="member-popover-list">
+                  {users.map(user => (
+                    <div
+                      key={`${user.name}:${user.emailHash || user.avatar}`}
+                      className="member text-ui-sm"
+                    >
+                      <Artwork src={user.avatar} title={user.name} />
+                      <span className="truncate">{user.name}</span>
+                    </div>
+                  ))}
+                  {!users.length && (
+                    <p className="muted text-ui-sm">连接后显示在线成员</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           {onClose && <IconButton icon={X} label="关闭侧栏" onClick={onClose} />}
         </div>
       </header>
-      {showUsers && (
-        <div className="member-list" id={membersId} role="region" aria-label="在线成员">
-          {users.map(user => (
-            <div
-              key={`${user.name}:${user.emailHash || user.avatar}`}
-              className="member text-ui-sm"
-            >
-              <Artwork src={user.avatar} title={user.name} />
-              <span>{user.name}</span>
-            </div>
-          ))}
-          {!users.length && (
-            <p className="muted text-ui-sm">连接后显示在线成员</p>
-          )}
-        </div>
-      )}
       <div
         className="chat-messages"
         ref={list}

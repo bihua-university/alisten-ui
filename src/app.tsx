@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ErrorInfo, ReactNode } from 'react'
+import type { DetailPanelView } from './components/detail-panel'
 import type { MusicSearchSelection, RoomInfo } from './types'
 import {
   ChevronLeft,
@@ -11,6 +12,7 @@ import {
   ListMusic,
   MessageCircle,
   MoreHorizontal,
+  Search,
   Settings,
   Share2,
   Wifi,
@@ -33,6 +35,7 @@ import { searchStore } from './stores/search-store'
 import { userSettingsStore } from './stores/user-settings-store'
 import { websocketStore } from './stores/websocket-store'
 import { saveLastJoinedRoom, saveRoomPassword } from './utils/user'
+import { withViewTransition } from './utils/view-transition'
 
 const Rooms = lazy(() => import('./components/room-browser'))
 const Listen = lazy(() => import('./components/listen-page'))
@@ -61,10 +64,13 @@ export function App() {
   const [viewHistory, setViewHistory] = useState<{ views: View[], index: number }>({ views: ['rooms'], index: 0 })
   const view = viewHistory.views[viewHistory.index]
   const [joined, setJoined] = useState(false)
-  const [panel, setPanel] = useState<'chat' | 'queue' | 'history' | null>(null)
+  const [panel, setPanel] = useState<DetailPanelView | null>(null)
   const [helpOpen, setHelpOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchRequest, setSearchRequest] = useState<MusicSearchSelection>()
+  // Text owned by the search fields. Opening a playlist searches an internal `*id` lookup and carries
+  // its title as a label, which must not overwrite the keyword the user typed.
+  const [searchQuery, setSearchQuery] = useState('')
   const setView = useCallback((nextView: View) => {
     setSearchOpen(false)
     setViewHistory((previous) => {
@@ -81,10 +87,22 @@ export function App() {
       index: Math.max(0, Math.min(previous.views.length - 1, previous.index + direction)),
     }))
   }, [])
+  const changePanel = useCallback((next: (current: DetailPanelView | null) => DetailPanelView | null) => {
+    const target = next(panel)
+    if (target === panel)
+      return
+    // Only a swap between two open views pushes sideways; opening and closing keep the panel's own animation.
+    if (panel && target)
+      withViewTransition(() => setPanel(target))
+    else
+      setPanel(target)
+  }, [panel])
   const roomName = useStore(roomStore, s => s.name)
   const onSearch = useCallback(() => setSearchOpen(true), [])
   const submitSearch = useCallback(
     (selection: Omit<MusicSearchSelection, 'id'>) => {
+      if (!selection.label)
+        setSearchQuery(selection.keyword)
       setSearchRequest(prev => ({ ...selection, id: (prev?.id || 0) + 1 }))
       searchStore.clearSearchResults()
       setSearchOpen(false)
@@ -98,21 +116,21 @@ export function App() {
       setView('queue')
     } else if (view === 'queue') {
       setView('listen')
-      setPanel(p => (p === 'queue' ? null : p))
+      changePanel(p => (p === 'queue' ? null : p))
     } else {
-      setPanel(p => (p === 'queue' ? null : 'queue'))
+      changePanel(p => (p === 'queue' ? null : 'queue'))
     }
-  }, [setView, view])
+  }, [setView, changePanel, view])
   const onChat = useCallback(() => {
     if (window.matchMedia('(max-width: 767px)').matches) {
       setView('chat')
     } else if (view === 'chat') {
       setView('listen')
-      setPanel(p => (p === 'chat' ? null : p))
+      changePanel(p => (p === 'chat' ? null : p))
     } else {
-      setPanel(p => (p === 'chat' ? null : 'chat'))
+      changePanel(p => (p === 'chat' ? null : 'chat'))
     }
-  }, [setView, view])
+  }, [setView, changePanel, view])
   const closeHelp = useCallback(() => setHelpOpen(false), [])
   const join = useCallback((room: RoomInfo, password?: string) => {
     websocketStore.disconnect()
@@ -240,6 +258,7 @@ export function App() {
               <IconButton
                 icon={ChevronRight}
                 label="前进"
+                className="header-forward"
                 disabled={viewHistory.index === viewHistory.views.length - 1}
                 onClick={() => stepView(1)}
               />
@@ -255,10 +274,18 @@ export function App() {
               />
               <HeaderSearch
                 key={searchRequest?.id}
+                initialQuery={searchQuery}
                 initialSearch={searchRequest}
                 open={searchOpen}
                 onOpenChange={setSearchOpen}
                 onSearch={submitSearch}
+              />
+              <IconButton
+                icon={Search}
+                label="搜索音乐"
+                className="mobile-search-button"
+                aria-current={view === 'search' ? 'page' : undefined}
+                onClick={() => setView('search')}
               />
             </div>
             <div className="header-actions">
@@ -316,6 +343,7 @@ export function App() {
                               ? (
                                   <SearchPage
                                     key={searchRequest?.id}
+                                    initialQuery={searchQuery}
                                     initialSearch={searchRequest}
                                     onSearch={submitSearch}
                                   />
@@ -338,7 +366,7 @@ export function App() {
                         type="button"
                         className="detail-tab text-ui-base"
                         aria-pressed={visiblePanel === 'queue'}
-                        onClick={() => setPanel('queue')}
+                        onClick={() => changePanel(() => 'queue')}
                       >
                         队列
                       </button>
@@ -346,21 +374,21 @@ export function App() {
                         type="button"
                         className="detail-tab text-ui-base"
                         aria-pressed={visiblePanel === 'history'}
-                        onClick={() => setPanel('history')}
+                        onClick={() => changePanel(() => 'history')}
                       >
                         最近播放
                       </button>
                       <IconButton
                         icon={X}
                         label="关闭侧栏"
-                        onClick={() => setPanel(null)}
+                        onClick={() => changePanel(() => null)}
                       />
                     </div>
                   )}
                   <Suspense fallback={<Skeleton />}>
                     {visiblePanel === 'chat'
                       ? (
-                          <Chat onClose={() => setPanel(null)} />
+                          <Chat onClose={() => changePanel(() => null)} />
                         )
                       : visiblePanel === 'history'
                         ? (
@@ -392,7 +420,7 @@ export function App() {
               aria-current={view === target ? 'page' : undefined}
               onClick={() => setView(target)}
             >
-              <Icon size={21} strokeWidth={1.7} />
+              <Icon size={24} strokeWidth={1.7} />
               <span>
                 {target === 'listen'
                   ? '聆听'

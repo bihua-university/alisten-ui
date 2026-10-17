@@ -52,15 +52,30 @@ The search field is flexibly centered, with a maximum width of 620px, height 48p
 
 When history is enabled, the popover shows up to 4 recent searches. Clicking an entry searches immediately. Do not send music search requests before connecting to a room. Playlist queries beginning with `*`, including those with leading spaces, must not enter search history; this also applies when opening playlists or changing pages. Remove existing records of this kind on startup. Preserve the existing behavior of ordinary searches and `@` user queries.
 
+Never expose the `*id` query form in the interface. Opening a playlist keeps sending `*id` to the server and shows the playlist name in the results heading only — the search fields (top bar and the mobile in-page field) keep the keyword the user typed, because opening a result is not a new search. Switching to Songs or All keeps showing that playlist's songs; switching to Playlists searches that keyword, because the `*id` form matches nothing there. Typing and submitting a new query replaces the field text as usual.
+
 Deduplicate search history by query, ignoring leading and trailing whitespace and letter case. Keep only one entry for a query across platforms and categories. Update it to the most recently used platform and category and move it to the front. On startup, merge older duplicates, retain the newest record, and update local storage.
 
-The results page uses the shared top search bar without another input. Provide All, Songs, Playlists, and AI Recommendations filter pills and a music platform selector. Switching categories or platforms retains the query and synchronizes the top search bar. Highlight the active filter with a light fill. Keep the category bar sticky as the main content scrolls.
+The results page uses the shared top search bar without another input. Provide All, Songs, Playlists, and Personalized Recommendations filter pills and a music platform selector. Switching categories or platforms retains the query and synchronizes the top search bar. Highlight the active filter with a light fill. Keep the category bar sticky as the main content scrolls.
 
 All searches songs and playlists in parallel. Show the top match and a preview of 4 songs side by side, followed by 5 playlists below. Show All opens the corresponding category. The Songs category uses title, album, and duration columns. Playlists use a cover grid with exactly 5 columns on a standard desktop, 3 when the content width is at most 720px, and 2 when it is at most 480px. Category pages retain pagination, loading, empty states, retry actions, and song requests. If one query category fails, continue displaying the successful results of the other.
 
-Show an opening arrow on playlist hover or focus. Songs retain a separate circle-plus request button and a music-source link on the cover. Clearing the top search shows recent searches. AI recommendations stay within the search page, leaving the listening home page dedicated to lyrics. Do not provide an audio-URL request form on the search page. All layouts respond to the search container's width and remain usable alongside the right chat or queue panel.
+Show an opening arrow on playlist hover or focus. Songs retain a separate circle-plus request button and a music-source link on the cover. Clearing the top search shows recent searches. Personalized recommendations stay within the search page, suggest similar songs from the room's playback history, and leave the listening home page dedicated to lyrics. On mobile, state that basis in a hint below the page heading with a brand-green sparkle icon; keep the hint hidden on desktop. Do not provide an audio-URL request form on the search page. All layouts respond to the search container's width and remain usable alongside the right chat or queue panel.
 
 This redesign evolves the existing brand with `DESIGN_VARIANCE=4`, `MOTION_INTENSITY=2`, and `VISUAL_DENSITY=6`. Retain system fonts, brand green, and 8 / 12px corner radii, without adding dependencies or mock music data. Category organization references [Spotify's search guidance](https://support.spotify.com/us/article/search/); preserve this project's synchronized rooms and song-request behavior.
+
+### Room Discovery and Joining
+
+Room discovery is the joining entry point before a room is entered. Present it as a Spotify-style card shelf instead of a table or a plain list.
+
+- The page header keeps the brand eyebrow, the `text-ui-xl` title, and one supporting line. Do not add statistics, banners, or illustration blocks.
+- The toolbar holds one pill-shaped room search field (48px desktop, 44px mobile, radius 999px) and the brand-green Create Room action. Creating a room opens the shared dialog form.
+- Each room is one card button: an `#181818` surface through the page-local `--color-room-card`, 12px padding, a 12px radius, and a 12px gap between cover and copy. Hover and keyboard focus lighten the card to `--color-surface` over 150ms. Cards carry no border.
+- Inside the card: a cover area with an 8px radius and a brand-green headphones glyph, the room name as a single-line `text-ui-base` title, a two-line clamped `text-ui-caption` description, and a `text-ui-sm` member count.
+- A locked room shows a pill badge with a lock icon and `密码` at the cover's top-left. Do not place the lock beside the room name.
+- Hover or keyboard focus reveals a 40px brand-green circular join affordance (34px on mobile) at the cover's bottom-right, fading in and sliding up over 150ms. Devices without hover show it permanently. It is decorative: the whole card opens the join dialog, and it is never a nested button.
+- Loading uses card-shaped placeholders in the same grid, not row skeletons.
+- The join dialog opens with a compact header: an 88px square cover beside the room name, the description, and the member count with a lock note for locked rooms (72px on mobile). Show the password field only for locked rooms and span the primary action across the dialog as a pill.
 
 ### Right Panel
 
@@ -68,9 +83,12 @@ The panel is closed by default when joining a room. On desktop, open chat or the
 
 Opening and closing use a 240ms animation of width, a slight horizontal offset to the right, and opacity. Keep the inner content at a fixed width while the lyrics area adapts to the available width. Disable interaction during closing and unmount the content after the animation. Low performance mode retains only a 120ms fade; off and reduced motion switch immediately.
 
+Switching between the panel's queue, recently played, and chat views uses a phone-style push: the incoming view slides in from the right over the outgoing one, which recedes to the left and disappears under the panel's edge. Only that panel region moves: `view-transition-name: detail-panel-content` names it, its group is clipped to the panel so nothing spills into the lyrics area, and the root pair is frozen, so the header, main content, and player stay exactly where they are. Page switches never push and only fade (140ms for low), without movement. Opening or closing the panel from closed plays only the panel's own width animation. Where view transitions are unavailable, and in the low performance level, the incoming panel view slides 10px with a fade (140ms fade for low); off and reduced motion switch instantly.
+
 - The queue and recently played panel has Queue, Recently Played, and Close controls at the top, without a song-request tab.
 - Open chat through its own shortcut and reuse the chat component. Do not show queue or recently played tabs above it. A single title row contains Room Chat, the online member count, and the panel close button.
-- Chat messages use two columns for avatar and content, with nickname and time adjacent. Truncate long nicknames and wrap long messages. Keep the title, member area, and bottom composer outside the message scroll area. Place Send inside the composer. The full page and panel share this layout.
+- The member count opens a non-modal popover anchored under that button: a popover surface with a 12px radius and a header row carrying the count, then a scrollable list of 28px round avatars and names that truncate. It overlays the message list instead of pushing it down, and closes on an outside click, Escape, or a second press of the button. Cap it at 272px wide and 280px tall so it fits the desktop panel and a narrow phone.
+- Chat messages use two columns for avatar and content, with nickname and time adjacent. Truncate long nicknames and wrap long messages. Keep the title, bottom composer, and the member popover overlay outside the message scroll area. Place Send inside the composer. The full page and panel share this layout.
 - The queue shows the current and upcoming songs as compact rows, hiding secondary columns such as index, album, and duration.
 - Both the full playlist page and queue panel hide scrollbars while retaining wheel, touch, and keyboard scrolling.
 - Recently Played uses a compact history view without the full page title, filters, or per-row timestamps. It scrolls independently within the remaining panel height while the top tabs stay fixed. Both the panel and full history page hide scrollbars while retaining wheel, touch, and keyboard scrolling.
@@ -123,6 +141,7 @@ Use a horizontal layout: cover on the left, song information and a wide progress
 - Playback synchronizes automatically with the room, without a manual sync button. Settings in the More menu opens the application's settings page.
 - NetEase Cloud Music Cookie settings are hidden by default. Reveal and scroll to them after 7 consecutive activations of the settings page title, with no more than 2 seconds between adjacent activations. Support keyboard activation too. Unlocking lasts only for the current settings page visit and is not persisted; leaving and returning requires unlocking again.
 - With no song, display a music placeholder icon, no-song and unknown-artist labels, and zero progress.
+- On mobile the player becomes a floating mini-player card: 6px vertical and 8px horizontal margins, an 8px radius, an elevated `--color-surface` fill on the black frame, and a height driven by its content instead of a fixed row. Keep the cover, title, artist, elapsed / total time, the 2px progress line, and Vote to Skip; volume and auxiliary shortcuts stay hidden.
 
 ## 5. Colors, Themes, and Surfaces
 
@@ -152,8 +171,9 @@ The top bar, its menus and search popover, and the bottom player retain local da
 
 - Treat the variables and local overrides in `src/style.css` as authoritative. Do not infer the current structure from legacy token names; for example, `--color-sidebar` does not imply a left sidebar exists.
 - Standard components use semantic variables. Do not add ad hoc colors or legacy Tailwind blue and purple colors as new brand accents.
+- Card surfaces on the discovery pages are the exception that documents itself: `--color-search-card` and `--color-room-card` are page-local and fixed at `#181818`, because the main content panel keeps the dark palette in every theme. Reuse one of them instead of adding another hex value.
 - Success, warning, and error colors communicate actual states only, without decorative use.
-- The no-border rule applies to the main content, right panel, and top and bottom bars. Inputs, popovers, dialogs, room cover areas, and subtle internal dividers retain necessary boundaries.
+- The no-border rule applies to the main content, right panel, and top and bottom bars. Inputs, popovers, dialogs, cards, and subtle internal dividers retain necessary boundaries; define them with surface color before reaching for a border.
 - Do not layer backdrop blur onto large panels, the lyrics container, or every chat bubble. Covers and floating surfaces may use local shadows.
 
 ## 6. Typography, Controls, and Content Density
@@ -175,11 +195,11 @@ Editable mobile controls use the fixed `text-mobile-input-safe` size (16px) to p
 
 - Common spacing values are 4, 8, 12, 16, 20, 24, and 32px.
 - Standard buttons, inputs, and covers commonly use an 8px radius. Icon buttons default to 36 × 36px.
-- The main content, right panel, room covers, playlist covers, and search popover use a 12px radius.
+- The main content, right panel, room cards, top-level playlist covers, and search popover use a 12px radius; covers nested in a padded card use 8px.
 - Dialogs and toasts use a 16px radius. The search field is pill-shaped; avatars and Home buttons are circular.
 - Playlist and recently played rows share a base layout: minimum height 68px, cover 42px, vertical padding 10px, horizontal padding 8px, and a flexible information area. Vertically center covers, text, and action buttons. Retain the same horizontal padding in the panel and on mobile.
 - Covers in song lists, the queue's current song, and playback history link to the music source when a valid `webUrl` exists, opening in a new tab. Without a valid HTTP(S) source link, show a plain cover. Show a brand-green external-link icon on hover or keyboard focus. Song requests retain a separate button.
-- The desktop room grid creates columns automatically with a minimum width of 235px and a cover aspect ratio of 1.6. Playlist grid columns have a minimum width of 150px.
+- The desktop room grid creates columns automatically with a minimum width of 235px and a cover aspect ratio of 1.6. Room cards keep a 24px row gap and a 20px column gap. Playlist grid columns have a minimum width of 150px.
 - Chat uses avatars, nicknames, times, and bubbles. Allow long messages to wrap. Bubbles follow the selected theme consistently.
 
 ## 7. Dialogs, Notifications, and Feedback
@@ -187,7 +207,9 @@ Editable mobile controls use the fixed `text-mobile-input-safe` size (16px) to p
 - Generic dialogs use native `dialog.showModal()` for an inert background, focus containment, and title association.
 - Standard dialog width is `min(480px, 100vw − 32px)`; wide dialogs use `min(760px, 100vw − 48px)`. Long content scrolls within the dialog while the title bar stays visible.
 - Escape, the close button, a backdrop click, or browser Back closes the current dialog. Restore the previous focus after closing.
+- At 767px and below, dialogs become bottom sheets: full viewport width, anchored to the bottom edge, a 16px top radius and square bottom corners, and a 240ms upward slide that low performance mode shortens to 120ms. Keep the title bar sticky, keep at least 16px of viewport height above the sheet, and add the bottom safe-area inset to the body padding. Sheet actions span the sheet width.
 - The top search popover is non-modal. Do not apply native modal focus trapping or an inert background.
+- Dropdown surfaces — the More menu, the search history popover, and the member popover — enter with a 200ms fade plus an 8px drop and a 0.96 scale from their anchor edge (`transform-origin` at the anchor corner). Because the native details slot keeps its content rendered while closed, key the More menu's animation off `[open]` so it replays on every open. Low performance mode keeps the 160ms fade without the transform; off and reduced motion switch instantly.
 - Settings is an application page within the main content area. Retain top navigation, the bottom player, and mobile navigation, without a native dialog, backdrop, or focus trap. On desktop, it can appear beside chat, the queue, or recently played. Entering settings preserves the open panel; bottom shortcuts only toggle or switch panels without leaving settings or discarding drafts. Keep the settings title and bottom save area fixed while the content scrolls independently. Do not provide a close button. Top Back returns to the previous page, and Forward can reopen settings.
 - Profile, appearance, playback, performance, history, and Cookie edits remain local page drafts until the shared bottom Save button updates Stores, local storage, and the server. Leaving the page discards unsaved drafts. Remove individual section save buttons. Cookie status queries only read status and do not save the token. Disable controls and duplicate submission while saving; retain failed items as drafts for retry.
 - Settings uses a single column of sections with rounded groups below section titles and fine internal dividers. Each row places its label and description on the left and control on the right; boolean options use switches. On mobile, place inputs and volume controls below descriptions. Preserve theme colors and brand-green accents.
@@ -203,17 +225,20 @@ Editable mobile controls use the fixed `text-mobile-input-safe` size (16px) to p
 | --- | --- |
 | Above 1100px | Standard desktop layout, right panel 480px, standard content padding 32px 40px 48px |
 | 768–1100px | Right panel 420px, standard content padding 24px; hide brand text and the song album column; bottom volume slider 60px wide |
-| At most 767px | Hide the right panel and switch main pages; top bar 64px, player 72px, navigation 60px plus the bottom safe-area inset |
+| At most 767px | Hide the right panel and switch main pages; top bar 64px, a content-sized floating mini-player, navigation 60px plus the bottom safe-area inset |
 
 Mobile details:
 
-- Retain More, Back, Forward, Home, Search, and the avatar at the top. Hide connection status and tighten control spacing on narrow screens.
+- Retain More, Back, Forward, Home, Search, and the avatar at the top on desktop. Hide connection status and tighten control spacing on narrow screens.
+- At 767px and below, drop Forward and the inline search field: the bar keeps More, Back, Home, a search icon button, and the avatar. The search icon opens the search page, whose own field sits in the page body. Hide the connection status.
+- The results page keeps its category chips and platform selector in a sticky bar; on mobile the in-page search field joins that bar as its first row, so the field and chips stay pinned while results scroll. Below 767px an empty query shows recent searches or the empty state, without extra browse shelves.
 - Search height is 42px. Hide type shortcut text. Fix the popover below the top bar with 12px horizontal margins.
-- Remove the main content panel's corner radius and outer spacing. Standard content padding is 24px 20px 32px; lyrics page padding is 16px.
-- Bottom cover size is 44px with an 8px radius; use `text-ui-base` for the song title. Progress height is 2px.
+- Remove the main content panel's corner radius and outer spacing. Standard content padding is 24px 16px 32px; lyrics page padding is 16px.
+- Bottom cover size is 44px with a 6px radius inside the mini-player card; use `text-ui-base` for the song title. On mobile the progress line spans the card's full width along its bottom edge, with the elapsed / total time to the left of the skip button. Progress height is 2px.
 - The bottom player retains song information, time, progress, and skip, while hiding volume and auxiliary shortcuts. Volume and mute remain available in settings.
-- Bottom navigation contains only Listening, Queue, and Chat in three equal-width items. Access History and Rooms through the top More menu; search remains at the top.
-- Room and playlist grids use two columns, with square room covers. Song lists hide secondary information such as index and duration.
+- Bottom navigation contains only Listening, Queue, and Chat in three equal-width items, on a `--color-frame` bar with 24px icons and 10px labels. Access History and Rooms through the top More menu; search remains at the top.
+- The mini-player and navigation rows size to their content, so a larger font setting grows them instead of clipping. Dialogs open as bottom sheets.
+- Room and playlist grids use two columns, with square room covers. Room cards tighten to 10px padding and a 12px grid gap, the room search field is 44px high, and the join affordance is 34px. Song lists hide secondary information such as index and duration.
 
 Prefer `100dvh` for viewport height and retain `--vh` as a fallback for older browsers. Handle `safe-area-inset-*` in the outer layout, mobile navigation, and dialogs. Prevent html / body scrolling. Allow scrolling only within main content, lyrics, chat, lists, or dialogs, so content cannot push the player off screen.
 
@@ -259,6 +284,7 @@ The top bar and bottom player never use blur. General `.glass-surface` performan
 | Themes, font sizes, layout, and component styles | `src/style.css`, `src/stores/appearance-store.ts` |
 | Top navigation, page switching, and right panel | `src/app.tsx` |
 | Search entry and results | `src/components/header-search.tsx`, `src/components/search-page.tsx` |
+| Room discovery, joining, and room creation | `src/components/room-browser.tsx` |
 | Lyrics-only home page and synchronization | `src/components/listen-page.tsx`, `src/components/lyrics.tsx`, `src/stores/lyrics-store.ts` |
 | Bottom player | `src/components/player-bar.tsx` |
 | Shared controls, dialogs, and notifications | `src/components/ui.tsx`, `src/components/notifications.tsx` |
@@ -266,4 +292,4 @@ The top bar and bottom player never use blur. General `.glass-surface` performan
 
 Manually check UI changes in a real browser across dark and light themes, desktop and narrow screens, right-panel toggles, long text, font-size settings, keyboard operation, and reduced motion. Follow the testing rules in `AGENTS.md`: do not write UI or frontend unit tests, especially interface numeric or layout assertions. Changes to logic, types, or styles require at least `npm run type-check` and `npm run lint`. Changes affecting the build or dependencies require `npm run build`. Manually verify the relevant flows when changing playback, protocol behavior, or related interactions.
 
-Last updated: October 16, 2026.
+Last updated: October 18, 2026.

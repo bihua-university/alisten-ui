@@ -1,6 +1,6 @@
 import type { MusicSearchSelection, SearchResult } from '@/types'
 import type { Playlist, Song as ProtocolSong } from '@/types/ws-protocol'
-import { ArrowLeft, ArrowRight, CirclePlus, Clock3, Search, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CirclePlus, Clock3, Search, Sparkles, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useStore } from '@/hooks/use-store'
 import { historyStore } from '@/stores/history-store'
@@ -30,16 +30,20 @@ function toPlaylist(list: Playlist): SearchResult {
   return { id: list.id, originalId: list.id, title: list.name, artist: list.creator, album: `${list.songCount} 首歌曲`, cover: list.pictureUrl, source: list.source, duration: 0 }
 }
 
-export default function SearchPage({ initialSearch, onSearch }: {
+export default function SearchPage({ initialQuery, initialSearch, onSearch }: {
+  initialQuery?: string
   initialSearch?: MusicSearchSelection
   onSearch: (selection: Omit<MusicSearchSelection, 'id'>) => void
 }) {
   const query = initialSearch?.keyword ?? sessionQuery
+  const queryLabel = initialSearch?.label || query
   const mode = initialSearch?.mode ?? sessionMode
   const source = initialSearch?.source ?? sessionSource
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [ai, setAi] = useState(false)
+  // The field shows the keyword the user typed, also while an opened playlist is on screen.
+  const [draft, setDraft] = useState(initialQuery ?? queryLabel)
   const [playlists, setPlaylists] = useState<SearchResult[]>([])
   const seq = useRef(0)
   const consumedInitial = useRef<number>()
@@ -98,7 +102,15 @@ export default function SearchPage({ initialSearch, onSearch }: {
   }, [initialSearch, search, connected])
 
   const refine = (nextMode: SearchMode, nextSource = source) => {
-    onSearch({ keyword: query, mode: nextMode, source: nextSource })
+    // Inside an opened playlist the fields keep the typed keyword, so a playlist search looks that
+    // keyword up instead of repeating the internal `*id` query, which matches nothing.
+    const leavingPlaylist = nextMode === 'playlist' && query.trimStart().startsWith('*')
+    onSearch({
+      keyword: leavingPlaylist ? (initialQuery ?? queryLabel) : query,
+      label: leavingPlaylist ? undefined : initialSearch?.label,
+      mode: nextMode,
+      source: nextSource,
+    })
   }
   const recommend = async () => {
     if (!connected)
@@ -112,7 +124,7 @@ export default function SearchPage({ initialSearch, onSearch }: {
       setBusy(false)
   }
   const openPlaylist = (list: SearchResult) => {
-    onSearch({ keyword: `*${list.id}`, mode: 'song', source: list.source === 'qq' ? 'qq' : 'netease' })
+    onSearch({ keyword: `*${list.id}`, label: list.title, mode: 'song', source: list.source === 'qq' ? 'qq' : 'netease' })
   }
   const featured = results[0]
   const listResults = mode === 'playlist' ? results : playlists
@@ -121,6 +133,35 @@ export default function SearchPage({ initialSearch, onSearch }: {
   return (
     <div className="page-content search-page">
       <div className="search-filter-bar">
+        <form
+          className="search-inline-field"
+          role="search"
+          onSubmit={(e) => {
+            e.preventDefault()
+            const keyword = draft.trim()
+            if (connected && keyword)
+              onSearch({ keyword, mode: ai ? 'all' : mode, source })
+          }}
+        >
+          <Search size={20} strokeWidth={1.7} aria-hidden="true" />
+          <input
+            value={draft}
+            aria-label="搜索音乐"
+            placeholder="歌手、歌曲或歌单"
+            disabled={!connected}
+            onChange={e => setDraft(e.target.value)}
+          />
+          {draft && (
+            <IconButton
+              icon={X}
+              label="清空搜索"
+              onClick={() => {
+                setDraft('')
+                onSearch({ keyword: '', mode, source })
+              }}
+            />
+          )}
+        </form>
         <div className="search-filter-chips" role="group" aria-label="搜索类别">
           {(['all', 'song', 'playlist'] as const).map(value => (
             <button type="button" key={value} className="search-chip text-ui-caption" aria-pressed={mode === value && !ai} onClick={() => refine(value)}>
@@ -129,7 +170,7 @@ export default function SearchPage({ initialSearch, onSearch }: {
           ))}
           <button type="button" className="search-chip text-ui-caption" aria-pressed={ai} disabled={!connected || (busy && ai)} onClick={() => void recommend()}>
             <Sparkles size={14} aria-hidden="true" />
-            AI 推荐
+            个性化推荐
           </button>
         </div>
         {!ai && (
@@ -142,8 +183,14 @@ export default function SearchPage({ initialSearch, onSearch }: {
       <header className="search-page-heading">
         <h1 className="text-ui-xl">{ai ? '为你推荐' : query ? '搜索结果' : '搜索'}</h1>
         <p className="text-ui-caption muted">
-          {ai ? '发现下一首想听的歌。' : query ? `“${query}” · ${source === 'qq' ? 'QQ音乐' : '网易云音乐'}` : '从顶部搜索栏开始，找到下一首想听的歌。'}
+          {ai ? '发现下一首想听的歌。' : query ? `“${queryLabel}” · ${source === 'qq' ? 'QQ音乐' : '网易云音乐'}` : '搜索歌名、歌手或歌单，或从下面的分类开始。'}
         </p>
+        {ai && (
+          <p className="search-recommend-hint text-ui-caption muted">
+            <Sparkles size={14} aria-hidden="true" />
+            根据房间播放历史推荐相似歌曲
+          </p>
+        )}
       </header>
       {error && (
         <div className="search-error" role="alert">
@@ -167,7 +214,7 @@ export default function SearchPage({ initialSearch, onSearch }: {
           )
         : ai
           ? (
-              <section aria-label="AI 推荐歌曲">
+              <section aria-label="个性化推荐歌曲">
                 <div className="section-heading">
                   <h2 className="text-ui-lg">歌曲</h2>
                   <button type="button" className="search-section-link text-ui-caption" disabled={!connected} onClick={() => void recommend()}>换一批</button>
